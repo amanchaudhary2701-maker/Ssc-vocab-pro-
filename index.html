@@ -9348,36 +9348,37 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       <button type="button" id="ailt-save-next-btn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs sm:text-sm font-black shadow-lg hover:brightness-110">Save &amp; Next →</button>
     </div>
 
-    <!-- Official Eduquity On-Screen Submit Confirmation Popup -->
-    <div id="ailt-submit-confirm-modal" class="hidden fixed inset-0 z-[99] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="glass-card rounded-3xl max-w-md w-full p-5 sm:p-6 border-2 border-amber-400/60 shadow-2xl space-y-4">
-        <div class="text-center space-y-1">
-          <span class="inline-block px-3 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase">EDUQUITY EXAM SUBMIT</span>
-          <h4 class="text-lg font-black text-white">Kya aap Final Test Submit karna chahte hain?</h4>
-          <p class="text-xs text-slate-300">Submit karne ke baad aapka Score, All-India Rank aur 100 Solutions turant khul jayenge.</p>
+  </div>
+
+  <!-- Official Eduquity On-Screen Submit Confirmation Popup (Top-Level z-[110]) -->
+  <div id="ailt-submit-confirm-modal" class="hidden fixed inset-0 z-[110] bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl max-w-md w-full p-5 sm:p-6 border-2 border-amber-400/70 shadow-2xl space-y-4">
+      <div class="text-center space-y-1">
+        <span class="inline-block px-3 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase">EDUQUITY FINAL SUBMIT</span>
+        <h4 class="text-lg font-black text-white">Kya aap Test Final Submit karna chahte hain?</h4>
+        <p class="text-xs text-slate-300">Ek baar submit karne ke baad aaj ka test dobara start nahi hoga — aapka Score, All-India Rank aur 100 Solutions turant open honge.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-2 text-center text-xs">
+        <div class="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-400/40">
+          <p class="text-[10px] text-emerald-200 font-bold">🟩 Answered</p>
+          <p id="ailt-cf-ans" class="text-lg font-black text-emerald-300">0</p>
         </div>
-        <div class="grid grid-cols-2 gap-2 text-center text-xs">
-          <div class="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-400/40">
-            <p class="text-[10px] text-emerald-200 font-bold">🟩 Answered</p>
-            <p id="ailt-cf-ans" class="text-lg font-black text-emerald-300">0</p>
-          </div>
-          <div class="p-2.5 rounded-xl bg-rose-500/15 border border-rose-400/40">
-            <p class="text-[10px] text-rose-200 font-bold">🟥 Not Answered</p>
-            <p id="ailt-cf-notans" class="text-lg font-black text-rose-300">0</p>
-          </div>
-          <div class="p-2.5 rounded-xl bg-amber-500/15 border border-amber-400/40">
-            <p class="text-[10px] text-amber-200 font-bold">🟠 Marked Review</p>
-            <p id="ailt-cf-rev" class="text-lg font-black text-amber-300">0</p>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-800/90 border border-white/15">
-            <p class="text-[10px] text-slate-300 font-bold">⬜ Not Visited</p>
-            <p id="ailt-cf-unvis" class="text-lg font-black text-slate-200">100</p>
-          </div>
+        <div class="p-2.5 rounded-xl bg-rose-500/15 border border-rose-400/40">
+          <p class="text-[10px] text-rose-200 font-bold">🟥 Not Answered</p>
+          <p id="ailt-cf-notans" class="text-lg font-black text-rose-300">0</p>
         </div>
-        <div class="grid grid-cols-2 gap-2.5 pt-1">
-          <button type="button" id="ailt-cf-cancel-btn" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/20 text-slate-200 text-xs font-extrabold">← Resume Test</button>
-          <button type="button" id="ailt-cf-yes-btn" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 text-xs font-black shadow-lg hover:brightness-110">✅ Yes, Final Submit</button>
+        <div class="p-2.5 rounded-xl bg-amber-500/15 border border-amber-400/40">
+          <p class="text-[10px] text-amber-200 font-bold">🟠 Marked Review</p>
+          <p id="ailt-cf-rev" class="text-lg font-black text-amber-300">0</p>
         </div>
+        <div class="p-2.5 rounded-xl bg-slate-800/90 border border-white/15">
+          <p class="text-[10px] text-slate-300 font-bold">⬜ Not Visited</p>
+          <p id="ailt-cf-unvis" class="text-lg font-black text-slate-200">100</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2.5 pt-1">
+        <button type="button" id="ailt-cf-cancel-btn" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/20 text-slate-200 text-xs font-extrabold">← Resume Test</button>
+        <button type="button" id="ailt-cf-yes-btn" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 text-xs font-black shadow-lg hover:brightness-110">✅ Yes, Final Submit</button>
       </div>
     </div>
   </div>
@@ -10243,19 +10244,53 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         return paper;
       }
 
-      // Attempt storage key per IST Date
-      function attemptStorageKey(dateKey) {
-        const uid = (typeof getCurrentUserId === 'function' ? getCurrentUserId() : '') || 'guest';
-        return `ssc_ailt_attempt_${dateKey}_${uid}`;
+      // Strict Per-Account Active UID & User Helpers (works cleanly across separate script scopes!)
+      function getAiltUid() {
+        try {
+          const apiUid = window.__sscProApi && typeof window.__sscProApi.getCurrentUserId === 'function'
+            ? window.__sscProApi.getCurrentUserId() : '';
+          const lsUid = localStorage.getItem('ssc_vocab_3d_current_user_v1') || '';
+          const raw = String(apiUid || lsUid || '').trim().toLowerCase();
+          return raw || 'guest';
+        } catch (e) { return 'guest'; }
+      }
+      function getAiltUserObj() {
+        try {
+          const uid = getAiltUid();
+          const allU = (window.__sscProApi && typeof window.__sscProApi.getUsers === 'function')
+            ? window.__sscProApi.getUsers()
+            : JSON.parse(localStorage.getItem('ssc_vocab_3d_users_v1') || '{}');
+          return (allU && allU[uid]) ? allU[uid] : { uid, name: 'SSC Aspirant', exam: 'SSC CGL', isAdmin: false };
+        } catch (e) { return { uid: 'guest', name: 'SSC Aspirant', exam: 'SSC CGL', isAdmin: false }; }
+      }
+      function isAiltAdmin() {
+        const u = getAiltUserObj();
+        return !!(u && u.isAdmin);
+      }
+
+      // Strictly isolated Attempt storage key per IST Date + exact Student UID!
+      function attemptStorageKey(dateKey, uidOverride) {
+        const uid = (uidOverride || getAiltUid()).replace(/[^a-z0-9@._-]/g, '_');
+        return `ssc_ailt_attempt_v2_${dateKey}_${uid}`;
       }
       function loadTodayAttempt(dateKey) {
         try {
-          const raw = localStorage.getItem(attemptStorageKey(dateKey));
-          return raw ? JSON.parse(raw) : null;
+          const uid = getAiltUid();
+          if (!uid || uid === 'guest') return null;
+          const raw = localStorage.getItem(attemptStorageKey(dateKey, uid));
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          // Strict owner check: never show another user's or admin's attempt!
+          if (parsed && parsed.uid && String(parsed.uid).toLowerCase() !== uid) return null;
+          return parsed;
         } catch (e) { return null; }
       }
       function saveTodayAttempt(dateKey, data) {
-        try { localStorage.setItem(attemptStorageKey(dateKey), JSON.stringify(data)); } catch (e) {}
+        try {
+          const uid = (data && data.uid) ? String(data.uid).toLowerCase() : getAiltUid();
+          if (!uid || uid === 'guest') return;
+          localStorage.setItem(attemptStorageKey(dateKey, uid), JSON.stringify(data));
+        } catch (e) {}
       }
 
       // Live IST Clock & Countdown Updater (Runs every 1 second — Auto-Activates at 2:00 PM IST!)
@@ -10264,7 +10299,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         const ist = getISTNowParts();
         if (typeof checkAndTriggerScheduledAlerts === "function") checkAndTriggerScheduledAlerts(ist);
         const attempt = loadTodayAttempt(ist.dateKey);
-        const isAdmin = typeof isCurrentUserAdmin === 'function' && isCurrentUserAdmin();
+        const isAdmin = isAiltAdmin();
 
         const datePill = document.getElementById('ailt-date-pill-home');
         if (datePill) datePill.textContent = `📅 ${ist.prettyDate} • 100 New PYQs`;
@@ -10296,8 +10331,8 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           if (bTest) bTest.textContent = '🔴 LIVE NOW • ALL-INDIA 100-Q TEST';
           if (cHome) cHome.textContent = `🔴 LIVE NOW • Closes in ${hh}h ${mm}m ${ss}s`;
           if (cTest) cTest.textContent = `🔴 LIVE NOW • ${hh}h ${mm}m left`;
-          if (sHome) sHome.textContent = attempt ? '🔁 Re-Attempt Live Test' : '🔴 Start 100-Q Live Test Now';
-          if (sTest) sTest.textContent = attempt ? '🔁 Re-Attempt 100-Q Test' : '🔴 Start 100-Q Live Test Now';
+          if (sHome) sHome.textContent = attempt ? '✅ Test Submitted Today' : '🔴 Start 100-Q Live Test Now';
+          if (sTest) sTest.textContent = attempt ? '✅ Test Submitted Today' : '🔴 Start 100-Q Live Test Now';
         } else {
           _wasLive = false;
           const targetSecs = 14 * 3600;
@@ -10422,13 +10457,34 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             setInterval(updateAllIndiaLiveClock, 1000);
       setTimeout(updateAllIndiaLiveClock, 400);
 
+      // Cloud Single-Attempt Sync: if this student already submitted today's test on another device, sync & lock re-attempt!
+      async function syncMyTodayCloudAttempt() {
+        try {
+          const uid = getAiltUid();
+          if (!uid || uid === 'guest' || isAiltAdmin() || typeof fbDb === 'undefined' || !fbDb) return;
+          const ist = getISTNowParts();
+          if (loadTodayAttempt(ist.dateKey)) return;
+          const docId = typeof safeFbDocId === 'function' ? safeFbDocId(uid) : uid;
+          const snap = await fbDb.collection('all_india_live_tests').doc(ist.dateKey).collection('scores').doc(docId).get();
+          if (snap.exists) {
+            const d = snap.data();
+            if (d && d.uid && String(d.uid).toLowerCase() === uid) {
+              saveTodayAttempt(ist.dateKey, { ...d, dateKey: ist.dateKey, prettyDate: ist.prettyDate, answers: d.answers || {}, sectionStats: d.sectionStats || [] });
+              updateAllIndiaLiveClock();
+            }
+          }
+        } catch (e) {}
+      }
+      setTimeout(syncMyTodayCloudAttempt, 1800);
+
+
       // Active Exam State
       let _ailt = null;
       let _ailtTimerInt = null;
 
       function startAllIndiaExam(forceAdminPreview = false) {
         const ist = getISTNowParts();
-        const isAdmin = typeof isCurrentUserAdmin === 'function' && isCurrentUserAdmin();
+        const isAdmin = isAiltAdmin();
         // Students can ONLY open at real 2:00 PM IST or later; Admin can open anytime from Admin Panel or Admin Preview!
         if (!ist.isLiveWindow && !(forceAdminPreview && isAdmin)) {
           if (typeof showToast === 'function') {
@@ -10436,13 +10492,22 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           }
           return;
         }
+        // Strict 1-Attempt Per Day Lock for Students! (Admin Preview can test anytime)
+        const existingAttempt = loadTodayAttempt(ist.dateKey);
+        if (existingAttempt && !(forceAdminPreview && isAdmin)) {
+          if (typeof showToast === 'function') {
+            showToast('✅ Aap aaj ka All-India Live Test pehle hi submit kar chuke hain — ab apna Analysis & Rank dekhein!');
+          }
+          openAllIndiaResultModal('analysis', ist.dateKey);
+          return;
+        }
         const paper = buildDaily100Questions(ist.dateKey);
         if (!paper.length) {
           if (typeof showToast === 'function') showToast('Vocab bank load ho raha hai — 2 second baad try karein.');
           return;
         }
-        const uid = (typeof getCurrentUserId === 'function' ? getCurrentUserId() : '') || 'guest';
-        const user = (typeof getUsers === 'function' ? getUsers()[uid] : null) || { name: 'SSC Aspirant', exam: 'SSC CGL' };
+        const uid = getAiltUid();
+        const user = getAiltUserObj();
 
         _ailt = {
           dateKey: ist.dateKey,
@@ -10456,7 +10521,8 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           startedAt: Date.now(),
           uid,
           name: user.name || 'SSC Aspirant',
-          exam: user.exam || 'SSC CGL'
+          exam: user.exam || 'SSC CGL',
+          isAdminPreview: !!(forceAdminPreview && isAdmin)
         };
 
         const titleEl = document.getElementById('ailt-exam-title');
@@ -10652,8 +10718,8 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           }
         } catch (e) {}
 
-        // Save to Cloud Firestore All-India Live Leaderboard!
-        if (typeof fbDb !== 'undefined' && fbDb) {
+        // Save to Cloud Firestore All-India Live Leaderboard (Students only; Admin Preview stays private)!
+        if (typeof fbDb !== 'undefined' && fbDb && !_ailt.isAdminPreview) {
           try {
             const docId = typeof safeFbDocId === 'function' ? safeFbDocId(_ailt.uid) : _ailt.uid;
             await fbDb.collection('all_india_live_tests').doc(_ailt.dateKey).collection('scores').doc(docId).set({
@@ -10753,7 +10819,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             });
           } catch (e) { console.warn('AILT lb fetch err:', e); }
         }
-        const myUid = (typeof getCurrentUserId === 'function' ? getCurrentUserId() : '') || '';
+        const myUid = getAiltUid();
         if (myAttempt && !rows.some(r => r.uid === myAttempt.uid)) {
           rows.push(myAttempt);
         }
