@@ -10718,14 +10718,32 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           }
         } catch (e) {}
 
-        // Save to Cloud Firestore All-India Live Leaderboard (Students only; Admin Preview stays private)!
-        if (typeof fbDb !== 'undefined' && fbDb && !_ailt.isAdminPreview) {
+        // INSTANTLY close the test page & confirmation modal and return back to the main screen (0ms wait!)
+        const finishedUid = _ailt.uid;
+        const finishedName = _ailt.name;
+        const finishedExam = _ailt.exam;
+        const finishedDateKey = _ailt.dateKey;
+        const wasAdminPrev = !!_ailt.isAdminPreview;
+
+        document.getElementById('ailt-submit-confirm-modal')?.classList.add('hidden');
+        document.getElementById('ailt-exam-modal')?.classList.add('hidden');
+        document.getElementById('ailt-palette-aside')?.classList.add('hidden');
+        _ailt = null;
+        updateAllIndiaLiveClock();
+        try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch(_) { window.scrollTo(0, 0); }
+        if (typeof showToast === 'function') {
+          showToast(`✅ Test Submitted! Score: ${score}/${maxScore} (${accuracy}% Acc) — "My Today's Analysis" ya "Leaderboard" me result dekhein!`);
+        }
+        if (window.confetti) confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
+
+        // Save to Cloud Firestore All-India Live Leaderboard in background (Students only; Admin Preview stays private)
+        if (typeof fbDb !== 'undefined' && fbDb && !wasAdminPrev) {
           try {
-            const docId = typeof safeFbDocId === 'function' ? safeFbDocId(_ailt.uid) : _ailt.uid;
-            await fbDb.collection('all_india_live_tests').doc(_ailt.dateKey).collection('scores').doc(docId).set({
-              uid: _ailt.uid,
-              name: _ailt.name,
-              exam: _ailt.exam,
+            const docId = typeof safeFbDocId === 'function' ? safeFbDocId(finishedUid) : finishedUid;
+            fbDb.collection('all_india_live_tests').doc(finishedDateKey).collection('scores').doc(docId).set({
+              uid: finishedUid,
+              name: finishedName,
+              exam: finishedExam,
               score,
               maxScore,
               correct,
@@ -10734,16 +10752,9 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               accuracy,
               timeTakenSec,
               submittedAt: Date.now()
-            }, { merge: true });
+            }, { merge: true }).catch((e) => console.warn('AILT leaderboard save err:', e));
           } catch (e) { console.warn('AILT leaderboard save err:', e); }
         }
-
-        document.getElementById('ailt-exam-modal')?.classList.add('hidden');
-        const finishedDateKey = _ailt.dateKey;
-        _ailt = null;
-        updateAllIndiaLiveClock();
-        if (window.confetti) confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
-        openAllIndiaResultModal('analysis', finishedDateKey);
       }
 
       // Result / Analysis / Leaderboard Modal Controller
