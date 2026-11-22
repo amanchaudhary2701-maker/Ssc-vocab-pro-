@@ -6916,6 +6916,49 @@
         return null;
       }
 
+      const _aiChatHistory = [];
+      async function askFreeLiveLLM(promptText) {
+        const sysMsg = 'You are SSC AI Study Guru inside the SSC Vocab 3D Pro app for Indian SSC CGL/CHSL/MTS students. Answer EVERY question directly, accurately, and concisely in warm Hinglish with Devanagari Hindi meanings where helpful. If asked for a word meaning, give: 1) Full Hindi meaning, 2) English meaning, 3) 4 Synonyms, 4) 4 Antonyms, 5) 1 Example & Memory Trick. Never tell the user to search Google; always answer completely yourself.';
+        const msgs = [{ role: 'system', content: sysMsg }, ..._aiChatHistory.slice(-6), { role: 'user', content: promptText }];
+        // 1. Try Pollinations POST OpenAI-compatible free endpoint (Zero API key, CORS enabled)
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 11000);
+          const r = await fetch('https://text.pollinations.ai/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: msgs, model: 'openai', seed: 42 }),
+            signal: ctrl.signal
+          });
+          clearTimeout(t);
+          if (r.ok) {
+            const txt = (await r.text() || '').trim();
+            if (txt && txt.length > 5 && !txt.startsWith('<!DOCTYPE') && !txt.startsWith('<html')) return txt;
+          }
+        } catch (e) {}
+        // 2. Fallback: Pollinations GET endpoint
+        try {
+          const ctrl2 = new AbortController();
+          const t2 = setTimeout(() => ctrl2.abort(), 9000);
+          const fullQ = `${sysMsg} Question: ${promptText}`;
+          const r2 = await fetch(`https://text.pollinations.ai/${encodeURIComponent(fullQ.slice(0, 700))}`, { signal: ctrl2.signal });
+          clearTimeout(t2);
+          if (r2.ok) {
+            const txt2 = (await r2.text() || '').trim();
+            if (txt2 && txt2.length > 5 && !txt2.startsWith('<!DOCTYPE') && !txt2.startsWith('<html')) return txt2;
+          }
+        } catch (e) {}
+        return null;
+      }
+
+      function formatAiMarkdown(raw) {
+        return String(raw || '')
+          .replace(/</g, '&lt;')
+          .replace(/\*\*(.*?)\*\*/g, '<b class="text-white">$1</b>')
+          .replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 rounded bg-slate-800 text-cyan-200 font-mono text-[11px]">$1</code>')
+          .replace(/\n/g, '<br/>');
+      }
+
       const SSC_GRAMMAR_KB = [
         { keys: ['since','for'], title: '📘 Since vs For (SSC Golden Rule)',
           body: '• <b>Since</b> = Point of Time (निश्चित समय): <i>since 2020, since Monday, since morning, since childhood</i>.<br/>• <b>For</b> = Period/Duration of Time (अवधि): <i>for 2 hours, for 5 days, for 3 years, for a long time</i>.<br/>💡 <b>Example:</b> He has been studying <b>for</b> 3 hours / <b>since</b> 6 AM.' },
@@ -7085,8 +7128,8 @@
         // 6. Optional Live Gemini API (if Admin configured an AIza or AQ. key in Admin Panel!)
         const gemReply = await askOptionalGeminiApi(q);
         if (gemReply) {
-          const safe = gemReply.replace(/</g, '&lt;').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br/>');
-          appendAiBubble(`<p class="text-[10px] font-black text-cyan-300 mb-1">✨ SSC AI Guru (Live AI)</p><div class="text-slate-100 leading-relaxed">${safe}</div>`);
+          _aiChatHistory.push({ role: 'user', content: q }, { role: 'assistant', content: gemReply });
+          appendAiBubble(`<p class="text-[10px] font-black text-cyan-300 mb-1">✨ SSC AI Guru (Live Gemini AI)</p><div class="text-slate-100 leading-relaxed">${formatAiMarkdown(gemReply)}</div>`);
           return;
         }
 
@@ -7251,10 +7294,22 @@
           }
         }
 
-        // 9. GOOGLE-STYLE INSTANT ANSWER ENGINE (Wikipedia Full-Text EN + HI Search + DuckDuckGo + Live Hindi + 1-Tap Google Link!)
-        loadingBubble.innerHTML = `<p class="font-bold text-cyan-200">🌐 "${q.replace(/</g, '&lt;')}" ka instant jawab Google-style search se nikal raha hoon...</p>`;
-        const cleanSearchQ = q.replace(/\b(kya hai|kya hota hai|kaun hai|kaun the|batao|bataiye|samjhao|please|pls|in hindi|hindi me)\b/gi, '').replace(/[?.,!]/g, '').trim() || q;
+        // 9. ADVANCED LIVE AI ENGINE (Answers ANYTHING directly inside chat — ZERO Google Redirect!)
+        loadingBubble.innerHTML = `<p class="font-bold text-cyan-200">🤖 Soch raha hoon... aapka poora jawab taiyar ho raha hai ✨</p>`;
 
+        // First try Free Live LLM (answers ANY open-ended GK, Maths, Polity, Science, Grammar, Vocab, Essay, or follow-up!)
+        const liveAiReply = await askFreeLiveLLM(q);
+        if (liveAiReply) {
+          _aiChatHistory.push({ role: 'user', content: q }, { role: 'assistant', content: liveAiReply });
+          loadingBubble.innerHTML = `
+            <p class="text-[10px] font-black text-cyan-300 mb-1">✨ SSC AI Study Guru</p>
+            <div class="text-slate-100 text-xs sm:text-sm leading-relaxed">${formatAiMarkdown(liveAiReply)}</div>
+          `;
+          return;
+        }
+
+        // Fallback if LLM busy: DuckDuckGo + EN/HI Wikipedia + Live Hindi Translation (still 100% inside chat!)
+        const cleanSearchQ = q.replace(/\b(kya hai|kya hota hai|kaun hai|kaun the|batao|bataiye|samjhao|please|pls|in hindi|hindi me)\b/gi, '').replace(/[?.,!]/g, '').trim() || q;
         async function searchWikiSummary(queryStr, lang = 'en') {
           try {
             const sr = await fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(queryStr)}&srlimit=1&format=json&origin=*`);
@@ -7266,26 +7321,21 @@
             if (!sumR.ok) return null;
             const sumD = await sumR.json();
             if (sumD && sumD.extract && sumD.type !== 'disambiguation') {
-              return { title: sumD.title, extract: sumD.extract.slice(0, 360), url: sumD.content_urls?.desktop?.page || '' };
+              return { title: sumD.title, extract: sumD.extract.slice(0, 420) };
             }
           } catch (e) {}
           return null;
         }
-
         async function searchDuckDuckGo(queryStr) {
           try {
             const r = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(queryStr)}&format=json&no_html=1&skip_disambig=1`);
             if (!r.ok) return null;
             const d = await r.json();
             const txt = d.AbstractText || d.Answer || (d.RelatedTopics && d.RelatedTopics[0] && d.RelatedTopics[0].Text) || '';
-            if (txt && txt.length > 15) return { title: d.Heading || queryStr, extract: txt.slice(0, 360), url: d.AbstractURL || '' };
+            if (txt && txt.length > 15) return { title: d.Heading || queryStr, extract: txt.slice(0, 420) };
           } catch (e) {}
           return null;
         }
-
-        const googleBtn = `<div class="pt-1.5 flex flex-wrap gap-1.5">
-          <a href="https://www.google.com/search?q=${encodeURIComponent(q)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/45 text-cyan-200 text-[11px] font-extrabold hover:bg-cyan-500/30">🔍 Google par poora dekhein</a>
-        </div>`;
 
         try {
           const [ddg, wikiEn, wikiHi] = await Promise.all([
@@ -7293,37 +7343,27 @@
             searchWikiSummary(cleanSearchQ, 'en'),
             searchWikiSummary(cleanSearchQ, 'hi')
           ]);
-
           const best = ddg || wikiEn || wikiHi;
           if (best) {
             const hiExplain = hasDevanagari(best.extract) ? best.extract : (await translateToHindiFull(best.extract));
             loadingBubble.innerHTML = `
-              <p class="font-black text-cyan-300 text-sm">🌐 ${best.title}</p>
+              <p class="font-black text-cyan-300 text-sm">✨ ${best.title}</p>
               ${hiExplain ? `<div class="p-2.5 rounded-xl bg-amber-500/15 border border-amber-400/35 text-amber-100 text-xs leading-relaxed"><b>🇮🇳 हिंदी में जवाब:</b> ${hiExplain}</div>` : ''}
               ${!hasDevanagari(best.extract) ? `<p class="text-slate-300 text-xs leading-relaxed"><b>📘 English:</b> ${best.extract}</p>` : ''}
-              ${googleBtn}
             `;
             return;
           }
-
           const hiTrans = await translateToHindiFull(q);
           if (hiTrans) {
-            loadingBubble.innerHTML = `
-              <p class="font-black text-cyan-300">🇮🇳 हिंदी अनुवाद / जवाब:</p>
-              <p class="text-amber-300 font-extrabold text-sm">${hiTrans}</p>
-              ${googleBtn}
-            `;
+            loadingBubble.innerHTML = `<p class="font-black text-cyan-300">🇮🇳 हिंदी अर्थ / अनुवाद:</p><p class="text-amber-300 font-extrabold text-sm">${hiTrans}</p>`;
             return;
           }
         } catch (e) {}
 
-        loadingBubble.innerHTML = `
-          <p class="font-bold text-amber-300">Internet slow ya offline lag raha hai — aap is button se seedha Google par bhi dekh sakte hain:</p>
-          ${googleBtn}
-        `;
+        loadingBubble.innerHTML = `<p class="font-bold text-amber-300">Internet connection check karein aur dubara puchhein — offline mode mein aap BlackBook ke 9,291+ words, Synonyms/Antonyms, OWS aur Grammar doubts puch sakte hain!</p>`;
       }
 
-      document.getElementById('ai-guru-clear')?.addEventListener('click', () => {
+      document.getElementById('ai-guru-clear')?.addEventListener('click', () => { _aiChatHistory.length = 0;
         if (aiMsgs) aiMsgs.innerHTML = `<div class="p-3.5 rounded-2xl rounded-tl-sm bg-slate-900/95 border border-cyan-400/30 text-slate-100 text-xs">Chat clear ho gayi! Ab apna naya word ya doubt puchein 🤖</div>`;
       });
 
