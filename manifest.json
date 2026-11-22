@@ -1,10 +1,10 @@
 {
-  "id": "/",
+  "id": "/Ssc-vocab-pro-/",
   "name": "SSC Vocab 3D Pro",
   "short_name": "SSC Vocab Pro",
   "description": "3D English Vocabulary App for SSC CGL, CHSL, MTS, CPO & GD with Complete BlackBook Parts A-F, 467 SSC CGL 2026 Tier-1 Topic-Wise PYQs, 297 Root Words, CBT Mock Tests (+2/-0.50), and Cloud Sync.",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "/Ssc-vocab-pro-/",
+  "scope": "/Ssc-vocab-pro-/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#070b1a",
