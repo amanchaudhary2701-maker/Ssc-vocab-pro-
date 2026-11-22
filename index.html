@@ -983,10 +983,6 @@
           </div>
         </div>
 
-        <!-- 📂 STUDENT PDF NOTES & STUDY FOLDER (LIVE SYNCED FROM ADMIN PANEL) -->
-        <div id="home-pdf-folder-card" class="glass-card rounded-2xl p-4 border border-cyan-400/35 bg-gradient-to-r from-slate-900/90 via-indigo-950/75 to-cyan-950/75 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-2xl shadow-lg shrink-0">📂</div>
             <div class="min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
                 <h3 class="text-sm sm:text-base font-black text-white">PDF Notes &amp; Study Material Folder</h3>
@@ -9516,14 +9512,16 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
 
       <div class="p-4 sm:p-5 space-y-3.5">
         <input id="stu-pdf-search" type="text" placeholder="🔍 Search PDF title ya topic..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-400" />
-        <div id="stu-pdf-cats" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
-          <button type="button" data-spdf-cat="All" class="spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-black bg-cyan-500/25 text-cyan-200 border border-cyan-400/50 whitespace-nowrap">All PDFs</button>
-          <button type="button" data-spdf-cat="Vocab Notes" class="spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">📚 Vocab Notes</button>
-          <button type="button" data-spdf-cat="SSC PYQ PDFs" class="spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">🏛️ SSC PYQ</button>
-          <button type="button" data-spdf-cat="Root Words &amp; Idioms" class="spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">🌱 Roots &amp; Idioms</button>
-          <button type="button" data-spdf-cat="Daily 2PM Test PDFs" class="spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">🔴 2PM Test PDFs</button>
-          <button type="button" data-spdf-cat="Grammar &amp; Practice" class="spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">📝 Grammar</button>
+        <div id="stu-pdf-subjects" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+          <button type="button" data-spdf-sub="All" class="spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-black bg-amber-500/25 text-amber-200 border border-amber-400/50 whitespace-nowrap">📂 All Subjects</button>
+          <button type="button" data-spdf-sub="English" class="spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">📘 English</button>
+          <button type="button" data-spdf-sub="GS" class="spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">🌍 GS</button>
+          <button type="button" data-spdf-sub="Science" class="spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">🔬 Science</button>
+          <button type="button" data-spdf-sub="Maths" class="spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">📐 Maths</button>
+          <button type="button" data-spdf-sub="Reasoning" class="spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">🧠 Reasoning</button>
+          <button type="button" data-spdf-sub="Computer &amp; Misc" class="spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">💻 Computer</button>
         </div>
+        <div id="stu-pdf-cats" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1"></div>
         <div id="stu-pdf-list" class="space-y-2.5 max-h-[58vh] overflow-y-auto pr-1"></div>
       </div>
     </div>
@@ -9740,6 +9738,16 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               <button type="button" id="admin-open-ailt-now-btn" class="py-2 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs hover:brightness-110 transition">⚡ Open 100-Q Test Now</button>
               <button type="button" id="admin-open-ailt-lb-btn" class="py-2 px-3 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 font-extrabold text-xs hover:bg-cyan-500/30 transition">🏆 View Live Rank</button>
             </div>
+            <div class="pt-2 border-t border-white/10 space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <span id="admin-ailt-count-lbl" class="text-[11px] font-black text-cyan-200">📊 Today's Live Test Data (0 Students)</span>
+                <div class="flex items-center gap-1">
+                  <button type="button" id="admin-ailt-sync-btn" class="px-2 py-0.5 rounded bg-slate-800 border border-cyan-400/40 text-cyan-200 text-[10px] font-bold">🔄 Sync</button>
+                  <button type="button" id="admin-ailt-csv-btn" class="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-[10px] font-bold">📥 CSV</button>
+                </div>
+              </div>
+              <div id="admin-ailt-scores-list" class="max-h-36 overflow-y-auto space-y-1 text-[11px]"></div>
+            </div>
           </div>
 
           <!-- LIVE AUTO-UPDATING ANALYTICS DASHBOARD -->
@@ -9902,18 +9910,26 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             </div>
             <input id="adm-pdf-title" type="text" placeholder="PDF Title (e.g. SSC CGL 2026 Top 500 Vocab Notes)" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400" />
             <div class="grid grid-cols-2 gap-2">
-              <select id="adm-pdf-cat" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-cyan-200 font-bold">
-                <option value="Vocab Notes">📚 Vocab Notes</option>
-                <option value="SSC PYQ PDFs">🏛️ SSC PYQ PDFs</option>
-                <option value="Root Words &amp; Idioms">🌱 Root Words &amp; Idioms</option>
-                <option value="Daily 2PM Test PDFs">🔴 Daily 2PM Test PDFs</option>
-                <option value="Grammar &amp; Practice">📝 Grammar &amp; Practice</option>
+              <select id="adm-pdf-subject" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-amber-200 font-extrabold">
+                <option value="English">📘 English</option>
+                <option value="GS">🌍 GS (General Studies)</option>
+                <option value="Science">🔬 Science</option>
+                <option value="Maths">📐 Maths</option>
+                <option value="Reasoning">🧠 Reasoning</option>
+                <option value="Computer &amp; Misc">💻 Computer &amp; Misc</option>
               </select>
-              <label class="flex items-center justify-center px-3 py-2 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 text-xs font-extrabold cursor-pointer hover:bg-cyan-500/30 transition">
-                <span>📎 Choose .PDF</span>
-                <input id="adm-pdf-file" type="file" accept=".pdf,application/pdf" class="hidden" />
-              </label>
+              <select id="adm-pdf-cat" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-cyan-200 font-bold">
+                <option value="Vocab Notes">Vocab Notes</option>
+                <option value="SSC PYQ PDFs">SSC PYQ PDFs</option>
+                <option value="Root Words &amp; Idioms">Root Words &amp; Idioms</option>
+                <option value="Grammar &amp; Rules">Grammar &amp; Rules</option>
+                <option value="Daily 2PM Test PDFs">Daily 2PM Test PDFs</option>
+              </select>
             </div>
+            <label class="w-full flex items-center justify-center px-3 py-2 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 text-xs font-extrabold cursor-pointer hover:bg-cyan-500/30 transition">
+              <span>📎 Choose .PDF File from Phone / Laptop</span>
+              <input id="adm-pdf-file" type="file" accept=".pdf,application/pdf" class="hidden" />
+            </label>
             <p id="adm-pdf-file-label" class="text-[11px] text-slate-400">♾️ Unlimited Size: Direct .pdf file choose karein (no 24MB limit) YA badi files ke liye Google Drive link paste karein:</p>
             <input id="adm-pdf-url" type="url" placeholder="Optional: Direct PDF ya Google Drive Share Link paste karein" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400" />
             <p id="adm-pdf-status" class="hidden text-[11px] font-bold px-3 py-1.5 rounded-lg bg-slate-950 border border-cyan-400/35 text-cyan-200"></p>
@@ -10870,24 +10886,25 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         }
         if (window.confetti) confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
 
-        // Save to Cloud Firestore All-India Live Leaderboard in background (Students only; Admin Preview stays private)
-        if (typeof fbDb !== 'undefined' && fbDb && !wasAdminPrev) {
-          try {
-            const docId = typeof safeFbDocId === 'function' ? safeFbDocId(finishedUid) : finishedUid;
-            fbDb.collection('all_india_live_tests').doc(finishedDateKey).collection('scores').doc(docId).set({
-              uid: finishedUid,
-              name: finishedName,
-              exam: finishedExam,
-              score,
-              maxScore,
-              correct,
-              wrong,
-              skipped,
-              accuracy,
-              timeTakenSec,
-              submittedAt: Date.now()
-            }, { merge: true }).catch((e) => console.warn('AILT leaderboard save err:', e));
-          } catch (e) { console.warn('AILT leaderboard save err:', e); }
+        // Save Student Live Test Score reliably via Fast Firestore REST PATCH + SDK (Updates All-India Rank + Admin Panel instantly!)
+        if (!wasAdminPrev) {
+          const scorePayload = {
+            uid: finishedUid,
+            name: finishedName,
+            exam: finishedExam,
+            dateKey: finishedDateKey,
+            score,
+            maxScore,
+            correct,
+            wrong,
+            skipped,
+            accuracy,
+            timeTakenSec,
+            submittedAt: Date.now()
+          };
+          saveAiltScoreToCloudReliable(finishedDateKey, finishedUid, scorePayload).then(() => {
+            refreshAdminAiltScoresList(finishedDateKey);
+          });
         }
       }
 
@@ -10950,61 +10967,196 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         }).join('');
       }
 
-      async function loadAllIndiaLeaderboard(dateKey, myAttempt) {
-        const listEl = document.getElementById('ailt-lb-list');
-        if (!listEl) return;
-        listEl.innerHTML = '<p class="text-xs text-cyan-300 text-center py-6">⏳ Loading Live All-India Rankings...</p>';
-        let rows = [];
+      const AILT_FS_KEY = (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey) ? FIREBASE_CONFIG.apiKey : 'AIzaSyBs_w5tmFnNc-fygZ-t5wdS_C7KtsVie7k';
+      const AILT_FS_ROOT = 'https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents';
+      let _latestAiltRows = [];
+      let _ailtLiveUnsub = null;
+
+      function ailtToFsFields(obj) {
+        const f = {};
+        Object.entries(obj).forEach(([k, v]) => {
+          if (typeof v === 'number') f[k] = Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+          else if (typeof v === 'boolean') f[k] = { booleanValue: v };
+          else f[k] = { stringValue: String(v ?? '') };
+        });
+        return f;
+      }
+      function ailtFromFsDoc(doc) {
+        const f = doc.fields || {};
+        const out = {};
+        Object.entries(f).forEach(([k, v]) => {
+          if (v.stringValue !== undefined) out[k] = v.stringValue;
+          else if (v.integerValue !== undefined) out[k] = Number(v.integerValue);
+          else if (v.doubleValue !== undefined) out[k] = Number(v.doubleValue);
+          else if (v.booleanValue !== undefined) out[k] = !!v.booleanValue;
+        });
+        return out;
+      }
+
+      async function saveAiltScoreToCloudReliable(dateKey, uid, payload) {
+        const docId = typeof safeFbDocId === 'function' ? safeFbDocId(uid) : uid;
+        // 1. Fast Firestore REST PATCH to all_india_live_tests/<dateKey>/scores/<docId>
+        try {
+          await fetch(`${AILT_FS_ROOT}/all_india_live_tests/${encodeURIComponent(dateKey)}/scores/${encodeURIComponent(docId)}?key=${encodeURIComponent(AILT_FS_KEY)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fields: ailtToFsFields(payload) })
+          });
+        } catch (e) {}
+        // 2. Also update student summary on ssc_users/<docId> so Admin DB always shows latest live test score!
+        try {
+          await fetch(`${AILT_FS_ROOT}/ssc_users/${encodeURIComponent(docId)}?updateMask.fieldPaths=lastLiveScore&updateMask.fieldPaths=lastLiveDate&updateMask.fieldPaths=lastActiveAt&key=${encodeURIComponent(AILT_FS_KEY)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fields: ailtToFsFields({
+                lastLiveScore: `${payload.score}/${payload.maxScore}`,
+                lastLiveDate: dateKey,
+                lastActiveAt: Date.now()
+              })
+            })
+          });
+        } catch (e) {}
+        // 3. SDK fallback mirror
         if (typeof fbDb !== 'undefined' && fbDb) {
           try {
-            const snap = await fbDb.collection('all_india_live_tests').doc(dateKey).collection('scores').limit(200).get();
-            snap.forEach(doc => {
-              const d = doc.data();
-              if (d && typeof d.score === 'number') rows.push(d);
-            });
-          } catch (e) { console.warn('AILT lb fetch err:', e); }
+            fbDb.collection('all_india_live_tests').doc(dateKey).collection('scores').doc(docId).set(payload, { merge: true }).catch(() => {});
+          } catch (e) {}
         }
-        const myUid = getAiltUid();
-        if (myAttempt && !rows.some(r => r.uid === myAttempt.uid)) {
-          rows.push(myAttempt);
+      }
+
+      async function fetchAiltScoresReliable(dateKey) {
+        let rows = [];
+        try {
+          const resp = await fetch(`${AILT_FS_ROOT}/all_india_live_tests/${encodeURIComponent(dateKey)}/scores?pageSize=300&key=${encodeURIComponent(AILT_FS_KEY)}`);
+          if (resp.ok) {
+            const j = await resp.json();
+            rows = (j.documents || []).map(ailtFromFsDoc).filter(d => d && typeof d.score === 'number');
+          }
+        } catch (e) {}
+        if (!rows.length && typeof fbDb !== 'undefined' && fbDb) {
+          try {
+            const snap = await Promise.race([
+              fbDb.collection('all_india_live_tests').doc(dateKey).collection('scores').limit(300).get(),
+              new Promise(r => setTimeout(() => r(null), 4000))
+            ]);
+            if (snap) {
+              snap.forEach(doc => {
+                const d = doc.data();
+                if (d && typeof d.score === 'number') rows.push(d);
+              });
+            }
+          } catch (e) {}
         }
         rows.sort((a, b) => (b.score - a.score) || ((b.accuracy || 0) - (a.accuracy || 0)) || ((a.timeTakenSec || 9999) - (b.timeTakenSec || 9999)));
+        _latestAiltRows = rows;
+        return rows;
+      }
 
-        const myIdx = rows.findIndex(r => r.uid === myUid);
+      function paintAllIndiaRankUI(rows, dateKey, myAttempt) {
+        const listEl = document.getElementById('ailt-lb-list');
+        const myUid = getAiltUid();
+        const combined = rows.slice();
+        if (myAttempt && myAttempt.uid && !combined.some(r => String(r.uid).toLowerCase() === String(myAttempt.uid).toLowerCase())) {
+          combined.push(myAttempt);
+        }
+        combined.sort((a, b) => (b.score - a.score) || ((b.accuracy || 0) - (a.accuracy || 0)) || ((a.timeTakenSec || 9999) - (b.timeTakenSec || 9999)));
+        _latestAiltRows = combined;
+
+        const totalCandidates = combined.length;
+        const myIdx = combined.findIndex(r => String(r.uid || '').toLowerCase() === myUid);
         const rankEl = document.getElementById('ailt-stat-rank');
-        if (rankEl && myIdx >= 0) {
-          const pct = rows.length > 1 ? Math.round(((rows.length - myIdx) / rows.length) * 100) : 100;
-          rankEl.textContent = `#${myIdx + 1} / ${rows.length} (${pct}%ile)`;
+        if (rankEl) {
+          if (myIdx >= 0) {
+            const pct = totalCandidates > 1 ? (((totalCandidates - myIdx) / totalCandidates) * 100).toFixed(1) : '100';
+            rankEl.textContent = `AIR #${myIdx + 1} / ${totalCandidates} (${pct}%ile)`;
+          } else {
+            rankEl.textContent = `#— / ${totalCandidates}`;
+          }
         }
 
         const subEl = document.getElementById('ailt-lb-sub');
-        if (subEl) subEl.textContent = `${rows.length} Total Candidates Ranked Today (${dateKey})`;
+        if (subEl) subEl.textContent = `🟢 Live Auto-Updating • ${totalCandidates} Student${totalCandidates === 1 ? '' : 's'} Ranked Today (${dateKey})`;
 
+        if (listEl) {
+          if (!combined.length) {
+            listEl.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">Aaj ka All-India Leaderboard abhi khali hai — 2:00 PM Live Test dekar #1 AIR ban jao!</p>';
+          } else {
+            listEl.innerHTML = combined.map((r, i) => {
+              const medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : `#${i + 1}`));
+              const isMe = myUid && String(r.uid || '').toLowerCase() === myUid;
+              const mm = String(Math.floor((r.timeTakenSec || 0) / 60)).padStart(2, '0');
+              const ss = String((r.timeTakenSec || 0) % 60).padStart(2, '0');
+              return `<div class="p-3 rounded-2xl border flex items-center justify-between gap-2 ${
+                isMe ? 'bg-cyan-500/20 border-cyan-400/70 shadow' : 'bg-slate-900/90 border-white/10'
+              }">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="w-10 text-center text-sm font-black ${i < 3 ? 'text-amber-300' : 'text-slate-300'}">${medal}</span>
+                  <div class="min-w-0">
+                    <p class="text-xs sm:text-sm font-extrabold text-white truncate">${r.name || 'SSC Aspirant'} ${isMe ? '<span class="text-cyan-300">(You)</span>' : ''}</p>
+                    <p class="text-[10px] text-slate-400">${r.exam || 'SSC CGL'} • Acc: ${r.accuracy || 0}% • ⏱ ${mm}:${ss}</p>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <p class="text-sm font-black text-amber-300">${r.score} / ${r.maxScore || 200}</p>
+                  <p class="text-[10px] text-emerald-300">✅${r.correct || 0} ❌${r.wrong || 0}</p>
+                </div>
+              </div>`;
+            }).join('');
+          }
+        }
+        paintAdminAiltScoresList(combined, dateKey);
+      }
+
+      function paintAdminAiltScoresList(rows, dateKey) {
+        const lbl = document.getElementById('admin-ailt-count-lbl');
+        const box = document.getElementById('admin-ailt-scores-list');
+        if (lbl) lbl.textContent = `📊 Today's Live Test Data (${rows.length} Student${rows.length === 1 ? '' : 's'})`;
+        if (!box) return;
         if (!rows.length) {
-          listEl.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">Aaj ka All-India Leaderboard abhi khali hai — 2:00 PM Live Test dekar #1 AIR ban jao!</p>';
+          box.innerHTML = '<p class="text-slate-400 text-[10px] py-1">Aaj abhi kisi student ne 2:00 PM test submit nahi kiya hai.</p>';
           return;
         }
-        listEl.innerHTML = rows.map((r, i) => {
-          const medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : `#${i + 1}`));
-          const isMe = myUid && r.uid === myUid;
+        box.innerHTML = rows.map((r, i) => {
           const mm = String(Math.floor((r.timeTakenSec || 0) / 60)).padStart(2, '0');
           const ss = String((r.timeTakenSec || 0) % 60).padStart(2, '0');
-          return `<div class="p-3 rounded-2xl border flex items-center justify-between gap-2 ${
-            isMe ? 'bg-cyan-500/20 border-cyan-400/70 shadow' : 'bg-slate-900/90 border-white/10'
-          }">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <span class="w-9 text-center text-sm font-black ${i < 3 ? 'text-amber-300' : 'text-slate-300'}">${medal}</span>
-              <div class="min-w-0">
-                <p class="text-xs sm:text-sm font-extrabold text-white truncate">${r.name || 'SSC Aspirant'} ${isMe ? '<span class="text-cyan-300">(You)</span>' : ''}</p>
-                <p class="text-[10px] text-slate-400">${r.exam || 'SSC CGL'} • Acc: ${r.accuracy || 0}% • ⏱ ${mm}:${ss}</p>
-              </div>
+          return `<div class="p-2 rounded-lg bg-slate-950/85 border border-white/10 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <p class="font-bold text-white truncate">#${i + 1} ${r.name || 'Student'} <span class="text-slate-400 font-normal">(${r.uid || ''})</span></p>
+              <p class="text-[10px] text-slate-400">${r.exam || 'SSC CGL'} • Acc ${r.accuracy || 0}% • ✅${r.correct || 0} ❌${r.wrong || 0} • ⏱${mm}:${ss}</p>
             </div>
-            <div class="text-right shrink-0">
-              <p class="text-sm font-black text-amber-300">${r.score} / ${r.maxScore || 200}</p>
-              <p class="text-[10px] text-emerald-300">✅${r.correct || 0} ❌${r.wrong || 0}</p>
-            </div>
+            <span class="font-black text-amber-300 shrink-0">${r.score}/${r.maxScore || 200}</span>
           </div>`;
         }).join('');
+      }
+
+      async function refreshAdminAiltScoresList(dateKeyOverride) {
+        const dk = dateKeyOverride || getISTNowParts().dateKey;
+        const rows = await fetchAiltScoresReliable(dk);
+        paintAdminAiltScoresList(rows, dk);
+      }
+
+      async function loadAllIndiaLeaderboard(dateKey, myAttempt) {
+        const listEl = document.getElementById('ailt-lb-list');
+        if (listEl) listEl.innerHTML = '<p class="text-xs text-cyan-300 text-center py-6">⏳ Loading Live All-India Rankings...</p>';
+        const rows = await fetchAiltScoresReliable(dateKey);
+        paintAllIndiaRankUI(rows, dateKey, myAttempt);
+
+        // Attach real-time onSnapshot so rank & total candidates auto-update live as more students finish!
+        if (typeof fbDb !== 'undefined' && fbDb) {
+          try {
+            if (_ailtLiveUnsub) { _ailtLiveUnsub(); _ailtLiveUnsub = null; }
+            _ailtLiveUnsub = fbDb.collection('all_india_live_tests').doc(dateKey).collection('scores').limit(300).onSnapshot(snap => {
+              if (snap.metadata && snap.metadata.fromCache && snap.empty) return;
+              const liveRows = [];
+              snap.forEach(doc => {
+                const d = doc.data();
+                if (d && typeof d.score === 'number') liveRows.push(d);
+              });
+              if (liveRows.length) paintAllIndiaRankUI(liveRows, dateKey, myAttempt);
+            }, () => {});
+          } catch (e) {}
+        }
       }
 
       function openAllIndiaResultModal(defaultTab = 'analysis', dateKeyOverride = null) {
@@ -11115,6 +11267,34 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         document.getElementById('admin-keygen-modal')?.classList.add('hidden');
         startAllIndiaExam(true);
       });
+
+      document.getElementById('admin-ailt-sync-btn')?.addEventListener('click', () => {
+        refreshAdminAiltScoresList();
+        if (typeof showToast === 'function') showToast('🔄 Today\'s Live Test Data Synced!');
+      });
+      document.getElementById('admin-ailt-csv-btn')?.addEventListener('click', () => {
+        const dk = getISTNowParts().dateKey;
+        const rows = [['AIR_Rank','Name','Email','Exam','Score','MaxScore','Correct','Wrong','Skipped','Accuracy%','TimeSec']];
+        _latestAiltRows.forEach((r, idx) => {
+          rows.push([
+            String(idx + 1),
+            `"${String(r.name || '').replace(/"/g, '""')}"`,
+            `"${String(r.uid || '').replace(/"/g, '""')}"`,
+            `"${String(r.exam || 'SSC CGL').replace(/"/g, '""')}"`,
+            String(r.score ?? 0), String(r.maxScore ?? 200),
+            String(r.correct ?? 0), String(r.wrong ?? 0), String(r.skipped ?? 0),
+            String(r.accuracy ?? 0), String(r.timeTakenSec ?? 0)
+          ]);
+        });
+        const blob = new Blob([rows.map(x => x.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `all_india_live_test_${dk}.csv`;
+        a.click();
+        if (typeof showToast === 'function') showToast(`📥 ${_latestAiltRows.length} Live Test Results CSV Exported!`);
+      });
+      setTimeout(() => refreshAdminAiltScoresList(), 1500);
+
       document.getElementById('admin-open-ailt-lb-btn')?.addEventListener('click', () => {
         document.getElementById('admin-keygen-modal')?.classList.add('hidden');
         openAllIndiaResultModal('lb');
@@ -11169,8 +11349,51 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       const GH_REPO = 'Ssc-vocab-pro-';
       const GH_PAGES_BASE = `https://${GH_OWNER}.github.io/${GH_REPO}/`;
 
+      const PDF_SUBJECT_TOPICS = {
+        'English': ['Vocab Notes', 'SSC PYQ PDFs', 'Root Words & Idioms', 'Grammar & Rules', 'Daily 2PM Test PDFs'],
+        'GS': ['History', 'Geography', 'Polity', 'Economics', 'Static GK', 'Current Affairs'],
+        'Science': ['Physics', 'Chemistry', 'Biology'],
+        'Maths': ['Arithmetic', 'Advance Maths', 'Formula Sheet', 'PYQ Practice'],
+        'Reasoning': ['Verbal Reasoning', 'Non-Verbal Reasoning', 'PYQ Practice'],
+        'Computer & Misc': ['Computer Awareness', 'Full Mock & Strategy']
+      };
       let _pdfItems = [];
+      let _stuSub = 'All';
       let _stuCat = 'All';
+
+      function syncAdminTopicDropdown() {
+        const subEl = document.getElementById('adm-pdf-subject');
+        const catEl = document.getElementById('adm-pdf-cat');
+        if (!subEl || !catEl) return;
+        const topics = PDF_SUBJECT_TOPICS[subEl.value] || PDF_SUBJECT_TOPICS['English'];
+        catEl.innerHTML = topics.map(t => `<option value="${t}">${t}</option>`).join('');
+      }
+      document.getElementById('adm-pdf-subject')?.addEventListener('change', syncAdminTopicDropdown);
+      setTimeout(syncAdminTopicDropdown, 200);
+
+      function renderStudentTopicChips() {
+        const wrap = document.getElementById('stu-pdf-cats');
+        if (!wrap) return;
+        if (_stuSub === 'All') {
+          wrap.innerHTML = '';
+          return;
+        }
+        const topics = ['All', ...(PDF_SUBJECT_TOPICS[_stuSub] || [])];
+        wrap.innerHTML = topics.map(t => {
+          const active = _stuCat === t;
+          const label = t === 'All' ? `All ${_stuSub}` : t;
+          return `<button type="button" data-spdf-cat="${t}" class="spdf-cat-btn px-3 py-1 rounded-lg text-[11px] whitespace-nowrap transition ${
+            active ? 'font-black bg-cyan-500/25 text-cyan-200 border border-cyan-400/50' : 'font-bold bg-slate-800/90 text-slate-300 border border-white/10 hover:text-white'
+          }">${label}</button>`;
+        }).join('');
+        wrap.querySelectorAll('.spdf-cat-btn').forEach(b => {
+          b.addEventListener('click', () => {
+            _stuCat = b.dataset.spdfCat || 'All';
+            renderStudentTopicChips();
+            renderPdfLists();
+          });
+        });
+      }
 
       try {
         const cached = localStorage.getItem(PDF_CACHE_KEY);
@@ -11310,8 +11533,6 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       });
 
       function renderPdfLists() {
-        const badge = document.getElementById('home-pdf-count-badge');
-        if (badge) badge.textContent = `${_pdfItems.length} PDF${_pdfItems.length === 1 ? '' : 's'}`;
         const admCnt = document.getElementById('adm-pdf-count');
         if (admCnt) admCnt.textContent = `${_pdfItems.length} PDFs`;
 
@@ -11325,7 +11546,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               <div class="p-2.5 rounded-xl bg-slate-900/90 border border-white/10 flex items-center justify-between gap-2">
                 <div class="min-w-0">
                   <p class="text-xs font-extrabold text-white truncate">📄 ${p.title}</p>
-                  <p class="text-[10px] text-slate-400">${p.category || 'Vocab Notes'} • ${p.sizeLabel || 'PDF'} • ${p.dateStr || ''}</p>
+                  <p class="text-[10px] text-slate-400">${p.subject || 'English'} → ${p.category || 'Vocab Notes'} • ${p.sizeLabel || 'PDF'} • ${p.dateStr || ''}</p>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
                   <button type="button" data-apdf-dl="${p.id}" class="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-200 text-[10px] font-bold">⬇️</button>
@@ -11357,8 +11578,11 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         if (stuList) {
           const q = (document.getElementById('stu-pdf-search')?.value || '').trim().toLowerCase();
           const filtered = _pdfItems.filter(p => {
-            if (_stuCat !== 'All' && (p.category || 'Vocab Notes') !== _stuCat) return false;
-            if (q && !`${p.title || ''} ${p.category || ''}`.toLowerCase().includes(q)) return false;
+            const pSub = p.subject || 'English';
+            const pCat = p.category || 'Vocab Notes';
+            if (_stuSub !== 'All' && pSub !== _stuSub) return false;
+            if (_stuCat !== 'All' && pCat !== _stuCat) return false;
+            if (q && !`${p.title || ''} ${pSub} ${pCat}`.toLowerCase().includes(q)) return false;
             return true;
           });
           if (!filtered.length) {
@@ -11370,7 +11594,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
                   <span class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-xl shrink-0">📄</span>
                   <div class="min-w-0">
                     <h4 class="text-sm font-extrabold text-white leading-snug">${p.title}</h4>
-                    <p class="text-[11px] text-cyan-200/90 mt-0.5">${p.category || 'Vocab Notes'} • <span class="text-amber-300 font-bold">${p.sizeLabel || 'PDF'}</span> • ${p.dateStr || ''}</p>
+                    <p class="text-[11px] text-cyan-200/90 mt-0.5"><span class="text-emerald-300 font-extrabold">${p.subject || 'English'}</span> → ${p.category || 'Vocab Notes'} • <span class="text-amber-300 font-bold">${p.sizeLabel || 'PDF'}</span> • ${p.dateStr || ''}</p>
                   </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
@@ -11651,6 +11875,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
 
       document.getElementById('adm-pdf-upload-btn')?.addEventListener('click', async () => {
         const title = (document.getElementById('adm-pdf-title')?.value || '').trim();
+        const subject = document.getElementById('adm-pdf-subject')?.value || 'English';
         const category = document.getElementById('adm-pdf-cat')?.value || 'Vocab Notes';
         const rawUrl = (document.getElementById('adm-pdf-url')?.value || '').trim();
         if (!title) { setAdmPdfStatus('❌ Pehle PDF ka Title likhein.', true); return; }
@@ -11665,6 +11890,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           let record = {
             id: pid,
             title,
+            subject,
             category,
             sizeLabel: _selectedPdfFile ? formatBytes(_selectedPdfFile.size) : 'Cloud PDF',
             dateStr,
@@ -11725,7 +11951,6 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         document.getElementById('student-pdf-modal')?.classList.remove('hidden');
         fetchPdfsFromCloudReliable();
       };
-      document.getElementById('home-open-pdf-folder-btn')?.addEventListener('click', openStuPdfModal);
       document.getElementById('mob-nav-pdf-btn')?.addEventListener('click', openStuPdfModal);
       document.getElementById('desk-nav-pdf-btn')?.addEventListener('click', openStuPdfModal);
       document.getElementById('menu-pdf-btn')?.addEventListener('click', () => {
@@ -11736,17 +11961,20 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         document.getElementById('student-pdf-modal')?.classList.add('hidden');
       });
       document.getElementById('stu-pdf-search')?.addEventListener('input', renderPdfLists);
-      document.querySelectorAll('.spdf-cat-btn').forEach(b => {
+      document.querySelectorAll('.spdf-sub-btn').forEach(b => {
         b.addEventListener('click', () => {
-          _stuCat = b.dataset.spdfCat || 'All';
-          document.querySelectorAll('.spdf-cat-btn').forEach(x => {
+          _stuSub = b.dataset.spdfSub || 'All';
+          _stuCat = 'All';
+          document.querySelectorAll('.spdf-sub-btn').forEach(x => {
             x.className = x === b
-              ? 'spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-black bg-cyan-500/25 text-cyan-200 border border-cyan-400/50 whitespace-nowrap'
-              : 'spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap';
+              ? 'spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-black bg-amber-500/25 text-amber-200 border border-amber-400/50 whitespace-nowrap'
+              : 'spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap';
           });
+          renderStudentTopicChips();
           renderPdfLists();
         });
       });
+      renderStudentTopicChips();
 
       setTimeout(subscribeLivePdfs, 600);
     })();
