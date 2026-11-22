@@ -526,67 +526,56 @@
       #app-brand-title { font-size: 0.85rem !important; }
     }
   
-    /* === v38 UNIVERSAL EVERY-PHONE TOP-BAR FIT & ALL-WORD ZOOM === */
+    /* === v39 BULLETPROOF FIXED HEADER (NEVER CUT OFF ON ANY PHONE) + TRUE ALL-WORD ZOOM === */
     html, body {
       overflow-x: clip !important;
       max-width: 100vw;
       -webkit-text-size-adjust: 100%;
     }
     header.sticky {
-      position: sticky !important;
+      position: fixed !important;
       top: 0 !important;
-      padding-top: env(safe-area-inset-top, 0px);
-      width: 100%;
-      max-width: 100vw;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 45 !important;
+      padding-top: env(safe-area-inset-top, 0px) !important;
+      width: 100% !important;
+      max-width: 100vw !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
     }
     main {
-      padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+      padding-top: calc(108px + env(safe-area-inset-top, 0px));
+      padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)) !important;
     }
-    /* Ultra-clean responsive top bar so even 320px-380px phones NEVER cut off the top header */
+    /* Keep header controls compact & immune to root font zoom so top bar NEVER overflows on any phone */
+    header.sticky, header.sticky * {
+      box-sizing: border-box;
+    }
     @media (max-width: 639px) {
-      header.sticky #logo-cube { width: 2rem !important; height: 2rem !important; }
-      header.sticky #app-brand-title { font-size: 0.82rem !important; max-width: 112px; overflow: hidden; text-overflow: ellipsis; }
+      header.sticky #logo-cube { width: 32px !important; height: 32px !important; }
+      header.sticky #app-brand-title { font-size: 13px !important; max-width: 118px; overflow: hidden; text-overflow: ellipsis; }
       header.sticky #kgs-light-toggle-btn,
       header.sticky #header-font-btn,
       header.sticky #header-admin-btn,
       header.sticky #auth-open-btn,
       header.sticky #about-open-btn {
-        padding: 0.3rem 0.48rem !important;
+        padding: 5px 8px !important;
         font-size: 11px !important;
+        line-height: 1.1 !important;
       }
-      header.sticky #auth-btn-label { max-width: 56px; overflow: hidden; text-overflow: ellipsis; display: inline-block; vertical-align: bottom; }
-      header.sticky .max-w-7xl { padding-left: 0.55rem !important; padding-right: 0.55rem !important; }
+      header.sticky #auth-btn-label { max-width: 58px; overflow: hidden; text-overflow: ellipsis; display: inline-block; vertical-align: bottom; }
+      header.sticky .max-w-7xl { padding-left: 8px !important; padding-right: 8px !important; }
     }
-
-    /* ALL-WORD GLOBAL ZOOM (A / A+ / A++ scales EVERY word across Flashcards, Roots, PYQs, Clusters, Quick Rev & CBT Tests!) */
-    :root { --word-zoom-factor: calc(var(--word-scale, 1.32) / 1.32); }
+    /* Ensure Flashcards, Root cards & PYQ cards expand cleanly when zoomed */
     #fc-word, #qrev-word, #wotd-word {
-      font-size: clamp(1.35rem, calc(2.1rem * var(--word-zoom-factor)), 3.2rem) !important;
-      line-height: 1.18 !important;
       word-break: break-word;
+      line-height: 1.18 !important;
     }
-    #fc-hindi, #fc-meaning, #fc-example, #fc-trick, #fc-syn, #fc-ant,
-    #qrev-meaning, #qrev-hindi, #wotd-meaning, #wotd-hindi {
-      font-size: calc(0.95rem * var(--word-zoom-factor)) !important;
-      line-height: 1.48 !important;
-    }
-    #root-words-list h4, #root-words-list .font-extrabold, #root-words-list .font-black,
-    #pyq-list h4, #pyq-list .font-bold,
-    #rev-clusters-list h4, #rev-clusters-list .font-bold,
-    #test-question-text {
-      font-size: calc(1rem * var(--word-zoom-factor)) !important;
-      line-height: 1.38 !important;
-    }
-    #root-words-list p, #pyq-list p, #rev-clusters-list p,
-    #test-options-grid button {
-      font-size: calc(0.86rem * var(--word-zoom-factor)) !important;
-      line-height: 1.45 !important;
-    }
-    .flashcard-3d, #fc-stage {
-      min-height: 290px;
+    .flashcard-3d, #fc-stage, #main-flashcard {
+      min-height: 300px;
       height: auto !important;
     }
-
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -7762,31 +7751,56 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       document.addEventListener('visibilitychange', () => { if (!document.hidden) runLiveTrialCheck(); });
       window.addEventListener('focus', runLiveTrialCheck);
 
-      // 2. Pro Word Font Size Switcher (Normal 1.0 -> Large 1.15 -> XL 1.32)
+      // 2. TRUE ALL-WORD GLOBAL ZOOM (Scales EVERY word in Flashcards, Roots, PYQs, Clusters, Tests via root rem + --word-scale!)
       const FONT_SCALES = [
-        { val: '1.12', label: 'A+' },
-        { val: '1.28', label: 'A++' },
-        { val: '0.98', label: 'A' }
+        { val: '1.08', rootPx: '16px', label: 'A' },
+        { val: '1.26', rootPx: '18px', label: 'A+' },
+        { val: '1.46', rootPx: '20px', label: 'A++' },
+        { val: '1.68', rootPx: '22px', label: 'A+++' }
       ];
-      let fontIdx = 0;
+      function syncFixedHeaderOffset() {
+        try {
+          const hdr = document.querySelector('header.sticky');
+          const mainEl = document.querySelector('main');
+          if (hdr && mainEl) {
+            const h = Math.ceil(hdr.getBoundingClientRect().height || hdr.offsetHeight || 96);
+            mainEl.style.paddingTop = (h + 12) + 'px';
+          }
+        } catch (e) {}
+      }
+      function applyGlobalWordZoom(entry) {
+        if (!entry) return;
+        document.documentElement.style.setProperty('--word-scale', entry.val);
+        document.documentElement.style.fontSize = entry.rootPx;
+        requestAnimationFrame(syncFixedHeaderOffset);
+      }
+      let fontIdx = 1; // Default A+ (clear readable size on every phone)
       try {
         const savedScale = localStorage.getItem('ssc_word_scale_v1');
         if (savedScale) {
-          document.documentElement.style.setProperty('--word-scale', savedScale);
-          const fi = FONT_SCALES.findIndex(x => x.val === savedScale);
+          const fi = FONT_SCALES.findIndex(x => x.val === savedScale || x.label === savedScale);
           if (fi >= 0) fontIdx = fi;
         }
       } catch (e) {}
+      applyGlobalWordZoom(FONT_SCALES[fontIdx]);
+      window.addEventListener('resize', syncFixedHeaderOffset);
+      window.addEventListener('orientationchange', () => setTimeout(syncFixedHeaderOffset, 150));
+      setTimeout(syncFixedHeaderOffset, 300);
+      if (typeof ResizeObserver !== 'undefined') {
+        const _hdrEl = document.querySelector('header.sticky');
+        if (_hdrEl) new ResizeObserver(syncFixedHeaderOffset).observe(_hdrEl);
+      }
+
       const fBtn = document.getElementById('header-font-btn');
       if (fBtn) {
         fBtn.textContent = FONT_SCALES[fontIdx].label;
         fBtn.addEventListener('click', () => {
           fontIdx = (fontIdx + 1) % FONT_SCALES.length;
           const cur = FONT_SCALES[fontIdx];
-          document.documentElement.style.setProperty('--word-scale', cur.val);
+          applyGlobalWordZoom(cur);
           fBtn.textContent = cur.label;
           try { localStorage.setItem('ssc_word_scale_v1', cur.val); } catch (e) {}
-          showToast(`🔠 Word Font Size: ${cur.label}`);
+          showToast(`🔍 Sab Words Zoom: ${cur.label} (${cur.rootPx})`);
         });
       }
 
