@@ -582,6 +582,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body class="text-slate-100 antialiased selection:bg-cyan-400/30 selection:text-cyan-100">
   <!-- ==================== STAGE 1: 3D ANIMATED SPLASH SCREEN ==================== -->
@@ -762,81 +763,36 @@
         </button>
       </div>
 
-      <!-- REAL PAYMENT CHECKOUT PANEL (LIVE UPI DEEP-LINK + RAZORPAY HOOK + UTR VERIFICATION) -->
+      <!-- OFFICIAL RAZORPAY AUTO-UNLOCK CHECKOUT PANEL -->
       <div id="sub-checkout-panel" class="hidden glass-card rounded-3xl p-6 space-y-4 border-emerald-400/50">
         <div class="flex items-center justify-between gap-2">
-          <h3 class="text-lg font-black text-white">💳 Super Pro Pass Payment</h3>
+          <h3 class="text-lg font-black text-white">💳 Razorpay Instant Checkout</h3>
           <button type="button" id="sub-back-plans-btn" class="px-3 py-1 rounded-lg bg-slate-800 text-xs font-bold text-slate-300 hover:text-white">← Back</button>
         </div>
 
-        <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-amber-400/30 space-y-1 text-xs">
+        <div class="p-4 rounded-2xl bg-slate-900/90 border border-amber-400/35 space-y-1.5 text-xs">
           <div class="flex justify-between"><span class="text-slate-400">Plan:</span><span class="font-black text-amber-300" id="chk-plan-name">👑 SUPER PRO PASS</span></div>
           <div class="flex justify-between"><span class="text-slate-400">Validity:</span><span class="font-bold text-cyan-300" id="chk-plan-validity">1 Year (365 Days)</span></div>
           <div class="flex justify-between"><span class="text-slate-400">Valid Till:</span><span class="font-bold text-emerald-300" id="chk-plan-expiry">-</span></div>
-          <div class="flex justify-between pt-1.5 border-t border-white/10 text-sm"><span class="font-bold text-white">Payable Amount:</span><span class="font-black text-emerald-300" id="chk-plan-price">₹99</span></div>
+          <div class="flex justify-between pt-2 border-t border-white/10 text-sm"><span class="font-bold text-white">Payable Amount:</span><span class="font-black text-emerald-300" id="chk-plan-price">₹99</span></div>
         </div>
 
-        <!-- Step 1: Direct Real UPI Payment (Live QR + GPay / PhonePe / Paytm) -->
-        <div class="p-4 rounded-2xl bg-indigo-950/70 border border-cyan-400/40 space-y-3 text-center">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-extrabold text-cyan-200">📱 Step 1: Scan QR ya UPI App se ₹99 Pay karein</span>
-            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">0% Fee • Direct UPI</span>
+        <div class="p-4 rounded-2xl bg-indigo-950/75 border border-cyan-400/40 space-y-3 text-center">
+          <div class="flex items-center justify-center gap-2 flex-wrap">
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/45 text-emerald-200 text-[10px] font-black">⚡ 100% Automatic Unlock</span>
+            <span class="px-2.5 py-0.5 rounded-full bg-blue-500/20 border border-blue-400/45 text-blue-200 text-[10px] font-black">🔒 Secured by Razorpay</span>
           </div>
-
-          <div id="live-upi-qr-box" class="w-56 h-56 mx-auto p-4 rounded-2xl bg-white border-4 border-white shadow-2xl flex items-center justify-center"></div>
-          <p class="text-[11px] font-bold text-amber-200">👆 Scan karte hi <span class="text-emerald-300">₹99 automatic</span> fill ho jayega (PhonePe / GPay / Paytm)</p>
-
-          <div class="p-2.5 rounded-xl bg-slate-900/90 border border-white/10 flex items-center justify-between gap-2 text-left">
-            <div class="min-w-0">
-              <p class="text-[11px] text-slate-400">Payee: <b class="text-white">Aman kumar</b></p>
-              <p class="text-xs font-mono font-black text-amber-300 truncate" id="merchant-upi-display">9151345504@slc</p>
-            </div>
-            <button type="button" id="copy-upi-btn" class="px-3 py-1.5 rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-200 text-xs font-extrabold hover:bg-cyan-500/30 shrink-0">📋 Copy UPI</button>
-          </div>
-
-          <div class="grid grid-cols-3 gap-2">
-            <a id="upi-phonepe-link" target="_top" rel="noopener noreferrer" href="phonepe://pay?pa=9151345504@slc&pn=Aman%20kumar&am=99&cu=INR&tn=SSC%20Vocab%20Pro%20Super%20Pro%20Pass" data-upi-app="phonepe" class="py-2.5 px-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-black text-center shadow transition">🟣 PhonePe</a>
-            <a id="upi-gpay-link" target="_top" rel="noopener noreferrer" href="tez://upi/pay?pa=9151345504@slc&pn=Aman%20kumar&am=99&cu=INR&tn=SSC%20Vocab%20Pro%20Super%20Pro%20Pass" data-upi-app="gpay" class="py-2.5 px-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black text-center shadow transition">🔵 GPay</a>
-            <a id="upi-paytm-link" target="_top" rel="noopener noreferrer" href="paytmmp://pay?pa=9151345504@slc&pn=Aman%20kumar&am=99&cu=INR&tn=SSC%20Vocab%20Pro%20Super%20Pro%20Pass" data-upi-app="paytm" class="py-2.5 px-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-black text-center shadow transition">💠 Paytm</a>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <a id="real-upi-pay-link" target="_top" rel="noopener noreferrer" href="upi://pay?pa=9151345504@slc&pn=Aman%20kumar&am=99&cu=INR&tn=SSC%20Vocab%20Pro%20Super%20Pro%20Pass" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-xs font-black text-center shadow hover:brightness-110 transition">📲 Any UPI App (₹99)</a>
-            <button type="button" id="download-qr-btn" class="py-2.5 px-3 rounded-xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-xs font-black hover:bg-emerald-500/30 transition">⬇️ Save QR (Gallery)</button>
-          </div>
-          <p class="text-[10px] text-slate-400 leading-snug">Tip: Agar preview window me PhonePe/GPay direct na khule, toh <b>Save QR</b> karke PhonePe/GPay me <b>Scan from Gallery</b> karein ya <b>Copy UPI</b> use karein.</p>
+          <p class="text-xs text-slate-200 leading-relaxed">UPI (PhonePe, GPay, Paytm), Debit/Credit Card ya NetBanking se pay karein — payment complete hote hi <b class="text-amber-300">1 second me Super Pro Pass automatically active</b> ho jayega!</p>
+          <p id="pay-err-msg" class="hidden text-xs font-bold text-rose-300 bg-rose-500/15 border border-rose-400/35 rounded-xl px-3 py-2"></p>
+          <button type="button" id="rzp-pay-now-btn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 text-white font-black text-sm shadow-xl hover:brightness-110 transition">
+            💳 Pay ₹99 Now via Razorpay →
+          </button>
+          <p class="text-[10px] text-slate-400">No screenshot • No waiting • Instant Cloud-Synced Receipt</p>
         </div>
-
-        <!-- Step 2: Submit UTR to Admin on WhatsApp (Prevents Fake UTR Bypass!) -->
-        <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-amber-400/35 space-y-2.5">
-          <label for="pay-ref-input" class="text-xs font-extrabold text-amber-200 block">📲 Step 2: Payment ke baad 12-Digit UTR Admin ko WhatsApp karein</label>
-          <div class="flex gap-2">
-            <input id="pay-ref-input" type="text" maxlength="22" placeholder="12-digit UTR (e.g. 432518904321)" class="flex-1 min-w-0 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs sm:text-sm text-white font-mono focus:outline-none focus:border-amber-400" />
-            <button type="button" id="send-utr-wa-btn" class="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shrink-0 transition">💬 Send UTR</button>
-          </div>
-          <div id="utr-ready-box" class="hidden p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-400/40 space-y-2">
-            <p class="text-[11px] font-bold text-emerald-200">✅ UTR Message Ready! WhatsApp par bhejein ya Copy karke 9151345504 par send karein:</p>
-            <div class="grid grid-cols-2 gap-2">
-              <a id="utr-wa-direct-link" href="#" target="_blank" rel="noopener noreferrer" class="py-2 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black text-center">💬 Open WhatsApp</a>
-              <button type="button" id="copy-utr-msg-btn" class="py-2 px-2.5 rounded-lg bg-slate-800 border border-emerald-400/40 text-emerald-200 text-xs font-bold hover:bg-slate-700">📋 Copy Message</button>
-            </div>
-          </div>
-          <p class="text-[10px] text-slate-400">Admin (Aman kumar) aapka ₹99 payment check karke aapko aapka unique Activation Key WhatsApp par bhejenge.</p>
-        </div>
-
-        <!-- Step 3: Enter Verified Student-Bound Activation Key to Unlock -->
-        <div class="space-y-2">
-          <label for="activation-key-input" class="text-xs font-extrabold text-emerald-300 block">🔑 Step 3: Admin se mila Activation Key dalein</label>
-          <input id="activation-key-input" type="text" placeholder="e.g. PRO-XXXX-XXXX" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-emerald-400/40 text-sm text-white font-mono uppercase tracking-wider focus:outline-none focus:border-emerald-400" />
-          <p id="pay-err-msg" class="hidden text-xs font-bold text-rose-300"></p>
-        </div>
-
-        <button type="button" id="pay-confirm-btn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-black text-sm shadow-xl hover:brightness-110 transition">
-          🔓 Verify Activation Key &amp; Unlock Super Pro Pass
-        </button>
       </div>
     </div>
   </div>
-
+  
   <canvas id="three-bg" aria-hidden="true"></canvas>
 
   <div class="app-layer min-h-screen flex flex-col pb-28 md:pb-12">
@@ -5133,10 +5089,14 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       // =========================================================================
       // SPLASH -> MANDATORY LOGIN/SIGNUP -> 15-DAY FREE TRIAL -> SUPER PRO PASS (REAL PAYMENT CONFIG)
       // =========================================================================
+      const RZP_KEY_STORAGE = 'ssc_vocab_rzp_key_v1';
+      const DEFAULT_RZP_KEY = 'rzp_live_U3EVvytqyA1dgj';
       const PAYMENT_CONFIG = {
-        merchantName: 'Aman kumar',
+        merchantName: 'SSC Vocab 3D Pro',
         merchantUpiId: '9151345504@slc',
+        razorpayKeyId: (function(){ try { return localStorage.getItem('ssc_vocab_rzp_key_v1') || 'rzp_live_U3EVvytqyA1dgj'; } catch(e) { return 'rzp_live_U3EVvytqyA1dgj'; } })(),
         amountInr: 99,
+        price: 99,
         validityDays: 365,
         trialDays: 15
       };
@@ -5537,33 +5497,18 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       });
 
 
-// Super Pro Pass -> Real Payment Checkout Screen
+// Super Pro Pass -> Official Razorpay Instant Checkout
       document.getElementById('sub-plans-grid')?.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-select-plan]');
         if (!btn) return;
         const expMs = Date.now() + PAYMENT_CONFIG.validityDays * 86400000;
+        const priceInr = Number(PAYMENT_CONFIG.price || PAYMENT_CONFIG.amountInr || 99);
         document.getElementById('chk-plan-name').textContent = '👑 SUPER PRO PASS';
         document.getElementById('chk-plan-validity').textContent = '1 Year (365 Days)';
         document.getElementById('chk-plan-expiry').textContent = calcExpiryStrFromMs(expMs);
-        document.getElementById('chk-plan-price').textContent = `₹${PAYMENT_CONFIG.amountInr}`;
-        const mDisp = document.getElementById('merchant-upi-display');
-        if (mDisp) mDisp.textContent = PAYMENT_CONFIG.merchantUpiId;
-        const upiLink = document.getElementById('real-upi-pay-link');
-        if (upiLink) {
-          upiLink.href = `upi://pay?pa=${encodeURIComponent(PAYMENT_CONFIG.merchantUpiId)}&pn=${encodeURIComponent(PAYMENT_CONFIG.merchantName)}&am=${PAYMENT_CONFIG.amountInr}&cu=INR&tn=${encodeURIComponent('Super Pro Pass 1 Year')}`;
-        }
-        const qrBox = document.getElementById('live-upi-qr-box');
-        if (qrBox && typeof QRCode !== 'undefined') {
-          qrBox.innerHTML = '';
-          new QRCode(qrBox, {
-            text: `upi://pay?pa=${PAYMENT_CONFIG.merchantUpiId}&pn=${encodeURIComponent(PAYMENT_CONFIG.merchantName)}&am=${PAYMENT_CONFIG.amountInr}&cu=INR&tn=${encodeURIComponent('Super Pro Pass')}`,
-            width: 192,
-            height: 192,
-            colorDark: '#000000',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.L
-          });
-        }
+        document.getElementById('chk-plan-price').textContent = `₹${priceInr}`;
+        const payBtn = document.getElementById('rzp-pay-now-btn');
+        if (payBtn) payBtn.textContent = `💳 Pay ₹${priceInr} Now via Razorpay →`;
         document.getElementById('pay-err-msg')?.classList.add('hidden');
         document.getElementById('sub-plans-grid').classList.add('hidden');
         document.getElementById('sub-checkout-panel').classList.remove('hidden');
@@ -5584,74 +5529,111 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         const uid = getCurrentUserId();
         const users = getUsers();
         if (!uid || !users[uid]) return;
+        const priceInr = Number(PAYMENT_CONFIG.price || PAYMENT_CONFIG.amountInr || 99);
         const expMs = Date.now() + PAYMENT_CONFIG.validityDays * 86400000;
         const expStr = calcExpiryStrFromMs(expMs);
         const subRecord = {
           planId: 'super_pro',
           planName: '👑 SUPER PRO PASS',
-          price: `₹${PAYMENT_CONFIG.amountInr}`,
+          price: `₹${priceInr}`,
           validityLabel: '1 Year (365 Days)',
           activatedOn: calcExpiryStrFromMs(Date.now()),
           expiryStr: expStr,
           expiresAt: expMs,
           method,
           txnId,
-          status: 'Verified ✅'
+          status: 'Razorpay Verified ✅'
         };
         users[uid].sub = subRecord;
         if (!Array.isArray(users[uid].purchases)) users[uid].purchases = [];
         users[uid].purchases.unshift(subRecord);
         saveUsers(users);
+        cloudSaveUser(users[uid]);
         syncAuthUI();
         enforceAppAccessGate();
-        showToast(`👑 Super Pro Pass Activated (${txnId})! Valid till ${expStr}!`);
-        if (window.confetti) confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+        showToast(`👑 Super Pro Pass Auto-Unlocked! Receipt: ${txnId} (Valid till ${expStr})`);
+        if (window.confetti) confetti({ particleCount: 110, spread: 85, origin: { y: 0.6 } });
       }
 
-      // Copy Merchant UPI ID (9151345504@slc)
-      document.getElementById('copy-upi-btn')?.addEventListener('click', () => {
-        const upi = PAYMENT_CONFIG.merchantUpiId;
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(upi).then(() => showToast(`📋 UPI ID Copied: ${upi}`)).catch(() => showToast(`UPI ID: ${upi}`));
-        } else {
-          showToast(`UPI ID: ${upi}`);
+      async function ensureRazorpaySdkLoaded() {
+        if (typeof window.Razorpay === 'function') return true;
+        return new Promise((resolve) => {
+          const s = document.createElement('script');
+          s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          s.onload = () => resolve(typeof window.Razorpay === 'function');
+          s.onerror = () => resolve(false);
+          document.head.appendChild(s);
+        });
+      }
+
+      document.getElementById('rzp-pay-now-btn')?.addEventListener('click', async () => {
+        const errEl = document.getElementById('pay-err-msg');
+        const payBtn = document.getElementById('rzp-pay-now-btn');
+        errEl?.classList.add('hidden');
+        const uid = getCurrentUserId();
+        const user = getUsers()[uid] || { name: 'SSC Aspirant', uid: '' };
+        const priceInr = Number(PAYMENT_CONFIG.price || PAYMENT_CONFIG.amountInr || 99);
+        const rzpKey = (PAYMENT_CONFIG.razorpayKeyId || DEFAULT_RZP_KEY || '').trim();
+
+        if (!rzpKey || !rzpKey.startsWith('rzp_')) {
+          if (errEl) { errEl.textContent = 'Razorpay Key ID set nahi hai — Admin Panel me valid rzp_live_... key save karein.'; errEl.classList.remove('hidden'); }
+          return;
+        }
+
+        if (payBtn) { payBtn.disabled = true; payBtn.textContent = '⏳ Opening Razorpay Checkout...'; }
+        const loaded = await ensureRazorpaySdkLoaded();
+        if (!loaded) {
+          if (payBtn) { payBtn.disabled = false; payBtn.textContent = `💳 Pay ₹${priceInr} Now via Razorpay →`; }
+          if (errEl) { errEl.textContent = 'Internet connection check karein — Razorpay Checkout load nahi ho paya.'; errEl.classList.remove('hidden'); }
+          return;
+        }
+
+        try {
+          const rzp = new window.Razorpay({
+            key: rzpKey,
+            amount: Math.round(priceInr * 100),
+            currency: 'INR',
+            name: 'SSC Vocab 3D Pro',
+            description: 'Super Pro Pass — 1 Year Unlimited SSC Access',
+            image: 'https://amanchaudhary2701-maker.github.io/Ssc-vocab-pro-/icon-192.png',
+            prefill: {
+              name: user.name || 'SSC Aspirant',
+              email: (user.uid && user.uid.includes('@')) ? user.uid : ''
+            },
+            notes: {
+              student_uid: uid || '',
+              exam: user.exam || 'SSC CGL',
+              plan: 'Super Pro Pass 1 Year'
+            },
+            theme: { color: '#1d4ed8' },
+            handler: function (response) {
+              const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : ('RZP_' + Date.now());
+              activateSuperProForCurrentUser(payId, 'Razorpay Auto-Verified');
+            },
+            modal: {
+              ondismiss: function () {
+                if (payBtn) { payBtn.disabled = false; payBtn.textContent = `💳 Pay ₹${priceInr} Now via Razorpay →`; }
+              }
+            }
+          });
+          rzp.on('payment.failed', function (resp) {
+            const reason = (resp && resp.error && (resp.error.description || resp.error.reason)) || 'Payment failed';
+            if (errEl) {
+              errEl.textContent = `❌ Payment Failed: ${reason}`;
+              errEl.classList.remove('hidden');
+            }
+            if (payBtn) { payBtn.disabled = false; payBtn.textContent = `💳 Pay ₹${priceInr} Now via Razorpay →`; }
+          });
+          rzp.open();
+        } catch (err) {
+          if (errEl) { errEl.textContent = '❌ Razorpay open karne me error aaya — dobara try karein.'; errEl.classList.remove('hidden'); }
+        } finally {
+          setTimeout(() => {
+            if (payBtn) { payBtn.disabled = false; payBtn.textContent = `💳 Pay ₹${priceInr} Now via Razorpay →`; }
+          }, 1500);
         }
       });
-      // Save UPI QR Code PNG to Gallery (100% reliable fallback for Scan from Gallery in PhonePe/GPay)
-      document.getElementById('download-qr-btn')?.addEventListener('click', () => {
-        const box = document.getElementById('live-upi-qr-box');
-        const canvas = box ? box.querySelector('canvas') : null;
-        const img = box ? box.querySelector('img') : null;
-        let dataUrl = '';
-        if (canvas) {
-          const out = document.createElement('canvas');
-          out.width = 320; out.height = 350;
-          const ctx = out.getContext('2d');
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, 320, 350);
-          ctx.drawImage(canvas, 32, 24, 256, 256);
-          ctx.fillStyle = '#0f172a';
-          ctx.font = 'bold 16px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText('Aman kumar • ₹99 Super Pro Pass', 160, 308);
-          ctx.font = '13px monospace';
-          ctx.fillText('UPI: ' + PAYMENT_CONFIG.merchantUpiId, 160, 330);
-          dataUrl = out.toDataURL('image/png');
-        } else if (img) {
-          dataUrl = img.src;
-        }
-        if (!dataUrl) { showToast('QR code load ho raha hai, 1 second baad try karein.'); return; }
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = 'SSC_Vocab_Pro_UPI_99_QR.png';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        showToast('⬇️ QR Saved! Ab PhonePe/GPay me "Scan from Gallery" karke ₹99 pay karein.');
-      });
 
-
-      // Cryptographic Student-Bound Activation Key Generator & Verifier (Cheat-Proof!)
       const ADMIN_WHATSAPP = '919151345504';
       const ADMIN_PIN = '9151';
       const KEY_SALT = 'SSC_VOCAB_PRO_AMAN_9151345504_SALT_2026';
@@ -5670,58 +5652,6 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         const p2 = (h2 >>> 0).toString(36).toUpperCase().padStart(4, '0').slice(-4);
         return `PRO-${p1}-${p2}`;
       }
-
-      // Step 2: Build UTR WhatsApp Link + Copy Fallback (works even in restricted preview iframes!)
-      let _lastUtrPlainMsg = '';
-      document.getElementById('send-utr-wa-btn')?.addEventListener('click', () => {
-        const utr = (document.getElementById('pay-ref-input')?.value || '').trim();
-        const errEl = document.getElementById('pay-err-msg');
-        if (!/^[A-Za-z0-9]{10,22}$/.test(utr)) {
-          if (errEl) {
-            errEl.textContent = 'Pehle valid 12-digit UPI UTR / Reference number dalein (e.g. 432518904321).';
-            errEl.classList.remove('hidden');
-          }
-          return;
-        }
-        errEl?.classList.add('hidden');
-        const uid = getCurrentUserId();
-        const user = getUsers()[uid] || { name: 'Student', uid: uid || 'Unknown' };
-        _lastUtrPlainMsg = `Hi Aman Sir, maine ₹99 UPI (9151345504@slc) par pay kar diya hai.\nName: ${user.name}\nAccount: ${user.uid}\nUTR No: ${utr}\nPlease mera SSC Vocab Pro Activation Key bhej dein.`;
-        const waUrl = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(_lastUtrPlainMsg)}`;
-        const linkEl = document.getElementById('utr-wa-direct-link');
-        if (linkEl) linkEl.href = waUrl;
-        document.getElementById('utr-ready-box')?.classList.remove('hidden');
-        try { window.open(waUrl, '_blank', 'noopener,noreferrer'); } catch (e) {}
-        showToast('✅ UTR Ready! Open WhatsApp dabayein ya Copy Message karke 9151345504 par bhejein.');
-      });
-
-      document.getElementById('copy-utr-msg-btn')?.addEventListener('click', () => {
-        if (!_lastUtrPlainMsg) return;
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(_lastUtrPlainMsg).then(() => showToast('📋 UTR Message Copied! Ab WhatsApp (9151345504) par paste karke bhej dein.'));
-        } else {
-          showToast('Message ready — WhatsApp 9151345504 par bhejein.');
-        }
-      });
-
-      // Step 3: Verify Student-Bound Activation Key (Random numbers/keys ALWAYS rejected!)
-      document.getElementById('pay-confirm-btn')?.addEventListener('click', () => {
-        const enteredKey = (document.getElementById('activation-key-input')?.value || '').trim().toUpperCase();
-        const errEl = document.getElementById('pay-err-msg');
-        const uid = getCurrentUserId();
-        if (!uid) return;
-        const expectedKey = computeStudentActivationKey(uid);
-        if (enteredKey !== expectedKey) {
-          if (errEl) {
-            errEl.textContent = '❌ Invalid Activation Key! Random number ya galat key nahi chalegi — ₹99 pay karke Step 2 se apna UTR WhatsApp par bhejein.';
-            errEl.classList.remove('hidden');
-          }
-          return;
-        }
-        errEl?.classList.add('hidden');
-        const utr = (document.getElementById('pay-ref-input')?.value || '').trim();
-        activateSuperProForCurrentUser(utr ? `VERIFIED-UTR-${utr}` : `KEY-${enteredKey}`, 'UPI Verified');
-      });
 
       // Secret Admin Key Generator (Tap "👑 SUPER PRO PASS" heading 5 times)
       let adminTapCount = 0;
@@ -9691,7 +9621,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         <!-- TAB 1: KEYS, SOCIALS & STUDENTS -->
         <div id="admin-panel-keys" class="adm-panel space-y-4">
           <div class="p-3 rounded-xl bg-slate-900/90 border border-amber-400/30 text-[11px] flex items-center justify-between gap-2">
-            <span class="text-slate-300">UPI: <b id="admin-hdr-upi" class="text-amber-300 font-mono">9151345504@slc</b> • Price: <b id="admin-hdr-price" class="text-emerald-300">₹99</b></span>
+            <span class="text-slate-300">💳 Razorpay: <b id="admin-hdr-upi" class="text-amber-300 font-mono">rzp_live_U3EVvytqyA1dgj</b> • <b id="admin-hdr-price" class="text-emerald-300">₹99</b></span>
             <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">Admin Active</span>
           </div>
 
