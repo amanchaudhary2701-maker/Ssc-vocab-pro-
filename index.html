@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>SSC Vocab 3D Pro — 3D Animated English Vocabulary, 5-Year PYQ &amp; Daily Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -525,6 +525,68 @@
       #header-target-pill { display: none !important; }
       #app-brand-title { font-size: 0.85rem !important; }
     }
+  
+    /* === v38 UNIVERSAL EVERY-PHONE TOP-BAR FIT & ALL-WORD ZOOM === */
+    html, body {
+      overflow-x: clip !important;
+      max-width: 100vw;
+      -webkit-text-size-adjust: 100%;
+    }
+    header.sticky {
+      position: sticky !important;
+      top: 0 !important;
+      padding-top: env(safe-area-inset-top, 0px);
+      width: 100%;
+      max-width: 100vw;
+    }
+    main {
+      padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    }
+    /* Ultra-clean responsive top bar so even 320px-380px phones NEVER cut off the top header */
+    @media (max-width: 639px) {
+      header.sticky #logo-cube { width: 2rem !important; height: 2rem !important; }
+      header.sticky #app-brand-title { font-size: 0.82rem !important; max-width: 112px; overflow: hidden; text-overflow: ellipsis; }
+      header.sticky #kgs-light-toggle-btn,
+      header.sticky #header-font-btn,
+      header.sticky #header-admin-btn,
+      header.sticky #auth-open-btn,
+      header.sticky #about-open-btn {
+        padding: 0.3rem 0.48rem !important;
+        font-size: 11px !important;
+      }
+      header.sticky #auth-btn-label { max-width: 56px; overflow: hidden; text-overflow: ellipsis; display: inline-block; vertical-align: bottom; }
+      header.sticky .max-w-7xl { padding-left: 0.55rem !important; padding-right: 0.55rem !important; }
+    }
+
+    /* ALL-WORD GLOBAL ZOOM (A / A+ / A++ scales EVERY word across Flashcards, Roots, PYQs, Clusters, Quick Rev & CBT Tests!) */
+    :root { --word-zoom-factor: calc(var(--word-scale, 1.32) / 1.32); }
+    #fc-word, #qrev-word, #wotd-word {
+      font-size: clamp(1.35rem, calc(2.1rem * var(--word-zoom-factor)), 3.2rem) !important;
+      line-height: 1.18 !important;
+      word-break: break-word;
+    }
+    #fc-hindi, #fc-meaning, #fc-example, #fc-trick, #fc-syn, #fc-ant,
+    #qrev-meaning, #qrev-hindi, #wotd-meaning, #wotd-hindi {
+      font-size: calc(0.95rem * var(--word-zoom-factor)) !important;
+      line-height: 1.48 !important;
+    }
+    #root-words-list h4, #root-words-list .font-extrabold, #root-words-list .font-black,
+    #pyq-list h4, #pyq-list .font-bold,
+    #rev-clusters-list h4, #rev-clusters-list .font-bold,
+    #test-question-text {
+      font-size: calc(1rem * var(--word-zoom-factor)) !important;
+      line-height: 1.38 !important;
+    }
+    #root-words-list p, #pyq-list p, #rev-clusters-list p,
+    #test-options-grid button {
+      font-size: calc(0.86rem * var(--word-zoom-factor)) !important;
+      line-height: 1.45 !important;
+    }
+    .flashcard-3d, #fc-stage {
+      min-height: 290px;
+      height: auto !important;
+    }
+
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -2961,6 +3023,7 @@
     // =========================================================================
     function switchTab(tabName) {
       state.activeTab = tabName;
+      try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch(_) { window.scrollTo(0, 0); }
       document.querySelectorAll('.view-section').forEach(sec => {
         sec.classList.toggle('hidden', sec.id !== `view-${tabName}`);
       });
