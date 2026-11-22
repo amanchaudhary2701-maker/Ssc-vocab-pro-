@@ -565,97 +565,35 @@
     </div>
   </div>
 
-  <!-- ==================== STAGE 2: MANDATORY LOGIN / CREATE ACCOUNT GATE ==================== -->
+  <!-- ==================== STAGE 2: MANDATORY GOOGLE VERIFIED LOGIN GATE ==================== -->
   <div id="gate-auth-screen" class="fixed inset-0 z-[80] hidden overflow-y-auto flex items-center justify-center p-4" style="background: radial-gradient(circle at 20% 20%, #15214d 0%, #070b1a 60%, #03050c 100%);">
     <div class="glass-card rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-5 border-cyan-400/40 shadow-2xl my-auto">
-      <div class="text-center space-y-1.5">
-        <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-cyan-400 to-indigo-600 flex items-center justify-center text-3xl shadow-lg">🎓</div>
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-900 via-blue-700 to-indigo-800 border-2 border-amber-400 flex flex-col items-center justify-center shadow-lg">
+          <span class="text-2xl leading-none">👑</span>
+          <span class="text-[9px] font-black text-amber-300 tracking-widest mt-0.5">SSC PRO</span>
+        </div>
         <h2 class="text-2xl font-black bg-gradient-to-r from-cyan-200 via-white to-amber-200 bg-clip-text text-transparent">SSC VOCAB PRO</h2>
-        <p class="text-xs text-slate-300">Naya account banate hi 15 din ka FREE trial milta hai — uske baad Super Pro Pass!</p>
+        <p class="text-xs text-slate-300">Verified Google Account se login karein aur <span class="text-amber-300 font-extrabold">15 Din ka FREE Trial</span> paayein!</p>
       </div>
 
-      <!-- 1-TAP GOOGLE SIGN-IN (FIREBASE CLOUD SYNC) -->
-      <button type="button" id="gate-google-signin-btn" class="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-black text-sm shadow-lg flex items-center justify-center gap-2.5 transition">
-        <span class="text-lg font-black text-blue-600">G</span>
+      <p id="gate-auth-err" class="hidden text-xs font-bold text-rose-300 bg-rose-500/15 border border-rose-400/35 rounded-xl px-3.5 py-2.5"></p>
+
+      <!-- 1-TAP VERIFIED GOOGLE SIGN-IN ONLY (NO FAKE MOBILE NUMBERS) -->
+      <button type="button" id="gate-google-signin-btn" class="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-black text-sm shadow-xl flex items-center justify-center gap-2.5 transition">
+        <span class="text-xl font-black text-blue-600">G</span>
         <span>Continue with Google (1-Tap Verified)</span>
       </button>
-      <div class="flex items-center gap-2 text-[11px] text-slate-400">
-        <div class="h-px flex-1 bg-white/10"></div>
-        <span>YA Mobile / Email se</span>
-        <div class="h-px flex-1 bg-white/10"></div>
+
+      <!-- Anti-Abuse & Cloud Sync Assurance Card -->
+      <div class="p-4 rounded-2xl bg-slate-900/75 border border-cyan-400/25 space-y-2 text-xs text-slate-300">
+        <div class="flex items-center gap-2 text-emerald-300 font-extrabold">
+          <span>🛡️</span><span>100% Verified Google Security</span>
+        </div>
+        <p class="text-[11px] leading-relaxed text-slate-300">• Fake number accounts band hain — sirf asli Google account se hi login hoga.</p>
+        <p class="text-[11px] leading-relaxed text-slate-300">• <strong class="text-amber-200">1 Device = 1 Free 15-Day Trial</strong> — Day 16 par automatically Super Pro Pass (₹99 / 1 Year) screen aayegi.</p>
+        <p class="text-[11px] leading-relaxed text-slate-300">• Aapka test history, learned words aur pass hamesha Cloud me safe rahega.</p>
       </div>
-
-      <div class="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-900/90 border border-slate-700">
-        <button type="button" id="gate-tab-login" class="py-2.5 rounded-lg text-xs font-extrabold bg-cyan-500/25 text-cyan-200 border border-cyan-400/50">🔐 Login</button>
-        <button type="button" id="gate-tab-signup" class="py-2.5 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white">✨ Create Account</button>
-      </div>
-
-      <p id="gate-auth-err" class="hidden text-xs font-bold text-rose-300 bg-rose-500/15 border border-rose-400/35 rounded-xl px-3.5 py-2"></p>
-
-      <!-- Gate Login Form -->
-      <form id="gate-login-form" class="space-y-3.5">
-        <div>
-          <label class="text-xs font-bold text-slate-300 block mb-1">Email ya Mobile Number</label>
-          <input id="gate-login-id" type="text" required placeholder="e.g. aman@ssc.in ya 9876543210" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-        </div>
-        <div>
-          <label class="text-xs font-bold text-slate-300 block mb-1">Password</label>
-          <input id="gate-login-pass" type="password" required placeholder="Apna Password dalein" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-        </div>
-        <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-violet-600 text-white font-black text-sm shadow-xl hover:brightness-110 transition">🚀 Login &amp; Continue</button>
-      </form>
-
-      <!-- Gate Create Account Form -->
-      <form id="gate-signup-form" class="hidden space-y-3">
-        <div>
-          <label class="text-xs font-bold text-slate-300 block mb-1">Student Full Name</label>
-          <input id="gate-signup-name" type="text" required placeholder="e.g. Aman Singh" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-        </div>
-        <div>
-          <label class="text-xs font-bold text-slate-300 block mb-1">Email ya Mobile Number</label>
-          <input id="gate-signup-id" type="text" required placeholder="e.g. aman@ssc.in ya 9876543210" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-        </div>
-        <!-- ACTIVE SUPER PRO PASS / TRIAL MEMBERSHIP CARD -->
-        <div id="prof-pass-card" class="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-emerald-500/20 border border-amber-400/50 space-y-2">
-          <div class="flex items-center justify-between gap-2">
-            <span id="prof-pass-title" class="text-xs font-black text-amber-200 uppercase tracking-wider">🎁 15-Day Free Trial</span>
-            <span id="prof-pass-days" class="px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-400/50 text-emerald-200 text-[11px] font-black">15 Days Left</span>
-          </div>
-          <div id="prof-pass-details" class="text-[11px] text-slate-200 space-y-0.5">
-            <p id="prof-pass-validity">Valid Till: —</p>
-            <p id="prof-pass-txn" class="font-mono text-cyan-200 hidden">Receipt: —</p>
-            <p class="text-emerald-300 font-semibold">✨ Synced: Latest 2026 Edition (9,588+ BlackBook &amp; CGL 2026 PYQs)</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2.5">
-          <div>
-            <label class="text-xs font-bold text-slate-300 block mb-1">Target Exam</label>
-            <select id="gate-signup-exam" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
-              <option value="SSC CGL">SSC CGL</option>
-              <option value="SSC CHSL">SSC CHSL</option>
-              <option value="SSC MTS">SSC MTS</option>
-              <option value="SSC CPO">SSC CPO</option>
-              <option value="SSC GD">SSC GD</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-xs font-bold text-slate-300 block mb-1">Daily Goal</label>
-            <select id="gate-signup-goal" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
-              <option value="10">10 Words/Day</option>
-              <option value="20" selected>20 Words/Day</option>
-              <option value="30">30 Words/Day</option>
-              <option value="50">50 Words/Day</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="text-xs font-bold text-slate-300 block mb-1">Create Password (min 4 chars)</label>
-          <input id="gate-signup-pass" type="password" required minlength="4" placeholder="Kam se kam 4-letter Password banayein" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-        </div>
-        <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-600 text-white font-black text-sm shadow-xl hover:brightness-110 transition">🎁 Create Account &amp; Start 15-Day Free Trial</button>
-      </form>
-
     </div>
   </div>
 
@@ -4547,10 +4485,111 @@
         }
         syncHeaderStats();
         syncAuthUI();
+        const _curUAll = getUsers();
+        if (_curUAll[uid]) {
+          await enforceDeviceTrialLock(uid, _curUAll[uid]);
+          saveUsers(_curUAll);
+          cloudSaveUser(_curUAll[uid]);
+        }
         syncMenuScreen();
         enforceAppAccessGate();
       }
 
+
+      
+      // =========================================================================
+      // ANTI-FAKE 1-DEVICE = 1-TRIAL LOCK (localStorage + IndexedDB + Firestore)
+      // =========================================================================
+      const DEVICE_TRIAL_KEY = 'ssc_vocab_device_trial_v1';
+      function getDeviceFingerprintHash() {
+        try {
+          const raw = [
+            screen.width || 0,
+            screen.height || 0,
+            screen.colorDepth || 0,
+            navigator.hardwareConcurrency || 0,
+            navigator.maxTouchPoints || 0,
+            navigator.platform || '',
+            navigator.language || '',
+            (Intl.DateTimeFormat && Intl.DateTimeFormat().resolvedOptions().timeZone) || ''
+          ].join('|');
+          let h = 2166136261;
+          for (let i = 0; i < raw.length; i++) {
+            h ^= raw.charCodeAt(i);
+            h = Math.imul(h, 16777619);
+          }
+          return 'dev_' + (h >>> 0).toString(16);
+        } catch (e) {
+          return 'dev_default';
+        }
+      }
+
+      function readLocalDeviceTrial() {
+        try {
+          const raw = localStorage.getItem(DEVICE_TRIAL_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+      }
+
+      function writeLocalDeviceTrial(rec) {
+        try {
+          const s = JSON.stringify(rec);
+          localStorage.setItem(DEVICE_TRIAL_KEY, s);
+          if (typeof idbWrite === 'function') idbWrite(DEVICE_TRIAL_KEY, s);
+        } catch (e) {}
+      }
+
+      async function cloudFetchDeviceTrial(fpHash) {
+        if (!fbDb || !fpHash) return null;
+        try {
+          const doc = await fbDb.collection('device_trials').doc(fpHash).get();
+          return doc.exists ? doc.data() : null;
+        } catch (e) { return null; }
+      }
+
+      async function cloudSaveDeviceTrial(fpHash, rec) {
+        if (!fbDb || !fpHash || !rec) return;
+        try {
+          await fbDb.collection('device_trials').doc(fpHash).set(rec, { merge: true });
+        } catch (e) {}
+      }
+
+      async function enforceDeviceTrialLock(uid, userObj) {
+        if (!userObj) return userObj;
+        const fpHash = getDeviceFingerprintHash();
+        const trialDaysMs = ((typeof PAYMENT_CONFIG !== 'undefined' && PAYMENT_CONFIG.trialDays) ? PAYMENT_CONFIG.trialDays : 15) * 86400000;
+        const locRec = readLocalDeviceTrial();
+        const cloudRec = await cloudFetchDeviceTrial(fpHash);
+
+        const candidates = [
+          locRec && locRec.trialStartedAt,
+          cloudRec && cloudRec.trialStartedAt,
+          userObj.trialStartedAt
+        ].filter(v => typeof v === 'number' && v > 1600000000000);
+
+        const earliestStart = candidates.length ? Math.min(...candidates) : Date.now();
+        const lockedExpiry = earliestStart + trialDaysMs;
+        const firstUid = (cloudRec && cloudRec.firstUid) || (locRec && locRec.firstUid) || uid;
+
+        // Pin this account's trial on this device to the earliest trial ever started on this device
+        userObj.trialStartedAt = earliestStart;
+        userObj.trialExpiresAt = lockedExpiry;
+        userObj.deviceFpHash = fpHash;
+        if (firstUid && uid && firstUid !== uid) {
+          userObj.deviceTrialSharedFrom = firstUid;
+        }
+
+        const lockRecord = {
+          fpHash,
+          firstUid,
+          trialStartedAt: earliestStart,
+          trialExpiresAt: lockedExpiry,
+          updatedAt: Date.now()
+        };
+        writeLocalDeviceTrial(lockRecord);
+        cloudSaveDeviceTrial(fpHash, lockRecord);
+        return userObj;
+      }
 
       // 1-TAP GOOGLE SIGN-IN (FIREBASE AUTH — POPUP + MOBILE/APK REDIRECT SUPPORT)
       let _googleLoginHandled = false;
@@ -4576,6 +4615,7 @@
           sub: (existing && existing.sub) || null,
           purchases: (existing && existing.purchases) || []
         };
+        await enforceDeviceTrialLock(uid, users[uid]);
         saveUsers(users);
         cloudSaveUser(users[uid]);
         try { _memCurUserFallback = uid; localStorage.setItem(AUTH_CUR_KEY, uid); idbWrite(AUTH_CUR_KEY, uid); } catch(err) {}
@@ -4597,9 +4637,9 @@
           const code = err && err.code ? err.code : '';
           if (code && gateErr) {
             if (code === 'auth/unauthorized-domain') {
-              gateErr.textContent = `Firebase Authorized Domains mein "${window.location.hostname}" add karein, ya niche Mobile/Email login use karein.`;
+              gateErr.textContent = `Firebase Authorized Domains mein "${window.location.hostname}" add karein aur dobara Google Sign-In tap karein.`;
             } else {
-              gateErr.textContent = `Google Sign-In error (${code}) — niche Mobile/Email login use karein.`;
+              gateErr.textContent = `Google Sign-In error (${code}) — kripya dobara "Continue with Google" tap karein.`;
             }
             gateErr.classList.remove('hidden');
           }
@@ -4613,12 +4653,12 @@
 
       document.getElementById('gate-google-signin-btn')?.addEventListener('click', async () => {
         if (!fbAuth || typeof firebase === 'undefined') {
-          gateErr.textContent = 'Internet connection check karein ya niche Mobile/Email se login karein.';
+          gateErr.textContent = 'Internet connection check karein aur dobara "Continue with Google" tap karein.';
           gateErr.classList.remove('hidden');
           return;
         }
         if (window.location.protocol === 'file:' || window.location.protocol === 'content:') {
-          gateErr.textContent = 'Google Sign-In live website/APK par chalta hai — local file par niche Mobile/Email login use karein!';
+          gateErr.textContent = 'Google Sign-In live website/APK par chalta hai — kripya live app link par open karein.';
           gateErr.classList.remove('hidden');
           return;
         }
@@ -4641,17 +4681,17 @@
               return;
             } catch (rErr) {
               const rCode = rErr && rErr.code ? rErr.code : 'redirect-failed';
-              gateErr.textContent = `Google Sign-In error (${rCode}) — niche Mobile/Email + Password se login karein.`;
+              gateErr.textContent = `Google Sign-In error (${rCode}) — kripya dobara "Continue with Google" tap karein.`;
               gateErr.classList.remove('hidden');
             }
           } else if (code === 'auth/unauthorized-domain') {
-            gateErr.textContent = `Firebase Authorized Domains mein "${window.location.hostname}" add karein, ya niche Mobile/Email login use karein.`;
+            gateErr.textContent = `Firebase Authorized Domains mein "${window.location.hostname}" add karein aur dobara Google Sign-In tap karein.`;
             gateErr.classList.remove('hidden');
           } else if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
-            gateErr.textContent = 'Google login popup band ho gaya — dubara tap karein ya niche Email/Mobile + Password use karein.';
+            gateErr.textContent = 'Google login popup band ho gaya — kripya dobara "Continue with Google" tap karein.';
             gateErr.classList.remove('hidden');
           } else {
-            gateErr.textContent = `Google Sign-In error (${code || 'offline'}) — niche Mobile/Email + Password login use karein.`;
+            gateErr.textContent = `Google Sign-In error (${code || 'offline'}) — internet check karke dobara Google Sign-In tap karein.`;
             gateErr.classList.remove('hidden');
           }
         } finally {
@@ -4660,6 +4700,11 @@
         }
       });
 
+
+            document.getElementById('modal-google-signin-btn')?.addEventListener('click', () => {
+        authModal?.classList.add('hidden');
+        document.getElementById('gate-google-signin-btn')?.click();
+      });
 
       // NATIVE MENU SCREEN SYNC & ACTIONS
       function syncMenuScreen() {
@@ -4784,65 +4829,10 @@
         authModal?.classList.remove('hidden');
       });
       document.getElementById('auth-close-btn')?.addEventListener('click', () => authModal?.classList.add('hidden'));
-      document.getElementById('auth-tab-login')?.addEventListener('click', () => {
-        document.getElementById('login-form').classList.remove('hidden');
-        document.getElementById('signup-form').classList.add('hidden');
-        document.getElementById('auth-tab-login').className = 'py-2 rounded-lg text-xs font-extrabold bg-cyan-500/25 text-cyan-200 border border-cyan-400/40';
-        document.getElementById('auth-tab-signup').className = 'py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white';
-        authErr?.classList.add('hidden');
-      });
-      document.getElementById('auth-tab-signup')?.addEventListener('click', () => {
-        document.getElementById('signup-form').classList.remove('hidden');
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('auth-tab-signup').className = 'py-2 rounded-lg text-xs font-extrabold bg-emerald-500/25 text-emerald-200 border border-emerald-400/40';
-        document.getElementById('auth-tab-login').className = 'py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white';
-        authErr?.classList.add('hidden');
-      });
+      // Legacy fake Mobile/Email modal forms removed — Google Verified Sign-In Only
 
-      document.getElementById('signup-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('signup-name').value.trim();
-        const uid = normalizeAccountId(document.getElementById('signup-id').value);
-        const exam = document.getElementById('signup-exam').value;
-        const goal = parseInt(document.getElementById('signup-goal').value, 10) || 20;
-        const pass = document.getElementById('signup-pass').value;
-        const users = getUsers();
-        const exU = Object.prototype.hasOwnProperty.call(users, uid) ? users[uid] : null;
-        const trialExp = (exU && exU.trialExpiresAt) ? exU.trialExpiresAt : (Date.now() + PAYMENT_CONFIG.trialDays * 86400000);
-        users[uid] = { name, uid, exam, goal, pass, trialStartedAt, trialExpiresAt: trialExp, sub: (exU && exU.sub) ? exU.sub : null };
-        saveUsers(users);
-        try { _memCurUserFallback = uid; localStorage.setItem(AUTH_CUR_KEY, uid); idbWrite(AUTH_CUR_KEY, uid); } catch(err) {}
-        reloadStateForActiveUser();
-        state.dailyGoal = goal;
-        saveState();
-        syncHeaderStats();
-        syncAuthUI();
-        authModal?.classList.add('hidden');
-        showToast(`🎉 Welcome ${name}! ${exam} account ready hai!`);
-      });
-
-      document.getElementById('login-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const uid = normalizeAccountId(document.getElementById('login-id').value);
-        const pass = document.getElementById('login-pass').value;
-        const users = getUsers();
-        if (!users[uid] || users[uid].pass !== pass) {
-          authErr.textContent = 'Invalid Email/Mobile ya Password — naye user hain toh Create Account karein.';
-          authErr.classList.remove('hidden');
-          return;
-        }
-        try { _memCurUserFallback = uid; localStorage.setItem(AUTH_CUR_KEY, uid); idbWrite(AUTH_CUR_KEY, uid); } catch(err) {}
-        reloadStateForActiveUser();
-        state.dailyGoal = users[uid].goal || state.dailyGoal;
-        saveState();
-        syncHeaderStats();
-        syncAuthUI();
-        authModal?.classList.add('hidden');
-        showToast(`👋 Welcome back, ${users[uid].name}!`);
-      });
-
-      document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
-        try { _memCurUserFallback = ''; localStorage.removeItem(AUTH_CUR_KEY); idbDelete(AUTH_CUR_KEY); } catch(err) {}
+document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
+        try { _memCurUserFallback = ''; _googleLoginHandled = false; localStorage.removeItem(AUTH_CUR_KEY); idbDelete(AUTH_CUR_KEY); if (fbAuth && fbAuth.currentUser) fbAuth.signOut().catch(()=>{}); } catch(err) {}
         syncAuthUI();
         showToast('Logged out successfully.');
         authModal?.classList.add('hidden');
@@ -4897,7 +4887,7 @@
           const daysLeft = Math.max(1, Math.ceil((user.sub.expiresAt - Date.now()) / 86400000));
           if (hdrBtn) {
             hdrBtn.textContent = `👑 SUPER PRO (${daysLeft}d)`;
-            hdrBtn.className = 'hidden sm:inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-gradient-to-r from-amber-400/30 to-emerald-500/25 border border-amber-400/70 text-amber-200 text-[11px] font-black whitespace-nowrap shadow';
+            hdrBtn.className = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-400/30 to-emerald-500/25 border border-amber-400/70 text-amber-200 text-[11px] font-black whitespace-nowrap shadow shrink-0';
           }
           if (profSubEl) profSubEl.textContent = `✅ SUPER PRO PASS ACTIVE • ${daysLeft} Days Left`;
           if (pTitle) pTitle.textContent = '✅ 👑 SUPER PRO PASS — ACTIVE';
@@ -4920,7 +4910,7 @@
           const daysLeft = getTrialDaysLeft(user);
           if (hdrBtn) {
             hdrBtn.textContent = daysLeft > 0 ? `🎁 ${daysLeft}d Free • Go Pro` : '🔒 Buy Super Pro';
-            hdrBtn.className = 'hidden sm:inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 text-[11px] font-extrabold hover:bg-amber-500/30 transition whitespace-nowrap';
+            hdrBtn.className = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-200 text-[11px] font-extrabold hover:bg-amber-500/30 transition whitespace-nowrap shrink-0';
           }
           if (profSubEl) {
             profSubEl.textContent = daysLeft > 0
@@ -4962,7 +4952,13 @@
         } else {
           closeEarly?.classList.add('hidden');
           if (statusPill) statusPill.textContent = '🔒 15-Day Free Trial Khatam — Pass Required';
-          if (wLine) wLine.textContent = `${user ? user.name + ', aapka' : 'Aapka'} 15 din ka free trial khatam ho gaya hai. App continue karne ke liye Super Pro Pass activate karein.`;
+          if (wLine) {
+            if (user && user.deviceTrialSharedFrom) {
+              wLine.textContent = `🛡️ Is device par 15-day free trial pehle hi use ho chuka hai. Continue karne ke liye Super Pro Pass (₹99 / 1 Year) activate karein.`;
+            } else {
+              wLine.textContent = `${user ? user.name + ', aapka' : 'Aapka'} 15 din ka free trial khatam ho gaya hai. App continue karne ke liye Super Pro Pass activate karein.`;
+            }
+          }
         }
         document.getElementById('sub-plans-grid')?.classList.remove('hidden');
         document.getElementById('sub-checkout-panel')?.classList.add('hidden');
@@ -5031,106 +5027,9 @@
         document.getElementById('gate-sub-screen')?.classList.add('hidden');
       });
 
-      // Gate Auth Tab Toggles
-      document.getElementById('gate-tab-login')?.addEventListener('click', () => {
-        document.getElementById('gate-login-form').classList.remove('hidden');
-        document.getElementById('gate-signup-form').classList.add('hidden');
-        document.getElementById('gate-tab-login').className = 'py-2.5 rounded-lg text-xs font-extrabold bg-cyan-500/25 text-cyan-200 border border-cyan-400/50';
-        document.getElementById('gate-tab-signup').className = 'py-2.5 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white';
-        gateErr?.classList.add('hidden');
-      });
-      document.getElementById('gate-tab-signup')?.addEventListener('click', () => {
-        document.getElementById('gate-signup-form').classList.remove('hidden');
-        document.getElementById('gate-login-form').classList.add('hidden');
-        document.getElementById('gate-tab-signup').className = 'py-2.5 rounded-lg text-xs font-extrabold bg-emerald-500/25 text-emerald-200 border border-emerald-400/50';
-        document.getElementById('gate-tab-login').className = 'py-2.5 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white';
-        gateErr?.classList.add('hidden');
-      });
+      // Legacy fake Mobile/Email gate forms removed — Google Verified Sign-In Only + 1-Device Trial Lock
 
-      let _authSubmitBusy = false;
-      document.getElementById('gate-signup-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (_authSubmitBusy) return;
-        _authSubmitBusy = true;
-        setTimeout(() => { _authSubmitBusy = false; }, 600);
-
-        const name = document.getElementById('gate-signup-name').value.trim() || 'SSC Student';
-        const uid = normalizeAccountId(document.getElementById('gate-signup-id').value);
-        const exam = document.getElementById('gate-signup-exam').value;
-        const goal = parseInt(document.getElementById('gate-signup-goal').value, 10) || 20;
-        const pass = (document.getElementById('gate-signup-pass').value || '').trim();
-        if (!uid || uid.length < 3) {
-          gateErr.textContent = 'Valid Email ya 10-digit Mobile Number dalein.';
-          gateErr.classList.remove('hidden');
-          return;
-        }
-        if (pass.length < 4) {
-          gateErr.textContent = '❌ Kam se kam 4-letter ka Password banayein.';
-          gateErr.classList.remove('hidden');
-          return;
-        }
-        gateErr?.classList.add('hidden');
-        const users = getUsers();
-        const existing = Object.prototype.hasOwnProperty.call(users, uid) ? users[uid] : null;
-        if (existing && existing.isAdmin) {
-          gateErr.textContent = 'Yeh Admin ID hai — apna personal Email ya Mobile use karein.';
-          gateErr.classList.remove('hidden');
-          return;
-        }
-        // Preserve any active Super Pro Pass or original trial expiry if account existed on this phone, otherwise start fresh 15-day trial!
-        const trialStartedAt = (existing && existing.trialStartedAt) ? existing.trialStartedAt : Date.now();
-        const trialExp = (existing && existing.trialExpiresAt) ? existing.trialExpiresAt : (trialStartedAt + PAYMENT_CONFIG.trialDays * 86400000);
-        const preservedSub = (existing && existing.sub) ? existing.sub : null;
-        users[uid] = { name, uid, exam, goal, pass, trialStartedAt, trialExpiresAt: trialExp, sub: preservedSub };
-        saveUsers(users);
-        try { _memCurUserFallback = uid; localStorage.setItem(AUTH_CUR_KEY, uid); idbWrite(AUTH_CUR_KEY, uid); } catch(err) {}
-        reloadStateForActiveUser();
-        state.dailyGoal = goal;
-        saveState();
-        syncHeaderStats();
-        syncAuthUI();
-        enforceAppAccessGate();
-        showToast(preservedSub ? `👑 Welcome back ${name}! Aapka Super Pro Pass auto-saved hai!` : `🎁 Welcome ${name}! Account auto-save ho gaya & 15-Day FREE Trial active!`);
-        if (window.confetti) confetti({ particleCount: 70, spread: 65, origin: { y: 0.6 } });
-      });
-
-      document.getElementById('gate-login-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const uid = normalizeAccountId(document.getElementById('gate-login-id').value);
-        const pass = (document.getElementById('gate-login-pass').value || '').trim();
-        const users = getUsers();
-        if (!users[uid] && fbDb) {
-          cloudFetchUser(uid).then(cu => {
-            if (cu && cu.pass === pass) {
-              users[uid] = cu; saveUsers(users);
-              try { _memCurUserFallback = uid; localStorage.setItem(AUTH_CUR_KEY, uid); idbWrite(AUTH_CUR_KEY, uid); } catch(e) {}
-              reloadStateForActiveUser(); syncActiveUserFromCloud(uid);
-              showToast(`☁️ Cloud Account Synced: Welcome ${cu.name}!`);
-            }
-          });
-        }
-        if (!users[uid]) {
-          gateErr.textContent = 'Is number/email ka account nahi mila — Create Account tab se naya account banayein.';
-          gateErr.classList.remove('hidden');
-          return;
-        }
-        const passOk = pass.length > 0 && users[uid].pass === pass;
-        if (!passOk) {
-          gateErr.textContent = '❌ Galat Password — apna sahi Password dalein.';
-          gateErr.classList.remove('hidden');
-          return;
-        }
-        gateErr?.classList.add('hidden');
-        try { _memCurUserFallback = uid; localStorage.setItem(AUTH_CUR_KEY, uid); idbWrite(AUTH_CUR_KEY, uid); } catch(err) {}
-        reloadStateForActiveUser();
-        state.dailyGoal = users[uid].goal || state.dailyGoal;
-        saveState();
-        syncHeaderStats();
-        syncAuthUI();
-        enforceAppAccessGate();
-      });
-
-      // Super Pro Pass -> Real Payment Checkout Screen
+// Super Pro Pass -> Real Payment Checkout Screen
       document.getElementById('sub-plans-grid')?.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-select-plan]');
         if (!btn) return;
@@ -5168,7 +5067,7 @@
       });
 
       document.getElementById('sub-switch-acc-btn')?.addEventListener('click', () => {
-        try { _memCurUserFallback = ''; localStorage.removeItem(AUTH_CUR_KEY); idbDelete(AUTH_CUR_KEY); } catch(err) {}
+        try { _memCurUserFallback = ''; _googleLoginHandled = false; localStorage.removeItem(AUTH_CUR_KEY); idbDelete(AUTH_CUR_KEY); if (fbAuth && fbAuth.currentUser) fbAuth.signOut().catch(()=>{}); } catch(err) {}
         syncAuthUI();
         enforceAppAccessGate();
       });
@@ -8796,72 +8695,19 @@
     <div class="glass-card rounded-3xl max-w-md w-full p-6 space-y-5 border-cyan-400/40 relative">
       <button id="auth-close-btn" type="button" class="absolute top-4 right-4 w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-lg flex items-center justify-center">✕</button>
 
-      <!-- Logged-Out Auth View -->
+      <!-- Logged-Out Auth View (Google Verified Only) -->
       <div id="auth-forms-wrap" class="space-y-4">
-        <div class="text-center space-y-1">
+        <div class="text-center space-y-1.5">
           <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center text-3xl shadow-lg">🎓</div>
           <h3 class="text-xl font-extrabold text-white">SSC Aspirant Account</h3>
-          <p class="text-xs text-slate-300">Apna progress, streak, bookmarks, XP rank aur test history save karein.</p>
+          <p class="text-xs text-slate-300">Verified Google Account se login karein — progress, streak, tests &amp; pass hamesha safe rahega.</p>
         </div>
-
-        <div class="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-900/90 border border-slate-700">
-          <button type="button" id="auth-tab-login" class="py-2 rounded-lg text-xs font-extrabold bg-cyan-500/25 text-cyan-200 border border-cyan-400/40">🔐 Login</button>
-          <button type="button" id="auth-tab-signup" class="py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white">✨ Create Account</button>
-        </div>
-
         <p id="auth-error-msg" class="hidden text-xs font-bold text-rose-300 bg-rose-500/15 border border-rose-400/30 rounded-xl px-3 py-2"></p>
-
-        <!-- Login Form -->
-        <form id="login-form" class="space-y-3">
-          <div>
-            <label class="text-xs font-bold text-slate-300 block mb-1">Email ya Mobile Number</label>
-            <input id="login-id" type="text" required placeholder="e.g. aman@ssc.in ya 9876543210" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-          </div>
-          <div>
-            <label class="text-xs font-bold text-slate-300 block mb-1">Password</label>
-            <input id="login-pass" type="password" required placeholder="Apna password dalein" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-          </div>
-          <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-extrabold text-sm shadow-lg hover:brightness-110 transition">🚀 Login to My Dashboard</button>
-        </form>
-
-        <!-- Sign Up Form -->
-        <form id="signup-form" class="hidden space-y-3">
-          <div>
-            <label class="text-xs font-bold text-slate-300 block mb-1">Student Name</label>
-            <input id="signup-name" type="text" required placeholder="e.g. Aman Singh" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-          </div>
-          <div>
-            <label class="text-xs font-bold text-slate-300 block mb-1">Email ya Mobile Number</label>
-            <input id="signup-id" type="text" required placeholder="e.g. aman@ssc.in" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-          </div>
-          <div class="grid grid-cols-2 gap-2.5">
-            <div>
-              <label class="text-xs font-bold text-slate-300 block mb-1">Target SSC Exam</label>
-              <select id="signup-exam" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
-                <option value="SSC CGL 2026 T1">🆕 SSC CGL 2026 Tier-1 (All 467 Qs)</option>
-                <option value="SSC CGL">SSC CGL (All Years)</option>
-                <option value="SSC CHSL">SSC CHSL</option>
-                <option value="SSC MTS">SSC MTS</option>
-                <option value="SSC CPO">SSC CPO</option>
-                <option value="SSC GD">SSC GD</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-xs font-bold text-slate-300 block mb-1">Daily Word Goal</label>
-              <select id="signup-goal" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
-                <option value="10">10 Words / Day</option>
-                <option value="20" selected>20 Words / Day</option>
-                <option value="30">30 Words / Day</option>
-                <option value="50">50 Words / Day</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label class="text-xs font-bold text-slate-300 block mb-1">Create Password (min 4 chars)</label>
-            <input id="signup-pass" type="password" required minlength="4" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-          </div>
-          <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-600 text-white font-extrabold text-sm shadow-lg hover:brightness-110 transition">✨ Create Free Account</button>
-        </form>
+        <button type="button" id="modal-google-signin-btn" class="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-black text-sm shadow-lg flex items-center justify-center gap-2.5 transition">
+          <span class="text-lg font-black text-blue-600">G</span>
+          <span>Continue with Google (1-Tap Verified)</span>
+        </button>
+        <p class="text-[11px] text-center text-slate-400">🛡️ Fake number signup disabled • 1 Device = 1 Free 15-Day Trial</p>
       </div>
 
       <!-- Logged-In Student Profile Dashboard -->
@@ -8893,6 +8739,19 @@
             <p class="text-xl font-black text-rose-300" id="prof-weak">0</p>
           </div>
         </div>
+        <!-- ACTIVE SUPER PRO PASS / TRIAL MEMBERSHIP CARD -->
+        <div id="prof-pass-card" class="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-emerald-500/20 border border-amber-400/50 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <span id="prof-pass-title" class="text-xs font-black text-amber-200 uppercase tracking-wider">🎁 15-Day Free Trial</span>
+            <span id="prof-pass-days" class="px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-400/50 text-emerald-200 text-[11px] font-black">15 Days Left</span>
+          </div>
+          <div id="prof-pass-details" class="text-[11px] text-slate-200 space-y-0.5">
+            <p id="prof-pass-validity">Valid Till: —</p>
+            <p id="prof-pass-txn" class="font-mono text-cyan-200 hidden">Receipt: —</p>
+            <p class="text-emerald-300 font-semibold">✨ Synced: Latest 2026 Edition (9,588+ BlackBook &amp; CGL 2026 PYQs)</p>
+          </div>
+        </div>
+
         <!-- AUTO-SAVED PURCHASE HISTORY -->
         <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-white/10 space-y-2">
           <div class="flex items-center justify-between">
