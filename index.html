@@ -9866,12 +9866,17 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             <button id="adm-pdf-upload-btn" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-black text-xs shadow-lg hover:brightness-110 transition">🚀 Publish PDF to Student Folder</button>
           </div>
 
-          <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-black text-amber-200">📂 Live PDFs in Student Folder</span>
-              <span id="adm-pdf-count" class="text-[11px] text-cyan-300 font-bold">0 PDFs</span>
+          <div class="space-y-2.5 pt-1 border-t border-white/10">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-black text-amber-200">📊 Category-Wise PDF Data (Auto-Saved ☁️)</span>
+              <div class="flex items-center gap-1.5">
+                <span id="adm-pdf-count" class="text-[11px] text-cyan-300 font-black">0 PDFs</span>
+                <button type="button" id="adm-pdf-sync-btn" class="px-2 py-0.5 rounded-lg bg-slate-800 border border-cyan-400/40 text-cyan-200 text-[10px] font-bold">🔄 Sync</button>
+              </div>
             </div>
-            <div id="adm-pdf-list" class="max-h-56 overflow-y-auto space-y-2 pr-1"></div>
+            <!-- Live Auto-Updating Subject-Wise PDF Count Chips (Tap to Filter) -->
+            <div id="adm-pdf-stats-grid" class="flex flex-wrap gap-1.5"></div>
+            <div id="adm-pdf-list" class="max-h-60 overflow-y-auto space-y-2 pr-1"></div>
           </div>
         </div>
 
@@ -11472,21 +11477,48 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         const admCnt = document.getElementById('adm-pdf-count');
         if (admCnt) admCnt.textContent = `${_pdfItems.length} PDFs`;
 
-        // 1. Admin PDF List
+        // 1. Admin Category-Wise Stats Chips + Filtered List + Safe Permanent Delete from Student Panel
+        if (typeof window._admPdfSubFilter === 'undefined') window._admPdfSubFilter = 'All';
+        const statsGrid = document.getElementById('adm-pdf-stats-grid');
+        if (statsGrid) {
+          const counts = {};
+          _pdfItems.forEach(p => {
+            const s = p.subject || 'English';
+            counts[s] = (counts[s] || 0) + 1;
+          });
+          const subs = ['All', ...Object.keys(PDF_SUBJECT_TOPICS)];
+          statsGrid.innerHTML = subs.map(s => {
+            const c = s === 'All' ? _pdfItems.length : (counts[s] || 0);
+            const active = window._admPdfSubFilter === s;
+            return `<button type="button" data-apdf-filt="${s}" class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold border transition ${
+              active
+                ? 'bg-amber-500/25 border-amber-400/65 text-amber-200'
+                : 'bg-slate-900 border-white/10 text-slate-300 hover:text-white'
+            }">${s}: <span class="text-cyan-300">${c}</span></button>`;
+          }).join('');
+          statsGrid.querySelectorAll('[data-apdf-filt]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              window._admPdfSubFilter = btn.dataset.apdfFilt || 'All';
+              renderPdfLists();
+            });
+          });
+        }
+
         const admList = document.getElementById('adm-pdf-list');
         if (admList) {
-          if (!_pdfItems.length) {
-            admList.innerHTML = '<p class="text-[11px] text-slate-400 text-center py-4">Abhi koi PDF upload nahi hua hai — upar se apna pehla PDF publish karein!</p>';
+          const admFiltered = _pdfItems.filter(p => window._admPdfSubFilter === 'All' || (p.subject || 'English') === window._admPdfSubFilter);
+          if (!admFiltered.length) {
+            admList.innerHTML = '<p class="text-[11px] text-slate-400 text-center py-4">Is category me koi PDF nahi hai.</p>';
           } else {
-            admList.innerHTML = _pdfItems.map(p => `
+            admList.innerHTML = admFiltered.map(p => `
               <div class="p-2.5 rounded-xl bg-slate-900/90 border border-white/10 flex items-center justify-between gap-2">
                 <div class="min-w-0">
                   <p class="text-xs font-extrabold text-white truncate">📄 ${p.title}</p>
-                  <p class="text-[10px] text-slate-400">${p.subject || 'English'} → ${p.category || 'Vocab Notes'} • ${p.sizeLabel || 'PDF'} • ${p.dateStr || ''}</p>
+                  <p class="text-[10px] text-slate-300"><span class="text-amber-300 font-bold">${p.subject || 'English'}</span> → <span class="text-cyan-300">${p.category || 'Vocab Notes'}</span> • ${p.sizeLabel || 'PDF'} • ${p.dateStr || ''}</p>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
-                  <button type="button" data-apdf-dl="${p.id}" class="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-200 text-[10px] font-bold">⬇️</button>
-                  <button type="button" data-apdf-del="${p.id}" class="px-2 py-1 rounded-lg bg-rose-500/20 text-rose-200 text-[10px] font-bold hover:bg-rose-500/35">🗑️</button>
+                  <button type="button" data-apdf-dl="${p.id}" class="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-200 text-[10px] font-bold" title="Download PDF">⬇️</button>
+                  <button type="button" data-apdf-del="${p.id}" class="px-2.5 py-1 rounded-lg bg-rose-500/25 border border-rose-400/40 text-rose-200 text-[10px] font-extrabold hover:bg-rose-500/40" title="Delete from Student Panel">🗑️ Delete</button>
                 </div>
               </div>
             `).join('');
@@ -11499,11 +11531,19 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             admList.querySelectorAll('[data-apdf-del]').forEach(b => {
               b.addEventListener('click', async () => {
                 const pid = b.dataset.apdfDel;
+                if (b.dataset.armed !== '1') {
+                  b.dataset.armed = '1';
+                  b.textContent = 'Confirm?';
+                  setTimeout(() => { if (b) { b.dataset.armed = ''; b.textContent = '🗑️ Delete'; } }, 3500);
+                  return;
+                }
+                b.disabled = true;
+                b.textContent = '⏳...';
                 _pdfItems = _pdfItems.filter(x => x.id !== pid);
                 savePdfCache();
                 renderPdfLists();
                 await deletePdfFromCloudReliable(pid);
-                if (typeof showToast === 'function') showToast('🗑️ PDF Student Folder se remove ho gaya.');
+                if (typeof showToast === 'function') showToast('🗑️ PDF Student Panel & Cloud Database dono se permanently delete ho gaya!');
               });
             });
           }
@@ -11640,6 +11680,9 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
 
       async function deletePdfFromCloudReliable(pid) {
         try { await fetch(`${FS_REST_BASE}/${encodeURIComponent(pid)}?key=${encodeURIComponent(FS_API_KEY)}`, { method: 'DELETE' }); } catch (e) {}
+        if (typeof fbDb !== 'undefined' && fbDb) {
+          try { await fbDb.collection('ssc_pdfs').doc(pid).delete(); } catch (e) {}
+        }
         const remaining = _pdfItems.filter(x => x.id !== pid);
         await syncPdfCatalogToGithub(remaining);
       }
@@ -11912,6 +11955,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       });
       renderStudentTopicChips();
 
+      document.getElementById('adm-pdf-sync-btn')?.addEventListener('click', () => { fetchPdfsFromCloudReliable(); if (typeof showToast === 'function') showToast('🔄 PDF Folder Cloud se sync ho gaya!'); });
       setTimeout(subscribeLivePdfs, 600);
     })();
   </script>
