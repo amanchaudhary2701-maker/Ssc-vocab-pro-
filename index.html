@@ -565,35 +565,107 @@
     </div>
   </div>
 
-  <!-- ==================== STAGE 2: MANDATORY GOOGLE VERIFIED LOGIN GATE ==================== -->
+  <!-- ==================== STAGE 2: GOOGLE + REAL EMAIL VERIFICATION GATE ==================== -->
   <div id="gate-auth-screen" class="fixed inset-0 z-[80] hidden overflow-y-auto flex items-center justify-center p-4" style="background: radial-gradient(circle at 20% 20%, #15214d 0%, #070b1a 60%, #03050c 100%);">
-    <div class="glass-card rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-5 border-cyan-400/40 shadow-2xl my-auto">
-      <div class="text-center space-y-2">
-        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-900 via-blue-700 to-indigo-800 border-2 border-amber-400 flex flex-col items-center justify-center shadow-lg">
-          <span class="text-2xl leading-none">👑</span>
-          <span class="text-[9px] font-black text-amber-300 tracking-widest mt-0.5">SSC PRO</span>
+    <div class="glass-card rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-4 border-cyan-400/40 shadow-2xl my-auto">
+      <div class="text-center space-y-1.5">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-blue-900 via-blue-700 to-indigo-800 border-2 border-amber-400 flex flex-col items-center justify-center shadow-lg">
+          <span class="text-xl leading-none">👑</span>
+          <span class="text-[8px] font-black text-amber-300 tracking-widest mt-0.5">SSC PRO</span>
         </div>
         <h2 class="text-2xl font-black bg-gradient-to-r from-cyan-200 via-white to-amber-200 bg-clip-text text-transparent">SSC VOCAB PRO</h2>
-        <p class="text-xs text-slate-300">Verified Google Account se login karein aur <span class="text-amber-300 font-extrabold">15 Din ka FREE Trial</span> paayein!</p>
+        <p class="text-xs text-slate-300">Verified Google ya Email Verify Link se login karein — <span class="text-amber-300 font-extrabold">1 Device = 1 Free 15-Day Trial</span></p>
       </div>
 
-      <p id="gate-auth-err" class="hidden text-xs font-bold text-rose-300 bg-rose-500/15 border border-rose-400/35 rounded-xl px-3.5 py-2.5"></p>
-
-      <!-- 1-TAP VERIFIED GOOGLE SIGN-IN ONLY (NO FAKE MOBILE NUMBERS) -->
-      <button type="button" id="gate-google-signin-btn" class="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-black text-sm shadow-xl flex items-center justify-center gap-2.5 transition">
-        <span class="text-xl font-black text-blue-600">G</span>
-        <span>Continue with Google (1-Tap Verified)</span>
+      <!-- 1-TAP GOOGLE SIGN-IN -->
+      <button type="button" id="gate-google-signin-btn" class="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-black text-sm shadow-lg flex items-center justify-center gap-2.5 transition">
+        <span class="text-lg font-black text-blue-600">G</span>
+        <span>Continue with Google (Instant Verified)</span>
       </button>
 
-      <!-- Anti-Abuse & Cloud Sync Assurance Card -->
-      <div class="p-4 rounded-2xl bg-slate-900/75 border border-cyan-400/25 space-y-2 text-xs text-slate-300">
-        <div class="flex items-center gap-2 text-emerald-300 font-extrabold">
-          <span>🛡️</span><span>100% Verified Google Security</span>
-        </div>
-        <p class="text-[11px] leading-relaxed text-slate-300">• Fake number accounts band hain — sirf asli Google account se hi login hoga.</p>
-        <p class="text-[11px] leading-relaxed text-slate-300">• <strong class="text-amber-200">1 Device = 1 Free 15-Day Trial</strong> — Day 16 par automatically Super Pro Pass (₹99 / 1 Year) screen aayegi.</p>
-        <p class="text-[11px] leading-relaxed text-slate-300">• Aapka test history, learned words aur pass hamesha Cloud me safe rahega.</p>
+      <div class="flex items-center gap-2 text-[11px] text-slate-400">
+        <div class="h-px flex-1 bg-white/10"></div>
+        <span>YA Verified Email se (No Fake Numbers)</span>
+        <div class="h-px flex-1 bg-white/10"></div>
       </div>
+
+      <div class="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-900/90 border border-slate-700">
+        <button type="button" id="gate-em-tab-login" class="py-2 rounded-lg text-xs font-extrabold bg-cyan-500/25 text-cyan-200 border border-cyan-400/50">🔐 Email Login</button>
+        <button type="button" id="gate-em-tab-signup" class="py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white">✉️ Verify &amp; Sign Up</button>
+      </div>
+
+      <p id="gate-auth-err" class="hidden text-xs font-bold text-rose-300 bg-rose-500/15 border border-rose-400/35 rounded-xl px-3.5 py-2"></p>
+
+      <!-- Mandatory Email Verification Pending Box -->
+      <div id="gate-verify-box" class="hidden p-4 rounded-2xl bg-amber-500/15 border border-amber-400/50 space-y-3">
+        <div class="flex items-start gap-2.5">
+          <span class="text-xl leading-none">📧</span>
+          <div class="space-y-1">
+            <p class="text-xs font-black text-amber-200">Email Verification Required!</p>
+            <p id="gate-verify-msg" class="text-[11px] text-slate-200 leading-relaxed">Aapke email inbox (ya Spam folder) me verification link bheja gaya hai. Link par click karne ke baad niche button dabayein.</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" id="gate-verify-check-btn" class="py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition">✅ I Verified Email</button>
+          <button type="button" id="gate-verify-resend-btn" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-amber-400/40 text-amber-200 font-bold text-xs transition">🔁 Resend Link</button>
+        </div>
+      </div>
+
+      <!-- Verified Email Login Form -->
+      <form id="gate-em-login-form" class="space-y-3">
+        <div>
+          <label class="text-xs font-bold text-slate-300 block mb-1">Verified Email Address</label>
+          <input id="gate-em-login-email" type="email" required placeholder="e.g. yourname@gmail.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-bold text-slate-300">Password</label>
+            <button type="button" id="gate-em-forgot-btn" class="text-[11px] font-bold text-cyan-300 hover:text-cyan-200">Forgot Password?</button>
+          </div>
+          <input id="gate-em-login-pass" type="password" required minlength="6" placeholder="Apna Password dalein" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
+        </div>
+        <button type="submit" id="gate-em-login-submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-violet-600 text-white font-black text-sm shadow-xl hover:brightness-110 transition">🚀 Login with Verified Email</button>
+      </form>
+
+      <!-- Verified Email Sign Up Form -->
+      <form id="gate-em-signup-form" class="hidden space-y-2.5">
+        <div>
+          <label class="text-xs font-bold text-slate-300 block mb-1">Student Full Name</label>
+          <input id="gate-em-signup-name" type="text" required placeholder="e.g. Aman Kumar" class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-300 block mb-1">Real Email Address (Verification Link Aayega)</label>
+          <input id="gate-em-signup-email" type="email" required placeholder="e.g. yourname@gmail.com" class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs font-bold text-slate-300 block mb-1">Target Exam</label>
+            <select id="gate-em-signup-exam" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400">
+              <option value="SSC CGL">SSC CGL</option>
+              <option value="SSC CHSL">SSC CHSL</option>
+              <option value="SSC MTS">SSC MTS</option>
+              <option value="SSC CPO">SSC CPO</option>
+              <option value="SSC GD">SSC GD</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-bold text-slate-300 block mb-1">Daily Goal</label>
+            <select id="gate-em-signup-goal" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400">
+              <option value="10">10 Words/Day</option>
+              <option value="20" selected>20 Words/Day</option>
+              <option value="30">30 Words/Day</option>
+              <option value="50">50 Words/Day</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-300 block mb-1">Create Password (min 6 characters)</label>
+          <input id="gate-em-signup-pass" type="password" required minlength="6" placeholder="Kam se kam 6 characters" class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
+        </div>
+        <button type="submit" id="gate-em-signup-submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-600 text-white font-black text-sm shadow-xl hover:brightness-110 transition">✉️ Send Verification Link &amp; Register</button>
+      </form>
+
+      <p class="text-[10px] text-center text-slate-400">🛡️ Fake number signup band hai • Bina email verify kiye app open nahi hoga • 1 Device = 1 Free Trial</p>
     </div>
   </div>
 
@@ -4646,7 +4718,10 @@
         });
         fbAuth.onAuthStateChanged(async (gUser) => {
           if (gUser && !getActiveUserId()) {
-            await completeGoogleUserLogin(gUser, false);
+            const isGoogleProv = (gUser.providerData || []).some(p => p && p.providerId === 'google.com');
+            if (isGoogleProv || gUser.emailVerified) {
+              await completeGoogleUserLogin(gUser, false);
+            }
           }
         });
       }
@@ -5027,7 +5102,204 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         document.getElementById('gate-sub-screen')?.classList.add('hidden');
       });
 
-      // Legacy fake Mobile/Email gate forms removed — Google Verified Sign-In Only + 1-Device Trial Lock
+      // REAL FIREBASE EMAIL + PASSWORD VERIFICATION (MANDATORY EMAIL VERIFY LINK + 1-DEVICE TRIAL LOCK)
+      let _pendingVerifyMeta = null;
+
+      function showGateErr(msg) {
+        if (!gateErr) return;
+        gateErr.textContent = msg;
+        gateErr.classList.remove('hidden');
+      }
+
+      document.getElementById('gate-em-tab-login')?.addEventListener('click', () => {
+        document.getElementById('gate-em-login-form')?.classList.remove('hidden');
+        document.getElementById('gate-em-signup-form')?.classList.add('hidden');
+        document.getElementById('gate-em-tab-login').className = 'py-2 rounded-lg text-xs font-extrabold bg-cyan-500/25 text-cyan-200 border border-cyan-400/50';
+        document.getElementById('gate-em-tab-signup').className = 'py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white';
+        gateErr?.classList.add('hidden');
+      });
+
+      document.getElementById('gate-em-tab-signup')?.addEventListener('click', () => {
+        document.getElementById('gate-em-signup-form')?.classList.remove('hidden');
+        document.getElementById('gate-em-login-form')?.classList.add('hidden');
+        document.getElementById('gate-em-tab-signup').className = 'py-2 rounded-lg text-xs font-extrabold bg-emerald-500/25 text-emerald-200 border border-emerald-400/50';
+        document.getElementById('gate-em-tab-login').className = 'py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white';
+        gateErr?.classList.add('hidden');
+      });
+
+      function showVerifyPendingBox(email) {
+        const box = document.getElementById('gate-verify-box');
+        const msg = document.getElementById('gate-verify-msg');
+        if (msg) msg.textContent = `Verification link "${email}" par bheja gaya hai (Inbox ya Spam folder check karein). Link par click karne ke baad "✅ I Verified Email" dabayein.`;
+        box?.classList.remove('hidden');
+      }
+
+      // Sign Up -> Create Firebase Auth user -> Send Real Verification Link -> Block until verified!
+      document.getElementById('gate-em-signup-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        gateErr?.classList.add('hidden');
+        if (!fbAuth || typeof firebase === 'undefined') {
+          showGateErr('Internet connection check karein — Email verification ke liye online hona zaroori hai.');
+          return;
+        }
+        const name = (document.getElementById('gate-em-signup-name').value || '').trim();
+        const email = (document.getElementById('gate-em-signup-email').value || '').trim().toLowerCase();
+        const exam = document.getElementById('gate-em-signup-exam').value || 'SSC CGL';
+        const goal = parseInt(document.getElementById('gate-em-signup-goal').value, 10) || 20;
+        const pass = document.getElementById('gate-em-signup-pass').value || '';
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+          showGateErr('❌ Valid Email address dalein (10-digit fake numbers allowed nahi hain).');
+          return;
+        }
+        if (pass.length < 6) {
+          showGateErr('❌ Password kam se kam 6 characters ka hona chahiye.');
+          return;
+        }
+
+        const btn = document.getElementById('gate-em-signup-submit');
+        btn.disabled = true;
+        btn.textContent = '⏳ Sending Verification Link...';
+        try {
+          const cred = await fbAuth.createUserWithEmailAndPassword(email, pass);
+          if (cred.user) {
+            try { await cred.user.updateProfile({ displayName: name || 'SSC Aspirant' }); } catch(_) {}
+            await cred.user.sendEmailVerification();
+            _pendingVerifyMeta = { name: name || 'SSC Aspirant', exam, goal };
+            showVerifyPendingBox(email);
+            showToast('📧 Verification link sent! Inbox/Spam check karein.');
+          }
+        } catch (err) {
+          const code = err && err.code ? err.code : '';
+          if (code === 'auth/email-already-in-use') {
+            showGateErr('Ye email pehle se registered hai — "Email Login" tab se login karein.');
+          } else if (code === 'auth/operation-not-allowed') {
+            showGateErr('Admin Note: Firebase Console → Authentication → Sign-in method me "Email/Password" Enable karein, ya "Continue with Google" use karein.');
+          } else if (code === 'auth/invalid-email') {
+            showGateErr('❌ Galat email format — sahi email dalein.');
+          } else if (code === 'auth/weak-password') {
+            showGateErr('❌ Password kam se kam 6 characters ka rakhein.');
+          } else {
+            showGateErr(`Sign-Up error (${code || 'network'}) — kripya dobara try karein.`);
+          }
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '✉️ Send Verification Link & Register';
+        }
+      });
+
+      // Login -> Require emailVerified === true!
+      document.getElementById('gate-em-login-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        gateErr?.classList.add('hidden');
+        if (!fbAuth || typeof firebase === 'undefined') {
+          showGateErr('Internet connection check karein.');
+          return;
+        }
+        const email = (document.getElementById('gate-em-login-email').value || '').trim().toLowerCase();
+        const pass = document.getElementById('gate-em-login-pass').value || '';
+        const btn = document.getElementById('gate-em-login-submit');
+        btn.disabled = true;
+        btn.textContent = '⏳ Checking Verified Account...';
+        try {
+          const cred = await fbAuth.signInWithEmailAndPassword(email, pass);
+          const u = cred.user;
+          await u.reload();
+          if (!u.emailVerified) {
+            showVerifyPendingBox(email);
+            showGateErr('🔒 Pehle apna email verify karein! Inbox/Spam me aaye link par click karein.');
+            return;
+          }
+          document.getElementById('gate-verify-box')?.classList.add('hidden');
+          await completeGoogleUserLogin(u, true);
+        } catch (err) {
+          const code = err && err.code ? err.code : '';
+          if (code === 'auth/user-not-found' || code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
+            showGateErr('❌ Email ya Password galat hai — naye student hain toh "Verify & Sign Up" tab use karein.');
+          } else if (code === 'auth/operation-not-allowed') {
+            showGateErr('Admin Note: Firebase Console → Authentication → Sign-in method me "Email/Password" Enable karein.');
+          } else {
+            showGateErr(`Login error (${code || 'network'}) — kripya dobara try karein.`);
+          }
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '🚀 Login with Verified Email';
+        }
+      });
+
+      // Check Email Verification Button
+      document.getElementById('gate-verify-check-btn')?.addEventListener('click', async () => {
+        gateErr?.classList.add('hidden');
+        if (!fbAuth || !fbAuth.currentUser) {
+          showGateErr('Pehle Email & Password se login ya sign up karein.');
+          return;
+        }
+        const btn = document.getElementById('gate-verify-check-btn');
+        btn.disabled = true;
+        btn.textContent = '⏳ Checking...';
+        try {
+          await fbAuth.currentUser.reload();
+          const u = fbAuth.currentUser;
+          if (!u.emailVerified) {
+            showGateErr('⏳ Abhi email verify nahi hua hai — Inbox/Spam me aaye Firebase link par click karein aur dobara tap karein.');
+            return;
+          }
+          document.getElementById('gate-verify-box')?.classList.add('hidden');
+          await completeGoogleUserLogin(u, true);
+          if (_pendingVerifyMeta) {
+            const uid = normalizeAccountId(u.email || u.uid);
+            const users = getUsers();
+            if (users[uid]) {
+              users[uid].name = _pendingVerifyMeta.name || users[uid].name;
+              users[uid].exam = _pendingVerifyMeta.exam || users[uid].exam;
+              users[uid].goal = _pendingVerifyMeta.goal || users[uid].goal;
+              saveUsers(users);
+              cloudSaveUser(users[uid]);
+              state.dailyGoal = users[uid].goal;
+              saveState();
+              syncHeaderStats();
+              syncAuthUI();
+            }
+            _pendingVerifyMeta = null;
+          }
+        } catch (err) {
+          showGateErr('Verification check fail hua — dobara try karein.');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '✅ I Verified Email';
+        }
+      });
+
+      // Resend Verification Link Button
+      document.getElementById('gate-verify-resend-btn')?.addEventListener('click', async () => {
+        if (!fbAuth || !fbAuth.currentUser) {
+          showGateErr('Pehle Email Login ya Sign Up karein.');
+          return;
+        }
+        try {
+          await fbAuth.currentUser.sendEmailVerification();
+          showToast('📧 Verification link dobara bhej diya gaya hai! Inbox/Spam check karein.');
+        } catch (err) {
+          showGateErr('Thodi der ruk kar (1 min baad) Resend Link dabayein.');
+        }
+      });
+
+      // Forgot Password Reset Email
+      document.getElementById('gate-em-forgot-btn')?.addEventListener('click', async () => {
+        const email = (document.getElementById('gate-em-login-email').value || '').trim().toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+          showGateErr('Password reset ke liye upar apna registered Email dalein.');
+          return;
+        }
+        try {
+          await fbAuth.sendPasswordResetEmail(email);
+          gateErr?.classList.add('hidden');
+          showToast('🔑 Password reset link aapke email par bhej diya gaya hai!');
+        } catch (err) {
+          showGateErr('Reset email bhejne me dikkat aayi — sahi registered email dalein.');
+        }
+      });
+
 
 // Super Pro Pass -> Real Payment Checkout Screen
       document.getElementById('sub-plans-grid')?.addEventListener('click', (e) => {
