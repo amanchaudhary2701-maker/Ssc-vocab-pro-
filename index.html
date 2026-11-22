@@ -2640,10 +2640,18 @@
       } catch (e) { return Promise.resolve(false); }
     }
 
+    function withCloudTimeout(promise, ms = 4000, fallback = null) {
+      return Promise.race([
+        promise,
+        new Promise(resolve => setTimeout(() => resolve(fallback), ms))
+      ]);
+    }
+
     async function cloudFetchUser(uid) {
       if (!fbDb || !uid) return null;
       try {
-        const snap = await fbDb.collection('ssc_users').doc(safeFbDocId(uid)).get();
+        const snap = await withCloudTimeout(fbDb.collection('ssc_users').doc(safeFbDocId(uid)).get(), 4000, null);
+        if (!snap) return null;
         window._lastCloudErr = '';
         return snap.exists ? snap.data() : null;
       } catch (e) {
@@ -2693,7 +2701,7 @@
     async function cloudLoadProgress(uid) {
       if (!fbDb || !uid) return null;
       try {
-        const snap = await fbDb.collection('ssc_progress').doc(safeFbDocId(uid)).get();
+        const snap = await withCloudTimeout(fbDb.collection('ssc_progress').doc(safeFbDocId(uid)).get(), 4000, null); if (!snap) return null;
         return snap.exists ? snap.data() : null;
       } catch (e) { return null; }
     }
@@ -4671,7 +4679,7 @@
       async function cloudFetchDeviceTrial(fpHash) {
         if (!fbDb || !fpHash) return null;
         try {
-          const doc = await fbDb.collection('device_trials').doc(fpHash).get();
+          const doc = await withCloudTimeout(fbDb.collection('device_trials').doc(fpHash).get(), 4000, null); if (!doc) return null;
           return doc.exists ? doc.data() : null;
         } catch (e) { return null; }
       }
@@ -4720,39 +4728,82 @@
         return userObj;
       }
 
-      // 1-TAP GOOGLE SIGN-IN (FIREBASE AUTH — POPUP + MOBILE/APK REDIRECT SUPPORT)
+      // Alias safety so getActiveUserId never throws ReferenceError anywhere
+      const getActiveUserId = getCurrentUserId;
+
+      // 1-TAP GOOGLE & VERIFIED EMAIL SIGN-IN (INSTANT DASHBOARD OPEN — ZERO REFRESH NEEDED + GUARANTEED CLOUD SYNC)
       let _googleLoginHandled = false;
       async function completeGoogleUserLogin(gUser, showCelebrate = true) {
         if (!gUser) return;
         const uid = normalizeAccountId(gUser.email || gUser.uid);
-        if (_googleLoginHandled && getActiveUserId() === uid) return;
+        if (_googleLoginHandled && getCurrentUserId() === uid) {
+          enforceAppAccessGate();
+          return;
+        }
         _googleLoginHandled = true;
-        const cloudRec = await cloudFetchUser(uid);
-        const users = getUsers();
-        const existing = cloudRec || users[uid] || null;
-        const trialStartedAt = (existing && existing.trialStartedAt) ? existing.trialStartedAt : Date.now();
-        const trialExp = (existing && existing.trialExpiresAt) ? existing.trialExpiresAt : (trialStartedAt + PAYMENT_CONFIG.trialDays * 86400000);
-        users[uid] = {
-          name: (existing && existing.name) || gUser.displayName || 'SSC Aspirant',
+
+        // STEP 1: INSTANT LOCAL ENTRY (0ms wait — student NEVER has to refresh!)
+        const users0 = getUsers();
+        const locExisting = users0[uid] || null;
+        const initTrialStart = (locExisting && locExisting.trialStartedAt) ? locExisting.trialStartedAt : Date.now();
+        const initTrialExp = (locExisting && locExisting.trialExpiresAt) ? locExisting.trialExpiresAt : (initTrialStart + PAYMENT_CONFIG.trialDays * 86400000);
+        users0[uid] = {
+          name: (locExisting && locExisting.name) || gUser.displayName || (uid.includes('@') ? uid.split('@')[0] : 'SSC Aspirant'),
           uid,
-          exam: (existing && existing.exam) || 'SSC CGL',
-          goal: (existing && existing.goal) || 20,
-          pass: (existing && existing.pass) || 'GOOGLE_VERIFIED',
-          photo: (existing && existing.photo) || gUser.photoURL || '',
+          exam: (locExisting && locExisting.exam) || 'SSC CGL',
+          goal: (locExisting && locExisting.goal) || 20,
+          pass: (locExisting && locExisting.pass) || 'GOOGLE_VERIFIED',
+          photo: (locExisting && locExisting.photo) || gUser.photoURL || '',
           googleVerified: true,
-          trialStartedAt, trialExpiresAt: trialExp,
-          sub: (existing && existing.sub) || null,
-          purchases: (existing && existing.purchases) || []
+          trialStartedAt: initTrialStart,
+          trialExpiresAt: initTrialExp,
+          sub: (locExisting && locExisting.sub) || null,
+          purchases: (locExisting && locExisting.purchases) || [],
+          wordsLearned: (locExisting && locExisting.wordsLearned) || 0,
+          testsTaken: (locExisting && locExisting.testsTaken) || 0,
+          lastActiveAt: Date.now()
         };
-        await enforceDeviceTrialLock(uid, users[uid]);
-        saveUsers(users);
-        cloudSaveUser(users[uid]);
+        saveUsers(users0);
         try { _memCurUserFallback = uid; localStorage.setItem(AUTH_CUR_KEY, uid); idbWrite(AUTH_CUR_KEY, uid); } catch(err) {}
         reloadStateForActiveUser();
-        await syncActiveUserFromCloud(uid);
+        syncHeaderStats();
+        syncAuthUI();
+        syncMenuScreen();
+        enforceAppAccessGate();
         if (showCelebrate) {
-          showToast(`✅ Google Verified: Welcome ${users[uid].name}! Cloud Sync ON ☁️`);
+          showToast(`✅ Verified Login: Welcome ${users0[uid].name}! ☁️`);
           if (window.confetti) confetti({ particleCount: 70, spread: 65, origin: { y: 0.6 } });
+        }
+
+        // STEP 2: GUARANTEED CLOUD SYNC + 1-DEVICE TRIAL LOCK (Runs cleanly right away with retry so Admin Panel gets student immediately!)
+        try {
+          const cloudRec = await cloudFetchUser(uid);
+          const users = getUsers();
+          const cur = users[uid] || users0[uid];
+          const bestSub = (cur.sub && cur.sub.expiresAt && (!cloudRec || !cloudRec.sub || cur.sub.expiresAt > (cloudRec.sub.expiresAt || 0)))
+            ? cur.sub
+            : ((cloudRec && cloudRec.sub) || cur.sub || null);
+          const merged = {
+            ...cur,
+            ...(cloudRec || {}),
+            uid,
+            name: (cloudRec && cloudRec.name) || cur.name,
+            photo: (cloudRec && cloudRec.photo) || cur.photo || '',
+            googleVerified: true,
+            sub: bestSub,
+            lastActiveAt: Date.now()
+          };
+          await enforceDeviceTrialLock(uid, merged);
+          users[uid] = merged;
+          saveUsers(users);
+          const savedOk = await cloudSaveUser(users[uid]);
+          if (!savedOk) {
+            setTimeout(() => { cloudSaveUser(getUsers()[uid]); }, 2500);
+          }
+          await syncActiveUserFromCloud(uid);
+        } catch (syncErr) {
+          console.warn('Background cloud sync retry:', syncErr);
+          setTimeout(() => { cloudSaveUser(getUsers()[uid]); }, 2500);
         }
       }
 
@@ -4774,7 +4825,7 @@
           }
         });
         fbAuth.onAuthStateChanged(async (gUser) => {
-          if (gUser && !getActiveUserId()) {
+          if (gUser && !getCurrentUserId()) {
             const isGoogleProv = (gUser.providerData || []).some(p => p && p.providerId === 'google.com');
             if (isGoogleProv || gUser.emailVerified) {
               await completeGoogleUserLogin(gUser, false);
