@@ -408,6 +408,77 @@
       touch-action: pan-y;
       transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
     }
+
+    /* NEXT-GEN 3D FLAGSHIP MODEL V26: 3D Tactile Cards, Floating 3D Badges, Glossy Sheen & Big Reading Fonts */
+    :root { --word-scale: 1.32; }
+
+    @keyframes float3D {
+      0%, 100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+      50% { transform: translateY(-6px) rotateX(4deg) rotateY(-4deg); }
+    }
+    .anim-float-3d { animation: float3D 3.6s ease-in-out infinite; transform-style: preserve-3d; }
+
+    @keyframes sheenSweep {
+      0% { transform: translateX(-140%) skewX(-22deg); }
+      45%, 100% { transform: translateX(260%) skewX(-22deg); }
+    }
+    .sheen-3d { position: relative; overflow: hidden; }
+    .sheen-3d::after {
+      content: ''; position: absolute; top: 0; left: 0; width: 42%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+      animation: sheenSweep 4.8s ease-in-out infinite; pointer-events: none;
+    }
+
+    /* 3D Tactile Push-Buttons & Course Tiles */
+    .btn-3d-push {
+      border-bottom-width: 4px !important;
+      transition: transform 0.14s ease, box-shadow 0.14s ease, border-bottom-width 0.14s ease;
+    }
+    .btn-3d-push:active {
+      transform: translateY(2px) scale(0.98) !important;
+      border-bottom-width: 1px !important;
+    }
+
+    .kgs-tile {
+      border-bottom-width: 4px !important;
+      box-shadow: 0 10px 24px -8px rgba(30, 58, 138, 0.20) !important;
+      transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease !important;
+    }
+    .kgs-tile:hover {
+      transform: translateY(-4px) scale(1.015) !important;
+      box-shadow: 0 18px 32px -10px rgba(30, 58, 138, 0.28) !important;
+    }
+    .kgs-tile:active { transform: translateY(1px) scale(0.97) !important; }
+
+    /* Big Ultra-Clear Word & Full Hindi Explanation Cards */
+    .pro-word-big { font-size: calc(2.1rem * var(--word-scale)) !important; line-height: 1.15 !important; }
+    .pro-grid-word { font-size: calc(1.22rem * var(--word-scale)) !important; line-height: 1.25 !important; }
+    .pro-read-meaning { font-size: calc(0.98rem * var(--word-scale)) !important; line-height: 1.55 !important; }
+    .pro-read-hindi {
+      font-size: calc(1.02rem * var(--word-scale)) !important;
+      line-height: 1.6 !important;
+      border-left-width: 4px !important;
+    }
+    .pro-about-box {
+      font-size: calc(0.84rem * var(--word-scale)) !important;
+      line-height: 1.55 !important;
+    }
+
+    /* 3D CBT Test Options */
+    #test-options-container button, #dc-options button {
+      border-bottom-width: 4px !important;
+      font-size: calc(0.92rem * var(--word-scale)) !important;
+      padding: 0.85rem 1rem !important;
+      border-radius: 1rem !important;
+      transition: transform 0.14s ease !important;
+    }
+    #test-options-container button:active, #dc-options button:active {
+      transform: translateY(2px) !important;
+    }
+    #test-question-text, #test-word-display {
+      font-size: calc(1.35rem * var(--word-scale)) !important;
+      line-height: 1.35 !important;
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -743,14 +814,31 @@
       <!-- ================= VIEW 1: 3D VOCAB STUDIO ================= -->
       <!-- ==================== VIEW 0: KGS-STYLE EDTECH HOME DASHBOARD ==================== -->
       <section id="view-home" class="view-section space-y-4 sm:space-y-5">
-        <!-- KGS Greeting + Target Bar -->
-        <div class="glass-card rounded-2xl p-4 border border-indigo-400/25 flex items-center justify-between gap-3">
-          <div class="min-w-0">
-            <p class="text-[11px] font-bold text-cyan-400 uppercase tracking-wider">SSC Vocab Pro • Classic Learning Hub</p>
-            <h2 id="kgs-greet-name" class="text-lg sm:text-xl font-black text-white truncate">Namaste, SSC Aspirant 👋</h2>
-            <p id="kgs-greet-meta" class="text-xs text-slate-400 font-semibold">Target: SSC CGL • 9,291+ BlackBook &amp; CGL 2026 PYQs</p>
+        <!-- NEXT-GEN 3D MASTERY HERO DASHBOARD CARD -->
+        <div class="sheen-3d classic-banner-keep rounded-3xl p-5 bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 border-2 border-amber-400/45 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div class="anim-float-3d w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 via-yellow-300 to-orange-500 flex flex-col items-center justify-center shadow-xl border-2 border-white/60 shrink-0">
+              <span class="text-2xl leading-none">🎓</span>
+            </div>
+            <div class="min-w-0 space-y-0.5">
+              <span class="inline-block px-2 py-0.5 rounded-full bg-amber-400/20 border border-amber-300/50 text-amber-300 text-[10px] font-black tracking-wider uppercase">✨ 3D Smart SSC Studio</span>
+              <h2 id="kgs-greet-name" class="text-xl sm:text-2xl font-black text-white truncate">Namaste, SSC Aspirant 👋</h2>
+              <p id="kgs-greet-meta" class="text-xs sm:text-sm text-blue-100 font-semibold">Target: SSC CGL • 9,291+ Words &amp; 467 PYQs</p>
+            </div>
           </div>
-          <button type="button" id="kgs-home-pass-btn" class="shrink-0 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs shadow-lg hover:brightness-110 transition">👑 Super Pro</button>
+          <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+            <div class="flex items-center gap-2.5 bg-white/10 border border-white/20 rounded-2xl px-3 py-2">
+              <svg class="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="3.5"></circle>
+                <circle id="home-3d-ring" cx="18" cy="18" r="15" fill="none" stroke="#fbbf24" stroke-width="3.5" stroke-dasharray="94.2" stroke-dashoffset="70" stroke-linecap="round"></circle>
+              </svg>
+              <div>
+                <p id="home-3d-ring-pct" class="text-sm font-black text-amber-300 leading-none">0%</p>
+                <p class="text-[10px] text-blue-100 font-bold">Daily Goal</p>
+              </div>
+            </div>
+            <button type="button" id="kgs-home-pass-btn" class="btn-3d-push px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 border-amber-700 text-slate-950 font-black text-xs shadow-lg">👑 Super Pro</button>
+          </div>
         </div>
 
         <!-- CLASSIC AUTO-SLIDING 3-CARD HERO CAROUSEL -->
@@ -1401,6 +1489,19 @@
 
       <!-- ================= VIEW 3: CBT MOCK TEST ================= -->
       <section id="view-test" class="view-section hidden space-y-5">
+        <!-- NEXT-GEN 3D CBT EXAM ARENA HEADER -->
+        <div class="sheen-3d classic-banner-keep rounded-3xl p-5 bg-gradient-to-r from-rose-700 via-indigo-800 to-blue-900 border-2 border-rose-400/40 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3.5">
+            <div class="anim-float-3d w-12 h-12 rounded-2xl bg-white/15 border border-white/30 flex items-center justify-center text-2xl shrink-0">🏆</div>
+            <div>
+              <span class="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase">⚡ SSC CBT 3D ARENA</span>
+              <h2 class="text-lg sm:text-xl font-black text-white mt-0.5">Live Mock Test &amp; 60s Rapid Blitz</h2>
+              <p class="text-xs text-blue-100 font-medium">Real SSC Marking (+2.00 / -0.50) • Instant Weak-Word Tracking • Big Readable Options</p>
+            </div>
+          </div>
+          <button type="button" onclick="switchTab('home')" class="btn-3d-push self-start sm:self-auto px-3.5 py-2 rounded-xl bg-white/15 border-white/30 text-white font-extrabold text-xs">← Home</button>
+        </div>
+
         <!-- Test Setup Screen -->
         <div id="test-setup-panel" class="glass-card rounded-2xl p-5 sm:p-6 max-w-3xl mx-auto space-y-5">
           <div class="text-center space-y-1.5">
@@ -7987,6 +8088,11 @@
       const today = typeof getTodayActivity === 'function' ? getTodayActivity() : { words: 0 };
       const tPill = document.getElementById('kgs-today-pill');
       if (tPill) tPill.textContent = `Today: ${today.words}/${state.dailyWordTarget || 10} Words`;
+      const ringPct = Math.min(100, Math.round((today.words / Math.max(1, state.dailyWordTarget || 10)) * 100));
+      const rCirc = document.getElementById('home-3d-ring');
+      const rTxt = document.getElementById('home-3d-ring-pct');
+      if (rCirc) rCirc.style.strokeDashoffset = String(94.2 - (94.2 * ringPct / 100));
+      if (rTxt) rTxt.textContent = `${ringPct}%`;
 
       if (window.__wotdItem) {
         const w = window.__wotdItem;
@@ -8294,11 +8400,16 @@
               </div>
             </div>
 
-            <p class="pro-read-meaning font-bold text-slate-100">📘 ${w.answer}</p>
-            <p data-hi-id="${w.id}" class="pro-read-hindi font-extrabold text-amber-300">${hiDisp}</p>
-            ${w.syn && w.syn !== '—' ? `<p class="text-sm text-emerald-400 font-bold">✅ Synonyms: ${w.syn}</p>` : ''}
-            ${w.ant && w.ant !== '—' ? `<p class="text-sm text-rose-400 font-bold">❌ Antonyms: ${w.ant}</p>` : ''}
-            ${w.trick ? `<p class="text-xs text-slate-400 bg-slate-950/75 rounded-xl px-3 py-2 leading-relaxed">💡 ${w.trick}</p>` : ''}
+            <div data-hi-id="${w.id}" class="pro-read-hindi font-black text-amber-300">${hiDisp}</div>
+            <p class="pro-read-meaning font-bold text-slate-100">📘 <b>English Meaning:</b> ${w.answer}</p>
+            <div class="pro-about-box rounded-2xl bg-slate-950/75 border border-slate-700/60 p-3 space-y-1.5">
+              <p class="font-extrabold text-blue-400 text-xs uppercase tracking-wider">📖 इस शब्द के बारे में (Details &amp; Exam Usage)</p>
+              <p class="text-slate-200 font-medium">• <b>Exam Source:</b> ${w.exam || 'BlackBook SSC'} ${w.year ? '(' + w.year + ')' : ''} • <b>Category:</b> ${w.category || 'Vocab'}</p>
+              ${w.example ? `<p class="text-slate-200 italic">• <b>Usage:</b> ${w.example}</p>` : ''}
+              ${w.syn && w.syn !== '—' ? `<p class="text-emerald-400 font-bold">✅ <b>Synonyms:</b> ${w.syn}</p>` : ''}
+              ${w.ant && w.ant !== '—' ? `<p class="text-rose-400 font-bold">❌ <b>Antonyms:</b> ${w.ant}</p>` : ''}
+              ${w.trick ? `<p class="text-amber-300 font-semibold">💡 <b>Yaad Rakhne ki Trick:</b> ${w.trick}</p>` : ''}
+            </div>
           </div>
         `;
       }).join('');
