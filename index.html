@@ -10180,14 +10180,24 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           return true;
         });
 
-        const buckets = {
-          syn: seededShuffle(uniq.filter(x => x.sec === 'syn'), rng),
-          ant: seededShuffle(uniq.filter(x => x.sec === 'ant'), rng),
-          ows: seededShuffle(uniq.filter(x => x.sec === 'ows'), rng),
-          idiom: seededShuffle(uniq.filter(x => x.sec === 'idiom'), rng),
-          spell: seededShuffle(uniq.filter(x => x.sec === 'spell'), rng)
+        // 100% ZERO-REPEAT DAILY BLOCK ROTATION (Fixed master order + disjoint daily slice per IST Day Number!)
+        const masterRng = mulberry32(hashSeed('SSC_EDUQUITY_MASTER_CYCLE_V1'));
+        const dayParts = dateKey.split('-').map(Number);
+        const dayIndex = Math.max(0, Math.floor(Date.UTC(dayParts[0], (dayParts[1] || 1) - 1, dayParts[2] || 1) / 86400000));
+        const sliceDailyBlock = (arr, perDay) => {
+          const master = seededShuffle(arr, masterRng);
+          if (!master.length) return [];
+          const offset = (dayIndex * perDay) % master.length;
+          return master.slice(offset).concat(master.slice(0, offset));
         };
-        const allShuffled = seededShuffle(uniq, rng);
+        const buckets = {
+          syn: sliceDailyBlock(uniq.filter(x => x.sec === 'syn'), 25),
+          ant: sliceDailyBlock(uniq.filter(x => x.sec === 'ant'), 25),
+          ows: sliceDailyBlock(uniq.filter(x => x.sec === 'ows'), 20),
+          idiom: sliceDailyBlock(uniq.filter(x => x.sec === 'idiom'), 15),
+          spell: sliceDailyBlock(uniq.filter(x => x.sec === 'spell'), 15)
+        };
+        const allShuffled = sliceDailyBlock(uniq, 100);
 
         const blueprint = [
           { key: 'syn', label: 'Synonyms (Eduquity)', count: 25, dir: '[SSC Eduquity Pattern] Identify the option closest in meaning (SYNONYM) to the highlighted vocabulary word:' },
