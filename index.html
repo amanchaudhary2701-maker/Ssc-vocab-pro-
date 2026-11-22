@@ -878,6 +878,9 @@
           <button data-nav="tracker" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
             <i data-lucide="flame" class="w-3.5 h-3.5"></i> Track
           </button>
+          <button type="button" id="desk-nav-pdf-btn" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-cyan-200 hover:text-white hover:bg-white/5 flex items-center gap-1 whitespace-nowrap shrink-0 transition">
+            <span>📂</span> PDFs
+          </button>
         </nav>
 
         <!-- Right Primary Controls: Theme, Font, Admin, Student Profile & Menu (Always Visible at 100% Zoom) -->
@@ -2199,6 +2202,9 @@
       </button>
       <button data-nav="test" class="nav-btn-mob flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-extrabold transition">
         <span class="text-base leading-none">📝</span><span>Tests</span>
+      </button>
+      <button type="button" id="mob-nav-pdf-btn" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-extrabold text-cyan-300 border border-transparent hover:text-white transition">
+        <span class="text-base leading-none">📂</span><span>PDFs</span>
       </button>
     </nav>
 
@@ -9523,6 +9529,30 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
     </div>
   </div>
 
+
+  <!-- ==================== IN-APP FULL-SCREEN PDF READER (NO EXTERNAL DRIVE REDIRECT) ==================== -->
+  <div id="inapp-pdf-viewer-modal" class="fixed inset-0 z-[115] hidden bg-slate-950 flex flex-col overflow-hidden">
+    <div class="bg-gradient-to-r from-blue-950 via-indigo-950 to-slate-900 border-b border-cyan-400/35 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2 shrink-0" style="padding-top: max(0.65rem, env(safe-area-inset-top));">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <button type="button" id="inapp-pdf-back-btn" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/15 text-white text-xs font-extrabold shrink-0">← Back</button>
+        <div class="min-w-0">
+          <h4 id="inapp-pdf-title" class="text-xs sm:text-sm font-black text-white truncate">SSC Study PDF</h4>
+          <p id="inapp-pdf-meta" class="text-[10px] text-cyan-200 truncate">In-App Reader • SSC Vocab Pro</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button type="button" id="inapp-pdf-dl-btn" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 text-xs font-black shadow hover:brightness-110">⬇️ Download</button>
+      </div>
+    </div>
+    <div class="flex-1 relative bg-slate-900">
+      <div id="inapp-pdf-loading" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-cyan-200 text-xs font-bold pointer-events-none">
+        <span class="text-2xl animate-pulse">📄</span>
+        <span>Loading PDF inside app...</span>
+      </div>
+      <iframe id="inapp-pdf-iframe" title="In-App PDF Viewer" class="w-full h-full border-0 relative z-10 bg-white" allow="autoplay"></iframe>
+    </div>
+  </div>
+
   <!-- STUDENT LOGIN / CREATE ACCOUNT / PROFILE MODAL -->
   <div id="auth-modal" class="fixed inset-0 z-50 hidden bg-slate-950/85 flex items-center justify-center p-4">
     <div class="glass-card rounded-3xl max-w-md w-full p-6 space-y-5 border-cyan-400/40 relative">
@@ -11230,16 +11260,54 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         a.remove();
       }
 
+      let _activeViewingPdf = null;
+      let _activeBlobUrl = '';
+
+      function buildInAppEmbedUrl(pdfObj) {
+        if (pdfObj.dataUrl && pdfObj.dataUrl.startsWith('data:')) {
+          if (_activeBlobUrl) { try { URL.revokeObjectURL(_activeBlobUrl); } catch(_) {} }
+          _activeBlobUrl = dataUrlToBlobUrl(pdfObj.dataUrl);
+          return _activeBlobUrl;
+        }
+        const raw = String(pdfObj.viewUrl || pdfObj.downloadUrl || '').trim();
+        if (!raw) return '';
+        // Convert Google Drive link -> embedded /preview (renders directly inside our app, NO external Drive app!)
+        const mDrive = raw.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (mDrive) {
+          return `https://drive.google.com/file/d/${mDrive[1]}/preview`;
+        }
+        const mDriveId = raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (raw.includes('drive.google.com') && mDriveId) {
+          return `https://drive.google.com/file/d/${mDriveId[1]}/preview`;
+        }
+        // For direct hosted PDF URLs (GitHub Pages / web), use Google Docs embedded viewer so Android renders smoothly in-app!
+        return `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(raw)}`;
+      }
+
       function openStudentPdfView(pdfObj) {
         if (!pdfObj) return;
-        if (pdfObj.dataUrl && pdfObj.dataUrl.startsWith('data:')) {
-          const blobUrl = dataUrlToBlobUrl(pdfObj.dataUrl);
-          window.open(blobUrl, '_blank', 'noopener,noreferrer');
-          return;
-        }
-        const vUrl = pdfObj.viewUrl || pdfObj.downloadUrl || '';
-        if (vUrl) window.open(vUrl, '_blank', 'noopener,noreferrer');
+        _activeViewingPdf = pdfObj;
+        const embedUrl = buildInAppEmbedUrl(pdfObj);
+        if (!embedUrl) return;
+        const modal = document.getElementById('inapp-pdf-viewer-modal');
+        const iframe = document.getElementById('inapp-pdf-iframe');
+        const titleEl = document.getElementById('inapp-pdf-title');
+        const metaEl = document.getElementById('inapp-pdf-meta');
+        if (titleEl) titleEl.textContent = pdfObj.title || 'SSC Study PDF';
+        if (metaEl) metaEl.textContent = `${pdfObj.category || 'Vocab Notes'} • ${pdfObj.sizeLabel || 'PDF'} • In-App Reader`;
+        if (iframe) iframe.src = embedUrl;
+        modal?.classList.remove('hidden');
       }
+
+      document.getElementById('inapp-pdf-back-btn')?.addEventListener('click', () => {
+        const modal = document.getElementById('inapp-pdf-viewer-modal');
+        const iframe = document.getElementById('inapp-pdf-iframe');
+        if (iframe) iframe.src = 'about:blank';
+        modal?.classList.add('hidden');
+      });
+      document.getElementById('inapp-pdf-dl-btn')?.addEventListener('click', () => {
+        if (_activeViewingPdf) triggerStudentPdfDownload(_activeViewingPdf);
+      });
 
       function renderPdfLists() {
         const badge = document.getElementById('home-pdf-count-badge');
@@ -11658,6 +11726,8 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         fetchPdfsFromCloudReliable();
       };
       document.getElementById('home-open-pdf-folder-btn')?.addEventListener('click', openStuPdfModal);
+      document.getElementById('mob-nav-pdf-btn')?.addEventListener('click', openStuPdfModal);
+      document.getElementById('desk-nav-pdf-btn')?.addEventListener('click', openStuPdfModal);
       document.getElementById('menu-pdf-btn')?.addEventListener('click', () => {
         document.getElementById('about-modal')?.classList.add('hidden');
         openStuPdfModal();
