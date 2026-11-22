@@ -11346,16 +11346,40 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
 
       // Admin Direct File Upload (<=650KB -> Firestore instant; >650KB up to 25MB -> GitHub repo pdfs/ folder!)
       let _selectedPdfFile = null;
+      function clearSelectedPdfFile() {
+        _selectedPdfFile = null;
+        const fInp = document.getElementById('adm-pdf-file');
+        if (fInp) fInp.value = '';
+        const lbl = document.getElementById('adm-pdf-file-label');
+        if (lbl) lbl.textContent = '♾️ Unlimited Size: Direct .pdf (≤35MB) choose karein YA badi PDFs (35MB–2GB+) ke liye Google Drive link paste karein:';
+      }
+
       document.getElementById('adm-pdf-file')?.addEventListener('change', (e) => {
         const f = e.target.files && e.target.files[0];
-        _selectedPdfFile = f || null;
         const lbl = document.getElementById('adm-pdf-file-label');
         const titleInp = document.getElementById('adm-pdf-title');
         if (f) {
-          if (lbl) lbl.textContent = `✅ Selected: ${f.name} (${formatBytes(f.size)})`;
           if (titleInp && !titleInp.value.trim()) {
             titleInp.value = f.name.replace(/\.pdf$/i, '').replace(/[_-]+/g, ' ');
           }
+          if (f.size > 35 * 1024 * 1024) {
+            clearSelectedPdfFile();
+            setAdmPdfStatus(`⚠️ Ye file ${formatBytes(f.size)} hai — 35 MB se badi PDF ke liye Google Drive link niche paste karein (1 second me publish hoga)!`, true);
+            return;
+          }
+          _selectedPdfFile = f;
+          const urlInp = document.getElementById('adm-pdf-url');
+          if (urlInp) urlInp.value = '';
+          if (lbl) lbl.textContent = `✅ Selected: ${f.name} (${formatBytes(f.size)})`;
+          document.getElementById('adm-pdf-status')?.classList.add('hidden');
+        }
+      });
+
+      // If Admin pastes a Google Drive / PDF link, immediately clear any previously selected file so link publishes cleanly!
+      document.getElementById('adm-pdf-url')?.addEventListener('input', (e) => {
+        if ((e.target.value || '').trim().length > 5 && _selectedPdfFile) {
+          clearSelectedPdfFile();
+          setAdmPdfStatus('✅ Google Drive / PDF Link ready — ab "Publish PDF" dabayein!', false);
         }
       });
 
@@ -11456,7 +11480,12 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             downloadUrl: ''
           };
 
-          if (_selectedPdfFile) {
+          if (rawUrl) {
+            const norm = normalizeDriveDownloadUrl(rawUrl);
+            record.viewUrl = norm.viewUrl;
+            record.downloadUrl = norm.downloadUrl;
+            record.sizeLabel = 'Drive / Cloud PDF';
+          } else if (_selectedPdfFile) {
             setAdmPdfStatus(`⏳ Reading PDF (${formatBytes(_selectedPdfFile.size)})...`);
             const fullDataUrl = await readFileAsBase64(_selectedPdfFile);
             if (_selectedPdfFile.size <= 650 * 1024) {
@@ -11466,16 +11495,12 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               if (!tok) {
                 throw new Error('650 KB se badi PDF direct upload karne ke liye "🚀 ZIP" tab me apna GitHub Token save karein (ya Google Drive link paste karein).');
               }
-              setAdmPdfStatus('⏳ Uploading large PDF to GitHub Cloud...');
+              setAdmPdfStatus(`⏳ Uploading ${_selectedPdfFile.name} to GitHub Cloud...`);
               const pureB64 = fullDataUrl.split(',')[1] || '';
               const ghUrls = await uploadPdfToGithubRepo(_selectedPdfFile, pureB64, tok);
               record.viewUrl = ghUrls.viewUrl;
               record.downloadUrl = ghUrls.downloadUrl;
             }
-          } else {
-            const norm = normalizeDriveDownloadUrl(rawUrl);
-            record.viewUrl = norm.viewUrl;
-            record.downloadUrl = norm.downloadUrl;
           }
 
           if (typeof fbDb !== 'undefined' && fbDb) {
