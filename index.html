@@ -1134,6 +1134,17 @@
                 <button type="button" data-cpfilt="saved" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0">⭐ Saved</button>
               </div>
             </div>
+            <div id="root-cat-pills" class="hidden flex flex-wrap gap-1.5 pt-1.5 border-t border-slate-700/40">
+              <button type="button" data-rcat="all" class="rcat-pill px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-blue-600 text-white">All Roots (205)</button>
+              <button type="button" data-rcat="gov" class="rcat-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-300">🏛️ Governance &amp; Law</button>
+              <button type="button" data-rcat="kill" class="rcat-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-300">🔪 Killing &amp; Fear</button>
+              <button type="button" data-rcat="sci" class="rcat-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-300">📚 Study &amp; Nature</button>
+              <button type="button" data-rcat="speech" class="rcat-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-300">🗣️ Speech &amp; Mind</button>
+              <button type="button" data-rcat="people" class="rcat-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-300">✨ Good, Bad &amp; People</button>
+              <button type="button" data-rcat="action" class="rcat-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-300">⚡ Action &amp; Body</button>
+              <button type="button" data-rcat="num" class="rcat-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-300">📏 Size, Number &amp; Time</button>
+              <button type="button" data-rcat="prefix" class="rcat-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-300">🔧 Prefixes &amp; Qualities</button>
+            </div>
             <div id="catpage-active-set-bar" class="hidden flex items-center justify-between gap-2 pt-1 text-xs">
               <span id="catpage-active-set-lbl" class="font-extrabold text-blue-500">Reading: Set 1</span>
               <button type="button" id="catpage-show-all-sets-btn" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold text-[11px]">Show All Words</button>
@@ -4509,7 +4520,8 @@
         const cloudRec = await cloudFetchUser(uid);
         const users = getUsers();
         const existing = cloudRec || users[uid] || null;
-        const trialExp = (existing && existing.trialExpiresAt) ? existing.trialExpiresAt : (Date.now() + PAYMENT_CONFIG.trialDays * 86400000);
+        const trialStartedAt = (existing && existing.trialStartedAt) ? existing.trialStartedAt : Date.now();
+        const trialExp = (existing && existing.trialExpiresAt) ? existing.trialExpiresAt : (trialStartedAt + PAYMENT_CONFIG.trialDays * 86400000);
         users[uid] = {
           name: (existing && existing.name) || gUser.displayName || 'SSC Aspirant',
           uid,
@@ -4518,7 +4530,7 @@
           pass: (existing && existing.pass) || 'GOOGLE_VERIFIED',
           photo: (existing && existing.photo) || gUser.photoURL || '',
           googleVerified: true,
-          trialExpiresAt: trialExp,
+          trialStartedAt, trialExpiresAt: trialExp,
           sub: (existing && existing.sub) || null,
           purchases: (existing && existing.purchases) || []
         };
@@ -4622,7 +4634,7 @@
           if (ps) {
             if (user.isAdmin) ps.textContent = '🛡️ ADMIN LIFETIME PRO ACCESS';
             else if (hasActiveSuperPro(user)) ps.textContent = `👑 SUPER PRO PASS ACTIVE (Till ${user.sub.expiryStr})`;
-            else ps.textContent = `🎁 Free Trial: ${getTrialDaysLeft(user)} Days Left`;
+            else ps.textContent = `🎁 Free Trial: ${getTrialDayLabel(user)}`;
           }
         }
         // Highlight active theme pill in menu
@@ -4755,7 +4767,7 @@
         const users = getUsers();
         const exU = Object.prototype.hasOwnProperty.call(users, uid) ? users[uid] : null;
         const trialExp = (exU && exU.trialExpiresAt) ? exU.trialExpiresAt : (Date.now() + PAYMENT_CONFIG.trialDays * 86400000);
-        users[uid] = { name, uid, exam, goal, pass, trialExpiresAt: trialExp, sub: (exU && exU.sub) ? exU.sub : null };
+        users[uid] = { name, uid, exam, goal, pass, trialStartedAt, trialExpiresAt: trialExp, sub: (exU && exU.sub) ? exU.sub : null };
         saveUsers(users);
         try { _memCurUserFallback = uid; localStorage.setItem(AUTH_CUR_KEY, uid); idbWrite(AUTH_CUR_KEY, uid); } catch(err) {}
         reloadStateForActiveUser();
@@ -4813,6 +4825,16 @@
         if (!user || !user.trialExpiresAt) return 0;
         const diff = user.trialExpiresAt - Date.now();
         return diff > 0 ? Math.ceil(diff / 86400000) : 0;
+      }
+      function getTrialDayLabel(user) {
+        if (!user || !user.trialExpiresAt) return 'Trial Expired';
+        const totalDays = (typeof PAYMENT_CONFIG !== 'undefined' && PAYMENT_CONFIG.trialDays) ? PAYMENT_CONFIG.trialDays : 15;
+        const diff = user.trialExpiresAt - Date.now();
+        if (diff <= 0) return `Day ${totalDays + 1} • Trial Ended`;
+        const daysLeft = Math.floor(diff / 86400000);
+        const hrsLeft = Math.floor((diff % 86400000) / 3600000);
+        const curDay = Math.min(totalDays, Math.max(1, totalDays - daysLeft));
+        return `Day ${curDay}/${totalDays} • ${daysLeft}d ${hrsLeft}h left`;
       }
       function hasActiveSuperPro(user) {
         return !!(user && user.sub && user.sub.expiresAt && Date.now() < user.sub.expiresAt);
@@ -4963,20 +4985,7 @@
         authModal?.classList.add('hidden');
         openSuperProScreen(true);
       });
-      document.getElementById('prof-sim-expiry-btn')?.addEventListener('click', () => {
-        const uid = getCurrentUserId();
-        const users = getUsers();
-        if (uid && users[uid]) {
-          users[uid].trialExpiresAt = Date.now() - 1000;
-          users[uid].sub = null;
-          saveUsers(users);
-          authModal?.classList.add('hidden');
-          syncAuthUI();
-          enforceAppAccessGate();
-          showToast('15-Day Trial Expired mode simulated — Super Pro Pass locked screen active!');
-        }
-      });
-      document.getElementById('sub-close-early-btn')?.addEventListener('click', () => {
+            document.getElementById('sub-close-early-btn')?.addEventListener('click', () => {
         document.getElementById('gate-sub-screen')?.classList.add('hidden');
       });
 
@@ -5027,9 +5036,10 @@
           return;
         }
         // Preserve any active Super Pro Pass or original trial expiry if account existed on this phone, otherwise start fresh 15-day trial!
-        const trialExp = (existing && existing.trialExpiresAt) ? existing.trialExpiresAt : (Date.now() + PAYMENT_CONFIG.trialDays * 86400000);
+        const trialStartedAt = (existing && existing.trialStartedAt) ? existing.trialStartedAt : Date.now();
+        const trialExp = (existing && existing.trialExpiresAt) ? existing.trialExpiresAt : (trialStartedAt + PAYMENT_CONFIG.trialDays * 86400000);
         const preservedSub = (existing && existing.sub) ? existing.sub : null;
-        users[uid] = { name, uid, exam, goal, pass, trialExpiresAt: trialExp, sub: preservedSub };
+        users[uid] = { name, uid, exam, goal, pass, trialStartedAt, trialExpiresAt: trialExp, sub: preservedSub };
         saveUsers(users);
         try { _memCurUserFallback = uid; localStorage.setItem(AUTH_CUR_KEY, uid); idbWrite(AUTH_CUR_KEY, uid); } catch(err) {}
         reloadStateForActiveUser();
@@ -8229,6 +8239,102 @@
       'Foreign':  { title: '🌱 Root Words & Foreign Words', sub: '205 Verified Root Words (100% Hindi) + Foreign Words', match: w => w.category === 'Foreign Word' }
     };
 
+
+    let activeRootCat = 'all';
+    const ROOT_EX_HI_MAP = {
+      'democracy':'लोकतंत्र (जनता का शासन)','autocracy':'तानाशाही (एक का शासन)','bureaucracy':'नौकरशाही (अधिकारियों का शासन)',
+      'plutocracy':'धनिकतंत्र (अमीरों का शासन)','theocracy':'धर्मतंत्र (धार्मिक शासन)','monarchy':'राजतंत्र (राजा का शासन)',
+      'anarchy':'अराजकता (बिना शासन)','oligarchy':'अल्पतंत्र (कुछ लोगों का शासन)','aristocracy':'कुलीनतंत्र',
+      'benevolent':'दयालु / परोपकारी','benefit':'लाभ / फायदा','benefactor':'दानदाता / उपकारी','benign':'सौम्य / हानिरहित','benediction':'आशीर्वाद',
+      'malevolent':'द्वेषपूर्ण / बुरा चाहने वाला','malice':'दुर्भावना / द्वेष','malign':'बदनाम करना / हानिकारक','malnutrition':'कुपोषण','malpractice':'कदाचार',
+      'philanthropist':'मानव-प्रेमी / परोपकारी','bibliophile':'पुस्तक-प्रेमी','philosophy':'दर्शनशास्त्र','philatelist':'डाक-टिकट संग्राहक','francophile':'फ्रांस-प्रेमी',
+      'misanthrope':'मानव-द्वेषी','misogynist':'स्त्री-द्वेषी','misogamist':'विवाह-द्वेषी','misnomer':'गलत नाम','mischief':'शरारत',
+      'acrophobia':'ऊँचाई से डर','claustrophobia':'बंद जगह से डर','hydrophobia':'पानी से डर','xenophobia':'विदेशियों से डर','agoraphobia':'खुली/भीड़ जगह से डर',
+      'homicide':'मानव हत्या','suicide':'आत्महत्या','matricide':'माता की हत्या','patricide':'पिता की हत्या','regicide':'राजा की हत्या','genocide':'नरसंहार','fratricide':'भाई की हत्या',
+      'biology':'जीव विज्ञान','ornithology':'पक्षी विज्ञान','entomology':'कीट विज्ञान','anthropology':'मानव विज्ञान','etymology':'शब्द-व्युत्पत्ति विज्ञान',
+      'acrimonious':'कटु / तीखा','acerbic':'कड़वा / कठोर','acrid':'तीखा / चरपरा','exacerbate':'और बिगाड़ना',
+      'agriculture':'कृषि / खेती','agrarian':'कृषि-संबंधी','analgesic':'दर्द-निवारक','nostalgia':'पुरानी यादें',
+      'altruist':'परोपकारी','altercation':'तीखी बहस / झगड़ा','somnambulist':'नींद में चलने वाला','ambulance':'रोगी वाहन','preamble':'प्रस्तावना',
+      'amiable':'मिलनसार / प्रिय','amicable':'मित्रवत / सौहार्दपूर्ण','amity':'मित्रता / सद्भाव','ambidextrous':'दोनों हाथों से निपुण',
+      'ambiguous':'अस्पष्ट / दो अर्थ वाला','ambivalent':'दुविधा में','annual':'वार्षिक','perennial':'सदाबहार / बारहमासी','millennium':'सहस्राब्दी (1000 वर्ष)',
+      'antidote':'विषनाशक दवा','antipathy':'घृणा / विरोध','antonym':'विलोम शब्द','apiary':'मधुमक्खी पालन स्थान','aviary':'पक्षीशाला',
+      'aptitude':'योग्यता / अभिरुचि','adept':'निपुण / कुशल','inept':'अकुशल / अयोग्य','aquarium':'मछलीघर','aquatic':'जलीय',
+      'archaic':'प्राचीन / अप्रचलित','audible':'सुनने योग्य','autobiography':'आत्मकथा','autonomous':'स्वायत्त / स्वतंत्र','autopsy':'शव-परीक्षा',
+      'belligerent':'युद्धरत / लड़ाकू','bellicose':'झगड़ालू','bibliography':'ग्रंथ-सूची','brevity':'संक्षिप्तता','cacophony':'कर्कश ध्वनि',
+      'carnivorous':'मांसाहारी','chronology':'कालक्रम','chronic':'दीर्घकालिक / पुराना','anachronism':'कालदोष','circumspect':'सावधान / सतर्क',
+      'circumlocution':'घुमा-फिराकर बोलना','recluse':'एकांतवासी / संन्यासी','incognito':'गुप्त रूप से','agnostic':'अज्ञेयवादी','corpulent':'मोटा / स्थूलकाय',
+      'cosmopolitan':'सर्वदेशीय','credible':'विश्वसनीय','credulous':'भोला / आसानी से विश्वास करने वाला','cryptic':'गुप्त / रहस्यमय',
+      'culpable':'दोषी / दंडनीय','culprit':'अपराधी','exculpate':'दोषमुक्त करना','cursory':'सरसरी / जल्दबाज़ी का','epidemic':'महामारी (क्षेत्रीय)',
+      'pandemic':'वैश्विक महामारी','demagogue':'जनोत्तेजक नेता','dermatologist':'त्वचा विशेषज्ञ','verdict':'निर्णय / फैसला','docile':'विनम्र / आज्ञाकारी',
+      'dormant':'सुप्त / निष्क्रिय','egoist':'स्वार्थी','egotist':'अहंकारी / अपनी बड़ाई करने वाला','equanimity':'समभाव / धैर्य','equivocal':'अस्पष्ट / गोलमोल',
+      'erratic':'अनिश्चित / अनियमित','eulogy':'प्रशंसा-भाषण','euphemism':'कोमल शब्द प्रयोग','euphoria':'अत्यधिक खुशी','euphony':'मधुर ध्वनि',
+      'exonerate':'दोषमुक्त करना','fidelity':'वफादारी / निष्ठा','perfidious':'विश्वासघाती / धोखेबाज़','bonafide':'असली / प्रामाणिक','diffident':'संकोची / आत्मविश्वासहीन',
+      'affluent':'समृद्ध / अमीर','superfluous':'अनावश्यक / अतिरिक्त','mellifluous':'मधुर / मीठा','fortitude':'धैर्य / साहस','fragile':'नाज़ुक / भंगुर',
+      'monogamy':'एकविवाह','polygamy':'बहुविवाह','genesis':'उत्पत्ति / आरंभ','indigenous':'स्वदेशी / स्थानीय','gregarious':'मिलनसार / झुंड में रहने वाला',
+      'egregious':'अत्यंत बुरा','homogeneous':'सजातीय / एकसमान','heterogeneous':'विषम / भिन्न','hyperbole':'अतिशयोक्ति','hypocrisy':'पाखंड / ढोंग',
+      'introvert':'अंतर्मुखी','dejected':'उदास / निराश','judicious':'विवेकी / समझदार','perjury':'झूठी गवाही','laudable':'प्रशंसनीय',
+      'legible':'पठनीय / साफ़ लिखा','illegible':'अपठनीय','alleviate':'कम करना / राहत देना','lexicographer':'शब्दकोश बनाने वाला','loquacious':'बातूनी',
+      'eloquent':'वाक्पटु / प्रभावशाली वक्ता','soliloquy':'स्वगत भाषण','lucid':'स्पष्ट / साफ़','pellucid':'बिल्कुल पारदर्शी','magnanimous':'उदार / विशाल हृदय',
+      'manuscript':'पांडुलिपि (हाथ से लिखा)','emancipate':'मुक्त करना','mediocre':'औसत दर्जे का','amnesia':'भूलने की बीमारी','metamorphosis':'कायापलट / रूपांतरण',
+      'immutable':'अपरिवर्तनीय','neophyte':'नौसिखिया','novice':'नया / अनुभवहीन','annihilate':'पूर्णतः नष्ट करना','noxious':'हानिकारक / विषैला',
+      'innocuous':'हानिरहित','anonymous':'अनाम / गुमनाम','pseudonym':'उपनाम / छद्म नाम','omnipotent':'सर्वशक्तिमान','omniscient':'सर्वज्ञ',
+      'omnipresent':'सर्वव्यापी','orthodox':'रूढ़िवादी','pacify':'शांत करना','placid':'शांत / सौम्य','panacea':'रामबाण इलाज',
+      'sympathy':'सहानुभूति','empathy':'समानुभूति','apathy':'उदासीनता','pedestrian':'पैदल यात्री','impede':'बाधा डालना',
+      'plethora':'प्रचुरता / भरमार','polyglot':'बहुभाषी','posthumous':'मरणोपरांत','potable':'पीने योग्य','pugnacious':'झगड़ालू / लड़ाकू',
+      'pyromania':'आग लगाने का जुनून','rectify':'सुधारना','abrupt':'अचानक','bankrupt':'दिवालिया','sacrilege':'अपवित्रीकरण',
+      'salubrious':'स्वास्थ्यवर्धक','sanguine':'आशावादी','sedentary':'बैठकर किया जाने वाला','assiduous':'परिश्रमी / मेहनती','obsequious':'चापलूस',
+      'insomnia':'अनिद्रा','taciturn':'कम बोलने वाला / मौन','tangible':'मूर्त / ठोस','extempore':'बिना तैयारी का भाषण','tenacious':'दृढ़ / ज़िद्दी',
+      'theist':'आस्तिक','atheist':'नास्तिक','transient':'क्षणिक / अस्थायी','turbulent':'अशांत / उथल-पुथल भरा','unanimous':'सर्वसम्मत',
+      'urbane':'सभ्य / शिष्ट','valiant':'बहादुर / शूरवीर','veracious':'सत्यवादी','verbose':'शब्दबहुल / बातूनी','versatile':'बहुमुखी प्रतिभा वाला',
+      'invincible':'अजेय','vivacious':'जीवंत / उत्साही','voracious':'पेटू / लालची','zoophobia':'जानवरों से डर'
+    };
+
+    function getRootGroup(rObj) {
+      const r = String(rObj.root || '').toLowerCase();
+      const m = String(rObj.meaning || '').toLowerCase();
+      if (/cracy|arch|jud|jur|leg|reg|dem|pop|liber|urb|rect/.test(r)) return 'gov';
+      if (/cide|phob|mort|necro|pugn|belli|tox|pyr|culp/.test(r)) return 'kill';
+      if (/logy|bio|geo|aqua|hydr|aer|agri|avi|api|zoo|helio|photo|therm|cosm|mar|terr|meter/.test(r)) return 'sci';
+      if (/dict|loqu|log|graph|scrib|voc|phon|cogn|sci|psych|mem|soph|tac|cred|clam|ling|lit|lex|verb|son|nom|nym|rid|rog/.test(r)) return 'speech';
+      if (/bene|mal|eu-|phil|mis|ami|anthrop|pater|mater|frater|gyn|gam|ego|alter|grat|greg|path|nat|vit|viv|vol|xen|sacr/.test(r)) return 'people';
+      if (/ambul|ped|man|corp|carn|derm|hem|cap|duc|fac|ject|mit|mob|port|rupt|spec|tract|vid|vor|somn|dorm|flect|flu|grad|junct|kine|pel|pend|pon|sec|sed|spir|sta|strict|struct|tang|ten|tort|ven|vers|vinc|cur|lud|migr|mir|clud|err|mut/.test(r)) return 'action';
+      if (/mono|uni|multi|poly|omni|pan|macro|magn|mega|micro|min|brev|prim|neo|nov|sen|ann|temp|chron|fin|plen|term|medi/.test(r)) return 'num';
+      return 'prefix';
+    }
+
+    function lookupExampleWordHindi(exWord) {
+      const clean = String(exWord || '').trim();
+      const low = clean.toLowerCase().replace(/\s*\(.*?\)/g, '').trim();
+      if (ROOT_EX_HI_MAP[low]) return ROOT_EX_HI_MAP[low];
+      if (typeof _hiCache !== 'undefined' && _hiCache[low]) return _hiCache[low];
+      if (typeof VOCAB_BANK !== 'undefined') {
+        const hit = VOCAB_BANK.find(x => String(x.word || '').toLowerCase() === low && hasDevanagari(x.meaningHi));
+        if (hit) return hit.meaningHi;
+      }
+      return '';
+    }
+
+    function hydrateRootExampleHindiNodes(container) {
+      const nodes = (container || document).querySelectorAll('[data-rex-word]');
+      let delay = 0;
+      nodes.forEach(el => {
+        if (hasDevanagari(el.textContent)) return;
+        const w = el.dataset.rexWord;
+        if (!w) return;
+        setTimeout(() => {
+          if (typeof translateToHindiFull === 'function') {
+            translateToHindiFull(w).then(hi => {
+              if (hi && hasDevanagari(hi)) {
+                el.textContent = `🇮🇳 ${hi}`;
+                if (typeof _hiCache !== 'undefined') { _hiCache[w.toLowerCase()] = hi; if (typeof saveHiCacheSoon === 'function') saveHiCacheSoon(); }
+              }
+            }).catch(() => {});
+          }
+        }, delay);
+        delay = Math.min(delay + 110, 2200);
+      });
+    }
+
     let activeCatPageKey = 'Synonym';
     let activeCatMode = 'sets'; // 'sets' | 'list' | 'swipe'
     let activeSetIndex = null;  // null = all words, or 0,1,2... for 25-word Set
@@ -8245,12 +8351,15 @@
       const bank = (typeof VOCAB_BANK !== 'undefined' ? VOCAB_BANK : []);
       if (catKey === 'Foreign') {
         const fWords = bank.filter(meta.match);
-        const rWords = (typeof ROOT_WORDS !== 'undefined' ? ROOT_WORDS : []).map((r, i) => ({
+        const allRoots = (typeof ROOT_WORDS !== 'undefined' ? ROOT_WORDS : []).map((r, i) => ({
           id: 900000 + i, word: r.root.toUpperCase(), category: r.kind || 'Root Word',
-          exam: 'BlackBook F5 Roots', year: 2024, answer: r.meaning, meaningHi: r.hi || '',
-          syn: r.examples || '—', ant: '—', trick: `Root ${r.root} → ${r.examples || ''}`
+          rootGroup: getRootGroup(r), isRootItem: true,
+          exam: 'SSC Root Word', year: 2024, answer: r.meaning, meaningHi: r.hi || '',
+          examplesList: String(r.examples || '').split(',').map(x => x.trim()).filter(Boolean),
+          syn: r.examples || '—', ant: '—', trick: `Root "${r.root}" = ${r.meaning} (${r.hi})`
         }));
-        return [...rWords, ...fWords];
+        const filteredRoots = activeRootCat === 'all' ? allRoots : allRoots.filter(r => r.rootGroup === activeRootCat);
+        return activeRootCat === 'all' ? [...filteredRoots, ...fWords] : filteredRoots;
       }
       return bank.filter(meta.match);
     }
@@ -8282,7 +8391,8 @@
       const sInp = document.getElementById('catpage-search');
       if (sInp) sInp.value = '';
       switchTab('catpage');
-      setCatPageMode('sets');
+      activeRootCat = 'all';
+      setCatPageMode(activeCatPageKey === 'Foreign' ? 'list' : 'sets');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if (pushHist && window.history && window.history.pushState) {
         try { window.history.pushState({ page: 'catpage', cat: activeCatPageKey }, '', `#${activeCatPageKey.toLowerCase().replace(/\s+/g, '-')}`); } catch (e) {}
@@ -8389,6 +8499,7 @@
       if (!listEl) return;
 
       let items = getCategoryItems(activeCatPageKey);
+      document.getElementById('root-cat-pills')?.classList.toggle('hidden', activeCatPageKey !== 'Foreign');
       const setBar = document.getElementById('catpage-active-set-bar');
       const setLbl = document.getElementById('catpage-active-set-lbl');
       if (activeSetIndex !== null && !catPageSearch.trim()) {
@@ -8459,19 +8570,38 @@
 
             <div data-hi-id="${w.id}" class="pro-read-hindi font-black text-amber-300">${hiDisp}</div>
             <p class="pro-read-meaning font-bold text-slate-100">📘 <b>English Meaning:</b> ${w.answer}</p>
-            <div class="pro-about-box rounded-2xl bg-slate-950/75 border border-slate-700/60 p-3 space-y-1.5">
-              <p class="font-extrabold text-blue-400 text-xs uppercase tracking-wider">📖 इस शब्द के बारे में (Details &amp; Exam Usage)</p>
-              <p class="text-slate-200 font-medium">• <b>Exam Source:</b> ${w.exam || 'BlackBook SSC'} ${w.year ? '(' + w.year + ')' : ''} • <b>Category:</b> ${w.category || 'Vocab'}</p>
-              ${w.example ? `<p class="text-slate-200 italic">• <b>Usage:</b> ${w.example}</p>` : ''}
-              ${synDisp ? `<p class="text-emerald-400 font-bold">✅ <b>Synonyms:</b> ${synDisp}</p>` : ''}
-              ${antDisp ? `<p class="text-rose-400 font-bold">❌ <b>Antonyms:</b> ${antDisp}</p>` : ''}
-              ${w.trick ? `<p class="text-amber-300 font-semibold">💡 <b>Yaad Rakhne ki Trick:</b> ${w.trick}</p>` : ''}
-            </div>
+            ${w.isRootItem && Array.isArray(w.examplesList) && w.examplesList.length ? `
+              <div class="pro-about-box rounded-2xl bg-slate-950/75 border border-emerald-400/35 p-3 space-y-2">
+                <p class="font-extrabold text-emerald-400 text-xs uppercase tracking-wider">🌱 इस Root Word से बनने वाले शब्द (हिंदी अर्थ सहित)</p>
+                <div class="space-y-1.5">
+                  ${w.examplesList.map(ex => {
+                    const exHi = lookupExampleWordHindi(ex);
+                    return `<div class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/70">
+                      <div class="min-w-0">
+                        <span class="font-black text-cyan-300">${ex}</span>
+                        <span data-rex-word="${ex.replace(/"/g, '&quot;')}" class="ml-1.5 font-extrabold text-amber-300">${exHi ? '🇮🇳 ' + exHi : 'Loading...'}</span>
+                      </div>
+                      <button type="button" data-cp-speak="${ex.replace(/"/g, '&quot;')}" class="px-2 py-0.5 rounded-lg bg-slate-800 text-cyan-300 text-xs font-bold shrink-0">🔊</button>
+                    </div>`;
+                  }).join('')}
+                </div>
+              </div>
+            ` : `
+              <div class="pro-about-box rounded-2xl bg-slate-950/75 border border-slate-700/60 p-3 space-y-1.5">
+                <p class="font-extrabold text-blue-400 text-xs uppercase tracking-wider">📖 इस शब्द के बारे में (Details &amp; Exam Usage)</p>
+                <p class="text-slate-200 font-medium">• <b>Exam Source:</b> ${w.exam || 'BlackBook SSC'} ${w.year ? '(' + w.year + ')' : ''} • <b>Category:</b> ${w.category || 'Vocab'}</p>
+                ${w.example ? `<p class="text-slate-200 italic">• <b>Usage:</b> ${w.example}</p>` : ''}
+                ${synDisp ? `<p class="text-emerald-400 font-bold">✅ <b>Synonyms:</b> ${synDisp}</p>` : ''}
+                ${antDisp ? `<p class="text-rose-400 font-bold">❌ <b>Antonyms:</b> ${antDisp}</p>` : ''}
+                ${w.trick ? `<p class="text-amber-300 font-semibold">💡 <b>Yaad Rakhne ki Trick:</b> ${w.trick}</p>` : ''}
+              </div>
+            `}
           </div>
         `;
       }).join('');
 
       if (typeof hydrateLiveHindiElements === 'function') hydrateLiveHindiElements(listEl);
+      if (typeof hydrateRootExampleHindiNodes === 'function') hydrateRootExampleHindiNodes(listEl);
 
       if (pagerEl) {
         pagerEl.innerHTML = totalPages > 1 ? `
@@ -8509,7 +8639,19 @@
       document.getElementById('catpage-search')?.addEventListener('input', (e) => {
         catPageSearch = e.target.value; catPageNum = 1; renderDedicatedCategoryPage();
       });
-      document.getElementById('catpage-filters')?.addEventListener('click', (e) => {
+      document.getElementById('root-cat-pills')?.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-rcat]');
+        if (!b) return;
+        activeRootCat = b.dataset.rcat;
+        activeSetIndex = null;
+        catPageNum = 1;
+        document.querySelectorAll('.rcat-pill').forEach(p => {
+          const act = p.dataset.rcat === activeRootCat;
+          p.className = act ? 'rcat-pill px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-blue-600 text-white' : 'rcat-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-900 border border-slate-700 text-slate-300';
+        });
+        renderDedicatedCategoryPage();
+      });
+            document.getElementById('catpage-filters')?.addEventListener('click', (e) => {
         const b = e.target.closest('[data-cpfilt]');
         if (!b) return;
         catPageFilter = b.dataset.cpfilt; catPageNum = 1;
@@ -8720,7 +8862,7 @@
 
         <div class="grid grid-cols-2 gap-2">
           <button id="prof-upgrade-btn" type="button" class="py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-rose-500 text-slate-950 text-xs font-black hover:brightness-110 transition">👑 Super Pro Pass</button>
-          <button id="prof-sim-expiry-btn" type="button" class="py-2.5 rounded-xl bg-slate-800 border border-slate-600 text-slate-200 text-xs font-bold hover:border-amber-400 transition">⏳ Test Day-16 Lock</button>
+          
         </div>
         <button id="auth-logout-btn" type="button" class="w-full py-2.5 rounded-xl bg-rose-500/20 border border-rose-400/40 text-rose-200 text-xs font-extrabold hover:bg-rose-500/30 transition">🚪 Logout / Switch Student Account</button>
       </div>
