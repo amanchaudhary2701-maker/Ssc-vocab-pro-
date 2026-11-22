@@ -11327,6 +11327,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         }
       }
 
+      const FS_API_KEY = (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey) ? FIREBASE_CONFIG.apiKey : 'AIzaSyBs_w5tmFnNc-fygZ-t5wdS_C7KtsVie7k';
       const FS_REST_BASE = 'https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents/ssc_pdfs';
 
       function toFsFields(obj) {
@@ -11350,65 +11351,98 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         return out;
       }
 
-      async function savePdfToCloudReliable(pid, record) {
-        // Primary: Fast Direct Firestore REST PATCH (never hangs on mobile WebChannel!)
+      async function syncPdfCatalogToGithub(itemsList) {
+        const tok = (document.getElementById('admin-gh-token')?.value || localStorage.getItem(GH_TOK_KEY) || '').trim();
+        if (!tok) return false;
         try {
-          const resp = await fetch(`${FS_REST_BASE}/${encodeURIComponent(pid)}`, {
+          const apiUrl = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/pdfs_catalog.json`;
+          const headers = {
+            'Authorization': `Bearer ${tok}`,
+            'Accept': 'application/vnd.github+json',
+            'Content-Type': 'application/json'
+          };
+          let sha = undefined;
+          const getR = await fetch(apiUrl, { headers });
+          if (getR.ok) {
+            const gj = await getR.json();
+            sha = gj.sha;
+          }
+          const jsonStr = JSON.stringify(itemsList, null, 2);
+          const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
+          const putR = await fetch(apiUrl, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({
+              message: `Update Student PDF Folder (${itemsList.length} PDFs)`,
+              content: b64,
+              ...(sha ? { sha } : {})
+            })
+          });
+          return putR.ok;
+        } catch (e) { return false; }
+      }
+
+      async function savePdfToCloudReliable(pid, record) {
+        let fsOk = false;
+        let fsErrMsg = '';
+        // 1. Primary: Fast Direct Firestore REST PATCH with Firebase Web API Key!
+        try {
+          const resp = await fetch(`${FS_REST_BASE}/${encodeURIComponent(pid)}?key=${encodeURIComponent(FS_API_KEY)}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ fields: toFsFields(record) })
           });
-          if (resp.ok) return true;
-        } catch (e) {}
-        // Fallback: Firebase JS SDK with 5-second timeout
-        if (typeof fbDb !== 'undefined' && fbDb) {
-          try {
-            await Promise.race([
-              fbDb.collection('ssc_pdfs').doc(pid).set(record),
-              new Promise((_, rej) => setTimeout(() => rej(new Error('Cloud timeout')), 5000))
-            ]);
-            return true;
-          } catch (e) { throw e; }
+          if (resp.ok) {
+            fsOk = true;
+          } else {
+            const errTxt = await resp.text().catch(() => '');
+            fsErrMsg = `Firestore (${resp.status}): ${errTxt.slice(0, 90)}`;
+          }
+        } catch (e) {
+          fsErrMsg = e && e.message ? e.message : 'network-err';
         }
-        throw new Error('Cloud Firestore save fail hua — internet & Firestore Rules check karein.');
+
+        // 2. Dual-Cloud Mirror: Also save pdfs_catalog.json to GitHub Repo (works 100% even if Firestore lags!)
+        const nextList = [record, ..._pdfItems.filter(x => x.id !== pid)];
+        const ghOk = await syncPdfCatalogToGithub(nextList);
+
+        if (fsOk || ghOk) return true;
+        throw new Error(fsErrMsg || 'Cloud save failed — internet & GitHub Token check karein.');
       }
 
       async function deletePdfFromCloudReliable(pid) {
-        try { await fetch(`${FS_REST_BASE}/${encodeURIComponent(pid)}`, { method: 'DELETE' }); } catch (e) {}
-        if (typeof fbDb !== 'undefined' && fbDb) {
-          try { await fbDb.collection('ssc_pdfs').doc(pid).delete(); } catch (e) {}
-        }
+        try { await fetch(`${FS_REST_BASE}/${encodeURIComponent(pid)}?key=${encodeURIComponent(FS_API_KEY)}`, { method: 'DELETE' }); } catch (e) {}
+        const remaining = _pdfItems.filter(x => x.id !== pid);
+        await syncPdfCatalogToGithub(remaining);
       }
 
       async function fetchPdfsFromCloudReliable() {
-        let fetched = null;
-        // Fast Direct REST GET (works reliably on every phone & laptop!)
+        const mergedMap = new Map();
+        // Source 1: Fast Direct Firestore REST GET with API Key
         try {
-          const resp = await fetch(`${FS_REST_BASE}?pageSize=150`);
+          const resp = await fetch(`${FS_REST_BASE}?pageSize=150&key=${encodeURIComponent(FS_API_KEY)}`);
           if (resp.ok) {
             const j = await resp.json();
-            fetched = (j.documents || []).map(fromFsDoc).filter(d => d && d.title);
+            (j.documents || []).map(fromFsDoc).filter(d => d && d.title).forEach(d => mergedMap.set(d.id, d));
           }
         } catch (e) {}
-        // Fallback SDK .get() if REST failed
-        if (fetched === null && typeof fbDb !== 'undefined' && fbDb) {
-          try {
-            const snap = await Promise.race([
-              fbDb.collection('ssc_pdfs').limit(150).get(),
-              new Promise(res => setTimeout(() => res(null), 4000))
-            ]);
-            if (snap) {
-              fetched = [];
-              snap.forEach(doc => {
-                const d = doc.data();
-                if (d && d.title) fetched.push({ id: doc.id, ...d });
+
+        // Source 2: GitHub Pages pdfs_catalog.json Mirror (100% CDN-cached & always reachable!)
+        try {
+          const ghR = await fetch(`./pdfs_catalog.json?t=${Date.now()}`);
+          if (ghR.ok) {
+            const ghArr = await ghR.json();
+            if (Array.isArray(ghArr)) {
+              ghArr.filter(d => d && d.title && d.id).forEach(d => {
+                if (!mergedMap.has(d.id)) mergedMap.set(d.id, d);
               });
             }
-          } catch (e) {}
-        }
-        if (Array.isArray(fetched)) {
-          fetched.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
-          _pdfItems = fetched;
+          }
+        } catch (e) {}
+
+        if (mergedMap.size > 0) {
+          const arr = Array.from(mergedMap.values()).sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+          _pdfItems = arr;
           savePdfCache();
         }
         renderPdfLists();
