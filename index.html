@@ -531,10 +531,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#1e3a8a">
-  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-  <link rel="apple-touch-icon" href="./icon-192.png">
 </head>
 <body class="text-slate-100 antialiased selection:bg-cyan-400/30 selection:text-cyan-100">
   <!-- ==================== STAGE 1: 3D ANIMATED SPLASH SCREEN ==================== -->
@@ -783,70 +779,80 @@
   <div class="app-layer min-h-screen flex flex-col pb-28 md:pb-12">
     <!-- Top Sticky Navigation -->
     <header class="sticky top-0 z-30 border-b border-indigo-400/25 bg-slate-950/95">
-      <div class="max-w-7xl mx-auto px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2">
-        <!-- Brand with 3D Rotating Cube -->
-        <div class="flex items-center gap-3 shrink-0">
-          <div id="logo-cube" class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-900 via-blue-700 to-indigo-800 border-2 border-amber-400 flex flex-col items-center justify-center shadow-md shrink-0">
-            <span class="text-sm leading-none">👑</span>
-            <span class="text-[9px] font-black text-amber-300 tracking-tighter leading-none mt-0.5">SSC</span>
+      <!-- Row 1: Brand + Compact Nav + Primary Account/Admin/Menu (Fits 100% Zoom on All Laptops) -->
+      <div class="max-w-7xl mx-auto px-3 sm:px-5 py-2 flex items-center justify-between gap-2">
+        <!-- Brand with 3D Crest -->
+        <div class="flex items-center gap-2.5 shrink-0">
+          <div id="logo-cube" class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-900 via-blue-700 to-indigo-800 border-2 border-amber-400 flex flex-col items-center justify-center shadow-md shrink-0">
+            <span class="text-xs leading-none">👑</span>
+            <span class="text-[8px] font-black text-amber-300 tracking-tighter leading-none mt-0.5">SSC</span>
           </div>
           <div>
-            <h1 id="app-brand-title" class="text-sm sm:text-base font-extrabold tracking-tight bg-gradient-to-r from-cyan-300 via-indigo-200 to-emerald-300 bg-clip-text text-transparent">
+            <h1 id="app-brand-title" class="text-sm sm:text-base font-extrabold tracking-tight bg-gradient-to-r from-cyan-300 via-indigo-200 to-emerald-300 bg-clip-text text-transparent whitespace-nowrap">
               SSC Vocab 3D Pro
             </h1>
-            <p id="app-brand-subtitle" class="text-[11px] text-slate-400 leading-none hidden sm:block">CGL • CHSL • MTS • 6-Yr PYQ (2021–2026)</p>
+            <p id="app-brand-subtitle" class="text-[10px] text-slate-400 leading-none hidden xl:block whitespace-nowrap">CGL • CHSL • MTS • 6-Yr PYQ</p>
           </div>
         </div>
 
-        <!-- Desktop Single-Line Navigation -->
-        <nav class="hidden md:flex items-center gap-1.5 glass-pill p-1 rounded-xl" aria-label="Main navigation">
-          <button data-nav="home" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+        <!-- Desktop Compact Navigation -->
+        <nav class="hidden md:flex items-center gap-1 glass-pill p-1 rounded-xl shrink-0" aria-label="Main navigation">
+          <button data-nav="home" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
             <i data-lucide="home" class="w-3.5 h-3.5"></i> Home
           </button>
-          <button data-nav="vocab" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="box" class="w-3.5 h-3.5"></i> 3D Vocab
+          <button data-nav="vocab" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
+            <i data-lucide="box" class="w-3.5 h-3.5"></i> Vocab
           </button>
-          <button data-nav="pyq" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="history" class="w-3.5 h-3.5"></i> 6-Yr PYQ
+          <button data-nav="pyq" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
+            <i data-lucide="history" class="w-3.5 h-3.5"></i> PYQ
           </button>
-          <button data-nav="rev" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="layers" class="w-3.5 h-3.5"></i> Clusters &amp; Rev
+          <button data-nav="rev" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
+            <i data-lucide="layers" class="w-3.5 h-3.5"></i> Clusters
           </button>
-          <button data-nav="test" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+          <button data-nav="test" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
             <i data-lucide="file-check-2" class="w-3.5 h-3.5"></i> CBT Test
           </button>
-          <button data-nav="tracker" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="flame" class="w-3.5 h-3.5"></i> Daily Track
+          <button data-nav="tracker" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
+            <i data-lucide="flame" class="w-3.5 h-3.5"></i> Track
           </button>
         </nav>
 
-        <!-- Right Status Controls -->
-        <div class="flex items-center gap-2 shrink-0">
-          <button id="kgs-light-toggle-btn" type="button" class="glass-pill px-2 py-1.5 rounded-xl text-xs font-black text-amber-300 hover:border-amber-400/60 transition" title="Switch Classic Light / Dark Mode">☀️</button>
-          <button id="header-font-btn" type="button" class="glass-pill px-2 py-1.5 rounded-xl text-[11px] font-black text-cyan-200 hover:border-cyan-400/60 transition" title="Word Font Size (A / A+ / A++)">A+</button>
-          <button id="header-target-pill" class="glass-pill px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-semibold hover:border-cyan-400/50 transition" title="Open Daily Target & Tracker">
-            <span class="text-amber-400">🔥</span>
-            <span id="hdr-streak">0d</span>
-            <span class="text-slate-500">|</span>
-            <span class="text-cyan-300" id="hdr-daily-count">0/10</span>
+        <!-- Right Primary Controls: Theme, Font, Admin, Student Profile & Menu (Always Visible at 100% Zoom) -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="kgs-light-toggle-btn" type="button" class="glass-pill px-2 py-1.5 rounded-xl text-xs font-black text-amber-300 hover:border-amber-400/60 transition shrink-0" title="Switch Classic Light / Dark Mode">☀️</button>
+          <button id="header-font-btn" type="button" class="glass-pill px-2 py-1.5 rounded-xl text-[11px] font-black text-cyan-200 hover:border-cyan-400/60 transition shrink-0" title="Word Font Size (A / A+ / A++)">A+</button>
+          <button id="header-admin-btn" type="button" class="hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/30 to-rose-500/30 border border-amber-400/70 text-amber-200 text-[11px] font-black hover:brightness-115 transition whitespace-nowrap shrink-0" title="Admin Control Panel">🛡️ Admin</button>
+          <button id="auth-open-btn" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500/30 to-cyan-500/30 border border-cyan-400/50 text-white text-xs font-extrabold hover:brightness-115 transition flex items-center gap-1.5 shadow whitespace-nowrap shrink-0" title="Student Login / Profile">
+            <span class="text-sm leading-none" id="auth-btn-icon">👤</span><span id="auth-btn-label">Login</span>
           </button>
-          <span id="xp-rank-pill" class="hidden 2xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-400/35 text-amber-200 text-[11px] font-extrabold whitespace-nowrap" title="XP earned from learning words & CBT tests">🏆 Lv.1 Aspirant • 0 XP</span>
-          <button id="focus-timer-btn" type="button" class="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 text-xs font-extrabold hover:bg-emerald-500/25 transition whitespace-nowrap" title="25-Min SSC Study Focus Timer">⏱ <span id="focus-timer-txt">25:00</span></button>
-          <button id="header-admin-btn" type="button" class="hidden inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/30 to-rose-500/30 border border-amber-400/70 text-amber-200 text-[11px] font-black hover:brightness-115 transition whitespace-nowrap" title="Admin Control Panel">🛡️ Admin</button>
-          <button id="header-pass-btn" type="button" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 text-[11px] font-extrabold hover:bg-amber-500/30 transition whitespace-nowrap" title="Super Pro Pass Status">🎁 15d Free</button>
-          <button id="auth-open-btn" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-indigo-500/30 to-cyan-500/30 border border-cyan-400/50 text-white text-xs font-extrabold hover:brightness-115 transition flex items-center gap-1.5 shadow shrink-0" title="Student Login / Create Account">
-            <span class="text-base leading-none" id="auth-btn-icon">👤</span><span id="auth-btn-label">Login</span>
-          </button>
-          <button id="about-open-btn" type="button" class="px-2.5 py-1.5 sm:py-2 rounded-xl bg-slate-800/90 border border-cyan-400/45 text-xs font-extrabold text-cyan-200 hover:border-cyan-300 transition flex items-center gap-1 whitespace-nowrap shrink-0" title="Account Menu, About, Support & Settings">☰ <span class="hidden sm:inline">Menu</span></button>
-          <button id="theme-cycle-btn" title="Switch 3D Theme (Cyber / Gold / Matrix)" class="hidden sm:flex px-2.5 py-1.5 rounded-xl glass-pill text-xs font-bold text-cyan-200 hover:border-cyan-400/60 transition items-center gap-1 shrink-0">
-            <span>🎨</span><span class="hidden sm:inline" id="theme-label">Cyber</span>
-          </button>
-          <button id="toggle-3d-btn" class="hidden sm:flex glass-pill p-2 rounded-xl text-cyan-300 hover:bg-cyan-500/15 transition" title="Toggle 3D Background Animation">
-            <i data-lucide="sparkles" class="w-5 h-5"></i>
-          </button>
+          <button id="about-open-btn" type="button" class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 border border-cyan-400/45 text-xs font-extrabold text-cyan-200 hover:border-cyan-300 transition flex items-center gap-1 whitespace-nowrap shrink-0" title="Account Menu, About, Support &amp; Settings">☰ <span class="hidden sm:inline">Menu</span></button>
         </div>
       </div>
 
+      <!-- Row 2: Compact Status Strip (Streak, XP, Focus Timer, Trial/Pass & 3D Controls) -->
+      <div class="border-t border-indigo-400/15 bg-slate-900/35">
+        <div class="max-w-7xl mx-auto px-3 sm:px-5 py-1.5 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+          <div class="flex items-center gap-2 shrink-0">
+            <button id="header-target-pill" class="glass-pill px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-[11px] font-bold hover:border-cyan-400/50 transition whitespace-nowrap shrink-0" title="Open Daily Target &amp; Tracker">
+              <span class="text-amber-400">🔥</span>
+              <span id="hdr-streak">0d</span>
+              <span class="text-slate-500">|</span>
+              <span class="text-cyan-300" id="hdr-daily-count">0/10</span>
+            </button>
+            <span id="xp-rank-pill" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-400/35 text-amber-200 text-[11px] font-extrabold whitespace-nowrap shrink-0" title="XP earned from learning words &amp; CBT tests">🏆 Lv.1 Aspirant • 0 XP</span>
+            <button id="focus-timer-btn" type="button" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 text-[11px] font-extrabold hover:bg-emerald-500/25 transition whitespace-nowrap shrink-0" title="25-Min SSC Study Focus Timer">⏱ <span id="focus-timer-txt">25:00</span></button>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button id="header-pass-btn" type="button" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-200 text-[11px] font-extrabold hover:bg-amber-500/30 transition whitespace-nowrap shrink-0" title="Super Pro Pass Status">🎁 15d Free</button>
+            <button id="theme-cycle-btn" title="Switch 3D Theme (Cyber / Gold / Matrix)" class="hidden sm:flex px-2 py-1 rounded-lg glass-pill text-[11px] font-bold text-cyan-200 hover:border-cyan-400/60 transition items-center gap-1 whitespace-nowrap shrink-0">
+              <span>🎨</span><span id="theme-label">Cyber</span>
+            </button>
+            <button id="toggle-3d-btn" class="hidden sm:flex glass-pill p-1.5 rounded-lg text-cyan-300 hover:bg-cyan-500/15 transition shrink-0" title="Toggle 3D Background Animation">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </header>
 
     <!-- Main Content Container -->
@@ -2889,7 +2895,7 @@
 
       document.querySelectorAll('.nav-btn').forEach(btn => {
         const active = btn.dataset.nav === tabName;
-        btn.className = `nav-btn px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap shrink-0 transition ${
+        btn.className = `nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition ${
           active
             ? 'bg-gradient-to-r from-cyan-500/25 to-indigo-500/30 text-cyan-100 border border-cyan-400/55 shadow'
             : 'text-slate-300 hover:text-white hover:bg-white/5'
@@ -9422,13 +9428,5 @@
     </div>
   </div>
 
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      });
-    }
-  </script>
 </body>
 </html>
