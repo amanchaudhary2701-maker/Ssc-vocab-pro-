@@ -4969,12 +4969,13 @@
         showToast('⭐ Thank you for rating SSC Vocab 3D Pro 5 Stars!');
         if (window.confetti) confetti({ particleCount: 55, spread: 60, origin: { y: 0.7 } });
       });
+      const LIVE_APP_URL = 'https://amanchaudhary2701-maker.github.io/Ssc-vocab-pro-/';
       document.getElementById('menu-share-btn')?.addEventListener('click', () => {
-        const shareText = 'SSC Vocab 3D Pro by Aman Kumar — 9,588+ BlackBook A-F & 467 SSC CGL 2026 PYQs + 15-Day Free Trial!';
+        const shareText = `🎓 SSC Vocab 3D Pro by Aman Kumar\n📚 9,588+ BlackBook A–F + 467 SSC CGL 2026 PYQs + 205 Hindi Root Words + AI Study Guru!\n🎁 15-Day FREE Trial — Open / Install App:\n${LIVE_APP_URL}`;
         if (navigator.share) {
-          navigator.share({ title: 'SSC Vocab 3D Pro', text: shareText }).catch(() => {});
+          navigator.share({ title: 'SSC Vocab 3D Pro — Aman Kumar', text: shareText, url: LIVE_APP_URL }).catch(() => {});
         } else if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(shareText).then(() => showToast('🔗 App info copied — friends ko WhatsApp par share karein!'));
+          navigator.clipboard.writeText(shareText).then(() => showToast('🔗 App link copied — friends ko WhatsApp par share karein!'));
         }
       });
       document.getElementById('menu-policy-toggle')?.addEventListener('click', () => {
@@ -8444,8 +8445,9 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       document.getElementById('wotd-share-btn')?.addEventListener('click', () => {
         const it = window.__wotdItem;
         if (!it) return;
-        const txt = `🌟 SSC Word of the Day: ${it.word}\n📘 Meaning: ${it.answer}\n🇮🇳 Hindi: ${it.meaningHi || ''}\n✅ Syn: ${it.syn || '-'}\n❌ Ant: ${it.ant || '-'}\n— SSC Vocab 3D Pro`;
-        if (navigator.share) { navigator.share({ title: 'SSC Word of the Day', text: txt }).catch(() => {}); }
+        const appUrl = 'https://amanchaudhary2701-maker.github.io/Ssc-vocab-pro-/';
+        const txt = `🌟 SSC Word of the Day: ${it.word}\n📘 Meaning: ${it.answer}\n🇮🇳 Hindi: ${it.meaningHi || ''}\n✅ Syn: ${it.syn || '-'}\n❌ Ant: ${it.ant || '-'}\n— SSC Vocab 3D Pro\n🔗 Open App: ${appUrl}`;
+        if (navigator.share) { navigator.share({ title: 'SSC Word of the Day', text: txt, url: appUrl }).catch(() => {}); }
         else if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(() => showToast('📋 Word Card Copied — WhatsApp par paste karein!')); }
       });
 
