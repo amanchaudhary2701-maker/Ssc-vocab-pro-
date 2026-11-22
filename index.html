@@ -580,7 +580,7 @@
       <!-- 1-TAP GOOGLE SIGN-IN -->
       <button type="button" id="gate-google-signin-btn" class="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-black text-sm shadow-lg flex items-center justify-center gap-2.5 transition">
         <span class="text-lg font-black text-blue-600">G</span>
-        <span>Continue with Google (Instant Verified)</span>
+        <span>Continue with Google (⚡ 1-Sec Instant — No Wait)</span>
       </button>
 
       <div class="flex items-center gap-2 text-[11px] text-slate-400">
@@ -605,9 +605,11 @@
             <p id="gate-verify-msg" class="text-[11px] text-slate-200 leading-relaxed">Aapke email inbox (ya Spam folder) me verification link bheja gaya hai. Link par click karne ke baad niche button dabayein.</p>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" id="gate-verify-check-btn" class="py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition">✅ I Verified Email</button>
-          <button type="button" id="gate-verify-resend-btn" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-amber-400/40 text-amber-200 font-bold text-xs transition">🔁 Resend Link</button>
+        <p class="text-[10px] text-emerald-300 font-bold animate-pulse">⚡ Auto-Checking every 2s — link par click karte hi app apne aap khul jayega!</p>
+        <div class="grid grid-cols-3 gap-1.5">
+          <a href="https://mail.google.com/" target="_blank" rel="noopener noreferrer" class="py-2 px-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-[11px] text-center transition">📬 Gmail</a>
+          <button type="button" id="gate-verify-check-btn" class="py-2 px-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[11px] transition">✅ Verified</button>
+          <button type="button" id="gate-verify-resend-btn" class="py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-amber-400/40 text-amber-200 font-bold text-[11px] transition">🔁 Resend</button>
         </div>
       </div>
 
@@ -2614,38 +2616,78 @@
       return String(uid || 'guest').trim().toLowerCase().replace(/[^a-z0-9@._-]/g, '_');
     }
 
+    window._lastCloudSyncAt = 0;
+    window._lastCloudErr = '';
+
     function cloudSaveUser(userObj) {
-      if (!fbDb || !userObj || !userObj.uid) return;
+      if (!fbDb || !userObj || !userObj.uid) return Promise.resolve(false);
       try {
-        fbDb.collection('ssc_users').doc(safeFbDocId(userObj.uid)).set({
-          ...userObj,
+        const cleanObj = {};
+        Object.keys(userObj).forEach(k => {
+          if (userObj[k] !== undefined) cleanObj[k] = userObj[k];
+        });
+        return fbDb.collection('ssc_users').doc(safeFbDocId(userObj.uid)).set({
+          ...cleanObj,
           updatedAt: Date.now()
-        }, { merge: true }).catch(() => {});
-      } catch (e) {}
+        }, { merge: true }).then(() => {
+          window._lastCloudSyncAt = Date.now();
+          window._lastCloudErr = '';
+          return true;
+        }).catch((err) => {
+          window._lastCloudErr = (err && (err.code || err.message)) || 'cloud-write-failed';
+          return false;
+        });
+      } catch (e) { return Promise.resolve(false); }
     }
 
     async function cloudFetchUser(uid) {
       if (!fbDb || !uid) return null;
       try {
         const snap = await fbDb.collection('ssc_users').doc(safeFbDocId(uid)).get();
+        window._lastCloudErr = '';
         return snap.exists ? snap.data() : null;
-      } catch (e) { return null; }
+      } catch (e) {
+        window._lastCloudErr = (e && (e.code || e.message)) || 'cloud-read-failed';
+        return null;
+      }
     }
 
     function cloudSaveProgress(uid, st) {
-      if (!fbDb || !uid || !st) return;
+      if (!fbDb || !uid || !st) return Promise.resolve(false);
       try {
-        fbDb.collection('ssc_progress').doc(safeFbDocId(uid)).set({
-          learnedIds: st.learnedIds || [],
-          bookmarkedIds: st.bookmarkedIds || [],
-          weakIds: st.weakIds || [],
-          dailyGoal: st.dailyGoal || 20,
-          dailyLog: st.dailyLog || {},
-          testHistory: (st.testHistory || []).slice(0, 40),
+        const payload = {
+          learnedIds: Array.isArray(st.learnedIds) ? st.learnedIds : [],
+          bookmarkedIds: Array.isArray(st.bookmarkedIds) ? st.bookmarkedIds : [],
+          weakIds: Array.isArray(st.weakIds) ? st.weakIds : [],
+          revisedClusters: Array.isArray(st.revisedClusters) ? st.revisedClusters : [],
+          dailyWordTarget: st.dailyWordTarget || st.dailyGoal || 10,
+          dailyQuizTarget: st.dailyQuizTarget || 15,
+          dailyGoal: st.dailyGoal || st.dailyWordTarget || 20,
+          activityByDate: st.activityByDate || st.dailyLog || {},
+          dailyLog: st.activityByDate || st.dailyLog || {},
+          testHistory: Array.isArray(st.testHistory) ? st.testHistory.slice(0, 100) : [],
           blitzBest: st.blitzBest || 0,
+          dailyChallengeBonusXp: st.dailyChallengeBonusXp || 0,
+          customWords: Array.isArray(st.customWords) ? st.customWords.slice(0, 200) : [],
+          updatedAt: Date.now()
+        };
+        // Also mirror live summary stats onto ssc_users so Admin Database auto-updates in real-time!
+        fbDb.collection('ssc_users').doc(safeFbDocId(uid)).set({
+          uid,
+          wordsLearned: payload.learnedIds.length,
+          testsTaken: payload.testHistory.length,
+          lastActiveAt: Date.now(),
           updatedAt: Date.now()
         }, { merge: true }).catch(() => {});
-      } catch (e) {}
+        return fbDb.collection('ssc_progress').doc(safeFbDocId(uid)).set(payload, { merge: true }).then(() => {
+          window._lastCloudSyncAt = Date.now();
+          window._lastCloudErr = '';
+          return true;
+        }).catch((err) => {
+          window._lastCloudErr = (err && (err.code || err.message)) || 'progress-write-failed';
+          return false;
+        });
+      } catch (e) { return Promise.resolve(false); }
     }
 
     async function cloudLoadProgress(uid) {
@@ -2715,30 +2757,42 @@
 
     let state = loadState();
 
-    function saveState() {
+    function saveState(immediateCloud = false) {
       try {
-        try {
-          const _sk0 = getActiveStorageKey();
-          const _sv0 = JSON.stringify(state);
-          idbWrite(_sk0, _sv0);
-          const _cuid = localStorage.getItem('ssc_vocab_3d_current_user_v1') || '';
-          if (_cuid) {
-            clearTimeout(window._fbProgTimer);
-            window._fbProgTimer = setTimeout(() => cloudSaveProgress(_cuid, state), 1200);
-          }
-        } catch(e) {}
-        localStorage.setItem(getActiveStorageKey(), JSON.stringify({
-          learnedIds: state.learnedIds,
-          bookmarkedIds: state.bookmarkedIds,
-          dailyWordTarget: state.dailyWordTarget,
-          dailyQuizTarget: state.dailyQuizTarget,
-          activityByDate: state.activityByDate,
-          testHistory: state.testHistory.slice(0, 15),
+        const snapObj = {
+          learnedIds: state.learnedIds || [],
+          bookmarkedIds: state.bookmarkedIds || [],
+          weakIds: state.weakIds || [],
+          revisedClusters: state.revisedClusters || [],
+          dailyWordTarget: state.dailyWordTarget || 10,
+          dailyQuizTarget: state.dailyQuizTarget || 15,
+          dailyGoal: state.dailyGoal || state.dailyWordTarget || 20,
+          activityByDate: state.activityByDate || {},
+          testHistory: (state.testHistory || []).slice(0, 100),
+          blitzBest: state.blitzBest || 0,
+          dailyChallengeBonusXp: state.dailyChallengeBonusXp || 0,
           anim3DEnabled: state.anim3DEnabled,
-          customWords: state.customWords
-        }));
+          customWords: state.customWords || []
+        };
+        const _sk0 = getActiveStorageKey();
+        const _sv0 = JSON.stringify(snapObj);
+        localStorage.setItem(_sk0, _sv0);
+        try { idbWrite(_sk0, _sv0); } catch(e) {}
+        const _cuid = localStorage.getItem('ssc_vocab_3d_current_user_v1') || (typeof _memCurUserFallback === 'string' ? _memCurUserFallback : '');
+        if (_cuid) {
+          clearTimeout(window._fbProgTimer);
+          if (immediateCloud) {
+            cloudSaveProgress(_cuid, state);
+          } else {
+            window._fbProgTimer = setTimeout(() => cloudSaveProgress(_cuid, state), 350);
+          }
+        }
       } catch (e) {}
     }
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') saveState(true);
+    });
+    window.addEventListener('pagehide', () => saveState(true));
 
     
     function reloadStateForActiveUser() {
@@ -4541,19 +4595,22 @@
             });
             return out;
           };
+          const cloudAct = cProg.activityByDate || cProg.dailyLog || cProg.dailyActivity || {};
           state = {
             ...state,
             ...cProg,
             learnedIds: uniqArr(state.learnedIds, cProg.learnedIds),
-            bookmarks: uniqArr(state.bookmarks, cProg.bookmarks),
+            bookmarkedIds: uniqArr(state.bookmarkedIds, cProg.bookmarkedIds || cProg.bookmarks),
             weakIds: uniqArr(state.weakIds, cProg.weakIds),
             revisedClusters: uniqArr(state.revisedClusters, cProg.revisedClusters),
             testHistory: mergeTests(state.testHistory, cProg.testHistory),
-            dailyActivity: mergeDaily(state.dailyActivity, cProg.dailyActivity),
+            activityByDate: mergeDaily(state.activityByDate, cloudAct),
+            dailyWordTarget: cProg.dailyWordTarget || state.dailyWordTarget || 10,
+            dailyQuizTarget: cProg.dailyQuizTarget || state.dailyQuizTarget || 15,
             blitzBest: Math.max(state.blitzBest || 0, cProg.blitzBest || 0),
             dailyChallengeBonusXp: Math.max(state.dailyChallengeBonusXp || 0, cProg.dailyChallengeBonusXp || 0)
           };
-          saveState();
+          saveState(true);
         }
         syncHeaderStats();
         syncAuthUI();
@@ -5127,11 +5184,31 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         gateErr?.classList.add('hidden');
       });
 
+      let _verifyAutoPoll = null;
+      function stopVerifyAutoPoll() {
+        if (_verifyAutoPoll) { clearInterval(_verifyAutoPoll); _verifyAutoPoll = null; }
+      }
       function showVerifyPendingBox(email) {
         const box = document.getElementById('gate-verify-box');
         const msg = document.getElementById('gate-verify-msg');
-        if (msg) msg.textContent = `Verification link "${email}" par bheja gaya hai (Inbox ya Spam folder check karein). Link par click karne ke baad "✅ I Verified Email" dabayein.`;
+        if (msg) msg.textContent = `Verification link "${email}" par bheja gaya hai (Inbox ya Spam check karein). Link tap karte hi app apne aap khul jayega!`;
         box?.classList.remove('hidden');
+        stopVerifyAutoPoll();
+        let _ticks = 0;
+        _verifyAutoPoll = setInterval(async () => {
+          _ticks++;
+          if (_ticks > 120 || !fbAuth || !fbAuth.currentUser || box?.classList.contains('hidden')) {
+            stopVerifyAutoPoll();
+            return;
+          }
+          try {
+            await fbAuth.currentUser.reload();
+            if (fbAuth.currentUser.emailVerified) {
+              stopVerifyAutoPoll();
+              document.getElementById('gate-verify-check-btn')?.click();
+            }
+          } catch (_) {}
+        }, 2500);
       }
 
       // Sign Up -> Create Firebase Auth user -> Send Real Verification Link -> Block until verified!
@@ -5563,32 +5640,86 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       }
 
       let _adminLiveUnsub = null;
+      let _adminCloudStatusText = '⏳ Connecting Live Cloud DB...';
+      let _adminCloudStatusErr = false;
+
+      function _updateAdminCloudBadge() {
+        const box = document.getElementById('admin-users-list');
+        if (!box || !box.parentElement) return;
+        let badge = document.getElementById('admin-live-db-status');
+        if (!badge) {
+          badge = document.createElement('div');
+          badge.id = 'admin-live-db-status';
+          box.parentElement.insertBefore(badge, box);
+        }
+        badge.className = _adminCloudStatusErr
+          ? 'mb-2 px-3 py-2 rounded-xl bg-rose-500/15 border border-rose-400/50 text-[11px] font-bold text-rose-200 leading-relaxed'
+          : 'mb-2 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-400/35 text-[11px] font-bold text-emerald-200 flex items-center justify-between gap-2';
+        badge.innerHTML = _adminCloudStatusErr
+          ? `<span>🔴 ${_adminCloudStatusText}</span>`
+          : `<span>🟢 ${_adminCloudStatusText}</span><button type="button" onclick="window.__sscProApi && window.__sscProApi.forceAdminSync && window.__sscProApi.forceAdminSync()" class="px-2 py-0.5 rounded bg-emerald-500/25 hover:bg-emerald-500/40 text-emerald-100 text-[10px] font-black">🔄 Sync</button>`;
+      }
+
+      function _mergeCloudSnapIntoUsers(snap) {
+        const uMap = getUsers();
+        let count = 0;
+        snap.forEach(doc => {
+          const d = doc.data();
+          if (d && d.uid) {
+            const loc = uMap[d.uid] || {};
+            const bestSub = (loc.sub && loc.sub.expiresAt && (!d.sub || loc.sub.expiresAt > (d.sub.expiresAt || 0))) ? loc.sub : (d.sub || loc.sub || null);
+            uMap[d.uid] = { ...loc, ...d, sub: bestSub };
+            count++;
+          }
+        });
+        saveUsers(uMap);
+        const nowStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        _adminCloudStatusErr = false;
+        _adminCloudStatusText = `Live Cloud DB Connected (${count} cloud users • ${nowStr})`;
+        _updateAdminCloudBadge();
+        _paintAdminUsersList();
+      }
+
+      function _handleAdminCloudErr(err) {
+        const code = (err && err.code) || (err && err.message) || 'network-error';
+        _adminCloudStatusErr = true;
+        if (String(code).includes('permission-denied')) {
+          _adminCloudStatusText = 'Firestore Rules Blocked! Firebase Console → Firestore Database → Rules me "allow read, write: if true;" Publish karein (tabhi Live DB & Auto-Save chalega).';
+        } else {
+          _adminCloudStatusText = `Cloud Sync Error (${code}) — internet check karke Sync dabayein.`;
+        }
+        _adminLiveUnsub = null;
+        _updateAdminCloudBadge();
+      }
+
+      function forceAdminSync() {
+        if (!fbDb) { _handleAdminCloudErr({ code: 'offline' }); return; }
+        _adminCloudStatusErr = false;
+        _adminCloudStatusText = '⏳ Syncing Live Cloud DB...';
+        _updateAdminCloudBadge();
+        // Also push any local-only users up to Cloud Firestore so nothing is missing
+        const locUsers = getUsers();
+        Object.values(locUsers).forEach(u => { if (u && u.uid) cloudSaveUser(u); });
+        fbDb.collection('ssc_users').limit(300).get().then(_mergeCloudSnapIntoUsers).catch(_handleAdminCloudErr);
+      }
+
       function renderAdminUsersList() {
         if (fbDb) {
           try {
             if (!_adminLiveUnsub && typeof fbDb.collection('ssc_users').onSnapshot === 'function') {
-              _adminLiveUnsub = fbDb.collection('ssc_users').limit(300).onSnapshot(snap => {
-                const uMap = getUsers();
-                let changed = false;
-                snap.forEach(doc => {
-                  const d = doc.data();
-                  if (d && d.uid) { uMap[d.uid] = { ...(uMap[d.uid] || {}), ...d }; changed = true; }
-                });
-                if (changed) { saveUsers(uMap); _paintAdminUsersList(); }
-              }, () => {});
+              _adminLiveUnsub = fbDb.collection('ssc_users').limit(300).onSnapshot(
+                _mergeCloudSnapIntoUsers,
+                _handleAdminCloudErr
+              );
             } else {
-              fbDb.collection('ssc_users').limit(300).get().then(snap => {
-                const uMap = getUsers();
-                let changed = false;
-                snap.forEach(doc => {
-                  const d = doc.data();
-                  if (d && d.uid) { uMap[d.uid] = { ...(uMap[d.uid] || {}), ...d }; changed = true; }
-                });
-                if (changed) { saveUsers(uMap); _paintAdminUsersList(); }
-              }).catch(() => {});
+              fbDb.collection('ssc_users').limit(300).get().then(_mergeCloudSnapIntoUsers).catch(_handleAdminCloudErr);
             }
-          } catch (e) {}
+          } catch (e) { _handleAdminCloudErr(e); }
+        } else {
+          _adminCloudStatusErr = true;
+          _adminCloudStatusText = 'Offline Mode — Cloud DB connect nahi hua.';
         }
+        _updateAdminCloudBadge();
         _paintAdminUsersList();
       }
       function _paintAdminUsersList() {
@@ -5632,7 +5763,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           return `<div class="p-2 rounded-lg bg-slate-900/90 border border-white/10 flex items-center justify-between gap-2">
             <div class="min-w-0">
               <p class="font-bold text-white truncate">${u.name || 'Student'} <span class="text-slate-400 font-normal">(${u.uid})</span></p>
-              <p class="text-[10px] text-slate-400 truncate">${u.exam || 'SSC CGL'} ${u.googleVerified ? '• ✅ Google' : ''}</p>
+              <p class="text-[10px] text-slate-400 truncate">${u.exam || 'SSC CGL'} ${u.googleVerified ? '• ✅ Verified' : ''} • 📚 ${u.wordsLearned || 0}w • 📝 ${u.testsTaken || 0} tests</p>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               ${badge}
@@ -5644,7 +5775,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
 
       window.__sscProApi = {
         getUsers, getCurrentUserId, enforceAppAccessGate, updatePassBadges,
-        renderAdminUsersList, paintAdminUsersList: _paintAdminUsersList, openSuperProScreen
+        renderAdminUsersList, paintAdminUsersList: _paintAdminUsersList, forceAdminSync, openSuperProScreen
       };
       function syncAdminHeaderBtn() {
         const btn = document.getElementById('header-admin-btn');
