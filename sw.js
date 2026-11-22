@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ssc-vocab-3d-pro-v28';
+const CACHE_NAME = 'ssc-vocab-3d-pro-v29';
 const CORE_ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (event) => {
