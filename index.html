@@ -9347,6 +9347,39 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       </div>
       <button type="button" id="ailt-save-next-btn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs sm:text-sm font-black shadow-lg hover:brightness-110">Save &amp; Next →</button>
     </div>
+
+    <!-- Official Eduquity On-Screen Submit Confirmation Popup -->
+    <div id="ailt-submit-confirm-modal" class="hidden fixed inset-0 z-[99] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="glass-card rounded-3xl max-w-md w-full p-5 sm:p-6 border-2 border-amber-400/60 shadow-2xl space-y-4">
+        <div class="text-center space-y-1">
+          <span class="inline-block px-3 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase">EDUQUITY EXAM SUBMIT</span>
+          <h4 class="text-lg font-black text-white">Kya aap Final Test Submit karna chahte hain?</h4>
+          <p class="text-xs text-slate-300">Submit karne ke baad aapka Score, All-India Rank aur 100 Solutions turant khul jayenge.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-center text-xs">
+          <div class="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-400/40">
+            <p class="text-[10px] text-emerald-200 font-bold">🟩 Answered</p>
+            <p id="ailt-cf-ans" class="text-lg font-black text-emerald-300">0</p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-rose-500/15 border border-rose-400/40">
+            <p class="text-[10px] text-rose-200 font-bold">🟥 Not Answered</p>
+            <p id="ailt-cf-notans" class="text-lg font-black text-rose-300">0</p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-amber-500/15 border border-amber-400/40">
+            <p class="text-[10px] text-amber-200 font-bold">🟠 Marked Review</p>
+            <p id="ailt-cf-rev" class="text-lg font-black text-amber-300">0</p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-800/90 border border-white/15">
+            <p class="text-[10px] text-slate-300 font-bold">⬜ Not Visited</p>
+            <p id="ailt-cf-unvis" class="text-lg font-black text-slate-200">100</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5 pt-1">
+          <button type="button" id="ailt-cf-cancel-btn" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/20 text-slate-200 text-xs font-extrabold">← Resume Test</button>
+          <button type="button" id="ailt-cf-yes-btn" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 text-xs font-black shadow-lg hover:brightness-110">✅ Yes, Final Submit</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ==================== ALL-INDIA LIVE TEST RESULT, ANALYSIS & CLOUD LEADERBOARD MODAL ==================== -->
@@ -9615,6 +9648,19 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             <input id="admin-ig-input" type="text" placeholder="Instagram URL ya @handle (e.g. https://instagram.com/yourid)" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white" />
             <input id="admin-fb-input" type="text" placeholder="Facebook Page URL (e.g. https://facebook.com/yourpage)" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white" />
             <button id="admin-save-socials-btn" type="button" class="w-full py-2 rounded-lg bg-cyan-500/25 border border-cyan-400/50 text-cyan-200 text-xs font-extrabold hover:bg-cyan-500/35">💾 Save Social Links to About Page</button>
+          </div>
+
+          <!-- 🔴 ADMIN ANY-TIME ALL-INDIA 2:00 PM LIVE TEST LAUNCHER -->
+          <div class="p-3.5 rounded-2xl bg-gradient-to-r from-rose-950/75 via-indigo-950/75 to-slate-900 border border-amber-400/50 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-black text-amber-200">🇮🇳 All-India 2:00 PM Live Test (Admin Control)</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-200 text-[10px] font-bold">Admin Any-Time</span>
+            </div>
+            <p class="text-[11px] text-slate-300">Students ke liye ye test roz real **2:00 PM IST** par hi khulega, par Admin jab chahe tab open karke 100-Q Eduquity test &amp; leaderboard dekh sakta hai.</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="admin-open-ailt-now-btn" class="py-2 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs hover:brightness-110 transition">⚡ Open 100-Q Test Now</button>
+              <button type="button" id="admin-open-ailt-lb-btn" class="py-2 px-3 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 font-extrabold text-xs hover:bg-cyan-500/30 transition">🏆 View Live Rank</button>
+            </div>
           </div>
 
           <!-- LIVE AUTO-UPDATING ANALYTICS DASHBOARD -->
@@ -10383,9 +10429,10 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       function startAllIndiaExam(forceAdminPreview = false) {
         const ist = getISTNowParts();
         const isAdmin = typeof isCurrentUserAdmin === 'function' && isCurrentUserAdmin();
-        if (!ist.isLiveWindow && !forceAdminPreview && !isAdmin) {
+        // Students can ONLY open at real 2:00 PM IST or later; Admin can open anytime from Admin Panel or Admin Preview!
+        if (!ist.isLiveWindow && !(forceAdminPreview && isAdmin)) {
           if (typeof showToast === 'function') {
-            showToast('⏳ All-India Live Test roz theek 2:00 PM IST par automatically start hota hai!');
+            showToast('🔒 Ye All-India Live Test theek 2:00 PM IST par hi automatically open hoga!');
           }
           return;
         }
@@ -10433,6 +10480,8 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           if (el) el.textContent = `${m}:${s}`;
           if (_ailt.remainingSec <= 0) {
             clearInterval(_ailtTimerInt);
+            if (typeof showToast === 'function') showToast('⏱ Time Over! Aapka 100-Q Eduquity Test automatically submit ho gaya hai!');
+            document.getElementById('ailt-submit-confirm-modal')?.classList.add('hidden');
             submitAllIndiaExam(true);
             return;
           }
@@ -10528,16 +10577,22 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
 
       async function submitAllIndiaExam(autoSubmitted = false) {
         if (!_ailt) return;
-        const ansCount = Object.keys(_ailt.answers).length;
-        if (!autoSubmitted && !_ailt._submitArmed) {
-          _ailt._submitArmed = true;
-          const sBtn = document.getElementById('ailt-submit-top-btn');
-          if (sBtn) sBtn.textContent = `Confirm (${ansCount}/${_ailt.paper.length})`;
-          if (typeof showToast === 'function') showToast(`📝 Answered: ${ansCount}/${_ailt.paper.length} — Final submit ke liye "Confirm" dobara tap karein!`);
-          setTimeout(() => {
-            if (_ailt) _ailt._submitArmed = false;
-            if (sBtn) sBtn.textContent = 'Submit';
-          }, 5000);
+        if (!autoSubmitted) {
+          let cAns = 0, cNotAns = 0, cRev = 0, cUnvis = 0;
+          _ailt.paper.forEach((_, i) => {
+            const isA = !!_ailt.answers[i];
+            const isR = !!_ailt.marked[i];
+            const isV = !!_ailt.visited[i];
+            if (isA) cAns++;
+            if (isR) cRev++;
+            if (!isA && !isR && isV) cNotAns++;
+            if (!isA && !isR && !isV) cUnvis++;
+          });
+          const elA = document.getElementById('ailt-cf-ans'); if (elA) elA.textContent = String(cAns);
+          const elN = document.getElementById('ailt-cf-notans'); if (elN) elN.textContent = String(cNotAns);
+          const elR = document.getElementById('ailt-cf-rev'); if (elR) elR.textContent = String(cRev);
+          const elU = document.getElementById('ailt-cf-unvis'); if (elU) elU.textContent = String(cUnvis);
+          document.getElementById('ailt-submit-confirm-modal')?.classList.remove('hidden');
           return;
         }
         if (_ailtTimerInt) clearInterval(_ailtTimerInt);
@@ -10838,6 +10893,21 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         document.getElementById('ailt-palette-aside')?.classList.add('hidden');
       });
       document.getElementById('ailt-submit-top-btn')?.addEventListener('click', () => submitAllIndiaExam(false));
+      document.getElementById('ailt-cf-cancel-btn')?.addEventListener('click', () => {
+        document.getElementById('ailt-submit-confirm-modal')?.classList.add('hidden');
+      });
+      document.getElementById('ailt-cf-yes-btn')?.addEventListener('click', () => {
+        document.getElementById('ailt-submit-confirm-modal')?.classList.add('hidden');
+        submitAllIndiaExam(true);
+      });
+      document.getElementById('admin-open-ailt-now-btn')?.addEventListener('click', () => {
+        document.getElementById('admin-keygen-modal')?.classList.add('hidden');
+        startAllIndiaExam(true);
+      });
+      document.getElementById('admin-open-ailt-lb-btn')?.addEventListener('click', () => {
+        document.getElementById('admin-keygen-modal')?.classList.add('hidden');
+        openAllIndiaResultModal('lb');
+      });
       let _ailtExitArmed = false;
       document.getElementById('ailt-exit-btn')?.addEventListener('click', () => {
         if (!_ailtExitArmed) {
