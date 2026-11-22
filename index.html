@@ -780,74 +780,152 @@
           </div>
         </div>
 
-        <!-- KGS 8-Module Colorful Icon Grid ("Study Categories") -->
+        <!-- SECTION 1: DEDICATED VOCABULARY SUBJECT PAGES (Each opens its own full page!) -->
         <div class="space-y-2.5">
           <div class="flex items-center justify-between px-1">
-            <h3 class="text-sm sm:text-base font-black text-white">📚 Study Modules</h3>
+            <h3 class="text-sm sm:text-base font-black text-white">📖 Vocabulary Courses (Separate Pages)</h3>
             <span id="kgs-today-pill" class="text-[11px] font-extrabold text-emerald-400">Today: 0/10 Words</span>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <button type="button" data-kgs-go="vocab" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-cyan-400/30 space-y-2">
-              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-xl shadow-md">📚</div>
+            <button type="button" data-open-cat="Synonym" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-blue-400/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-xl shadow-md">📘</div>
+                <span class="px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-500 text-[10px] font-black">1,508</span>
+              </div>
               <div>
-                <p class="text-sm font-black text-white">3D Vocab</p>
-                <p class="text-[11px] text-slate-400 font-semibold">9,291 Words + 🇮🇳 Hindi</p>
+                <p class="text-sm font-black text-white">Synonyms</p>
+                <p class="text-[11px] text-slate-400 font-semibold">समानार्थी शब्द • Alag Page</p>
               </div>
             </button>
 
-            <button type="button" data-kgs-go="pyq" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-amber-400/30 space-y-2">
-              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-xl shadow-md">🏛️</div>
+            <button type="button" data-open-cat="Antonym" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-rose-400/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-xl shadow-md">📙</div>
+                <span class="px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-500 text-[10px] font-black">1,528</span>
+              </div>
               <div>
-                <p class="text-sm font-black text-white">6-Yr PYQ Bank</p>
-                <p class="text-[11px] text-slate-400 font-semibold">467 CGL 2026 + BlackBook</p>
+                <p class="text-sm font-black text-white">Antonyms</p>
+                <p class="text-[11px] text-slate-400 font-semibold">विलोम शब्द • Alag Page</p>
               </div>
             </button>
 
-            <button type="button" data-kgs-go="rev" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-emerald-400/30 space-y-2">
-              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xl shadow-md">🧩</div>
+            <button type="button" data-open-cat="One Word" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-emerald-400/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xl shadow-md">🎯</div>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 text-[10px] font-black">1,765</span>
+              </div>
               <div>
-                <p class="text-sm font-black text-white">Syn / Ant Clusters</p>
-                <p class="text-[11px] text-slate-400 font-semibold">39 Categories • 3,036 Words</p>
+                <p class="text-sm font-black text-white">One Word (OWS)</p>
+                <p class="text-[11px] text-slate-400 font-semibold">अनेक शब्दों के एक शब्द</p>
               </div>
             </button>
 
-            <button type="button" data-kgs-go="quickrev" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-violet-400/30 space-y-2">
-              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xl shadow-md">⚡</div>
+            <button type="button" data-open-cat="Idiom" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-amber-400/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-xl shadow-md">💬</div>
+                <span class="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 text-[10px] font-black">1,856</span>
+              </div>
               <div>
-                <p class="text-sm font-black text-white">Quick Revision</p>
-                <p class="text-[11px] text-slate-400 font-semibold">5 Decks + Auto-Play</p>
+                <p class="text-sm font-black text-white">Idioms &amp; Phrases</p>
+                <p class="text-[11px] text-slate-400 font-semibold">मुहावरे एवं लोकोक्तियाँ</p>
               </div>
             </button>
 
-            <button type="button" data-kgs-go="test" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-rose-400/30 space-y-2">
-              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-xl shadow-md">📝</div>
+            <button type="button" data-open-cat="Spelling" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-violet-400/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xl shadow-md">✍️</div>
+                <span class="px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-500 text-[10px] font-black">319</span>
+              </div>
               <div>
-                <p class="text-sm font-black text-white">CBT Mock Test</p>
-                <p class="text-[11px] text-slate-400 font-semibold">+2 / -0.50 &amp; 60s Blitz</p>
+                <p class="text-sm font-black text-white">Spellings</p>
+                <p class="text-[11px] text-slate-400 font-semibold">CGL 2026 + BlackBook</p>
               </div>
             </button>
 
-            <button type="button" data-kgs-go="challenge" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-yellow-400/30 space-y-2">
-              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-xl shadow-md">🎮</div>
+            <button type="button" data-open-cat="Homonym" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-cyan-400/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-500 to-sky-600 flex items-center justify-center text-xl shadow-md">🔀</div>
+                <span class="px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-500 text-[10px] font-black">801</span>
+              </div>
               <div>
-                <p class="text-sm font-black text-white">Daily 5-Q Quiz</p>
-                <p class="text-[11px] text-slate-400 font-semibold">Win +50 Bonus XP</p>
+                <p class="text-sm font-black text-white">Homonyms</p>
+                <p class="text-[11px] text-slate-400 font-semibold">Confusing Words (D1/D2)</p>
               </div>
             </button>
 
-            <button type="button" data-kgs-go="aiguru" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-sky-400/30 space-y-2">
-              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-xl shadow-md">🤖</div>
+            <button type="button" data-open-cat="Phrasal" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-indigo-400/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-700 flex items-center justify-center text-xl shadow-md">⚡</div>
+                <span class="px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-500 text-[10px] font-black">1,441</span>
+              </div>
               <div>
-                <p class="text-sm font-black text-white">AI Study Guru</p>
-                <p class="text-[11px] text-slate-400 font-semibold">24×7 Live Doubt Solver</p>
+                <p class="text-sm font-black text-white">Phrasal &amp; Prep</p>
+                <p class="text-[11px] text-slate-400 font-semibold">Phrasal Verbs + Fixed Prep</p>
               </div>
             </button>
 
-            <button type="button" data-kgs-go="tracker" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-indigo-400/30 space-y-2">
-              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-700 flex items-center justify-center text-xl shadow-md">🏆</div>
+            <button type="button" data-open-cat="Foreign" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-teal-400/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-700 flex items-center justify-center text-xl shadow-md">🌱</div>
+                <span class="px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-500 text-[10px] font-black">351</span>
+              </div>
               <div>
-                <p class="text-sm font-black text-white">Rank &amp; Badges</p>
-                <p class="text-[11px] text-slate-400 font-semibold">Streak, XP &amp; Leaderboard</p>
+                <p class="text-sm font-black text-white">Roots &amp; Foreign</p>
+                <p class="text-[11px] text-slate-400 font-semibold">297 Roots + Foreign Words</p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- SECTION 2: PRACTICE, TESTS, CLUSTERS & AI TOOLS -->
+        <div class="space-y-2.5">
+          <h3 class="text-sm sm:text-base font-black text-white px-1">🚀 Practice, Tests &amp; Smart Tools</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <button type="button" data-kgs-go="rev" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-emerald-400/30 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-lg shrink-0">🧩</div>
+              <div class="min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white truncate">Syn/Ant Clusters</p>
+                <p class="text-[10px] text-slate-400 font-semibold">39 Category Families</p>
+              </div>
+            </button>
+
+            <button type="button" data-kgs-go="pyq" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-amber-400/30 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-lg shrink-0">🏛️</div>
+              <div class="min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white truncate">6-Yr PYQ Bank</p>
+                <p class="text-[10px] text-slate-400 font-semibold">467 CGL 2026 Real Qs</p>
+              </div>
+            </button>
+
+            <button type="button" data-kgs-go="quickrev" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-violet-400/30 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-lg shrink-0">⚡</div>
+              <div class="min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white truncate">Quick Revision</p>
+                <p class="text-[10px] text-slate-400 font-semibold">5 Rapid Decks + Auto</p>
+              </div>
+            </button>
+
+            <button type="button" data-kgs-go="test" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-rose-400/30 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-lg shrink-0">📝</div>
+              <div class="min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white truncate">CBT Mock Test</p>
+                <p class="text-[10px] text-slate-400 font-semibold">+2 / -0.50 &amp; 60s Blitz</p>
+              </div>
+            </button>
+
+            <button type="button" data-kgs-go="aiguru" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-sky-400/30 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-lg shrink-0">🤖</div>
+              <div class="min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white truncate">AI Study Guru</p>
+                <p class="text-[10px] text-slate-400 font-semibold">24×7 Live Doubt Solver</p>
+              </div>
+            </button>
+
+            <button type="button" data-kgs-go="tracker" class="kgs-tile glass-card rounded-2xl p-3.5 text-left border border-indigo-400/30 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-700 flex items-center justify-center text-lg shrink-0">🏆</div>
+              <div class="min-w-0">
+                <p class="text-xs sm:text-sm font-black text-white truncate">Rank &amp; Badges</p>
+                <p class="text-[10px] text-slate-400 font-semibold">Streak &amp; Leaderboard</p>
               </div>
             </button>
           </div>
@@ -862,6 +940,42 @@
           </div>
           <button type="button" data-kgs-go="vocab" class="shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-black text-xs">Continue Study →</button>
         </div>
+      </section>
+
+      <!-- ==================== DEDICATED MULTI-PAGE CATEGORY VIEW (Synonyms / Antonyms / OWS / Idioms / etc.) ==================== -->
+      <section id="view-catpage" class="view-section hidden space-y-4">
+        <!-- Sticky Sub-Page Navigation Bar -->
+        <div class="glass-card rounded-2xl p-3.5 sm:p-4 border border-blue-400/35 flex flex-wrap items-center justify-between gap-2.5">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <button type="button" id="catpage-back-btn" class="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-black text-white hover:brightness-110 shrink-0">← Back</button>
+            <div class="min-w-0">
+              <h2 id="catpage-title" class="text-base sm:text-lg font-black text-white truncate">📘 Synonyms</h2>
+              <p id="catpage-subtitle" class="text-[11px] text-slate-400 font-semibold truncate">0 Words • BlackBook + SSC CGL 2026</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" id="catpage-revise-btn" class="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs shadow">⚡ Quick Revise</button>
+          </div>
+        </div>
+
+        <!-- Search + Filter Strip -->
+        <div class="glass-card rounded-2xl p-3 sm:p-4 border border-slate-700/50 space-y-2.5">
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="catpage-search" type="text" placeholder="🔍 Search word, meaning ya Hindi..." class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs sm:text-sm text-white focus:outline-none focus:border-blue-500" />
+            <div class="flex gap-1.5 overflow-x-auto no-scrollbar" id="catpage-filters">
+              <button type="button" data-cpfilt="all" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-extrabold bg-blue-600 text-white shrink-0">All</button>
+              <button type="button" data-cpfilt="2026" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0">🔥 CGL 2026</button>
+              <button type="button" data-cpfilt="unlearned" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0">📖 Unlearned</button>
+              <button type="button" data-cpfilt="saved" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0">⭐ Saved</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dedicated Category Cards Grid -->
+        <div id="catpage-list" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
+
+        <!-- Clean Pagination -->
+        <div id="catpage-pager" class="flex items-center justify-center gap-3 pt-2"></div>
       </section>
 
       <section id="view-vocab" class="view-section space-y-5">
@@ -7885,6 +7999,200 @@
     }
 
 
+
+    // =========================================================================
+    // 9H. MULTI-PAGE ROUTER (DEDICATED SUBJECT PAGES + ANDROID BACK BUTTON HISTORY)
+    // =========================================================================
+    const CAT_PAGE_META = {
+      'Synonym':  { title: '📘 Synonyms Master Bank', sub: 'समानार्थी शब्द • BlackBook + SSC CGL 2026', match: w => w.category === 'Synonym' },
+      'Antonym':  { title: '📙 Antonyms Master Bank', sub: 'विलोम शब्द • BlackBook + SSC CGL 2026', match: w => w.category === 'Antonym' },
+      'One Word': { title: '🎯 One Word Substitution (OWS)', sub: 'अनेक शब्दों के लिए एक शब्द • BlackBook A1-A3 + CGL 2026', match: w => w.category === 'One Word' },
+      'Idiom':    { title: '💬 Idioms & Phrases', sub: 'मुहावरे एवं लोकोक्तियाँ • BlackBook B1-B3 + CGL 2026', match: w => w.category === 'Idiom' },
+      'Spelling': { title: '✍️ Spelling Errors & Rules', sub: 'CGL 2026 (122 Qs) + BlackBook E2', match: w => w.category === 'Spelling' },
+      'Homonym':  { title: '🔀 Homonyms & Confusing Words', sub: 'BlackBook D1/D2 + SSC CGL 2026', match: w => w.category === 'Homonym' },
+      'Phrasal':  { title: '⚡ Phrasal Verbs & Fixed Prepositions', sub: 'BlackBook F1 + F2 Complete Bank', match: w => w.category === 'Phrasal Verb' || w.category === 'Preposition' },
+      'Foreign':  { title: '🌱 Root Words & Foreign Words', sub: '297 Root Words + BlackBook F4 Foreign Words', match: w => w.category === 'Foreign Word' }
+    };
+
+    let activeCatPageKey = 'Synonym';
+    let catPageFilter = 'all';
+    let catPageSearch = '';
+    let catPageNum = 1;
+    const CAT_PER_PAGE = 24;
+
+    function openDedicatedCategoryPage(catKey, pushHist = true) {
+      activeCatPageKey = CAT_PAGE_META[catKey] ? catKey : 'Synonym';
+      catPageFilter = 'all';
+      catPageSearch = '';
+      catPageNum = 1;
+      const sInp = document.getElementById('catpage-search');
+      if (sInp) sInp.value = '';
+      document.querySelectorAll('.cp-filt-btn').forEach(b => {
+        const act = b.dataset.cpfilt === 'all';
+        b.className = act ? 'cp-filt-btn px-3 py-2 rounded-xl text-xs font-extrabold bg-blue-600 text-white shrink-0' : 'cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0';
+      });
+      switchTab('catpage');
+      renderDedicatedCategoryPage();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (pushHist && window.history && window.history.pushState) {
+        try { window.history.pushState({ page: 'catpage', cat: activeCatPageKey }, '', `#${activeCatPageKey.toLowerCase().replace(/\s+/g, '-')}`); } catch (e) {}
+      }
+    }
+
+    function renderDedicatedCategoryPage() {
+      const meta = CAT_PAGE_META[activeCatPageKey] || CAT_PAGE_META['Synonym'];
+      const listEl = document.getElementById('catpage-list');
+      const pagerEl = document.getElementById('catpage-pager');
+      if (!listEl) return;
+
+      const bank = (typeof VOCAB_BANK !== 'undefined' ? VOCAB_BANK : []);
+      let items = [];
+      if (activeCatPageKey === 'Foreign') {
+        // Combine Foreign Words + 297 Root Words into one rich dedicated page!
+        const fWords = bank.filter(meta.match);
+        const rWords = (typeof ROOT_WORDS !== 'undefined' ? ROOT_WORDS : []).map((r, i) => ({
+          id: 900000 + i, word: r.root.toUpperCase(), category: r.kind || 'Root Word',
+          exam: 'BlackBook F5 Roots', year: 2024, answer: r.meaning, meaningHi: r.hi || '',
+          syn: r.examples || '—', ant: '—', trick: `Root ${r.root} → ${r.examples || ''}`
+        }));
+        items = [...rWords, ...fWords];
+      } else {
+        items = bank.filter(meta.match);
+      }
+
+      const q = (catPageSearch || '').trim().toLowerCase();
+      const learnedSet = new Set(state.learnedIds || []);
+      const savedSet = new Set(state.bookmarks || []);
+
+      const filtered = items.filter(w => {
+        if (catPageFilter === '2026' && !(Number(w.year) === 2026 || String(w.exam || '').includes('2026'))) return false;
+        if (catPageFilter === 'unlearned' && learnedSet.has(w.id)) return false;
+        if (catPageFilter === 'saved' && !savedSet.has(w.id)) return false;
+        if (!q) return true;
+        return `${w.word || ''} ${w.answer || ''} ${w.meaningHi || ''} ${w.syn || ''} ${w.ant || ''}`.toLowerCase().includes(q);
+      });
+
+      document.getElementById('catpage-title').textContent = meta.title;
+      document.getElementById('catpage-subtitle').textContent = `${filtered.length} Words • ${meta.sub}`;
+
+      if (!filtered.length) {
+        listEl.innerHTML = '<div class="col-span-full glass-card rounded-2xl p-8 text-center text-slate-400 text-sm">Koi matching word nahi mila — filter ya search clear karein.</div>';
+        if (pagerEl) pagerEl.innerHTML = '';
+        return;
+      }
+
+      const totalPages = Math.max(1, Math.ceil(filtered.length / CAT_PER_PAGE));
+      if (catPageNum > totalPages) catPageNum = 1;
+      const start = (catPageNum - 1) * CAT_PER_PAGE;
+      const pageItems = filtered.slice(start, start + CAT_PER_PAGE);
+
+      listEl.innerHTML = pageItems.map((w, idx) => {
+        const isLearned = learnedSet.has(w.id);
+        const isSaved = savedSet.has(w.id);
+        const hiDisp = hasDevanagari(w.meaningHi) ? `🇮🇳 ${w.meaningHi}` : (typeof getInstantHindi === 'function' && getInstantHindi(w) ? `🇮🇳 ${getInstantHindi(w)}` : '🇮🇳 Hindi...');
+        return `
+          <div class="glass-card rounded-2xl p-4 border ${isLearned ? 'border-emerald-400/50' : 'border-slate-700/60'} space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[10px] font-mono font-bold text-slate-400">#${start + idx + 1}</span>
+                  <span class="px-2 py-0.5 rounded-md bg-blue-500/15 text-cyan-300 text-[10px] font-extrabold">${w.exam || 'BlackBook'}</span>
+                </div>
+                <h3 class="pro-grid-word font-black text-white mt-1 break-words">${w.word}</h3>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" data-cp-speak="${String(w.word || '').replace(/"/g, '&quot;')}" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700 text-cyan-300 text-xs font-bold flex items-center justify-center" title="Pronounce">🔊</button>
+                <button type="button" data-cp-save="${w.id}" class="w-8 h-8 rounded-xl bg-slate-900 border ${isSaved ? 'border-amber-400 text-amber-400' : 'border-slate-700 text-slate-400'} text-xs font-bold flex items-center justify-center" title="Bookmark">${isSaved ? '⭐' : '☆'}</button>
+                <button type="button" data-cp-learn="${w.id}" class="px-2.5 h-8 rounded-xl border text-[11px] font-extrabold ${isLearned ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300' : 'bg-slate-900 border-slate-700 text-slate-300'}">${isLearned ? '✓ Done' : 'Learn'}</button>
+              </div>
+            </div>
+
+            <p class="text-sm font-bold text-slate-100">📘 ${w.answer}</p>
+            <p data-hi-id="${w.id}" class="text-xs sm:text-sm font-extrabold text-amber-300">${hiDisp}</p>
+            ${w.syn && w.syn !== '—' ? `<p class="text-xs text-emerald-300 font-semibold">✅ <b>Syn:</b> ${w.syn}</p>` : ''}
+            ${w.ant && w.ant !== '—' ? `<p class="text-xs text-rose-300 font-semibold">❌ <b>Ant:</b> ${w.ant}</p>` : ''}
+            ${w.trick ? `<p class="text-[11px] text-slate-400 bg-slate-950/75 rounded-xl px-2.5 py-1.5">💡 ${w.trick}</p>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      if (typeof hydrateLiveHindiElements === 'function') hydrateLiveHindiElements(listEl);
+
+      if (pagerEl) {
+        pagerEl.innerHTML = totalPages > 1 ? `
+          <button type="button" id="cp-prev-btn" ${catPageNum <= 1 ? 'disabled' : ''} class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-black text-white disabled:opacity-40">← Prev</button>
+          <span class="text-xs font-mono font-black text-cyan-300">Page ${catPageNum} / ${totalPages}</span>
+          <button type="button" id="cp-next-btn" ${catPageNum >= totalPages ? 'disabled' : ''} class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-black text-white disabled:opacity-40">Next →</button>
+        ` : '';
+        document.getElementById('cp-prev-btn')?.addEventListener('click', () => { if (catPageNum > 1) { catPageNum--; renderDedicatedCategoryPage(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
+        document.getElementById('cp-next-btn')?.addEventListener('click', () => { if (catPageNum < totalPages) { catPageNum++; renderDedicatedCategoryPage(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
+      }
+    }
+
+    function bindMultiPageRouterV24() {
+      document.querySelectorAll('[data-open-cat]').forEach(btn => {
+        btn.addEventListener('click', () => openDedicatedCategoryPage(btn.dataset.openCat, true));
+      });
+      document.getElementById('catpage-back-btn')?.addEventListener('click', () => {
+        switchTab('home');
+        if (typeof syncKgsHomeDashboard === 'function') syncKgsHomeDashboard();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      document.getElementById('catpage-search')?.addEventListener('input', (e) => {
+        catPageSearch = e.target.value;
+        catPageNum = 1;
+        renderDedicatedCategoryPage();
+      });
+      document.getElementById('catpage-filters')?.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-cpfilt]');
+        if (!b) return;
+        catPageFilter = b.dataset.cpfilt;
+        catPageNum = 1;
+        document.querySelectorAll('.cp-filt-btn').forEach(p => {
+          const act = p.dataset.cpfilt === catPageFilter;
+          p.className = act ? 'cp-filt-btn px-3 py-2 rounded-xl text-xs font-extrabold bg-blue-600 text-white shrink-0' : 'cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0';
+        });
+        renderDedicatedCategoryPage();
+      });
+      document.getElementById('catpage-revise-btn')?.addEventListener('click', () => {
+        switchTab('rev');
+        openRevSubTab('quick');
+        buildQuickRevDeck(activeCatPageKey === 'Synonym' || activeCatPageKey === 'Antonym' ? 'clusters' : 'mix');
+      });
+      document.getElementById('catpage-list')?.addEventListener('click', (e) => {
+        const spk = e.target.closest('[data-cp-speak]');
+        if (spk) { if (typeof speakWord === 'function') speakWord(spk.dataset.cpSpeak); return; }
+        const sv = e.target.closest('[data-cp-save]');
+        if (sv) {
+          const id = parseInt(sv.dataset.cpSave, 10);
+          const idx = state.bookmarks.indexOf(id);
+          if (idx >= 0) state.bookmarks.splice(idx, 1); else { state.bookmarks.push(id); showToast('⭐ Saved to Bookmarks!'); }
+          saveState();
+          renderDedicatedCategoryPage();
+          return;
+        }
+        const ln = e.target.closest('[data-cp-learn]');
+        if (ln) {
+          const id = parseInt(ln.dataset.cpLearn, 10);
+          const idx = state.learnedIds.indexOf(id);
+          if (idx >= 0) state.learnedIds.splice(idx, 1);
+          else { state.learnedIds.push(id); if (typeof showXpFloatPop === 'function') showXpFloatPop('+10 XP ✅'); }
+          saveState();
+          syncHeaderStats();
+          renderDedicatedCategoryPage();
+        }
+      });
+
+      // Hardware Android Back Button returns cleanly to Home Page!
+      window.addEventListener('popstate', () => {
+        if (state.activeTab !== 'home') {
+          switchTab('home');
+          if (typeof syncKgsHomeDashboard === 'function') syncKgsHomeDashboard();
+        }
+      });
+    }
+
+
     // =========================================================================
     // 10. INITIALIZE APP
     // =========================================================================
@@ -7896,6 +8204,7 @@
       bindProV11Features();
       bindUltraProV12();
       bindKgsEditionV22();
+      bindMultiPageRouterV24();
       if (!state.anim3DEnabled) {
         document.getElementById('logo-cube').classList.add('paused');
       }
