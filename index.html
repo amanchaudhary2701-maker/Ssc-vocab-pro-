@@ -9833,22 +9833,28 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-200 text-[10px] font-bold">♾️ Unlimited Size</span>
             </div>
             <input id="adm-pdf-title" type="text" placeholder="PDF Title (e.g. SSC CGL 2026 Top 500 Vocab Notes)" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400" />
-            <div class="grid grid-cols-2 gap-2">
-              <select id="adm-pdf-subject" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-amber-200 font-extrabold">
-                <option value="English">📘 English</option>
-                <option value="GS">🌍 GS (General Studies)</option>
-                <option value="Science">🔬 Science</option>
-                <option value="Maths">📐 Maths</option>
-                <option value="Reasoning">🧠 Reasoning</option>
-                <option value="Computer &amp; Misc">💻 Computer &amp; Misc</option>
-              </select>
-              <select id="adm-pdf-cat" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-cyan-200 font-bold">
-                <option value="Vocab Notes">Vocab Notes</option>
-                <option value="SSC PYQ PDFs">SSC PYQ PDFs</option>
-                <option value="Root Words &amp; Idioms">Root Words &amp; Idioms</option>
-                <option value="Grammar &amp; Rules">Grammar &amp; Rules</option>
-                <option value="Daily 2PM Test PDFs">Daily 2PM Test PDFs</option>
-              </select>
+            <div class="space-y-2 p-2.5 rounded-xl bg-slate-950/75 border border-amber-400/25">
+              <div>
+                <label for="adm-pdf-subject" class="text-[10px] font-black text-amber-300 uppercase tracking-wide block mb-1">1️⃣ Pehle Subject Chunein (English / GS / Science / Maths...)</label>
+                <select id="adm-pdf-subject" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-amber-400/45 text-xs text-amber-200 font-extrabold focus:outline-none focus:border-amber-300">
+                  <option value="English">📘 English</option>
+                  <option value="GS">🌍 GS (General Studies)</option>
+                  <option value="Science">🔬 Science</option>
+                  <option value="Maths">📐 Maths</option>
+                  <option value="Reasoning">🧠 Reasoning</option>
+                  <option value="Computer &amp; Misc">💻 Computer &amp; Misc</option>
+                </select>
+              </div>
+              <div>
+                <label id="adm-pdf-topic-lbl" for="adm-pdf-cat" class="text-[10px] font-black text-cyan-300 uppercase tracking-wide block mb-1">2️⃣ English me kya hai? (Topic / Sub-Category Chunein)</label>
+                <select id="adm-pdf-cat" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-cyan-400/45 text-xs text-cyan-200 font-extrabold focus:outline-none focus:border-cyan-300">
+                  <option value="Vocab Notes">Vocab Notes</option>
+                  <option value="SSC PYQ PDFs">SSC PYQ PDFs</option>
+                  <option value="Root Words &amp; Idioms">Root Words &amp; Idioms</option>
+                  <option value="Grammar &amp; Rules">Grammar &amp; Rules</option>
+                  <option value="Daily 2PM Test PDFs">Daily 2PM Test PDFs</option>
+                </select>
+              </div>
             </div>
             <label class="w-full flex items-center justify-center px-3 py-2 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 text-xs font-extrabold cursor-pointer hover:bg-cyan-500/30 transition">
               <span>📎 Choose .PDF File from Phone / Laptop</span>
@@ -11288,11 +11294,17 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       function syncAdminTopicDropdown() {
         const subEl = document.getElementById('adm-pdf-subject');
         const catEl = document.getElementById('adm-pdf-cat');
+        const lblEl = document.getElementById('adm-pdf-topic-lbl');
         if (!subEl || !catEl) return;
-        const topics = PDF_SUBJECT_TOPICS[subEl.value] || PDF_SUBJECT_TOPICS['English'];
+        const subName = subEl.value || 'English';
+        const topics = PDF_SUBJECT_TOPICS[subName] || PDF_SUBJECT_TOPICS['English'];
         catEl.innerHTML = topics.map(t => `<option value="${t}">${t}</option>`).join('');
+        if (lblEl) {
+          lblEl.textContent = `2️⃣ ${subName} me kya hai? (${topics.slice(0, 3).join(' / ')}...)`;
+        }
       }
       document.getElementById('adm-pdf-subject')?.addEventListener('change', syncAdminTopicDropdown);
+      document.getElementById('adm-pdf-subject')?.addEventListener('input', syncAdminTopicDropdown);
       setTimeout(syncAdminTopicDropdown, 200);
 
       function renderStudentTopicChips() {
