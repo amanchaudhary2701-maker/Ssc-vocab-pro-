@@ -980,6 +980,21 @@
           </div>
         </div>
 
+        <!-- 📂 STUDENT PDF NOTES & STUDY FOLDER (LIVE SYNCED FROM ADMIN PANEL) -->
+        <div id="home-pdf-folder-card" class="glass-card rounded-2xl p-4 border border-cyan-400/35 bg-gradient-to-r from-slate-900/90 via-indigo-950/75 to-cyan-950/75 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-2xl shadow-lg shrink-0">📂</div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="text-sm sm:text-base font-black text-white">PDF Notes &amp; Study Material Folder</h3>
+                <span id="home-pdf-count-badge" class="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/45 text-cyan-200 text-[10px] font-black">0 PDFs</span>
+              </div>
+              <p class="text-[11px] text-slate-300">Admin dwara upload kiye gaye sabhi SSC Vocab, PYQ &amp; Class Notes PDF — 1-Tap View &amp; Download!</p>
+            </div>
+          </div>
+          <button type="button" id="home-open-pdf-folder-btn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-black shadow-lg hover:brightness-110 transition shrink-0">📂 Open PDF Folder</button>
+        </div>
+
         <!-- CLASSIC AUTO-SLIDING 3-CARD HERO CAROUSEL -->
         <div class="relative space-y-2">
           <div id="classic-carousel-track" class="classic-banner-keep rounded-3xl p-5 sm:p-6 bg-gradient-to-r from-blue-900 via-blue-700 to-indigo-800 border border-blue-400/35 shadow-xl relative overflow-hidden">
@@ -9476,6 +9491,35 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
     </div>
   </div>
 
+  <!-- ==================== STUDENT PDF NOTES & DOWNLOAD FOLDER MODAL ==================== -->
+  <div id="student-pdf-modal" class="fixed inset-0 z-[94] hidden bg-slate-950/92 backdrop-blur-sm overflow-y-auto p-3 sm:p-6">
+    <div class="max-w-3xl mx-auto glass-card rounded-3xl border border-cyan-400/45 overflow-hidden my-3">
+      <div class="bg-gradient-to-r from-blue-950 via-indigo-950 to-slate-900 p-4 sm:p-5 border-b border-white/10 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-2xl shadow">📂</div>
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-white">SSC Study PDF Folder</h3>
+            <p class="text-[11px] text-cyan-200">Admin uploaded Notes, PYQ PDFs &amp; Daily Sheets — 1-Tap View &amp; Download</p>
+          </div>
+        </div>
+        <button type="button" id="stu-pdf-close-btn" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black">✕</button>
+      </div>
+
+      <div class="p-4 sm:p-5 space-y-3.5">
+        <input id="stu-pdf-search" type="text" placeholder="🔍 Search PDF title ya topic..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-400" />
+        <div id="stu-pdf-cats" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+          <button type="button" data-spdf-cat="All" class="spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-black bg-cyan-500/25 text-cyan-200 border border-cyan-400/50 whitespace-nowrap">All PDFs</button>
+          <button type="button" data-spdf-cat="Vocab Notes" class="spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">📚 Vocab Notes</button>
+          <button type="button" data-spdf-cat="SSC PYQ PDFs" class="spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">🏛️ SSC PYQ</button>
+          <button type="button" data-spdf-cat="Root Words &amp; Idioms" class="spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">🌱 Roots &amp; Idioms</button>
+          <button type="button" data-spdf-cat="Daily 2PM Test PDFs" class="spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">🔴 2PM Test PDFs</button>
+          <button type="button" data-spdf-cat="Grammar &amp; Practice" class="spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">📝 Grammar</button>
+        </div>
+        <div id="stu-pdf-list" class="space-y-2.5 max-h-[58vh] overflow-y-auto pr-1"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- STUDENT LOGIN / CREATE ACCOUNT / PROFILE MODAL -->
   <div id="auth-modal" class="fixed inset-0 z-50 hidden bg-slate-950/85 flex items-center justify-center p-4">
     <div class="glass-card rounded-3xl max-w-md w-full p-6 space-y-5 border-cyan-400/40 relative">
@@ -9615,11 +9659,12 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       </div>
 
       <div id="admin-gen-step" class="hidden space-y-4">
-        <div class="grid grid-cols-4 gap-1 p-1 rounded-xl bg-slate-950/90 border border-slate-700/80">
-          <button type="button" data-admtab="keys" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] sm:text-[11px] font-extrabold bg-amber-500/25 text-amber-200 border border-amber-400/50 transition">🔑 Keys</button>
-          <button type="button" data-admtab="cms" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] sm:text-[11px] font-extrabold text-slate-400 hover:text-white transition">🎨 Panel</button>
-          <button type="button" data-admtab="vocab" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] sm:text-[11px] font-extrabold text-slate-400 hover:text-white transition">📚 Vocab</button>
-          <button type="button" data-admtab="deploy" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] sm:text-[11px] font-extrabold text-slate-400 hover:text-white transition">🚀 Live ZIP</button>
+        <div class="grid grid-cols-5 gap-1 p-1 rounded-xl bg-slate-950/90 border border-slate-700/80">
+          <button type="button" data-admtab="keys" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold bg-amber-500/25 text-amber-200 border border-amber-400/50 transition">🔑 Keys</button>
+          <button type="button" data-admtab="cms" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">🎨 Panel</button>
+          <button type="button" data-admtab="vocab" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">📚 Vocab</button>
+          <button type="button" data-admtab="pdfs" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">📄 PDFs</button>
+          <button type="button" data-admtab="deploy" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">🚀 ZIP</button>
         </div>
 
         <!-- TAB 1: KEYS, SOCIALS & STUDENTS -->
@@ -9815,6 +9860,42 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         </div>
 
         <!-- TAB 4: 🚀 1-TAP LIVE ZIP DEPLOY VIA GITHUB -> NETLIFY AUTO-DEPLOY (ZERO CORS!) -->
+        <!-- TAB 4B: ADMIN PDF UPLOADER (DIRECT .PDF UPLOAD OR LINK -> LIVE STUDENT PDF FOLDER) -->
+        <div id="admin-panel-pdfs" class="adm-panel hidden space-y-3.5">
+          <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-cyan-400/35 space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-black text-cyan-200">📄 Upload PDF to Student Folder (Live Sync ☁️)</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-200 text-[10px] font-bold">♾️ Unlimited Size</span>
+            </div>
+            <input id="adm-pdf-title" type="text" placeholder="PDF Title (e.g. SSC CGL 2026 Top 500 Vocab Notes)" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400" />
+            <div class="grid grid-cols-2 gap-2">
+              <select id="adm-pdf-cat" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-cyan-200 font-bold">
+                <option value="Vocab Notes">📚 Vocab Notes</option>
+                <option value="SSC PYQ PDFs">🏛️ SSC PYQ PDFs</option>
+                <option value="Root Words &amp; Idioms">🌱 Root Words &amp; Idioms</option>
+                <option value="Daily 2PM Test PDFs">🔴 Daily 2PM Test PDFs</option>
+                <option value="Grammar &amp; Practice">📝 Grammar &amp; Practice</option>
+              </select>
+              <label class="flex items-center justify-center px-3 py-2 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 text-xs font-extrabold cursor-pointer hover:bg-cyan-500/30 transition">
+                <span>📎 Choose .PDF</span>
+                <input id="adm-pdf-file" type="file" accept=".pdf,application/pdf" class="hidden" />
+              </label>
+            </div>
+            <p id="adm-pdf-file-label" class="text-[11px] text-slate-400">♾️ Unlimited Size: Direct .pdf file choose karein (no 24MB limit) YA badi files ke liye Google Drive link paste karein:</p>
+            <input id="adm-pdf-url" type="url" placeholder="Optional: Direct PDF ya Google Drive Share Link paste karein" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400" />
+            <p id="adm-pdf-status" class="hidden text-[11px] font-bold px-3 py-1.5 rounded-lg bg-slate-950 border border-cyan-400/35 text-cyan-200"></p>
+            <button id="adm-pdf-upload-btn" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-black text-xs shadow-lg hover:brightness-110 transition">🚀 Publish PDF to Student Folder</button>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-amber-200">📂 Live PDFs in Student Folder</span>
+              <span id="adm-pdf-count" class="text-[11px] text-cyan-300 font-bold">0 PDFs</span>
+            </div>
+            <div id="adm-pdf-list" class="max-h-56 overflow-y-auto space-y-2 pr-1"></div>
+          </div>
+        </div>
+
         <div id="admin-panel-deploy" class="adm-panel hidden space-y-3.5">
           <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500/15 via-cyan-500/15 to-indigo-500/15 border border-emerald-400/40 space-y-1.5">
             <p class="text-xs font-black text-emerald-200">🐙 GitHub → Netlify 1-Tap Auto-Deploy (Zero CORS!)</p>
@@ -9960,6 +10041,16 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <button type="button" id="menu-rate-btn" class="w-full px-4 py-3.5 flex items-center justify-between hover:bg-white/5 transition text-left">
             <span class="flex items-center gap-3 text-sm font-semibold text-white"><span class="text-lg text-amber-400">⭐</span> Rate SSC Vocab 3D Pro (5★)</span>
             <span class="text-slate-500 text-lg">›</span>
+          </button>
+          <button type="button" id="menu-pdf-btn" class="w-full px-4 py-3.5 flex items-center justify-between hover:bg-white/5 transition text-left">
+            <div class="flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-lg">📂</span>
+              <div>
+                <p class="text-sm font-extrabold text-white">PDF Notes Folder</p>
+                <p class="text-[11px] text-slate-400">Admin uploaded SSC PDFs — View &amp; Download</p>
+              </div>
+            </div>
+            <span class="text-slate-400 text-sm">›</span>
           </button>
           <button type="button" id="menu-share-btn" class="w-full px-4 py-3.5 flex items-center justify-between hover:bg-white/5 transition text-left">
             <span class="flex items-center gap-3 text-sm font-semibold text-white"><span class="text-lg text-emerald-400">🔗</span> Share Our App with Friends</span>
@@ -11031,6 +11122,414 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           renderSolutionsList(ist.dateKey, loadTodayAttempt(ist.dateKey));
         });
       });
+    })();
+  </script>
+
+  <script>
+    // =========================================================================
+    // 📂 ADMIN PDF UPLOADER -> LIVE CLOUD STUDENT PDF FOLDER (VIEW & DOWNLOAD)
+    // =========================================================================
+    (function initLivePdfFolderSystem() {
+      const PDF_CACHE_KEY = 'ssc_cloud_pdfs_cache_v1';
+      const GH_TOK_KEY = 'ssc_admin_gh_token_local_only_v1';
+      const GH_OWNER = 'amanchaudhary2701-maker';
+      const GH_REPO = 'Ssc-vocab-pro-';
+      const GH_PAGES_BASE = `https://${GH_OWNER}.github.io/${GH_REPO}/`;
+
+      let _pdfItems = [];
+      let _stuCat = 'All';
+
+      try {
+        const cached = localStorage.getItem(PDF_CACHE_KEY);
+        if (cached) _pdfItems = JSON.parse(cached) || [];
+      } catch (e) {}
+
+      function savePdfCache() {
+        try {
+          // Only cache lightweight metadata + URLs (avoid bloating localStorage with large base64 strings)
+          const light = _pdfItems.map(p => ({ ...p, dataUrl: (p.dataUrl && p.dataUrl.length < 180000) ? p.dataUrl : '' }));
+          localStorage.setItem(PDF_CACHE_KEY, JSON.stringify(light));
+        } catch (e) {}
+      }
+
+      function formatBytes(b) {
+        if (!b || b <= 0) return 'PDF';
+        if (b < 1024 * 1024) return `${Math.max(1, Math.round(b / 1024))} KB`;
+        return `${(b / (1024 * 1024)).toFixed(1)} MB`;
+      }
+
+      function normalizeDriveDownloadUrl(rawUrl) {
+        const u = String(rawUrl || '').trim();
+        const m = u.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (m) {
+          return {
+            viewUrl: `https://drive.google.com/file/d/${m[1]}/view`,
+            downloadUrl: `https://drive.google.com/uc?export=download&id=${m[1]}`
+          };
+        }
+        return { viewUrl: u, downloadUrl: u };
+      }
+
+      function dataUrlToBlobUrl(dataUrl) {
+        try {
+          const parts = dataUrl.split(',');
+          const bin = atob(parts[1]);
+          const arr = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+          return URL.createObjectURL(new Blob([arr], { type: 'application/pdf' }));
+        } catch (e) { return dataUrl; }
+      }
+
+      async function triggerStudentPdfDownload(pdfObj) {
+        if (!pdfObj) return;
+        const safeName = (String(pdfObj.title || 'SSC_Notes').replace(/[^a-zA-Z0-9._-]+/g, '_').replace(/^_+|_+$/g, '') || 'SSC_Notes') + '.pdf';
+        if (pdfObj.dataUrl && pdfObj.dataUrl.startsWith('data:')) {
+          const blobUrl = dataUrlToBlobUrl(pdfObj.dataUrl);
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = safeName;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 8000);
+          if (typeof showToast === 'function') showToast(`⬇️ Downloading "${safeName}"...`);
+          return;
+        }
+        const dlUrl = pdfObj.downloadUrl || pdfObj.viewUrl || '';
+        if (!dlUrl) return;
+        // For same-origin GitHub Pages PDFs, fetch -> Blob for guaranteed real download on mobile & desktop!
+        if (dlUrl.startsWith(GH_PAGES_BASE) || dlUrl.startsWith('./') || dlUrl.startsWith('/')) {
+          try {
+            if (typeof showToast === 'function') showToast(`⏳ Downloading "${safeName}"...`);
+            const resp = await fetch(dlUrl);
+            if (resp.ok) {
+              const blob = await resp.blob();
+              const bUrl = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = bUrl;
+              a.download = safeName;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              setTimeout(() => URL.revokeObjectURL(bUrl), 8000);
+              return;
+            }
+          } catch (e) {}
+        }
+        // Fallback direct download link (works for Google Drive & external PDFs)
+        const a = document.createElement('a');
+        a.href = dlUrl;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.download = safeName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+
+      function openStudentPdfView(pdfObj) {
+        if (!pdfObj) return;
+        if (pdfObj.dataUrl && pdfObj.dataUrl.startsWith('data:')) {
+          const blobUrl = dataUrlToBlobUrl(pdfObj.dataUrl);
+          window.open(blobUrl, '_blank', 'noopener,noreferrer');
+          return;
+        }
+        const vUrl = pdfObj.viewUrl || pdfObj.downloadUrl || '';
+        if (vUrl) window.open(vUrl, '_blank', 'noopener,noreferrer');
+      }
+
+      function renderPdfLists() {
+        const badge = document.getElementById('home-pdf-count-badge');
+        if (badge) badge.textContent = `${_pdfItems.length} PDF${_pdfItems.length === 1 ? '' : 's'}`;
+        const admCnt = document.getElementById('adm-pdf-count');
+        if (admCnt) admCnt.textContent = `${_pdfItems.length} PDFs`;
+
+        // 1. Admin PDF List
+        const admList = document.getElementById('adm-pdf-list');
+        if (admList) {
+          if (!_pdfItems.length) {
+            admList.innerHTML = '<p class="text-[11px] text-slate-400 text-center py-4">Abhi koi PDF upload nahi hua hai — upar se apna pehla PDF publish karein!</p>';
+          } else {
+            admList.innerHTML = _pdfItems.map(p => `
+              <div class="p-2.5 rounded-xl bg-slate-900/90 border border-white/10 flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="text-xs font-extrabold text-white truncate">📄 ${p.title}</p>
+                  <p class="text-[10px] text-slate-400">${p.category || 'Vocab Notes'} • ${p.sizeLabel || 'PDF'} • ${p.dateStr || ''}</p>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button type="button" data-apdf-dl="${p.id}" class="px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-200 text-[10px] font-bold">⬇️</button>
+                  <button type="button" data-apdf-del="${p.id}" class="px-2 py-1 rounded-lg bg-rose-500/20 text-rose-200 text-[10px] font-bold hover:bg-rose-500/35">🗑️</button>
+                </div>
+              </div>
+            `).join('');
+            admList.querySelectorAll('[data-apdf-dl]').forEach(b => {
+              b.addEventListener('click', () => {
+                const it = _pdfItems.find(x => x.id === b.dataset.apdfDl);
+                if (it) triggerStudentPdfDownload(it);
+              });
+            });
+            admList.querySelectorAll('[data-apdf-del]').forEach(b => {
+              b.addEventListener('click', async () => {
+                const pid = b.dataset.apdfDel;
+                _pdfItems = _pdfItems.filter(x => x.id !== pid);
+                savePdfCache();
+                renderPdfLists();
+                if (typeof fbDb !== 'undefined' && fbDb) {
+                  try { await fbDb.collection('ssc_pdfs').doc(pid).delete(); } catch (e) {}
+                }
+                if (typeof showToast === 'function') showToast('🗑️ PDF Student Folder se remove ho gaya.');
+              });
+            });
+          }
+        }
+
+        // 2. Student PDF Folder Modal List
+        const stuList = document.getElementById('stu-pdf-list');
+        if (stuList) {
+          const q = (document.getElementById('stu-pdf-search')?.value || '').trim().toLowerCase();
+          const filtered = _pdfItems.filter(p => {
+            if (_stuCat !== 'All' && (p.category || 'Vocab Notes') !== _stuCat) return false;
+            if (q && !`${p.title || ''} ${p.category || ''}`.toLowerCase().includes(q)) return false;
+            return true;
+          });
+          if (!filtered.length) {
+            stuList.innerHTML = '<div class="p-6 rounded-2xl bg-slate-900/80 border border-white/10 text-center space-y-1"><p class="text-sm font-extrabold text-slate-200">📂 Is folder me abhi koi PDF nahi hai</p><p class="text-xs text-slate-400">Jaise hi Admin naya PDF upload karenge, yahan automatically dikh jayega!</p></div>';
+          } else {
+            stuList.innerHTML = filtered.map(p => `
+              <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-cyan-400/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-cyan-400/55 transition">
+                <div class="flex items-start gap-3 min-w-0">
+                  <span class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-xl shrink-0">📄</span>
+                  <div class="min-w-0">
+                    <h4 class="text-sm font-extrabold text-white leading-snug">${p.title}</h4>
+                    <p class="text-[11px] text-cyan-200/90 mt-0.5">${p.category || 'Vocab Notes'} • <span class="text-amber-300 font-bold">${p.sizeLabel || 'PDF'}</span> • ${p.dateStr || ''}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button type="button" data-spdf-view="${p.id}" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/15 text-white text-xs font-extrabold transition">👁️ View</button>
+                  <button type="button" data-spdf-dl="${p.id}" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 text-xs font-black shadow hover:brightness-110 transition">⬇️ Download</button>
+                </div>
+              </div>
+            `).join('');
+            stuList.querySelectorAll('[data-spdf-view]').forEach(b => {
+              b.addEventListener('click', () => {
+                const it = _pdfItems.find(x => x.id === b.dataset.spdfView);
+                if (it) openStudentPdfView(it);
+              });
+            });
+            stuList.querySelectorAll('[data-spdf-dl]').forEach(b => {
+              b.addEventListener('click', () => {
+                const it = _pdfItems.find(x => x.id === b.dataset.spdfDl);
+                if (it) triggerStudentPdfDownload(it);
+              });
+            });
+          }
+        }
+      }
+
+      // Live Real-Time Firestore Listener on ssc_pdfs collection
+      function subscribeLivePdfs() {
+        if (typeof fbDb === 'undefined' || !fbDb) { renderPdfLists(); return; }
+        try {
+          fbDb.collection('ssc_pdfs').limit(150).onSnapshot(snap => {
+            const arr = [];
+            snap.forEach(doc => {
+              const d = doc.data();
+              if (d && d.title) arr.push({ id: doc.id, ...d });
+            });
+            arr.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+            _pdfItems = arr;
+            savePdfCache();
+            renderPdfLists();
+          }, () => renderPdfLists());
+        } catch (e) { renderPdfLists(); }
+      }
+
+      // Admin Direct File Upload (<=650KB -> Firestore instant; >650KB up to 25MB -> GitHub repo pdfs/ folder!)
+      let _selectedPdfFile = null;
+      document.getElementById('adm-pdf-file')?.addEventListener('change', (e) => {
+        const f = e.target.files && e.target.files[0];
+        _selectedPdfFile = f || null;
+        const lbl = document.getElementById('adm-pdf-file-label');
+        const titleInp = document.getElementById('adm-pdf-title');
+        if (f) {
+          if (lbl) lbl.textContent = `✅ Selected: ${f.name} (${formatBytes(f.size)})`;
+          if (titleInp && !titleInp.value.trim()) {
+            titleInp.value = f.name.replace(/\.pdf$/i, '').replace(/[_-]+/g, ' ');
+          }
+        }
+      });
+
+      function setAdmPdfStatus(msg, isErr = false) {
+        const el = document.getElementById('adm-pdf-status');
+        if (!el) return;
+        el.textContent = msg;
+        el.className = isErr
+          ? 'text-[11px] font-bold px-3 py-1.5 rounded-lg bg-rose-500/15 border border-rose-400/45 text-rose-200'
+          : 'text-[11px] font-bold px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-400/45 text-emerald-200';
+        el.classList.remove('hidden');
+      }
+
+      function readFileAsBase64(file) {
+        return new Promise((resolve, reject) => {
+          const r = new FileReader();
+          r.onload = () => resolve(String(r.result || ''));
+          r.onerror = () => reject(new Error('File read failed'));
+          r.readAsDataURL(file);
+        });
+      }
+
+      async function uploadPdfToGithubRepo(file, base64Pure, token) {
+        const cleanName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]+/g, '_')}`;
+        const path = `pdfs/${cleanName}`;
+        const headers = {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        };
+        // Use GitHub Contents API for <= 45MB, or Git Data Blobs API for huge 45MB–95MB direct PDFs!
+        if (file.size <= 45 * 1024 * 1024) {
+          const apiUrl = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`;
+          const resp = await fetch(apiUrl, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({ message: `Add study PDF: ${file.name}`, content: base64Pure })
+          });
+          if (!resp.ok) {
+            const errTxt = await resp.text().catch(() => '');
+            throw new Error(`GitHub upload failed (${resp.status}) ${errTxt.slice(0, 80)}`);
+          }
+        } else {
+          const baseApi = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}`;
+          const refR = await fetch(`${baseApi}/git/ref/heads/main`, { headers });
+          if (!refR.ok) throw new Error('GitHub main branch read failed');
+          const refJ = await refR.json();
+          const headSha = refJ.object.sha;
+          const commitR = await fetch(`${baseApi}/git/commits/${headSha}`, { headers });
+          const commitJ = await commitR.json();
+          const blobR = await fetch(`${baseApi}/git/blobs`, {
+            method: 'POST', headers,
+            body: JSON.stringify({ content: base64Pure, encoding: 'base64' })
+          });
+          if (!blobR.ok) throw new Error('PDF 95MB+ hai — iske liye Google Drive link paste karein (Unlimited GB support!)');
+          const blobJ = await blobR.json();
+          const treeR = await fetch(`${baseApi}/git/trees`, {
+            method: 'POST', headers,
+            body: JSON.stringify({ base_tree: commitJ.tree.sha, tree: [{ path, mode: '100644', type: 'blob', sha: blobJ.sha }] })
+          });
+          const treeJ = await treeR.json();
+          const newCommitR = await fetch(`${baseApi}/git/commits`, {
+            method: 'POST', headers,
+            body: JSON.stringify({ message: `Add large study PDF: ${file.name}`, tree: treeJ.sha, parents: [headSha] })
+          });
+          const newCommitJ = await newCommitR.json();
+          await fetch(`${baseApi}/git/refs/heads/main`, {
+            method: 'PATCH', headers,
+            body: JSON.stringify({ sha: newCommitJ.sha })
+          });
+        }
+        const liveUrl = `${GH_PAGES_BASE}${path}`;
+        return { viewUrl: liveUrl, downloadUrl: liveUrl };
+      }
+
+      document.getElementById('adm-pdf-upload-btn')?.addEventListener('click', async () => {
+        const title = (document.getElementById('adm-pdf-title')?.value || '').trim();
+        const category = document.getElementById('adm-pdf-cat')?.value || 'Vocab Notes';
+        const rawUrl = (document.getElementById('adm-pdf-url')?.value || '').trim();
+        if (!title) { setAdmPdfStatus('❌ Pehle PDF ka Title likhein.', true); return; }
+        if (!_selectedPdfFile && !rawUrl) { setAdmPdfStatus('❌ Koi .pdf file choose karein YA PDF/Drive link paste karein.', true); return; }
+
+        const btn = document.getElementById('adm-pdf-upload-btn');
+        btn.disabled = true;
+        btn.textContent = '⏳ Publishing PDF...';
+        try {
+          const pid = 'pdf_' + Date.now();
+          const dateStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+          let record = {
+            id: pid,
+            title,
+            category,
+            sizeLabel: _selectedPdfFile ? formatBytes(_selectedPdfFile.size) : 'Cloud PDF',
+            dateStr,
+            uploadedAt: Date.now(),
+            dataUrl: '',
+            viewUrl: '',
+            downloadUrl: ''
+          };
+
+          if (_selectedPdfFile) {
+            setAdmPdfStatus(`⏳ Reading PDF (${formatBytes(_selectedPdfFile.size)})...`);
+            const fullDataUrl = await readFileAsBase64(_selectedPdfFile);
+            if (_selectedPdfFile.size <= 650 * 1024) {
+              record.dataUrl = fullDataUrl;
+            } else {
+              const tok = (document.getElementById('admin-gh-token')?.value || localStorage.getItem(GH_TOK_KEY) || '').trim();
+              if (!tok) {
+                throw new Error('650 KB se badi PDF direct upload karne ke liye "🚀 ZIP" tab me apna GitHub Token save karein (ya Google Drive link paste karein).');
+              }
+              setAdmPdfStatus('⏳ Uploading large PDF to GitHub Cloud...');
+              const pureB64 = fullDataUrl.split(',')[1] || '';
+              const ghUrls = await uploadPdfToGithubRepo(_selectedPdfFile, pureB64, tok);
+              record.viewUrl = ghUrls.viewUrl;
+              record.downloadUrl = ghUrls.downloadUrl;
+            }
+          } else {
+            const norm = normalizeDriveDownloadUrl(rawUrl);
+            record.viewUrl = norm.viewUrl;
+            record.downloadUrl = norm.downloadUrl;
+          }
+
+          if (typeof fbDb !== 'undefined' && fbDb) {
+            await fbDb.collection('ssc_pdfs').doc(pid).set(record);
+          } else {
+            _pdfItems.unshift(record);
+            savePdfCache();
+            renderPdfLists();
+          }
+
+          setAdmPdfStatus(`✅ "${title}" Student PDF Folder me live publish ho gaya!`);
+          if (typeof showToast === 'function') showToast(`📄 "${title}" Student PDF Folder me live ho gaya!`);
+          document.getElementById('adm-pdf-title').value = '';
+          document.getElementById('adm-pdf-url').value = '';
+          const fInp = document.getElementById('adm-pdf-file');
+          if (fInp) fInp.value = '';
+          _selectedPdfFile = null;
+          const lbl = document.getElementById('adm-pdf-file-label');
+          if (lbl) lbl.textContent = '♾️ Unlimited Size: Direct .pdf file choose karein (no 24MB limit) YA badi files ke liye Google Drive link paste karein:';
+        } catch (err) {
+          setAdmPdfStatus('❌ ' + (err && err.message ? err.message : 'Upload failed'), true);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '🚀 Publish PDF to Student Folder';
+        }
+      });
+
+      // Open/Close Student PDF Folder Modal
+      const openStuPdfModal = () => {
+        renderPdfLists();
+        document.getElementById('student-pdf-modal')?.classList.remove('hidden');
+      };
+      document.getElementById('home-open-pdf-folder-btn')?.addEventListener('click', openStuPdfModal);
+      document.getElementById('menu-pdf-btn')?.addEventListener('click', () => {
+        document.getElementById('about-modal')?.classList.add('hidden');
+        openStuPdfModal();
+      });
+      document.getElementById('stu-pdf-close-btn')?.addEventListener('click', () => {
+        document.getElementById('student-pdf-modal')?.classList.add('hidden');
+      });
+      document.getElementById('stu-pdf-search')?.addEventListener('input', renderPdfLists);
+      document.querySelectorAll('.spdf-cat-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          _stuCat = b.dataset.spdfCat || 'All';
+          document.querySelectorAll('.spdf-cat-btn').forEach(x => {
+            x.className = x === b
+              ? 'spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-black bg-cyan-500/25 text-cyan-200 border border-cyan-400/50 whitespace-nowrap'
+              : 'spdf-cat-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap';
+          });
+          renderPdfLists();
+        });
+      });
+
+      setTimeout(subscribeLivePdfs, 600);
     })();
   </script>
 </body>
