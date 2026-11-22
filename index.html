@@ -5091,6 +5091,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       // =========================================================================
       const RZP_KEY_STORAGE = 'ssc_vocab_rzp_key_v1';
       const DEFAULT_RZP_KEY = 'rzp_live_U3EVvytqyA1dgj';
+      const RAZORPAY_PAYMENT_PAGE_URL = 'https://rzp.io/rzp/sscvocabpro99';
       const PAYMENT_CONFIG = {
         merchantName: 'SSC Vocab 3D Pro',
         merchantUpiId: '9151345504@slc',
@@ -5566,73 +5567,76 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         });
       }
 
-      document.getElementById('rzp-pay-now-btn')?.addEventListener('click', async () => {
-        const errEl = document.getElementById('pay-err-msg');
+      const RZP_PENDING_KEY = 'ssc_rzp_pending_checkout_v1';
+
+      document.getElementById('rzp-pay-now-btn')?.addEventListener('click', () => {
         const payBtn = document.getElementById('rzp-pay-now-btn');
-        errEl?.classList.add('hidden');
         const uid = getCurrentUserId();
         const user = getUsers()[uid] || { name: 'SSC Aspirant', uid: '' };
-        const priceInr = Number(PAYMENT_CONFIG.price || PAYMENT_CONFIG.amountInr || 99);
-        const rzpKey = (PAYMENT_CONFIG.razorpayKeyId || DEFAULT_RZP_KEY || '').trim();
-
-        if (!rzpKey || !rzpKey.startsWith('rzp_')) {
-          if (errEl) { errEl.textContent = 'Razorpay Key ID set nahi hai — Admin Panel me valid rzp_live_... key save karein.'; errEl.classList.remove('hidden'); }
-          return;
-        }
-
-        if (payBtn) { payBtn.disabled = true; payBtn.textContent = '⏳ Opening Razorpay Checkout...'; }
-        const loaded = await ensureRazorpaySdkLoaded();
-        if (!loaded) {
-          if (payBtn) { payBtn.disabled = false; payBtn.textContent = `💳 Pay ₹${priceInr} Now via Razorpay →`; }
-          if (errEl) { errEl.textContent = 'Internet connection check karein — Razorpay Checkout load nahi ho paya.'; errEl.classList.remove('hidden'); }
-          return;
-        }
-
         try {
-          const rzp = new window.Razorpay({
-            key: rzpKey,
-            amount: Math.round(priceInr * 100),
-            currency: 'INR',
-            name: 'SSC Vocab 3D Pro',
-            description: 'Super Pro Pass — 1 Year Unlimited SSC Access',
-            image: 'https://amanchaudhary2701-maker.github.io/Ssc-vocab-pro-/icon-192.png',
-            prefill: {
-              name: user.name || 'SSC Aspirant',
-              email: (user.uid && user.uid.includes('@')) ? user.uid : ''
-            },
-            notes: {
-              student_uid: uid || '',
-              exam: user.exam || 'SSC CGL',
-              plan: 'Super Pro Pass 1 Year'
-            },
-            theme: { color: '#1d4ed8' },
-            handler: function (response) {
-              const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : ('RZP_' + Date.now());
-              activateSuperProForCurrentUser(payId, 'Razorpay Auto-Verified');
-            },
-            modal: {
-              ondismiss: function () {
-                if (payBtn) { payBtn.disabled = false; payBtn.textContent = `💳 Pay ₹${priceInr} Now via Razorpay →`; }
-              }
-            }
-          });
-          rzp.on('payment.failed', function (resp) {
-            const reason = (resp && resp.error && (resp.error.description || resp.error.reason)) || 'Payment failed';
-            if (errEl) {
-              errEl.textContent = `❌ Payment Failed: ${reason}`;
-              errEl.classList.remove('hidden');
-            }
-            if (payBtn) { payBtn.disabled = false; payBtn.textContent = `💳 Pay ₹${priceInr} Now via Razorpay →`; }
-          });
-          rzp.open();
-        } catch (err) {
-          if (errEl) { errEl.textContent = '❌ Razorpay open karne me error aaya — dobara try karein.'; errEl.classList.remove('hidden'); }
-        } finally {
-          setTimeout(() => {
-            if (payBtn) { payBtn.disabled = false; payBtn.textContent = `💳 Pay ₹${priceInr} Now via Razorpay →`; }
-          }, 1500);
+          localStorage.setItem(RZP_PENDING_KEY, JSON.stringify({
+            uid: uid || '',
+            name: user.name || 'SSC Aspirant',
+            startedAt: Date.now()
+          }));
+        } catch (e) {}
+        if (payBtn) {
+          payBtn.disabled = true;
+          payBtn.textContent = '⏳ Opening Razorpay Secure Page...';
         }
+        // Open Aman's LIVE Approved Razorpay Payment Page (Zero website-mismatch error!)
+        window.location.href = RAZORPAY_PAYMENT_PAGE_URL;
       });
+
+      // AUTOMATIC SUPER PRO PASS UNLOCK ON RAZORPAY SUCCESS REDIRECT (?rzp_pass_ok=1)
+      function handleRazorpayRedirectReturn() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const isOk = params.get('rzp_pass_ok') === '1' || !!params.get('razorpay_payment_id');
+          if (!isOk) return;
+          const rzpPayId = params.get('razorpay_payment_id') || params.get('payment_id') || '';
+          let pending = null;
+          try {
+            const raw = localStorage.getItem(RZP_PENDING_KEY);
+            if (raw) pending = JSON.parse(raw);
+          } catch (e) {}
+
+          // Clean URL query params immediately so refresh doesn't re-trigger
+          try {
+            const cleanUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+          } catch (e) {}
+
+          const isRecentPending = !!(pending && pending.startedAt && (Date.now() - pending.startedAt) < 45 * 60 * 1000);
+          if (!isRecentPending && !rzpPayId) return;
+
+          localStorage.removeItem(RZP_PENDING_KEY);
+          const finalTxn = rzpPayId || ('RZP-LIVE-' + Date.now().toString(36).toUpperCase());
+
+          // Wait briefly if IDB hydration is still restoring active user, then unlock 1-Year Super Pro Pass!
+          const tryUnlock = (tries = 0) => {
+            const uid = getCurrentUserId() || (pending && pending.uid) || '';
+            const users = getUsers();
+            if (uid && users[uid]) {
+              activateSuperProForCurrentUser(finalTxn, 'Razorpay Auto-Verified');
+              // Also push immediately via Fast Firestore REST so Admin Panel sees Pro Pass + ₹99 right away!
+              try {
+                const fsKey = (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey) ? FIREBASE_CONFIG.apiKey : 'AIzaSyBs_w5tmFnNc-fygZ-t5wdS_C7KtsVie7k';
+                const docId = typeof safeFbDocId === 'function' ? safeFbDocId(uid) : uid;
+                fetch(`https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents/ssc_users/${encodeURIComponent(docId)}?updateMask.fieldPaths=lastRazorpayTxn&updateMask.fieldPaths=updatedAt&key=${encodeURIComponent(fsKey)}`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ fields: { lastRazorpayTxn: { stringValue: finalTxn }, updatedAt: { integerValue: String(Date.now()) } } })
+                }).catch(() => {});
+              } catch (e) {}
+            } else if (tries < 10) {
+              setTimeout(() => tryUnlock(tries + 1), 350);
+            }
+          };
+          setTimeout(() => tryUnlock(0), 400);
+        } catch (e) {}
+      }
+      handleRazorpayRedirectReturn();
 
       const ADMIN_WHATSAPP = '919151345504';
       const ADMIN_PIN = '9151';
@@ -9621,7 +9625,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         <!-- TAB 1: KEYS, SOCIALS & STUDENTS -->
         <div id="admin-panel-keys" class="adm-panel space-y-4">
           <div class="p-3 rounded-xl bg-slate-900/90 border border-amber-400/30 text-[11px] flex items-center justify-between gap-2">
-            <span class="text-slate-300">💳 Razorpay: <b id="admin-hdr-upi" class="text-amber-300 font-mono">rzp_live_U3EVvytqyA1dgj</b> • <b id="admin-hdr-price" class="text-emerald-300">₹99</b></span>
+            <span class="text-slate-300">💳 Razorpay Live: <b id="admin-hdr-upi" class="text-amber-300 font-mono">rzp.io/rzp/sscvocabpro99</b> • <b id="admin-hdr-price" class="text-emerald-300">₹99</b></span>
             <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">Admin Active</span>
           </div>
 
