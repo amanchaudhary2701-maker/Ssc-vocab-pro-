@@ -272,7 +272,7 @@
     }
 
     /* PRO V11 MODEL: Bigger Word Typography, Font Scale Control & Neon Glass Polish */
-    :root { --word-scale: 1.12; }
+    :root { --word-scale: 1.24; }
     .pro-word-big { font-size: calc(2.15rem * var(--word-scale)) !important; line-height: 1.15 !important; letter-spacing: -0.02em; }
     .pro-grid-word { font-size: calc(1.18rem * var(--word-scale)) !important; line-height: 1.25 !important; }
     .pro-cluster-pill { font-size: calc(0.84rem * var(--word-scale)) !important; padding: 0.36rem 0.72rem !important; }
@@ -388,6 +388,26 @@
       border-color: #bfdbfe !important;
     }
     .carousel-slide { transition: opacity 0.35s ease, transform 0.35s ease; }
+
+    /* V25 MODEL 4: Ultra-Readable Large Fonts + High-Contrast Hindi Meaning Box + Swipe Card Motion */
+    .pro-read-meaning { font-size: calc(0.95rem * var(--word-scale)) !important; line-height: 1.5 !important; }
+    .pro-read-hindi {
+      font-size: calc(0.96rem * var(--word-scale)) !important;
+      line-height: 1.55 !important;
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.40);
+      border-radius: 0.85rem;
+      padding: 0.45rem 0.75rem;
+    }
+    body.classic-light .pro-read-hindi {
+      background: #fffbeb !important;
+      border-color: #fcd34d !important;
+      color: #92400e !important;
+    }
+    .swipe-card-box {
+      touch-action: pan-y;
+      transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -942,40 +962,83 @@
         </div>
       </section>
 
-      <!-- ==================== DEDICATED MULTI-PAGE CATEGORY VIEW (Synonyms / Antonyms / OWS / Idioms / etc.) ==================== -->
+      <!-- ==================== DEDICATED MULTI-PAGE COURSE VIEW (Chapter Sets + Large-Font Reader + Swipe Mode) ==================== -->
       <section id="view-catpage" class="view-section hidden space-y-4">
-        <!-- Sticky Sub-Page Navigation Bar -->
-        <div class="glass-card rounded-2xl p-3.5 sm:p-4 border border-blue-400/35 flex flex-wrap items-center justify-between gap-2.5">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <button type="button" id="catpage-back-btn" class="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-black text-white hover:brightness-110 shrink-0">← Back</button>
-            <div class="min-w-0">
-              <h2 id="catpage-title" class="text-base sm:text-lg font-black text-white truncate">📘 Synonyms</h2>
-              <p id="catpage-subtitle" class="text-[11px] text-slate-400 font-semibold truncate">0 Words • BlackBook + SSC CGL 2026</p>
+        <!-- Sticky Sub-Page Header Bar -->
+        <div class="glass-card rounded-2xl p-3.5 sm:p-4 border border-blue-400/35 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2.5">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <button type="button" id="catpage-back-btn" class="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-black text-white shrink-0">← Back</button>
+              <div class="min-w-0">
+                <h2 id="catpage-title" class="text-base sm:text-lg font-black text-white truncate">📘 Synonyms</h2>
+                <p id="catpage-subtitle" class="text-xs text-slate-400 font-semibold truncate">0 Words • Chapter-Wise Course</p>
+              </div>
             </div>
+            <button type="button" id="catpage-revise-btn" class="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs shadow shrink-0">⚡ Quick Revise</button>
           </div>
-          <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" id="catpage-revise-btn" class="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs shadow">⚡ Quick Revise</button>
+
+          <!-- 3-Mode Course Switcher: Sets | Read List | Swipe Cards -->
+          <div class="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-slate-950/85 border border-slate-700/60">
+            <button type="button" data-cpmode="sets" class="cp-mode-btn py-2 px-2 rounded-lg text-xs font-extrabold bg-blue-600 text-white transition">📚 Sets (25/Set)</button>
+            <button type="button" data-cpmode="list" class="cp-mode-btn py-2 px-2 rounded-lg text-xs font-extrabold text-slate-400 transition">📖 Read Words</button>
+            <button type="button" data-cpmode="swipe" class="cp-mode-btn py-2 px-2 rounded-lg text-xs font-extrabold text-slate-400 transition">👆 Swipe Cards</button>
           </div>
         </div>
 
-        <!-- Search + Filter Strip -->
-        <div class="glass-card rounded-2xl p-3 sm:p-4 border border-slate-700/50 space-y-2.5">
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input id="catpage-search" type="text" placeholder="🔍 Search word, meaning ya Hindi..." class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs sm:text-sm text-white focus:outline-none focus:border-blue-500" />
-            <div class="flex gap-1.5 overflow-x-auto no-scrollbar" id="catpage-filters">
-              <button type="button" data-cpfilt="all" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-extrabold bg-blue-600 text-white shrink-0">All</button>
-              <button type="button" data-cpfilt="2026" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0">🔥 CGL 2026</button>
-              <button type="button" data-cpfilt="unlearned" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0">📖 Unlearned</button>
-              <button type="button" data-cpfilt="saved" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0">⭐ Saved</button>
+        <!-- MODE 1: CHAPTER SETS GRID (Set 1, Set 2, Set 3... with % Progress Bar) -->
+        <div id="catpage-sets-wrap" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+
+        <!-- MODE 2: SEARCH + LARGE-FONT READING CARDS -->
+        <div id="catpage-list-wrap" class="hidden space-y-3.5">
+          <div class="glass-card rounded-2xl p-3 sm:p-4 border border-slate-700/50 space-y-2.5">
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="catpage-search" type="text" placeholder="🔍 Search word, English ya Hindi meaning..." class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-blue-500" />
+              <div class="flex gap-1.5 overflow-x-auto no-scrollbar" id="catpage-filters">
+                <button type="button" data-cpfilt="all" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-extrabold bg-blue-600 text-white shrink-0">All</button>
+                <button type="button" data-cpfilt="2026" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0">🔥 CGL 2026</button>
+                <button type="button" data-cpfilt="unlearned" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0">📖 Unlearned</button>
+                <button type="button" data-cpfilt="saved" class="cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0">⭐ Saved</button>
+              </div>
+            </div>
+            <div id="catpage-active-set-bar" class="hidden flex items-center justify-between gap-2 pt-1 text-xs">
+              <span id="catpage-active-set-lbl" class="font-extrabold text-blue-500">Reading: Set 1</span>
+              <button type="button" id="catpage-show-all-sets-btn" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-bold text-[11px]">Show All Words</button>
             </div>
           </div>
+          <div id="catpage-list" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
+          <div id="catpage-pager" class="flex items-center justify-center gap-3 pt-2"></div>
         </div>
 
-        <!-- Dedicated Category Cards Grid -->
-        <div id="catpage-list" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
+        <!-- MODE 3: INTERACTIVE ONE-HAND SWIPE CARDS (Right = Yaad Hai ✅ | Left = Dobara Dekho 🔁) -->
+        <div id="catpage-swipe-wrap" class="hidden space-y-4 max-w-xl mx-auto">
+          <div class="glass-card rounded-2xl p-3 flex items-center justify-between gap-2 text-xs font-extrabold">
+            <span id="swipe-set-label" class="text-blue-500">Set 1 • Swipe Mode</span>
+            <span id="swipe-counter" class="font-mono text-emerald-500">1 / 25</span>
+          </div>
 
-        <!-- Clean Pagination -->
-        <div id="catpage-pager" class="flex items-center justify-center gap-3 pt-2"></div>
+          <div id="swipe-card-box" class="swipe-card-box glass-card rounded-3xl p-6 sm:p-7 border-2 border-blue-500/35 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <span id="swipe-badge" class="px-2.5 py-1 rounded-lg bg-blue-500/15 text-blue-500 text-xs font-extrabold">SYNONYM</span>
+              <button type="button" id="swipe-speak-btn" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-cyan-300 text-xs font-bold">🔊 Listen</button>
+            </div>
+            <div class="text-center py-2 space-y-2">
+              <h3 id="swipe-word" class="pro-word-big font-black text-white break-words">LOADING</h3>
+              <p id="swipe-meaning" class="pro-read-meaning font-bold text-slate-200"></p>
+            </div>
+            <div id="swipe-hindi" class="pro-read-hindi font-extrabold text-amber-300 text-center">🇮🇳 Loading Hindi...</div>
+            <div class="space-y-1.5 text-sm">
+              <p id="swipe-syn" class="text-emerald-400 font-bold hidden"></p>
+              <p id="swipe-ant" class="text-rose-400 font-bold hidden"></p>
+              <p id="swipe-trick" class="text-xs text-slate-400 bg-slate-950/75 rounded-xl px-3 py-2 hidden"></p>
+            </div>
+            <p class="text-[11px] text-center text-slate-400 font-semibold">👈 Left Swipe = Dobara Dekho • Right Swipe = Yaad Hai 👉</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <button type="button" id="swipe-left-btn" class="py-3.5 rounded-2xl bg-rose-500/20 border-2 border-rose-400/50 text-rose-400 font-black text-sm hover:bg-rose-500/30 transition">🔁 Dobara Dekho</button>
+            <button type="button" id="swipe-right-btn" class="py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-sm shadow-lg hover:brightness-110 transition">✅ Yaad Hai (+10 XP)</button>
+          </div>
+        </div>
       </section>
 
       <section id="view-vocab" class="view-section space-y-5">
@@ -8001,42 +8064,170 @@
 
 
     // =========================================================================
-    // 9H. MULTI-PAGE ROUTER (DEDICATED SUBJECT PAGES + ANDROID BACK BUTTON HISTORY)
+    // 9H. MODEL 4 MULTI-PAGE COURSE ROUTER (CHAPTER SETS + LARGE-FONT READER + ONE-HAND SWIPE CARDS)
     // =========================================================================
     const CAT_PAGE_META = {
-      'Synonym':  { title: '📘 Synonyms Master Bank', sub: 'समानार्थी शब्द • BlackBook + SSC CGL 2026', match: w => w.category === 'Synonym' },
-      'Antonym':  { title: '📙 Antonyms Master Bank', sub: 'विलोम शब्द • BlackBook + SSC CGL 2026', match: w => w.category === 'Antonym' },
-      'One Word': { title: '🎯 One Word Substitution (OWS)', sub: 'अनेक शब्दों के लिए एक शब्द • BlackBook A1-A3 + CGL 2026', match: w => w.category === 'One Word' },
-      'Idiom':    { title: '💬 Idioms & Phrases', sub: 'मुहावरे एवं लोकोक्तियाँ • BlackBook B1-B3 + CGL 2026', match: w => w.category === 'Idiom' },
-      'Spelling': { title: '✍️ Spelling Errors & Rules', sub: 'CGL 2026 (122 Qs) + BlackBook E2', match: w => w.category === 'Spelling' },
+      'Synonym':  { title: '📘 Synonyms Course', sub: 'समानार्थी शब्द • 25 Words/Set • BlackBook + CGL 2026', match: w => w.category === 'Synonym' },
+      'Antonym':  { title: '📙 Antonyms Course', sub: 'विलोम शब्द • 25 Words/Set • BlackBook + CGL 2026', match: w => w.category === 'Antonym' },
+      'One Word': { title: '🎯 One Word (OWS) Course', sub: 'अनेक शब्दों के एक शब्द • BlackBook A1-A3 + CGL 2026', match: w => w.category === 'One Word' },
+      'Idiom':    { title: '💬 Idioms & Phrases Course', sub: 'मुहावरे एवं लोकोक्तियाँ • BlackBook B1-B3 + CGL 2026', match: w => w.category === 'Idiom' },
+      'Spelling': { title: '✍️ Spellings Mastery', sub: 'CGL 2026 (122 Qs) + BlackBook E2', match: w => w.category === 'Spelling' },
       'Homonym':  { title: '🔀 Homonyms & Confusing Words', sub: 'BlackBook D1/D2 + SSC CGL 2026', match: w => w.category === 'Homonym' },
-      'Phrasal':  { title: '⚡ Phrasal Verbs & Fixed Prepositions', sub: 'BlackBook F1 + F2 Complete Bank', match: w => w.category === 'Phrasal Verb' || w.category === 'Preposition' },
+      'Phrasal':  { title: '⚡ Phrasal Verbs & Prepositions', sub: 'BlackBook F1 + F2 Complete Course', match: w => w.category === 'Phrasal Verb' || w.category === 'Preposition' },
       'Foreign':  { title: '🌱 Root Words & Foreign Words', sub: '297 Root Words + BlackBook F4 Foreign Words', match: w => w.category === 'Foreign Word' }
     };
 
     let activeCatPageKey = 'Synonym';
+    let activeCatMode = 'sets'; // 'sets' | 'list' | 'swipe'
+    let activeSetIndex = null;  // null = all words, or 0,1,2... for 25-word Set
     let catPageFilter = 'all';
     let catPageSearch = '';
     let catPageNum = 1;
-    const CAT_PER_PAGE = 24;
+    const CAT_PER_PAGE = 25;
+    let swipeQueue = [];
+    let swipeDoneCount = 0;
+    let swipeTotalInit = 0;
+
+    function getCategoryItems(catKey) {
+      const meta = CAT_PAGE_META[catKey] || CAT_PAGE_META['Synonym'];
+      const bank = (typeof VOCAB_BANK !== 'undefined' ? VOCAB_BANK : []);
+      if (catKey === 'Foreign') {
+        const fWords = bank.filter(meta.match);
+        const rWords = (typeof ROOT_WORDS !== 'undefined' ? ROOT_WORDS : []).map((r, i) => ({
+          id: 900000 + i, word: r.root.toUpperCase(), category: r.kind || 'Root Word',
+          exam: 'BlackBook F5 Roots', year: 2024, answer: r.meaning, meaningHi: r.hi || '',
+          syn: r.examples || '—', ant: '—', trick: `Root ${r.root} → ${r.examples || ''}`
+        }));
+        return [...rWords, ...fWords];
+      }
+      return bank.filter(meta.match);
+    }
+
+    function setCatPageMode(mode) {
+      activeCatMode = mode;
+      document.getElementById('catpage-sets-wrap')?.classList.toggle('hidden', mode !== 'sets');
+      document.getElementById('catpage-list-wrap')?.classList.toggle('hidden', mode !== 'list');
+      document.getElementById('catpage-swipe-wrap')?.classList.toggle('hidden', mode !== 'swipe');
+      document.querySelectorAll('.cp-mode-btn').forEach(b => {
+        const act = b.dataset.cpmode === mode;
+        b.className = act ? 'cp-mode-btn py-2 px-2 rounded-lg text-xs font-extrabold bg-blue-600 text-white transition' : 'cp-mode-btn py-2 px-2 rounded-lg text-xs font-extrabold text-slate-400 transition';
+      });
+      if (mode === 'sets') renderCatSetsGrid();
+      else if (mode === 'list') renderDedicatedCategoryPage();
+      else if (mode === 'swipe') {
+        if (!swipeQueue.length) launchCatSwipeDeck(activeSetIndex !== null ? activeSetIndex : 0);
+        else renderSwipeCard();
+      }
+    }
 
     function openDedicatedCategoryPage(catKey, pushHist = true) {
       activeCatPageKey = CAT_PAGE_META[catKey] ? catKey : 'Synonym';
+      activeSetIndex = null;
       catPageFilter = 'all';
       catPageSearch = '';
       catPageNum = 1;
+      swipeQueue = [];
       const sInp = document.getElementById('catpage-search');
       if (sInp) sInp.value = '';
-      document.querySelectorAll('.cp-filt-btn').forEach(b => {
-        const act = b.dataset.cpfilt === 'all';
-        b.className = act ? 'cp-filt-btn px-3 py-2 rounded-xl text-xs font-extrabold bg-blue-600 text-white shrink-0' : 'cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0';
-      });
       switchTab('catpage');
-      renderDedicatedCategoryPage();
+      setCatPageMode('sets');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if (pushHist && window.history && window.history.pushState) {
         try { window.history.pushState({ page: 'catpage', cat: activeCatPageKey }, '', `#${activeCatPageKey.toLowerCase().replace(/\s+/g, '-')}`); } catch (e) {}
       }
+    }
+
+    function renderCatSetsGrid() {
+      const wrap = document.getElementById('catpage-sets-wrap');
+      if (!wrap) return;
+      const meta = CAT_PAGE_META[activeCatPageKey] || CAT_PAGE_META['Synonym'];
+      const items = getCategoryItems(activeCatPageKey);
+      const learnedSet = new Set(state.learnedIds || []);
+      const totalSets = Math.max(1, Math.ceil(items.length / CAT_PER_PAGE));
+
+      document.getElementById('catpage-title').textContent = meta.title;
+      document.getElementById('catpage-subtitle').textContent = `${items.length} Words • ${totalSets} Chapter Sets (25 Words/Set)`;
+
+      let htmlSets = '';
+      for (let s = 0; s < totalSets; s++) {
+        const chunk = items.slice(s * CAT_PER_PAGE, (s + 1) * CAT_PER_PAGE);
+        const done = chunk.filter(w => learnedSet.has(w.id)).length;
+        const pct = Math.round((done / Math.max(1, chunk.length)) * 100);
+        const firstW = chunk[0] ? chunk[0].word : '';
+        const lastW = chunk[chunk.length - 1] ? chunk[chunk.length - 1].word : '';
+        htmlSets += `
+          <div class="glass-card rounded-2xl p-4 border ${pct === 100 ? 'border-emerald-400/60' : 'border-slate-700/60'} space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <span class="px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-500 text-[10px] font-black">SET ${s + 1}</span>
+                <h3 class="text-base font-black text-white mt-1">Words ${s * CAT_PER_PAGE + 1} – ${s * CAT_PER_PAGE + chunk.length}</h3>
+                <p class="text-[11px] text-slate-400 font-semibold truncate">${firstW} → ${lastW}</p>
+              </div>
+              <span class="text-xs font-black ${pct === 100 ? 'text-emerald-500' : 'text-amber-500'}">${pct}%</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-slate-800/40 overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all" style="width: ${pct}%"></div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 font-bold">
+              <span>✅ ${done} / ${chunk.length} Learned</span>
+              <div class="flex gap-1.5">
+                <button type="button" data-open-set-read="${s}" class="px-3 py-1.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs">📖 Read</button>
+                <button type="button" data-open-set-swipe="${s}" class="px-3 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs">👆 Swipe</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      wrap.innerHTML = htmlSets;
+    }
+
+    function launchCatSwipeDeck(setIdx) {
+      activeSetIndex = setIdx;
+      const items = getCategoryItems(activeCatPageKey);
+      const chunk = items.slice(setIdx * CAT_PER_PAGE, (setIdx + 1) * CAT_PER_PAGE);
+      swipeQueue = chunk.slice();
+      swipeDoneCount = 0;
+      swipeTotalInit = swipeQueue.length;
+      setCatPageMode('swipe');
+      renderSwipeCard();
+    }
+
+    function renderSwipeCard() {
+      const lbl = document.getElementById('swipe-set-label');
+      const cnt = document.getElementById('swipe-counter');
+      if (lbl) lbl.textContent = `${CAT_PAGE_META[activeCatPageKey]?.title || 'Course'} • Set ${(activeSetIndex || 0) + 1}`;
+      if (!swipeQueue.length) {
+        if (cnt) cnt.textContent = `✅ ${swipeDoneCount}/${swipeTotalInit} Mastered!`;
+        document.getElementById('swipe-word').textContent = '🎉 Set Complete!';
+        document.getElementById('swipe-meaning').textContent = `Shabaash! Aapne Set ${(activeSetIndex || 0) + 1} ke sabhi ${swipeTotalInit} words revise kar liye!`;
+        document.getElementById('swipe-hindi').textContent = '🇮🇳 अगला Set शुरू करने के लिए Sets tab पर जाएँ!';
+        document.getElementById('swipe-syn')?.classList.add('hidden');
+        document.getElementById('swipe-ant')?.classList.add('hidden');
+        document.getElementById('swipe-trick')?.classList.add('hidden');
+        if (window.confetti) confetti({ particleCount: 65, spread: 60, origin: { y: 0.6 } });
+        return;
+      }
+      const w = swipeQueue[0];
+      if (cnt) cnt.textContent = `Left: ${swipeQueue.length} • ✅ ${swipeDoneCount}/${swipeTotalInit}`;
+      document.getElementById('swipe-badge').textContent = `${w.category || 'SSC'} • ${w.exam || 'BlackBook'}`;
+      document.getElementById('swipe-word').textContent = w.word || '';
+      document.getElementById('swipe-meaning').textContent = `📘 ${w.answer || ''}`;
+
+      const hiBox = document.getElementById('swipe-hindi');
+      const instHi = hasDevanagari(w.meaningHi) ? w.meaningHi : (typeof getInstantHindi === 'function' ? getInstantHindi(w) : '');
+      hiBox.textContent = hasDevanagari(instHi) ? `🇮🇳 ${instHi}` : '🇮🇳 हिंदी अर्थ लोड हो रहा है...';
+      if (!hasDevanagari(w.meaningHi) && typeof fetchLiveHindiForItem === 'function') {
+        fetchLiveHindiForItem(w).then(hi => {
+          if (hi && hasDevanagari(hi) && swipeQueue[0] && swipeQueue[0].id === w.id) hiBox.textContent = `🇮🇳 ${hi}`;
+        });
+      }
+
+      const sEl = document.getElementById('swipe-syn');
+      if (w.syn && w.syn !== '—') { sEl.textContent = `✅ Synonyms: ${w.syn}`; sEl.classList.remove('hidden'); } else sEl.classList.add('hidden');
+      const aEl = document.getElementById('swipe-ant');
+      if (w.ant && w.ant !== '—') { aEl.textContent = `❌ Antonyms: ${w.ant}`; aEl.classList.remove('hidden'); } else aEl.classList.add('hidden');
+      const tEl = document.getElementById('swipe-trick');
+      if (w.trick) { tEl.textContent = `💡 ${w.trick}`; tEl.classList.remove('hidden'); } else tEl.classList.add('hidden');
     }
 
     function renderDedicatedCategoryPage() {
@@ -8045,19 +8236,15 @@
       const pagerEl = document.getElementById('catpage-pager');
       if (!listEl) return;
 
-      const bank = (typeof VOCAB_BANK !== 'undefined' ? VOCAB_BANK : []);
-      let items = [];
-      if (activeCatPageKey === 'Foreign') {
-        // Combine Foreign Words + 297 Root Words into one rich dedicated page!
-        const fWords = bank.filter(meta.match);
-        const rWords = (typeof ROOT_WORDS !== 'undefined' ? ROOT_WORDS : []).map((r, i) => ({
-          id: 900000 + i, word: r.root.toUpperCase(), category: r.kind || 'Root Word',
-          exam: 'BlackBook F5 Roots', year: 2024, answer: r.meaning, meaningHi: r.hi || '',
-          syn: r.examples || '—', ant: '—', trick: `Root ${r.root} → ${r.examples || ''}`
-        }));
-        items = [...rWords, ...fWords];
+      let items = getCategoryItems(activeCatPageKey);
+      const setBar = document.getElementById('catpage-active-set-bar');
+      const setLbl = document.getElementById('catpage-active-set-lbl');
+      if (activeSetIndex !== null && !catPageSearch.trim()) {
+        items = items.slice(activeSetIndex * CAT_PER_PAGE, (activeSetIndex + 1) * CAT_PER_PAGE);
+        setBar?.classList.remove('hidden');
+        if (setLbl) setLbl.textContent = `📖 Reading Set ${activeSetIndex + 1} (${items.length} Words)`;
       } else {
-        items = bank.filter(meta.match);
+        setBar?.classList.add('hidden');
       }
 
       const q = (catPageSearch || '').trim().toLowerCase();
@@ -8089,29 +8276,29 @@
       listEl.innerHTML = pageItems.map((w, idx) => {
         const isLearned = learnedSet.has(w.id);
         const isSaved = savedSet.has(w.id);
-        const hiDisp = hasDevanagari(w.meaningHi) ? `🇮🇳 ${w.meaningHi}` : (typeof getInstantHindi === 'function' && getInstantHindi(w) ? `🇮🇳 ${getInstantHindi(w)}` : '🇮🇳 Hindi...');
+        const hiDisp = hasDevanagari(w.meaningHi) ? `🇮🇳 ${w.meaningHi}` : (typeof getInstantHindi === 'function' && getInstantHindi(w) ? `🇮🇳 ${getInstantHindi(w)}` : '🇮🇳 हिंदी अर्थ लोड हो रहा है...');
         return `
-          <div class="glass-card rounded-2xl p-4 border ${isLearned ? 'border-emerald-400/50' : 'border-slate-700/60'} space-y-2.5">
+          <div class="glass-card rounded-2xl p-4 sm:p-5 border ${isLearned ? 'border-emerald-400/60' : 'border-slate-700/60'} space-y-3">
             <div class="flex items-start justify-between gap-2">
               <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="text-[10px] font-mono font-bold text-slate-400">#${start + idx + 1}</span>
-                  <span class="px-2 py-0.5 rounded-md bg-blue-500/15 text-cyan-300 text-[10px] font-extrabold">${w.exam || 'BlackBook'}</span>
+                  <span class="text-xs font-mono font-bold text-slate-400">#${start + idx + 1}</span>
+                  <span class="px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-500 text-[11px] font-extrabold">${w.exam || 'BlackBook'}</span>
                 </div>
                 <h3 class="pro-grid-word font-black text-white mt-1 break-words">${w.word}</h3>
               </div>
-              <div class="flex items-center gap-1 shrink-0">
-                <button type="button" data-cp-speak="${String(w.word || '').replace(/"/g, '&quot;')}" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700 text-cyan-300 text-xs font-bold flex items-center justify-center" title="Pronounce">🔊</button>
-                <button type="button" data-cp-save="${w.id}" class="w-8 h-8 rounded-xl bg-slate-900 border ${isSaved ? 'border-amber-400 text-amber-400' : 'border-slate-700 text-slate-400'} text-xs font-bold flex items-center justify-center" title="Bookmark">${isSaved ? '⭐' : '☆'}</button>
-                <button type="button" data-cp-learn="${w.id}" class="px-2.5 h-8 rounded-xl border text-[11px] font-extrabold ${isLearned ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300' : 'bg-slate-900 border-slate-700 text-slate-300'}">${isLearned ? '✓ Done' : 'Learn'}</button>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button type="button" data-cp-speak="${String(w.word || '').replace(/"/g, '&quot;')}" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700 text-cyan-300 text-sm font-bold flex items-center justify-center" title="Pronounce">🔊</button>
+                <button type="button" data-cp-save="${w.id}" class="w-9 h-9 rounded-xl bg-slate-900 border ${isSaved ? 'border-amber-400 text-amber-400' : 'border-slate-700 text-slate-400'} text-sm font-bold flex items-center justify-center" title="Bookmark">${isSaved ? '⭐' : '☆'}</button>
+                <button type="button" data-cp-learn="${w.id}" class="px-3 h-9 rounded-xl border text-xs font-extrabold ${isLearned ? 'bg-emerald-500/20 border-emerald-400 text-emerald-400' : 'bg-slate-900 border-slate-700 text-slate-300'}">${isLearned ? '✓ Done' : 'Learn'}</button>
               </div>
             </div>
 
-            <p class="text-sm font-bold text-slate-100">📘 ${w.answer}</p>
-            <p data-hi-id="${w.id}" class="text-xs sm:text-sm font-extrabold text-amber-300">${hiDisp}</p>
-            ${w.syn && w.syn !== '—' ? `<p class="text-xs text-emerald-300 font-semibold">✅ <b>Syn:</b> ${w.syn}</p>` : ''}
-            ${w.ant && w.ant !== '—' ? `<p class="text-xs text-rose-300 font-semibold">❌ <b>Ant:</b> ${w.ant}</p>` : ''}
-            ${w.trick ? `<p class="text-[11px] text-slate-400 bg-slate-950/75 rounded-xl px-2.5 py-1.5">💡 ${w.trick}</p>` : ''}
+            <p class="pro-read-meaning font-bold text-slate-100">📘 ${w.answer}</p>
+            <p data-hi-id="${w.id}" class="pro-read-hindi font-extrabold text-amber-300">${hiDisp}</p>
+            ${w.syn && w.syn !== '—' ? `<p class="text-sm text-emerald-400 font-bold">✅ Synonyms: ${w.syn}</p>` : ''}
+            ${w.ant && w.ant !== '—' ? `<p class="text-sm text-rose-400 font-bold">❌ Antonyms: ${w.ant}</p>` : ''}
+            ${w.trick ? `<p class="text-xs text-slate-400 bg-slate-950/75 rounded-xl px-3 py-2 leading-relaxed">💡 ${w.trick}</p>` : ''}
           </div>
         `;
       }).join('');
@@ -8121,7 +8308,7 @@
       if (pagerEl) {
         pagerEl.innerHTML = totalPages > 1 ? `
           <button type="button" id="cp-prev-btn" ${catPageNum <= 1 ? 'disabled' : ''} class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-black text-white disabled:opacity-40">← Prev</button>
-          <span class="text-xs font-mono font-black text-cyan-300">Page ${catPageNum} / ${totalPages}</span>
+          <span class="text-xs font-mono font-black text-blue-500">Page ${catPageNum} / ${totalPages}</span>
           <button type="button" id="cp-next-btn" ${catPageNum >= totalPages ? 'disabled' : ''} class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-black text-white disabled:opacity-40">Next →</button>
         ` : '';
         document.getElementById('cp-prev-btn')?.addEventListener('click', () => { if (catPageNum > 1) { catPageNum--; renderDedicatedCategoryPage(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
@@ -8133,32 +8320,75 @@
       document.querySelectorAll('[data-open-cat]').forEach(btn => {
         btn.addEventListener('click', () => openDedicatedCategoryPage(btn.dataset.openCat, true));
       });
+      document.querySelectorAll('.cp-mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => setCatPageMode(btn.dataset.cpmode));
+      });
+      document.getElementById('catpage-sets-wrap')?.addEventListener('click', (e) => {
+        const rd = e.target.closest('[data-open-set-read]');
+        if (rd) { activeSetIndex = parseInt(rd.dataset.openSetRead, 10); catPageNum = 1; setCatPageMode('list'); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+        const sw = e.target.closest('[data-open-set-swipe]');
+        if (sw) { launchCatSwipeDeck(parseInt(sw.dataset.openSetSwipe, 10)); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      });
+      document.getElementById('catpage-show-all-sets-btn')?.addEventListener('click', () => {
+        activeSetIndex = null; catPageNum = 1; renderDedicatedCategoryPage();
+      });
       document.getElementById('catpage-back-btn')?.addEventListener('click', () => {
+        if (activeCatMode !== 'sets') { setCatPageMode('sets'); return; }
         switchTab('home');
         if (typeof syncKgsHomeDashboard === 'function') syncKgsHomeDashboard();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
       document.getElementById('catpage-search')?.addEventListener('input', (e) => {
-        catPageSearch = e.target.value;
-        catPageNum = 1;
-        renderDedicatedCategoryPage();
+        catPageSearch = e.target.value; catPageNum = 1; renderDedicatedCategoryPage();
       });
       document.getElementById('catpage-filters')?.addEventListener('click', (e) => {
         const b = e.target.closest('[data-cpfilt]');
         if (!b) return;
-        catPageFilter = b.dataset.cpfilt;
-        catPageNum = 1;
+        catPageFilter = b.dataset.cpfilt; catPageNum = 1;
         document.querySelectorAll('.cp-filt-btn').forEach(p => {
           const act = p.dataset.cpfilt === catPageFilter;
           p.className = act ? 'cp-filt-btn px-3 py-2 rounded-xl text-xs font-extrabold bg-blue-600 text-white shrink-0' : 'cp-filt-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-700 text-slate-300 shrink-0';
         });
         renderDedicatedCategoryPage();
       });
-      document.getElementById('catpage-revise-btn')?.addEventListener('click', () => {
-        switchTab('rev');
-        openRevSubTab('quick');
-        buildQuickRevDeck(activeCatPageKey === 'Synonym' || activeCatPageKey === 'Antonym' ? 'clusters' : 'mix');
+      document.getElementById('catpage-revise-btn')?.addEventListener('click', () => launchCatSwipeDeck(activeSetIndex !== null ? activeSetIndex : 0));
+
+      // Swipe Card Controls + Real Touch Drag Gesture!
+      const handleSwipeRight = () => {
+        if (!swipeQueue.length) return;
+        const w = swipeQueue.shift();
+        swipeDoneCount++;
+        if (w && w.id && !state.learnedIds.includes(w.id)) {
+          state.learnedIds.push(w.id);
+          saveState();
+          syncHeaderStats();
+        }
+        if (typeof showXpFloatPop === 'function') showXpFloatPop('+10 XP ✅');
+        renderSwipeCard();
+      };
+      const handleSwipeLeft = () => {
+        if (!swipeQueue.length) return;
+        const cur = swipeQueue.shift();
+        swipeQueue.push(cur);
+        showToast('🔁 Queue mein wapas add kiya!');
+        renderSwipeCard();
+      };
+      document.getElementById('swipe-right-btn')?.addEventListener('click', handleSwipeRight);
+      document.getElementById('swipe-left-btn')?.addEventListener('click', handleSwipeLeft);
+      document.getElementById('swipe-speak-btn')?.addEventListener('click', () => {
+        if (swipeQueue.length && typeof speakWord === 'function') speakWord(swipeQueue[0].word);
       });
+      const swBox = document.getElementById('swipe-card-box');
+      if (swBox) {
+        let sx = 0;
+        swBox.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+        swBox.addEventListener('touchend', e => {
+          const dx = e.changedTouches[0].clientX - sx;
+          if (dx > 65) handleSwipeRight();
+          else if (dx < -65) handleSwipeLeft();
+        }, { passive: true });
+      }
+
       document.getElementById('catpage-list')?.addEventListener('click', (e) => {
         const spk = e.target.closest('[data-cp-speak]');
         if (spk) { if (typeof speakWord === 'function') speakWord(spk.dataset.cpSpeak); return; }
@@ -8166,10 +8396,8 @@
         if (sv) {
           const id = parseInt(sv.dataset.cpSave, 10);
           const idx = state.bookmarks.indexOf(id);
-          if (idx >= 0) state.bookmarks.splice(idx, 1); else { state.bookmarks.push(id); showToast('⭐ Saved to Bookmarks!'); }
-          saveState();
-          renderDedicatedCategoryPage();
-          return;
+          if (idx >= 0) state.bookmarks.splice(idx, 1); else { state.bookmarks.push(id); showToast('⭐ Saved!'); }
+          saveState(); renderDedicatedCategoryPage(); return;
         }
         const ln = e.target.closest('[data-cp-learn]');
         if (ln) {
@@ -8177,13 +8405,10 @@
           const idx = state.learnedIds.indexOf(id);
           if (idx >= 0) state.learnedIds.splice(idx, 1);
           else { state.learnedIds.push(id); if (typeof showXpFloatPop === 'function') showXpFloatPop('+10 XP ✅'); }
-          saveState();
-          syncHeaderStats();
-          renderDedicatedCategoryPage();
+          saveState(); syncHeaderStats(); renderDedicatedCategoryPage();
         }
       });
 
-      // Hardware Android Back Button returns cleanly to Home Page!
       window.addEventListener('popstate', () => {
         if (state.activeTab !== 'home') {
           switchTab('home');
