@@ -5728,7 +5728,48 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       handleRazorpayRedirectReturn();
 
       const ADMIN_WHATSAPP = '919151345504';
-      const ADMIN_PIN = '9151';
+      const ADMIN_PIN_STORAGE_KEY = 'ssc_admin_live_pin_v1';
+      let ADMIN_PIN = (function(){ try { return localStorage.getItem('ssc_admin_live_pin_v1') || '9151'; } catch(e) { return '9151'; } })();
+
+      async function fetchLiveAdminPinFromCloud() {
+        try {
+          const r = await fetch(`https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents/ssc_config/admin_security?key=${encodeURIComponent(USERS_FS_KEY)}`);
+          if (r.ok) {
+            const j = await r.json();
+            const p = j && j.fields && j.fields.adminPin && j.fields.adminPin.stringValue;
+            if (p && p.length >= 4) {
+              ADMIN_PIN = p;
+              try { localStorage.setItem(ADMIN_PIN_STORAGE_KEY, p); idbWrite(ADMIN_PIN_STORAGE_KEY, p); } catch(_) {}
+              return p;
+            }
+          }
+        } catch (e) {}
+        return ADMIN_PIN;
+      }
+
+      async function saveLiveAdminPinToCloud(newPin) {
+        ADMIN_PIN = newPin;
+        try { localStorage.setItem(ADMIN_PIN_STORAGE_KEY, newPin); idbWrite(ADMIN_PIN_STORAGE_KEY, newPin); } catch(_) {}
+        let ok = false;
+        try {
+          const r = await fetch(`https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents/ssc_config/admin_security?key=${encodeURIComponent(USERS_FS_KEY)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fields: {
+                adminPin: { stringValue: String(newPin) },
+                updatedAt: { integerValue: String(Date.now()) }
+              }
+            })
+          });
+          if (r.ok) ok = true;
+        } catch (e) {}
+        if (typeof fbDb !== 'undefined' && fbDb) {
+          try { fbDb.collection('ssc_config').doc('admin_security').set({ adminPin: String(newPin), updatedAt: Date.now() }, { merge: true }).catch(() => {}); } catch(_) {}
+        }
+        return ok;
+      }
+      setTimeout(fetchLiveAdminPinFromCloud, 800);
       const KEY_SALT = 'SSC_VOCAB_PRO_AMAN_9151345504_SALT_2026';
 
       function computeStudentActivationKey(studentUid) {
@@ -5766,9 +5807,13 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       document.getElementById('admin-close-btn')?.addEventListener('click', () => {
         document.getElementById('admin-keygen-modal')?.classList.add('hidden');
       });
-      document.getElementById('admin-pin-submit')?.addEventListener('click', () => {
+      document.getElementById('admin-pin-submit')?.addEventListener('click', async () => {
         const pin = (document.getElementById('admin-pin-input')?.value || '').trim();
         const err = document.getElementById('admin-pin-err');
+        const subBtn = document.getElementById('admin-pin-submit');
+        if (subBtn) { subBtn.disabled = true; subBtn.textContent = '⏳ Verifying...'; }
+        await fetchLiveAdminPinFromCloud();
+        if (subBtn) { subBtn.disabled = false; subBtn.textContent = 'Unlock Admin Panel'; }
         if (pin !== ADMIN_PIN) {
           if (err) { err.textContent = '❌ Wrong Admin PIN'; err.classList.remove('hidden'); }
           return;
@@ -5812,6 +5857,33 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         document.getElementById('admin-pin-step')?.classList.add('hidden');
         document.getElementById('admin-gen-step')?.classList.remove('hidden');
         renderAdminUsersList();
+      });
+
+
+      document.getElementById('adm-pin-save-btn')?.addEventListener('click', async () => {
+        const oldVal = (document.getElementById('adm-pin-old')?.value || '').trim();
+        const newVal = (document.getElementById('adm-pin-new')?.value || '').trim();
+        const confVal = (document.getElementById('adm-pin-confirm')?.value || '').trim();
+        const msgEl = document.getElementById('adm-pin-change-msg');
+        const btn = document.getElementById('adm-pin-save-btn');
+        const showMsg = (txt, isErr) => {
+          if (!msgEl) return;
+          msgEl.textContent = txt;
+          msgEl.className = isErr ? 'text-[11px] font-bold text-rose-300' : 'text-[11px] font-bold text-emerald-300';
+          msgEl.classList.remove('hidden');
+        };
+        await fetchLiveAdminPinFromCloud();
+        if (oldVal !== ADMIN_PIN) { showMsg('❌ Current PIN/Password galat hai!', true); return; }
+        if (newVal.length < 4) { showMsg('❌ Naya Password kam se kam 4 characters ka rakhein.', true); return; }
+        if (newVal !== confVal) { showMsg('❌ New Password aur Confirm Password match nahi kar rahe.', true); return; }
+        if (btn) { btn.disabled = true; btn.textContent = '⏳ Updating on Cloud...'; }
+        const ok = await saveLiveAdminPinToCloud(newVal);
+        if (btn) { btn.disabled = false; btn.textContent = '🔐 Update Admin Password Immediately'; }
+        document.getElementById('adm-pin-old').value = '';
+        document.getElementById('adm-pin-new').value = '';
+        document.getElementById('adm-pin-confirm').value = '';
+        showMsg(ok ? '✅ Admin Password turant update ho gaya (sabhi devices par live)!' : '✅ Local Admin Password updated (Cloud retry queued).', false);
+        if (typeof showToast === 'function') showToast('🔐 Admin Password updated live!');
       });
 
       // ADMIN MODE (AMAN KUMAR — LIFETIME FREE ACCESS + FULL CONTROL PANEL)
@@ -9746,6 +9818,21 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             <span class="text-slate-300">💳 Razorpay Live: <b id="admin-hdr-upi" class="text-amber-300 font-mono">rzp.io/rzp/sscvocabpro99</b> • <b id="admin-hdr-price" class="text-emerald-300">₹99</b></span>
             <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">Admin Active</span>
           </div>
+          <!-- 🔐 LIVE ADMIN PASSWORD / PIN CHANGER -->
+          <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-rose-400/35 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-black text-rose-200">🔐 Change Admin Password / PIN</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-200 text-[10px] font-bold">Instant Cloud Sync</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <input id="adm-pin-old" type="password" placeholder="Current PIN" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-amber-400" />
+              <input id="adm-pin-new" type="password" placeholder="New Password (min 4)" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-400" />
+              <input id="adm-pin-confirm" type="password" placeholder="Confirm New Password" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-400" />
+            </div>
+            <p id="adm-pin-change-msg" class="hidden text-[11px] font-bold"></p>
+            <button id="adm-pin-save-btn" type="button" class="w-full py-2 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 text-slate-950 font-black text-xs hover:brightness-110 transition">🔐 Update Admin Password Immediately</button>
+          </div>
+
 
           <div class="space-y-2">
             <label class="text-xs font-bold text-slate-300 block">🔑 Generate Key for Paid Student (Email ya Mobile)</label>
