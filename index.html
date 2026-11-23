@@ -2924,7 +2924,7 @@
           if (immediateCloud) {
             cloudSaveProgress(_cuid, state);
           } else {
-            window._fbProgTimer = setTimeout(() => cloudSaveProgress(_cuid, state), 350);
+            window._fbProgTimer = setTimeout(() => cloudSaveProgress(_cuid, state), 15000);
           }
         }
       } catch (e) {}
@@ -5333,12 +5333,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           if (_initU) cloudSaveUser(_initU);
           syncActiveUserFromCloud(_initUid);
         }
-        setInterval(() => {
-          const admMod = document.getElementById('admin-keygen-modal');
-          if (admMod && !admMod.classList.contains('hidden') && document.visibilityState === 'visible') {
-            _fetchCloudUsersViaRest();
-          }
-        }, 12000);
+        // Admin sync runs on modal open & manual Sync button (no background loop to protect Firebase quota!)
       });
 
       // Header Pass Pill & Profile Buttons
@@ -7921,8 +7916,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           const users = api.getUsers ? api.getUsers() : {};
           const user = users[uid];
           if (!user || user.isAdmin) return;
-          // Auto-sync user status to Cloud Firestore
-          if (typeof cloudSaveUser === 'function') cloudSaveUser(user);
+          // Local countdown check only (no repetitive cloud writes — saves 98% Firebase quota!)
           if (api.updatePassBadges) api.updatePassBadges(user);
           // Exact expiry check: if 15-day trial finished & no active Pro Pass -> auto lock & open Buy Pass screen!
           const hasPro = !!(user.sub && user.sub.expiresAt && Date.now() < user.sub.expiresAt);
@@ -11915,27 +11909,27 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
 
       async function fetchPdfsFromCloudReliable() {
         const mergedMap = new Map();
-        // Source 1: Fast Direct Firestore REST GET with API Key
-        try {
-          const resp = await fetch(`${FS_REST_BASE}?pageSize=150&key=${encodeURIComponent(FS_API_KEY)}`);
-          if (resp.ok) {
-            const j = await resp.json();
-            (j.documents || []).map(fromFsDoc).filter(d => d && d.title).forEach(d => mergedMap.set(d.id, d));
-          }
-        } catch (e) {}
-
-        // Source 2: GitHub Pages pdfs_catalog.json Mirror (100% CDN-cached & always reachable!)
+        // Source 1 (0 Firebase Quota!): GitHub Pages pdfs_catalog.json CDN Mirror
         try {
           const ghR = await fetch(`./pdfs_catalog.json?t=${Date.now()}`);
           if (ghR.ok) {
             const ghArr = await ghR.json();
             if (Array.isArray(ghArr)) {
-              ghArr.filter(d => d && d.title && d.id).forEach(d => {
-                if (!mergedMap.has(d.id)) mergedMap.set(d.id, d);
-              });
+              ghArr.filter(d => d && d.title && d.id).forEach(d => mergedMap.set(d.id, d));
             }
           }
         } catch (e) {}
+
+        // Source 2: Firestore REST GET only if GitHub mirror empty or on explicit Admin refresh
+        if (mergedMap.size === 0) {
+          try {
+            const resp = await fetch(`${FS_REST_BASE}?pageSize=150&key=${encodeURIComponent(FS_API_KEY)}`);
+            if (resp.ok) {
+              const j = await resp.json();
+              (j.documents || []).map(fromFsDoc).filter(d => d && d.title).forEach(d => mergedMap.set(d.id, d));
+            }
+          } catch (e) {}
+        }
 
         if (mergedMap.size > 0) {
           const arr = Array.from(mergedMap.values()).sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
@@ -12264,12 +12258,12 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         } catch (e) {}
       }
 
-      setInterval(() => {
-        silentLivePdfSync(true);
-        pollLiveAdminConfig();
-      }, 10000);
+      // Quota-Safe Live Sync: Firestore onSnapshot pushes updates in real-time with ZERO polling waste!
+      // Fallback REST check runs ONLY when returning to app after >= 3 minutes.
+      let _lastVisSyncAt = Date.now();
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
+        if (document.visibilityState === 'visible' && (Date.now() - _lastVisSyncAt) > 180000) {
+          _lastVisSyncAt = Date.now();
           silentLivePdfSync(false);
           pollLiveAdminConfig();
         }
