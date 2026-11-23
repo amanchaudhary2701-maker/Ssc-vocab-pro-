@@ -576,6 +576,14 @@
       min-height: 300px;
       height: auto !important;
     }
+  
+    /* === v66 SMART AUTO NAV: PHONE & DIGITAL BOARD -> BOTTOM | LAPTOP -> TOP === */
+    body.nav-mode-laptop #desktop-top-nav { display: flex !important; }
+    body.nav-mode-laptop #bottom-dock-nav { display: none !important; }
+    body.nav-mode-laptop main { padding-bottom: 2.5rem !important; }
+    body.nav-mode-touch #desktop-top-nav { display: none !important; }
+    body.nav-mode-touch #bottom-dock-nav { display: flex !important; }
+
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -815,7 +823,7 @@
         </div>
 
         <!-- Desktop Compact Navigation -->
-        <nav class="hidden items-center gap-1 glass-pill p-1 rounded-xl shrink-0" aria-label="Main navigation">
+        <nav id="desktop-top-nav" class="hidden items-center gap-1 glass-pill p-1 rounded-xl shrink-0" aria-label="Main navigation">
           <button data-nav="home" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
             <i data-lucide="home" class="w-3.5 h-3.5"></i> Home
           </button>
@@ -2129,7 +2137,7 @@
 
     </main>
     <!-- Classic Native Mobile Bottom Navigation Bar (Clean 5-Tab App Dock) -->
-    <nav class="classic-bottom-nav fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 px-2 py-1.5 flex items-center justify-center" aria-label="Main bottom navigation"><div class="w-full max-w-2xl mx-auto flex items-center justify-around gap-1">
+    <nav id="bottom-dock-nav" class="classic-bottom-nav fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 px-2 py-1.5 flex items-center justify-center" aria-label="Main bottom navigation"><div class="w-full max-w-2xl mx-auto flex items-center justify-around gap-1">
       <button data-nav="home" class="nav-btn-mob flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-extrabold transition">
         <span class="text-base leading-none">🏠</span><span>Home</span>
       </button>
@@ -12268,6 +12276,26 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       });
 
       setTimeout(subscribeLivePdfs, 600);
+    })();
+  </script>
+
+  <script>
+    // v66 SMART AUTO-NAV DETECTOR: Phone / Tablet / Touch Digital Board -> Bottom Dock | Laptop / Desktop PC -> Top Header
+    (function initSmartDeviceNavPlacement() {
+      function applySmartNavMode() {
+        const ua = navigator.userAgent || '';
+        const isMobileOrAndroidBoard = /Android|iPhone|iPad|iPod|Mobile|Tablet|SmartBoard|IFP|Interactive/i.test(ua);
+        const hasFineMouseHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        const hasCoarseTouch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+        const isWideEnough = window.innerWidth >= 1024;
+        // Laptop/Desktop PC = wide screen + fine mouse/trackpad + NOT Android/Phone/Touch Digital Board
+        const isLaptopMode = isWideEnough && hasFineMouseHover && !hasCoarseTouch && !isMobileOrAndroidBoard;
+        document.body.classList.toggle('nav-mode-laptop', isLaptopMode);
+        document.body.classList.toggle('nav-mode-touch', !isLaptopMode);
+      }
+      applySmartNavMode();
+      window.addEventListener('resize', applySmartNavMode);
+      window.addEventListener('orientationchange', () => setTimeout(applySmartNavMode, 150));
     })();
   </script>
 </body>
