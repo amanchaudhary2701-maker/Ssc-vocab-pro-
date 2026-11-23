@@ -2689,7 +2689,7 @@
       if (typeof v === 'boolean') return { booleanValue: v };
       if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
       if (typeof v === 'string') return { stringValue: v };
-      if (Array.isArray(v)) return { arrayValue: { values: v.slice(0, 30).map(jsValToFsVal) } };
+      if (Array.isArray(v)) return v.length ? { arrayValue: { values: v.slice(0, 30).map(jsValToFsVal) } } : { arrayValue: {} };
       if (typeof v === 'object') {
         const fields = {};
         Object.entries(v).forEach(([k, val]) => { if (val !== undefined) fields[k] = jsValToFsVal(val); });
@@ -4866,6 +4866,7 @@
           lastActiveAt: Date.now()
         };
         saveUsers(users0);
+        cloudSaveUser(users0[uid]);
         try { _memCurUserFallback = uid; localStorage.setItem(AUTH_CUR_KEY, uid); idbWrite(AUTH_CUR_KEY, uid); } catch(err) {}
         reloadStateForActiveUser();
         syncHeaderStats();
@@ -5296,7 +5297,17 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         document.getElementById('app-splash-screen')?.classList.add('splash-done');
         enforceAppAccessGate();
         const _initUid = getCurrentUserId();
-        if (_initUid) syncActiveUserFromCloud(_initUid);
+        if (_initUid) {
+          const _initU = getUsers()[_initUid];
+          if (_initU) cloudSaveUser(_initU);
+          syncActiveUserFromCloud(_initUid);
+        }
+        setInterval(() => {
+          const admMod = document.getElementById('admin-keygen-modal');
+          if (admMod && !admMod.classList.contains('hidden') && document.visibilityState === 'visible') {
+            _fetchCloudUsersViaRest();
+          }
+        }, 12000);
       });
 
       // Header Pass Pill & Profile Buttons
