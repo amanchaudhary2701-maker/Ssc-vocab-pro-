@@ -2687,12 +2687,20 @@
     function jsValToFsVal(v) {
       if (v === null || v === undefined) return { nullValue: null };
       if (typeof v === 'boolean') return { booleanValue: v };
-      if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+      if (typeof v === 'number') {
+        if (!Number.isFinite(v)) return { integerValue: '0' };
+        return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+      }
       if (typeof v === 'string') return { stringValue: v };
-      if (Array.isArray(v)) return v.length ? { arrayValue: { values: v.slice(0, 30).map(jsValToFsVal) } } : { arrayValue: {} };
+      if (Array.isArray(v)) {
+        const cleanArr = v.filter(x => x !== undefined).slice(0, 30);
+        return cleanArr.length ? { arrayValue: { values: cleanArr.map(jsValToFsVal) } } : { arrayValue: {} };
+      }
       if (typeof v === 'object') {
         const fields = {};
-        Object.entries(v).forEach(([k, val]) => { if (val !== undefined) fields[k] = jsValToFsVal(val); });
+        Object.entries(v).forEach(([k, val]) => {
+          if (val !== undefined && val !== null) fields[k] = jsValToFsVal(val);
+        });
         return { mapValue: { fields } };
       }
       return { stringValue: String(v) };
@@ -2723,15 +2731,30 @@
         const docId = safeFbDocId(userObj.uid);
         // Primary: Fast Direct Firestore REST PATCH (<300ms on any Indian mobile network — never hangs!)
         const fields = {};
-        Object.entries(cleanObj).forEach(([k, v]) => { fields[k] = jsValToFsVal(v); });
+        Object.entries(cleanObj).forEach(([k, v]) => {
+          if (v !== undefined && v !== null) fields[k] = jsValToFsVal(v);
+        });
         const restPromise = fetch(`${USERS_FS_REST}/${encodeURIComponent(docId)}?key=${encodeURIComponent(USERS_FS_KEY)}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ fields })
-        }).then(r => {
-          if (r.ok) { window._lastCloudSyncAt = Date.now(); window._lastCloudErr = ''; return true; }
+        }).then(async r => {
+          if (r.ok) {
+            window._lastCloudSyncAt = Date.now();
+            window._lastCloudErr = '';
+            const stEl = document.getElementById('prof-cloud-sync-badge');
+            if (stEl) stEl.textContent = '☁️ Cloud Sync: ✅ Saved';
+            return true;
+          }
+          const errBody = await r.text().catch(() => '');
+          window._lastCloudErr = `HTTP ${r.status}: ${errBody.slice(0, 60)}`;
+          const stEl = document.getElementById('prof-cloud-sync-badge');
+          if (stEl) stEl.textContent = `☁️ Cloud Sync: ⚠️ ${r.status}`;
           return false;
-        }).catch(() => false);
+        }).catch((e) => {
+          window._lastCloudErr = (e && e.message) || 'offline';
+          return false;
+        });
 
         // Secondary: Firebase JS SDK mirror
         if (fbDb) {
@@ -7890,7 +7913,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       document.getElementById('admin-users-search')?.addEventListener('input', () => { if (window.__sscProApi?.paintAdminUsersList) window.__sscProApi.paintAdminUsersList(); });
       document.getElementById('admin-users-filter')?.addEventListener('change', () => { if (window.__sscProApi?.paintAdminUsersList) window.__sscProApi.paintAdminUsersList(); });
       document.getElementById('admin-refresh-stats-btn')?.addEventListener('click', () => {
-        if (window.__sscProApi?.renderAdminUsersList) window.__sscProApi.renderAdminUsersList();
+        if (window.__sscProApi?.forceAdminSync) window.__sscProApi.forceAdminSync(); else if (window.__sscProApi?.renderAdminUsersList) window.__sscProApi.renderAdminUsersList();
         showToast('☁️ Cloud Student & Pass Data Synced!');
       });
       document.getElementById('admin-export-users-csv')?.addEventListener('click', () => {
@@ -9598,6 +9621,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             <p class="text-xs text-cyan-300 font-bold" id="prof-meta">Target: SSC CGL</p>
             <p class="text-[11px] text-amber-300 font-bold" id="prof-rank">🏆 Lv.1 Aspirant • 0 XP</p>
             <p class="text-[11px] text-emerald-300 font-extrabold mt-0.5" id="prof-sub-badge">Batch: Active</p>
+            <p class="text-[10px] text-cyan-300 font-bold" id="prof-cloud-sync-badge">☁️ Cloud Sync: Active</p>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2.5">
