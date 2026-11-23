@@ -9420,23 +9420,23 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
     </div>
   </div>
 
-  <!-- ==================== STUDENT PDF NOTES & DOWNLOAD FOLDER MODAL ==================== -->
-  <div id="student-pdf-modal" class="fixed inset-0 z-[94] hidden bg-slate-950/92 backdrop-blur-sm overflow-y-auto p-3 sm:p-6">
-    <div class="max-w-3xl mx-auto glass-card rounded-3xl border border-cyan-400/45 overflow-hidden my-3">
-      <div class="bg-gradient-to-r from-blue-950 via-indigo-950 to-slate-900 p-4 sm:p-5 border-b border-white/10 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-2xl shadow">📂</div>
-          <div>
-            <h3 class="text-base sm:text-lg font-black text-white">SSC Study PDF Folder</h3>
-            <p class="text-[11px] text-cyan-200">Admin uploaded Notes, PYQ PDFs &amp; Daily Sheets — 1-Tap View &amp; Download</p>
+  <!-- ==================== STUDENT PDF NOTES & DOWNLOAD FOLDER MODAL (SMOOTH MOBILE SCROLL) ==================== -->
+  <div id="student-pdf-modal" class="fixed inset-0 z-[94] hidden bg-slate-950/92 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-5">
+    <div class="max-w-3xl w-full h-[90dvh] max-h-[90dvh] glass-card rounded-3xl border border-cyan-400/45 flex flex-col overflow-hidden shadow-2xl">
+      <div class="bg-gradient-to-r from-blue-950 via-indigo-950 to-slate-900 p-4 border-b border-white/10 flex items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-xl shadow shrink-0">📂</div>
+          <div class="min-w-0">
+            <h3 class="text-base sm:text-lg font-black text-white truncate">SSC Study PDF Folder</h3>
+            <p class="text-[11px] text-cyan-200 truncate">Live Auto-Synced Notes &amp; PYQ PDFs — View &amp; Download</p>
           </div>
         </div>
-        <button type="button" id="stu-pdf-close-btn" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black">✕</button>
+        <button type="button" id="stu-pdf-close-btn" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black shrink-0">✕</button>
       </div>
 
-      <div class="p-4 sm:p-5 space-y-3.5">
-        <input id="stu-pdf-search" type="text" placeholder="🔍 Search PDF title ya topic..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-400" />
-        <div id="stu-pdf-subjects" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+      <div class="px-4 pt-3.5 pb-2 space-y-2.5 border-b border-white/10 shrink-0">
+        <input id="stu-pdf-search" type="text" placeholder="🔍 Search PDF title ya topic..." class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-400" />
+        <div id="stu-pdf-subjects" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
           <button type="button" data-spdf-sub="All" class="spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-black bg-amber-500/25 text-amber-200 border border-amber-400/50 whitespace-nowrap">📂 All Subjects</button>
           <button type="button" data-spdf-sub="English" class="spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">📘 English</button>
           <button type="button" data-spdf-sub="GS" class="spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">🌍 GS</button>
@@ -9445,9 +9445,10 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <button type="button" data-spdf-sub="Reasoning" class="spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">🧠 Reasoning</button>
           <button type="button" data-spdf-sub="Computer &amp; Misc" class="spdf-sub-btn px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 border border-white/10 whitespace-nowrap">💻 Computer</button>
         </div>
-        <div id="stu-pdf-cats" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1"></div>
-        <div id="stu-pdf-list" class="space-y-2.5 max-h-[58vh] overflow-y-auto pr-1"></div>
+        <div id="stu-pdf-cats" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar"></div>
       </div>
+
+      <div id="stu-pdf-list" class="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 pb-10 space-y-2.5" style="-webkit-overflow-scrolling: touch; touch-action: pan-y;"></div>
     </div>
   </div>
 
@@ -9876,7 +9877,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             </div>
             <!-- Live Auto-Updating Subject-Wise PDF Count Chips (Tap to Filter) -->
             <div id="adm-pdf-stats-grid" class="flex flex-wrap gap-1.5"></div>
-            <div id="adm-pdf-list" class="max-h-60 overflow-y-auto space-y-2 pr-1"></div>
+            <div id="adm-pdf-list" class="max-h-[42vh] overflow-y-auto overscroll-contain space-y-2 pr-1 pb-4" style="-webkit-overflow-scrolling: touch; touch-action: pan-y;"></div>
           </div>
         </div>
 
@@ -11956,6 +11957,99 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       renderStudentTopicChips();
 
       document.getElementById('adm-pdf-sync-btn')?.addEventListener('click', () => { fetchPdfsFromCloudReliable(); if (typeof showToast === 'function') showToast('🔄 PDF Folder Cloud se sync ho gaya!'); });
+
+      // =========================================================================
+      // ⚡ LIVE ZERO-REFRESH AUTO-SYNC ENGINE (PDFs + CMS + Vocab auto-update every 10s without page refresh!)
+      // =========================================================================
+      let _lastPdfSig = '';
+      async function silentLivePdfSync(notifyNew = true) {
+        if (document.visibilityState === 'hidden') return;
+        const prevCount = _pdfItems.length;
+        const prevIds = new Set(_pdfItems.map(x => x.id));
+        await fetchPdfsFromCloudReliable();
+        const newSig = _pdfItems.map(x => x.id).join(',');
+        if (_lastPdfSig && newSig !== _lastPdfSig) {
+          const added = _pdfItems.filter(x => !prevIds.has(x.id));
+          if (notifyNew && added.length > 0 && typeof showToast === 'function') {
+            showToast(`📂 New PDF Live: "${added[0].title}" — PDFs folder me dekhein!`);
+          }
+        }
+        _lastPdfSig = newSig;
+      }
+
+      // Live real-time listeners + 10-second REST poll for Admin CMS (Notice/Title/Price) & Custom Vocab!
+      const FS_CFG_BASE = 'https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents/ssc_config';
+      let _lastCmsUpdated = 0;
+      let _lastVocabUpdated = 0;
+
+      async function pollLiveAdminConfig() {
+        if (document.visibilityState === 'hidden') return;
+        try {
+          // 1. Live CMS (Notice Banner, Hero Title, Price, Trial)
+          const rCms = await fetch(`${FS_CFG_BASE}/app_cms?key=${encodeURIComponent(FS_API_KEY)}`);
+          if (rCms.ok) {
+            const j = await rCms.json();
+            const d = fromFsDoc(j);
+            const upd = Number(d.updatedAt || 0);
+            if (upd && upd > _lastCmsUpdated) {
+              _lastCmsUpdated = upd;
+              try { localStorage.setItem('ssc_vocab_app_cms_v1', JSON.stringify(d)); } catch (_) {}
+              if (typeof applyAppCms === 'function') applyAppCms(d);
+            }
+          }
+        } catch (e) {}
+        try {
+          // 2. Live Admin Custom Vocab Words (auto-injects new words into Student Vocab Vault with ZERO refresh!)
+          const rVoc = await fetch(`${FS_CFG_BASE}/custom_vocab?key=${encodeURIComponent(FS_API_KEY)}`);
+          if (rVoc.ok) {
+            const j = await rVoc.json();
+            const f = (j && j.fields) || {};
+            const upd = Number((f.updatedAt && (f.updatedAt.integerValue || f.updatedAt.doubleValue)) || 0);
+            if (upd && upd > _lastVocabUpdated && typeof fbDb !== 'undefined' && fbDb) {
+              _lastVocabUpdated = upd;
+              fbDb.collection('ssc_config').doc('custom_vocab').get().then(doc => {
+                if (doc.exists && doc.data() && Array.isArray(doc.data().items)) {
+                  try { localStorage.setItem('ssc_admin_custom_vocab_v1', JSON.stringify(doc.data().items)); } catch (_) {}
+                  if (typeof injectAdminCustomVocab === 'function') injectAdminCustomVocab();
+                  if (typeof renderVocabView === 'function') renderVocabView();
+                }
+              }).catch(() => {});
+            }
+          }
+        } catch (e) {}
+      }
+
+      // Real-time Firestore onSnapshot for instant CMS & Custom Vocab push (0.5s latency!)
+      if (typeof fbDb !== 'undefined' && fbDb) {
+        try {
+          fbDb.collection('ssc_config').doc('app_cms').onSnapshot(doc => {
+            if (doc.exists && doc.data()) {
+              const d = doc.data();
+              try { localStorage.setItem('ssc_vocab_app_cms_v1', JSON.stringify(d)); } catch (_) {}
+              if (typeof applyAppCms === 'function') applyAppCms(d);
+            }
+          }, () => {});
+          fbDb.collection('ssc_config').doc('custom_vocab').onSnapshot(doc => {
+            if (doc.exists && doc.data() && Array.isArray(doc.data().items)) {
+              try { localStorage.setItem('ssc_admin_custom_vocab_v1', JSON.stringify(doc.data().items)); } catch (_) {}
+              if (typeof injectAdminCustomVocab === 'function') injectAdminCustomVocab();
+              if (typeof renderVocabView === 'function') renderVocabView();
+            }
+          }, () => {});
+        } catch (e) {}
+      }
+
+      setInterval(() => {
+        silentLivePdfSync(true);
+        pollLiveAdminConfig();
+      }, 10000);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          silentLivePdfSync(false);
+          pollLiveAdminConfig();
+        }
+      });
+
       setTimeout(subscribeLivePdfs, 600);
     })();
   </script>
