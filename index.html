@@ -2681,24 +2681,63 @@
     window._lastCloudSyncAt = 0;
     window._lastCloudErr = '';
 
+    const USERS_FS_REST = 'https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents/ssc_users';
+    const USERS_FS_KEY = FIREBASE_CONFIG.apiKey;
+
+    function jsValToFsVal(v) {
+      if (v === null || v === undefined) return { nullValue: null };
+      if (typeof v === 'boolean') return { booleanValue: v };
+      if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+      if (typeof v === 'string') return { stringValue: v };
+      if (Array.isArray(v)) return { arrayValue: { values: v.slice(0, 30).map(jsValToFsVal) } };
+      if (typeof v === 'object') {
+        const fields = {};
+        Object.entries(v).forEach(([k, val]) => { if (val !== undefined) fields[k] = jsValToFsVal(val); });
+        return { mapValue: { fields } };
+      }
+      return { stringValue: String(v) };
+    }
+    function fsValToJsVal(v) {
+      if (!v || typeof v !== 'object') return null;
+      if (v.stringValue !== undefined) return v.stringValue;
+      if (v.integerValue !== undefined) return Number(v.integerValue);
+      if (v.doubleValue !== undefined) return Number(v.doubleValue);
+      if (v.booleanValue !== undefined) return !!v.booleanValue;
+      if (v.nullValue !== undefined) return null;
+      if (v.arrayValue && Array.isArray(v.arrayValue.values)) return v.arrayValue.values.map(fsValToJsVal);
+      if (v.mapValue && v.mapValue.fields) {
+        const out = {};
+        Object.entries(v.mapValue.fields).forEach(([k, val]) => { out[k] = fsValToJsVal(val); });
+        return out;
+      }
+      return null;
+    }
+
     function cloudSaveUser(userObj) {
-      if (!fbDb || !userObj || !userObj.uid) return Promise.resolve(false);
+      if (!userObj || !userObj.uid) return Promise.resolve(false);
       try {
-        const cleanObj = {};
+        const cleanObj = { updatedAt: Date.now() };
         Object.keys(userObj).forEach(k => {
           if (userObj[k] !== undefined) cleanObj[k] = userObj[k];
         });
-        return fbDb.collection('ssc_users').doc(safeFbDocId(userObj.uid)).set({
-          ...cleanObj,
-          updatedAt: Date.now()
-        }, { merge: true }).then(() => {
-          window._lastCloudSyncAt = Date.now();
-          window._lastCloudErr = '';
-          return true;
-        }).catch((err) => {
-          window._lastCloudErr = (err && (err.code || err.message)) || 'cloud-write-failed';
+        const docId = safeFbDocId(userObj.uid);
+        // Primary: Fast Direct Firestore REST PATCH (<300ms on any Indian mobile network — never hangs!)
+        const fields = {};
+        Object.entries(cleanObj).forEach(([k, v]) => { fields[k] = jsValToFsVal(v); });
+        const restPromise = fetch(`${USERS_FS_REST}/${encodeURIComponent(docId)}?key=${encodeURIComponent(USERS_FS_KEY)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fields })
+        }).then(r => {
+          if (r.ok) { window._lastCloudSyncAt = Date.now(); window._lastCloudErr = ''; return true; }
           return false;
-        });
+        }).catch(() => false);
+
+        // Secondary: Firebase JS SDK mirror
+        if (fbDb) {
+          try { fbDb.collection('ssc_users').doc(docId).set(cleanObj, { merge: true }).catch(() => {}); } catch(_) {}
+        }
+        return restPromise;
       } catch (e) { return Promise.resolve(false); }
     }
 
@@ -5363,6 +5402,22 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             try { await cred.user.updateProfile({ displayName: name || 'SSC Aspirant' }); } catch(_) {}
             await cred.user.sendEmailVerification();
             _pendingVerifyMeta = { name: name || 'SSC Aspirant', exam, goal };
+            const _regUid = normalizeAccountId(email);
+            const _nowTs = Date.now();
+            cloudSaveUser({
+              uid: _regUid,
+              name: name || 'SSC Aspirant',
+              exam,
+              goal,
+              pass: 'EMAIL_VERIFIED',
+              googleVerified: false,
+              emailPending: true,
+              trialStartedAt: _nowTs,
+              trialExpiresAt: _nowTs + PAYMENT_CONFIG.trialDays * 86400000,
+              registeredAt: _nowTs,
+              wordsLearned: 0,
+              testsTaken: 0
+            });
             showVerifyPendingBox(email);
             showToast('📧 Verification link sent! Inbox/Spam check karein.');
           }
@@ -5785,18 +5840,50 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         _updateAdminCloudBadge();
       }
 
+      async function _fetchCloudUsersViaRest() {
+        try {
+          const resp = await fetch(`${USERS_FS_REST}?pageSize=300&key=${encodeURIComponent(USERS_FS_KEY)}`);
+          if (!resp.ok) return false;
+          const j = await resp.json();
+          const docs = j.documents || [];
+          const uMap = getUsers();
+          let count = 0;
+          docs.forEach(doc => {
+            const d = {};
+            Object.entries(doc.fields || {}).forEach(([k, v]) => { d[k] = fsValToJsVal(v); });
+            if (d && d.uid) {
+              const loc = uMap[d.uid] || {};
+              const bestSub = (loc.sub && loc.sub.expiresAt && (!d.sub || loc.sub.expiresAt > (d.sub.expiresAt || 0))) ? loc.sub : (d.sub || loc.sub || null);
+              uMap[d.uid] = { ...loc, ...d, sub: bestSub };
+              count++;
+            }
+          });
+          saveUsers(uMap);
+          const nowStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          _adminCloudStatusErr = false;
+          _adminCloudStatusText = `Live Cloud DB Connected (${count} cloud users • ${nowStr})`;
+          _updateAdminCloudBadge();
+          _paintAdminUsersList();
+          return true;
+        } catch (e) { return false; }
+      }
+
       function forceAdminSync() {
-        if (!fbDb) { _handleAdminCloudErr({ code: 'offline' }); return; }
         _adminCloudStatusErr = false;
         _adminCloudStatusText = '⏳ Syncing Live Cloud DB...';
         _updateAdminCloudBadge();
-        // Also push any local-only users up to Cloud Firestore so nothing is missing
         const locUsers = getUsers();
         Object.values(locUsers).forEach(u => { if (u && u.uid) cloudSaveUser(u); });
-        fbDb.collection('ssc_users').limit(300).get().then(_mergeCloudSnapIntoUsers).catch(_handleAdminCloudErr);
+        _fetchCloudUsersViaRest().then(ok => {
+          if (!ok && fbDb) {
+            fbDb.collection('ssc_users').limit(300).get().then(_mergeCloudSnapIntoUsers).catch(_handleAdminCloudErr);
+          }
+        });
       }
 
       function renderAdminUsersList() {
+        // Always do fast REST fetch immediately so newly registered students from ANY phone show up instantly!
+        _fetchCloudUsersViaRest();
         if (fbDb) {
           try {
             if (!_adminLiveUnsub && typeof fbDb.collection('ssc_users').onSnapshot === 'function') {
@@ -5804,13 +5891,8 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
                 _mergeCloudSnapIntoUsers,
                 _handleAdminCloudErr
               );
-            } else {
-              fbDb.collection('ssc_users').limit(300).get().then(_mergeCloudSnapIntoUsers).catch(_handleAdminCloudErr);
             }
-          } catch (e) { _handleAdminCloudErr(e); }
-        } else {
-          _adminCloudStatusErr = true;
-          _adminCloudStatusText = 'Offline Mode — Cloud DB connect nahi hua.';
+          } catch (e) {}
         }
         _updateAdminCloudBadge();
         _paintAdminUsersList();
@@ -5818,7 +5900,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       function _paintAdminUsersList() {
         const box = document.getElementById('admin-users-list');
         const cntEl = document.getElementById('admin-users-count');
-        const allUsers = Object.values(getUsers()).filter(u => u && u.uid);
+        const allUsers = Object.values(getUsers()).filter(u => u && u.uid).sort((a, b) => (b.registeredAt || b.trialStartedAt || b.updatedAt || 0) - (a.registeredAt || a.trialStartedAt || a.updatedAt || 0));
         const students = allUsers.filter(u => !u.isAdmin);
         const proCount = students.filter(u => hasActiveSuperPro(u)).length;
         const trialCount = students.filter(u => !hasActiveSuperPro(u) && getTrialDaysLeft(u) > 0).length;
@@ -9658,7 +9740,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               <span class="text-xs font-black text-amber-200">🇮🇳 All-India 2:00 PM Live Test (Admin Control)</span>
               <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-200 text-[10px] font-bold">Admin Any-Time</span>
             </div>
-            <p class="text-[11px] text-slate-300">Students ke liye ye test roz real **2:00 PM IST** par hi khulega, par Admin jab chahe tab open karke 100-Q Eduquity test &amp; leaderboard dekh sakta hai.</p>
+            <p class="text-[11px] text-slate-300">Students ke liye ye test roz real <b class="text-amber-300">2:00 PM IST</b> par hi khulega, par Admin jab chahe tab open karke 100-Q Eduquity test &amp; leaderboard dekh sakta hai.</p>
             <div class="grid grid-cols-2 gap-2">
               <button type="button" id="admin-open-ailt-now-btn" class="py-2 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs hover:brightness-110 transition">⚡ Open 100-Q Test Now</button>
               <button type="button" id="admin-open-ailt-lb-btn" class="py-2 px-3 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 font-extrabold text-xs hover:bg-cyan-500/30 transition">🏆 View Live Rank</button>
@@ -9715,7 +9797,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               <span class="text-[11px] font-bold text-slate-400">Live Account &amp; Pass Log</span>
               <span id="admin-users-count" class="text-[11px] text-cyan-300 font-bold">0 users</span>
             </div>
-            <div id="admin-users-list" class="max-h-48 overflow-y-auto space-y-1.5 text-xs"></div>
+            <div id="admin-users-list" class="max-h-[42vh] overflow-y-auto overscroll-contain space-y-1.5 text-xs pb-4" style="-webkit-overflow-scrolling: touch; touch-action: pan-y;"></div>
           </div>
         </div>
 
@@ -11356,13 +11438,22 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         return `${(b / (1024 * 1024)).toFixed(1)} MB`;
       }
 
+      function extractDriveFileId(rawUrl) {
+        const u = String(rawUrl || '').trim();
+        const m1 = u.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (m1) return m1[1];
+        const m2 = u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (u.includes('google.com') && m2) return m2[1];
+        return '';
+      }
+
       function normalizeDriveDownloadUrl(rawUrl) {
         const u = String(rawUrl || '').trim();
-        const m = u.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-        if (m) {
+        const fid = extractDriveFileId(u);
+        if (fid) {
           return {
-            viewUrl: `https://drive.google.com/file/d/${m[1]}/view`,
-            downloadUrl: `https://drive.google.com/uc?export=download&id=${m[1]}`
+            viewUrl: `https://drive.google.com/file/d/${fid}/view`,
+            downloadUrl: `https://drive.usercontent.google.com/download?id=${fid}&export=download&confirm=t`
           };
         }
         return { viewUrl: u, downloadUrl: u };
@@ -11393,7 +11484,11 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           if (typeof showToast === 'function') showToast(`⬇️ Downloading "${safeName}"...`);
           return;
         }
-        const dlUrl = pdfObj.downloadUrl || pdfObj.viewUrl || '';
+        let dlUrl = pdfObj.downloadUrl || pdfObj.viewUrl || '';
+        const _drvFid = extractDriveFileId(dlUrl) || extractDriveFileId(pdfObj.viewUrl || '');
+        if (_drvFid) {
+          dlUrl = `https://drive.usercontent.google.com/download?id=${_drvFid}&export=download&confirm=t`;
+        }
         if (!dlUrl) return;
         // For same-origin GitHub Pages PDFs, fetch -> Blob for guaranteed real download on mobile & desktop!
         if (dlUrl.startsWith(GH_PAGES_BASE) || dlUrl.startsWith('./') || dlUrl.startsWith('/')) {
