@@ -12007,14 +12007,20 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         const qs = (typeof buildFn === 'function') ? buildFn(dateKey) : [];
         const esc = (s) => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         const rowsHtml = qs.map((q, i) => {
+          const ansIdx = (q.options || []).indexOf(q.answer);
+          const ansLbl = ['A','B','C','D'][ansIdx] || 'A';
           const opts = (q.options || []).map((o, oi) => {
             const lbl = ['A','B','C','D'][oi] || '*';
-            const isAns = oi === q.ansIdx;
+            const isAns = oi === ansIdx || o === q.answer;
             return `<div class="opt ${isAns ? 'ans' : ''}"><b>(${lbl})</b> ${esc(o)} ${isAns ? '✅' : ''}</div>`;
           }).join('');
-          const hi = q.meaningHi ? `<div class="hi">🇮🇳 Hindi: ${esc(q.meaningHi)}</div>` : '';
-          const tr = q.trick ? `<div class="tr">💡 Trick: ${esc(q.trick)}</div>` : '';
-          return `<div class="qcard"><div class="qmeta">Q${i + 1}. [${esc(q.secLabel || q.section || 'Vocab')}] ${q.src ? '• ' + esc(q.src) : ''}</div><div class="qtxt">${esc(q.prompt || q.word)}</div><div class="opts">${opts}</div>${hi}${tr}</div>`;
+          const dirHtml = q.dir ? `<div class="qdir">${esc(q.dir)}</div>` : '';
+          const solHtml = `<div class="sol">✅ <b>Solution:</b> (${ansLbl}) ${esc(q.answer || '')}</div>`;
+          const hi = q.meaningHi ? `<div class="hi">🇮🇳 Hindi Meaning: ${esc(q.meaningHi)}</div>` : '';
+          const tr = q.trick ? `<div class="tr">💡 Memory Trick: ${esc(q.trick)}</div>` : '';
+          const secColors = { syn: '#2563eb', ant: '#e11d48', ows: '#059669', idiom: '#d97706', spell: '#7c3aed' };
+          const sCol = secColors[q.secKey] || '#2563eb';
+          return `<div class="qcard" style="border-left:4px solid ${sCol}"><div class="qmeta"><span style="background:${sCol};color:#fff;padding:2px 8px;border-radius:999px;font-size:10px;margin-right:6px">Q${i + 1} • ${esc(q.secLabel || 'Vocab')}</span>${q.src ? '<span style="color:#64748b">' + esc(q.src) + '</span>' : ''}</div>${dirHtml}<div class="qtxt">${esc(q.stem || q.prompt || q.word || '')}</div><div class="opts">${opts}</div>${solHtml}${hi}${tr}</div>`;
         }).join('');
         return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
           body{margin:0;padding:16px;font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#0f172a;line-height:1.5}
@@ -12022,7 +12028,9 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           .hdr h2{margin:0 0 4px;font-size:18px;color:#fde047} .hdr p{margin:0;font-size:12px;color:#bae6fd}
           .qcard{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
           .qmeta{font-size:11px;font-weight:700;color:#2563eb;margin-bottom:4px}
-          .qtxt{font-size:14px;font-weight:700;margin-bottom:8px}
+          .qdir{font-size:11px;color:#475569;margin-bottom:4px}
+          .qtxt{font-size:15px;font-weight:800;color:#0f172a;margin-bottom:8px}
+          .sol{font-size:12px;color:#15803d;background:#f0fdf4;padding:5px 8px;border-radius:6px;margin-top:6px}
           .opts{display:grid;grid-template-columns:1fr;gap:4px;margin-bottom:6px}
           .opt{font-size:13px;padding:4px 8px;border-radius:6px;background:#f1f5f9}
           .opt.ans{background:#dcfce7;color:#166534;font-weight:700;border:1px solid #86efac}
@@ -12049,45 +12057,97 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           if (cur) out.push(cur);
           return out.length ? out : [''];
         };
+        const pdfEsc = (s) => String(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
 
-        const allLines = [
-          `SSC VOCAB 3D PRO - ALL-INDIA 2:00 PM LIVE TEST (${dateKey})`,
-          '100 Questions | 200 Marks (+2 / -0.50) | Official Answer Key & Vault',
-          '------------------------------------------------------------------------------------'
-        ];
+        // Build styled lines: { text, kind: 'sec'|'q'|'dir'|'opt'|'sol'|'trick'|'gap' }
+        const styled = [];
         qs.forEach((q, idx) => {
           const sec = cleanAscii(q.secLabel || q.section || 'Vocab');
-          const prompt = cleanAscii(q.prompt || q.word);
-          wrapLine(`Q${idx + 1}. [${sec}] ${prompt}`, 86).forEach(l => allLines.push(l));
-          const optLine = (q.options || []).map((o, oi) => `(${['A','B','C','D'][oi]}) ${cleanAscii(o)}`).join('   ');
-          wrapLine(`   ${optLine}`, 86).forEach(l => allLines.push(l));
-          const ansLetter = ['A','B','C','D'][q.ansIdx] || 'A';
-          const ansText = cleanAscii((q.options || [])[q.ansIdx] || '');
-          allLines.push(`   Ans: (${ansLetter}) ${ansText}`);
-          allLines.push('');
+          const srcTag = cleanAscii(q.src || 'SSC PYQ');
+          const qText = cleanAscii(q.stem || q.prompt || q.word || '');
+          const dirText = cleanAscii(q.dir || '');
+          styled.push({ kind: 'sec', text: `Q${idx + 1}.  [${sec} | ${srcTag}]` });
+          wrapLine(qText, 78).forEach(l => styled.push({ kind: 'q', text: l }));
+          if (dirText) wrapLine(dirText, 88).forEach(l => styled.push({ kind: 'dir', text: l }));
+          const optLine = (q.options || []).map((o, oi) => `(${['A','B','C','D'][oi]}) ${cleanAscii(o)}`).join('    ');
+          wrapLine(optLine, 86).forEach(l => styled.push({ kind: 'opt', text: l }));
+          const ansIdx = (q.options || []).indexOf(q.answer);
+          const ansLetter = ['A','B','C','D'][ansIdx >= 0 ? ansIdx : 0] || 'A';
+          const ansText = cleanAscii(q.answer || (q.options || [])[0] || '');
+          wrapLine(`Solution: (${ansLetter}) ${ansText}`, 82).forEach(l => styled.push({ kind: 'sol', text: l }));
+          if (q.trick) wrapLine(`Trick: ${cleanAscii(q.trick)}`, 84).forEach(l => styled.push({ kind: 'trick', text: l }));
+          styled.push({ kind: 'gap', text: '' });
         });
 
-        const linesPerPage = 52;
+        // Paginate cleanly using vertical Y cursor
         const pages = [];
-        for (let i = 0; i < allLines.length; i += linesPerPage) {
-          pages.push(allLines.slice(i, i + linesPerPage));
-        }
-        if (!pages.length) pages.push(['SSC Vocab 3D Pro Live Test PDF']);
+        let curPage = [];
+        let y = 730; // after header banner on page 1
+        const lineH = { sec: 13, q: 14, dir: 11.5, opt: 12.5, sol: 14, trick: 12, gap: 7 };
+        styled.forEach(item => {
+          const h = lineH[item.kind] || 13;
+          if (y - h < 48) {
+            pages.push(curPage);
+            curPage = [];
+            y = 775;
+          }
+          curPage.push({ ...item, y });
+          y -= h;
+        });
+        if (curPage.length || !pages.length) pages.push(curPage);
 
-        const pdfEsc = (s) => String(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
         const objs = [];
         objs.push('1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj');
-        const pageObjIds = pages.map((_, idx) => 4 + idx * 2);
+        const pageObjIds = pages.map((_, idx) => 5 + idx * 2);
         objs.push(`2 0 obj << /Type /Pages /Kids [${pageObjIds.map(id => id + ' 0 R').join(' ')}] /Count ${pages.length} >> endobj`);
         objs.push('3 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj');
+        objs.push('4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> endobj');
 
-        pages.forEach((pLines, pIdx) => {
-          const pageId = 4 + pIdx * 2;
+        pages.forEach((items, pIdx) => {
+          const pageId = 5 + pIdx * 2;
           const contId = pageId + 1;
-          let stream = 'BT /F1 9.5 Tf 38 805 Td 14 TL\n';
-          pLines.forEach(ln => { stream += `(${pdfEsc(ln)}) Tj T*\n`; });
-          stream += 'ET';
-          objs.push(`${pageId} 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents ${contId} 0 R >> endobj`);
+          const cmds = [];
+          // Soft light background tint
+          cmds.push('0.97 0.98 1.0 rg 0 0 595 842 re f');
+          if (pIdx === 0) {
+            // Royal Navy Hero Banner + Gold Accent Bar
+            cmds.push('0.06 0.11 0.25 rg 24 756 547 64 re f');
+            cmds.push('0.96 0.72 0.26 rg 24 753 547 3 re f');
+            cmds.push('BT /F2 14 Tf 0.99 0.88 0.28 rg 38 796 Td (SSC VOCAB 3D PRO - ALL-INDIA 2:00 PM LIVE TEST) Tj ET');
+            cmds.push(`BT /F1 9.5 Tf 0.73 0.90 0.99 rg 38 775 Td (Date: ${pdfEsc(dateKey)}  |  100 Questions  |  200 Marks (+2 / -0.50)  |  By Aman Kumar) Tj ET`);
+          } else {
+            cmds.push('0.08 0.15 0.34 rg 24 800 547 24 re f');
+            cmds.push(`BT /F2 9.5 Tf 0.99 0.88 0.28 rg 36 808 Td (SSC VOCAB 3D PRO - LIVE TEST (${pdfEsc(dateKey)})  |  Questions & Solutions) Tj ET`);
+          }
+
+          items.forEach(it => {
+            if (it.kind === 'gap') {
+              cmds.push(`0.88 0.91 0.96 RG 0.6 w 34 ${it.y + 3} m 561 ${it.y + 3} l S`);
+              return;
+            }
+            if (it.kind === 'sec') {
+              cmds.push(`BT /F2 9.5 Tf 0.15 0.39 0.92 rg 34 ${it.y} Td (${pdfEsc(it.text)}) Tj ET`);
+            } else if (it.kind === 'q') {
+              cmds.push(`BT /F2 10.5 Tf 0.06 0.09 0.16 rg 34 ${it.y} Td (${pdfEsc(it.text)}) Tj ET`);
+            } else if (it.kind === 'dir') {
+              cmds.push(`BT /F1 8.5 Tf 0.39 0.45 0.55 rg 34 ${it.y} Td (${pdfEsc(it.text)}) Tj ET`);
+            } else if (it.kind === 'opt') {
+              cmds.push(`BT /F1 9.2 Tf 0.20 0.25 0.33 rg 38 ${it.y} Td (${pdfEsc(it.text)}) Tj ET`);
+            } else if (it.kind === 'sol') {
+              cmds.push(`0.86 0.99 0.91 rg 34 ${it.y - 3} 525 13.5 re f`);
+              cmds.push(`BT /F2 9.2 Tf 0.08 0.50 0.24 rg 40 ${it.y} Td (${pdfEsc(it.text)}) Tj ET`);
+            } else if (it.kind === 'trick') {
+              cmds.push(`BT /F1 8.8 Tf 0.71 0.33 0.04 rg 38 ${it.y} Td (${pdfEsc(it.text)}) Tj ET`);
+            }
+          });
+
+          // Footer
+          cmds.push('0.06 0.11 0.25 rg 24 22 547 18 re f');
+          cmds.push(`BT /F2 8 Tf 0.99 0.88 0.28 rg 34 28 Td (SSC Vocab 3D Pro  |  https://ssc-vocab-pro.vercel.app/) Tj ET`);
+          cmds.push(`BT /F2 8 Tf 1 1 1 rg 495 28 Td (Page ${pIdx + 1} of ${pages.length}) Tj ET`);
+
+          const stream = cmds.join('\n');
+          objs.push(`${pageId} 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${contId} 0 R >> endobj`);
           objs.push(`${contId} 0 obj << /Length ${stream.length} >> stream\n${stream}\nendstream endobj`);
         });
 
