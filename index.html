@@ -3856,6 +3856,11 @@
       document.getElementById('pyq-count-label').textContent = `Showing ${list.length} verified SSC PYQs (2021–2026 + BlackBook)`;
 
       const container = document.getElementById('pyq-list-container');
+      const _cwiKeep = document.getElementById('cluster-word-inspect');
+      if (_cwiKeep && _cwiKeep.parentElement === grid && grid.parentElement) {
+        _cwiKeep.classList.add('hidden');
+        grid.parentElement.insertBefore(_cwiKeep, grid);
+      }
       if (!list.length) {
         container.innerHTML = '<div class="col-span-full glass-card rounded-2xl p-8 text-center text-slate-400 text-sm">Is filter combination me koi PYQ nahi mila. Filters reset karein.</div>';
         return;
@@ -7515,6 +7520,12 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           const rec = _bbWordLookup[w.toLowerCase()];
           const box = document.getElementById('cluster-word-inspect');
           if (box && rec) {
+            // Place inspect card directly above the tapped cluster card (zero top-scroll!)
+            const cardEl = spk.closest('.glass-card');
+            if (cardEl && cardEl.parentElement) {
+              cardEl.parentElement.insertBefore(box, cardEl);
+              box.classList.add('mb-3');
+            }
             document.getElementById('cwi-title').textContent = `🔊 ${w} (${rec.category || 'BlackBook'} • ${rec.exam || 'SSC'})`;
             const _cwiM = document.getElementById('cwi-meaning');
             const _cwiHi = getInstantHindi(rec);
@@ -7528,7 +7539,6 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             const antTxt = rec.ant && rec.ant !== '—' ? ` | Ant: ${rec.ant}` : '';
             document.getElementById('cwi-extra').textContent = (synTxt + antTxt) || (rec.trick || '');
             box.classList.remove('hidden');
-            box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           } else {
             showToast(`🔊 ${w}`);
           }
