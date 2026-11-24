@@ -11658,6 +11658,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         const ist = getISTNowParts();
         const dk = dateKeyOverride || ist.dateKey;
         const attempt = loadTodayAttempt(dk);
+        if (typeof window.__refreshStudentPdfFolder === 'function') window.__refreshStudentPdfFolder();
         const modal = document.getElementById('ailt-result-modal');
         document.getElementById('ailt-res-date-tag').textContent = `🏆 ALL-INDIA LIVE • ${ist.prettyDate}`;
 
@@ -11830,6 +11831,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           renderSolutionsList(ist.dateKey, loadTodayAttempt(ist.dateKey));
         });
       });
+      window.__ailtApi = { buildDaily100Questions, loadTodayAttempt };
     })();
   </script>
 
@@ -11963,13 +11965,20 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       }
 
       function getAutoLiveTestPdfItems() {
-        if (typeof buildDaily100Questions !== 'function') return [];
+        const buildFn = window.__ailtApi && window.__ailtApi.buildDaily100Questions;
+        if (typeof buildFn !== 'function') return [];
         const items = [];
         const todayInfo = getIstPartsOffset(0);
-        const isAdm = (typeof isCurrentUserAdmin === 'function') ? isCurrentUserAdmin() : false;
+        let isAdm = false;
+        try {
+          const uMap = window.__sscProApi?.getUsers ? window.__sscProApi.getUsers() : {};
+          const uid = window.__sscProApi?.getCurrentUserId ? window.__sscProApi.getCurrentUserId() : '';
+          isAdm = !!(uid && uMap[uid] && uMap[uid].isAdmin);
+        } catch (e) {}
         let hasAttemptedToday = false;
         try {
-          if (typeof getMyAiltAttempt === 'function' && getMyAiltAttempt(todayInfo.dateKey)) hasAttemptedToday = true;
+          const loadAtt = window.__ailtApi && window.__ailtApi.loadTodayAttempt;
+          if (typeof loadAtt === 'function' && loadAtt(todayInfo.dateKey)) hasAttemptedToday = true;
         } catch (e) {}
 
         const offsets = [];
@@ -11994,7 +12003,8 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       }
 
       function buildDailyLiveTestHtmlPaper(dateKey) {
-        const qs = (typeof buildDaily100Questions === 'function') ? buildDaily100Questions(dateKey) : [];
+        const buildFn = window.__ailtApi && window.__ailtApi.buildDaily100Questions;
+        const qs = (typeof buildFn === 'function') ? buildFn(dateKey) : [];
         const esc = (s) => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         const rowsHtml = qs.map((q, i) => {
           const opts = (q.options || []).map((o, oi) => {
@@ -12025,7 +12035,8 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       }
 
       function generateDailyLiveTestPdfBlob(dateKey) {
-        const qs = (typeof buildDaily100Questions === 'function') ? buildDaily100Questions(dateKey) : [];
+        const buildFn = window.__ailtApi && window.__ailtApi.buildDaily100Questions;
+        const qs = (typeof buildFn === 'function') ? buildFn(dateKey) : [];
         const cleanAscii = (s) => String(s || '').replace(/[^\x20-\x7E]/g, ' ').replace(/\s+/g, ' ').trim();
         const wrapLine = (txt, maxLen = 84) => {
           const words = cleanAscii(txt).split(' ');
@@ -12215,6 +12226,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         if (_activeViewingPdf) triggerStudentPdfDownload(_activeViewingPdf);
       });
 
+      window.__refreshStudentPdfFolder = () => { try { renderPdfLists(); } catch(e) {} };
       function renderPdfLists() {
         const admCnt = document.getElementById('adm-pdf-count');
         if (admCnt) admCnt.textContent = `${_pdfItems.length} PDFs`;
