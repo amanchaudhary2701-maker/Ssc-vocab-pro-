@@ -5671,6 +5671,138 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         enforceAppAccessGate();
       });
 
+      const PRO_PAYMENTS_STORAGE_KEY = 'ssc_pro_payments_log_v1';
+      const PRO_PAYMENTS_FS_REST = 'https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents/ssc_pro_payments';
+
+      function getProPaymentsLog() {
+        try {
+          const raw = localStorage.getItem(PRO_PAYMENTS_STORAGE_KEY);
+          const arr = raw ? JSON.parse(raw) : [];
+          return Array.isArray(arr) ? arr : [];
+        } catch (e) { return []; }
+      }
+
+      function saveProPaymentsLog(arr) {
+        try { localStorage.setItem(PRO_PAYMENTS_STORAGE_KEY, JSON.stringify(arr || [])); } catch (e) {}
+      }
+
+      async function saveProPaymentRecordToCloud(userObj, subRecord) {
+        if (!userObj || !userObj.uid || !subRecord) return false;
+        const cleanUid = String(userObj.uid).trim().toLowerCase();
+        const txnId = String(subRecord.txnId || ('RZP-' + Date.now().toString(36).toUpperCase())).trim();
+        const priceNum = Number(String(subRecord.price || '99').replace(/[^0-9.]/g, '')) || 99;
+        const rec = {
+          id: (typeof safeFbDocId === 'function' ? safeFbDocId(cleanUid) : cleanUid.replace(/[^a-z0-9]/g, '_')) + '_' + txnId.replace(/[^a-zA-Z0-9_-]/g, '_'),
+          uid: cleanUid,
+          name: String(userObj.name || cleanUid.split('@')[0] || 'Student'),
+          email: cleanUid.includes('@') ? cleanUid : String(userObj.email || ''),
+          exam: String(userObj.exam || 'SSC CGL'),
+          planName: String(subRecord.planName || '👑 SUPER PRO PASS'),
+          amountInr: priceNum,
+          txnId: txnId,
+          method: String(subRecord.method || 'Razorpay Auto-Verified'),
+          status: String(subRecord.status || 'Razorpay Verified ✅'),
+          activatedOn: String(subRecord.activatedOn || calcExpiryStrFromMs(Date.now())),
+          expiryStr: String(subRecord.expiryStr || '1 Year'),
+          expiresAt: Number(subRecord.expiresAt || (Date.now() + 365 * 86400000)),
+          activatedAt: Number(subRecord.activatedAt || Date.now()),
+          updatedAt: Date.now()
+        };
+        const list = getProPaymentsLog();
+        const idx = list.findIndex(x => x && (x.id === rec.id || (x.uid === rec.uid && x.txnId === rec.txnId)));
+        if (idx >= 0) list[idx] = { ...list[idx], ...rec };
+        else list.unshift(rec);
+        saveProPaymentsLog(list);
+
+        try {
+          const fsKey = (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey) ? FIREBASE_CONFIG.apiKey : 'AIzaSyBs_w5tmFnNc-fygZ-t5wdS_C7KtsVie7k';
+          const hdrs = await getFbRestHeaders(true);
+          const fields = {};
+          Object.entries(rec).forEach(([k, v]) => {
+            if (v !== undefined && v !== null) fields[k] = jsValToFsVal(v);
+          });
+          const resp = await fetch(`${PRO_PAYMENTS_FS_REST}/${encodeURIComponent(rec.id)}?key=${encodeURIComponent(fsKey)}`, {
+            method: 'PATCH',
+            headers: hdrs,
+            body: JSON.stringify({ fields })
+          });
+          return resp.ok;
+        } catch (e) { return false; }
+      }
+
+      async function fetchProPaymentsFromCloud() {
+        const list = getProPaymentsLog();
+        const byKey = new Map();
+        list.forEach(r => { if (r && r.uid) byKey.set(`${String(r.uid).toLowerCase()}__${r.txnId || ''}`, r); });
+
+        try {
+          const fsKey = (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey) ? FIREBASE_CONFIG.apiKey : 'AIzaSyBs_w5tmFnNc-fygZ-t5wdS_C7KtsVie7k';
+          const hdrs = await getFbRestHeaders(false);
+          const resp = await fetch(`${PRO_PAYMENTS_FS_REST}?pageSize=300&key=${encodeURIComponent(fsKey)}`, { headers: hdrs });
+          if (resp.ok) {
+            const j = await resp.json();
+            (j.documents || []).forEach(doc => {
+              const d = {};
+              Object.entries(doc.fields || {}).forEach(([k, v]) => { d[k] = fsValToJsVal(v); });
+              if (d && d.uid) {
+                const key = `${String(d.uid).toLowerCase()}__${d.txnId || ''}`;
+                byKey.set(key, { ...(byKey.get(key) || {}), ...d });
+              }
+            });
+          }
+        } catch (e) {}
+
+        // Also auto-backfill ALL existing Super Pro Pass users from ssc_users so old buyers are never missed!
+        try {
+          const allUsers = Object.values(getUsers()).filter(u => u && u.uid && !u.isAdmin);
+          for (const u of allUsers) {
+            const hasSub = hasActiveSuperPro(u) || !!u.lastRazorpayTxn || (Array.isArray(u.purchases) && u.purchases.length > 0);
+            if (!hasSub) continue;
+            const sub = (u.sub && u.sub.expiresAt) ? u.sub : ((Array.isArray(u.purchases) && u.purchases[0]) ? u.purchases[0] : null);
+            const txn = (sub && sub.txnId) || u.lastRazorpayTxn || ('LEGACY-PRO-' + String(u.uid).replace(/[^a-z0-9]/gi, '').slice(0, 8).toUpperCase());
+            const cleanUid = String(u.uid).toLowerCase();
+            const existsForUser = Array.from(byKey.values()).some(r => String(r.uid || '').toLowerCase() === cleanUid);
+            if (!existsForUser) {
+              const backfillSub = {
+                planName: (sub && sub.planName) || '👑 SUPER PRO PASS',
+                price: (sub && sub.price) || '₹99',
+                txnId: txn,
+                method: (sub && sub.method) || (u.lastRazorpayTxn ? 'Razorpay Auto-Verified' : 'Pro Pass Synced'),
+                status: (sub && sub.status) || 'Razorpay Verified ✅',
+                activatedOn: (sub && sub.activatedOn) || calcExpiryStrFromMs(u.updatedAt || u.registeredAt || Date.now()),
+                expiryStr: (sub && sub.expiryStr) || calcExpiryStrFromMs((sub && sub.expiresAt) || (Date.now() + 365 * 86400000)),
+                expiresAt: (sub && sub.expiresAt) || (Date.now() + 365 * 86400000),
+                activatedAt: u.updatedAt || u.registeredAt || Date.now()
+              };
+              const key = `${cleanUid}__${txn}`;
+              const rec = {
+                id: (typeof safeFbDocId === 'function' ? safeFbDocId(cleanUid) : cleanUid.replace(/[^a-z0-9]/g, '_')) + '_' + txn.replace(/[^a-zA-Z0-9_-]/g, '_'),
+                uid: cleanUid,
+                name: String(u.name || cleanUid.split('@')[0] || 'Student'),
+                email: cleanUid.includes('@') ? cleanUid : '',
+                exam: String(u.exam || 'SSC CGL'),
+                planName: backfillSub.planName,
+                amountInr: Number(String(backfillSub.price).replace(/[^0-9.]/g, '')) || 99,
+                txnId: txn,
+                method: backfillSub.method,
+                status: backfillSub.status,
+                activatedOn: backfillSub.activatedOn,
+                expiryStr: backfillSub.expiryStr,
+                expiresAt: backfillSub.expiresAt,
+                activatedAt: backfillSub.activatedAt,
+                updatedAt: Date.now()
+              };
+              byKey.set(key, rec);
+              if (isCurrentUserAdmin()) { saveProPaymentRecordToCloud(u, backfillSub); }
+            }
+          }
+        } catch (e) {}
+
+        const merged = Array.from(byKey.values()).sort((a, b) => (b.activatedAt || b.updatedAt || 0) - (a.activatedAt || a.updatedAt || 0));
+        saveProPaymentsLog(merged);
+        return merged;
+      }
+
       function activateSuperProForCurrentUser(txnId, method) {
         const uid = getCurrentUserId();
         const users = getUsers();
@@ -5686,15 +5818,18 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           activatedOn: calcExpiryStrFromMs(Date.now()),
           expiryStr: expStr,
           expiresAt: expMs,
+          activatedAt: Date.now(),
           method,
           txnId,
           status: 'Razorpay Verified ✅'
         };
         users[uid].sub = subRecord;
+        users[uid].lastRazorpayTxn = txnId;
         if (!Array.isArray(users[uid].purchases)) users[uid].purchases = [];
         users[uid].purchases.unshift(subRecord);
         saveUsers(users);
         cloudSaveUser(users[uid]);
+        saveProPaymentRecordToCloud(users[uid], subRecord);
         syncAuthUI();
         enforceAppAccessGate();
         showToast(`👑 Super Pro Pass Auto-Unlocked! Receipt: ${txnId} (Valid till ${expStr})`);
@@ -5764,15 +5899,15 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             const users = getUsers();
             if (uid && users[uid]) {
               activateSuperProForCurrentUser(finalTxn, 'Razorpay Auto-Verified');
-              // Also push immediately via Fast Firestore REST so Admin Panel sees Pro Pass + ₹99 right away!
+              // Also push immediately via authenticated Fast Firestore REST so Admin Panel sees Pro Pass + ₹99 right away!
               try {
                 const fsKey = (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey) ? FIREBASE_CONFIG.apiKey : 'AIzaSyBs_w5tmFnNc-fygZ-t5wdS_C7KtsVie7k';
                 const docId = typeof safeFbDocId === 'function' ? safeFbDocId(uid) : uid;
-                fetch(`https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents/ssc_users/${encodeURIComponent(docId)}?updateMask.fieldPaths=lastRazorpayTxn&updateMask.fieldPaths=updatedAt&key=${encodeURIComponent(fsKey)}`, {
+                getFbRestHeaders(true).then(hdrs => fetch(`https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents/ssc_users/${encodeURIComponent(docId)}?updateMask.fieldPaths=lastRazorpayTxn&updateMask.fieldPaths=sub&updateMask.fieldPaths=updatedAt&key=${encodeURIComponent(fsKey)}`, {
                   method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ fields: { lastRazorpayTxn: { stringValue: finalTxn }, updatedAt: { integerValue: String(Date.now()) } } })
-                }).catch(() => {});
+                  headers: hdrs,
+                  body: JSON.stringify({ fields: { lastRazorpayTxn: { stringValue: finalTxn }, sub: jsValToFsVal(users[uid].sub), updatedAt: { integerValue: String(Date.now()) } } })
+                })).catch(() => {});
               } catch (e) {}
             } else if (tries < 10) {
               setTimeout(() => tryUnlock(tries + 1), 350);
@@ -6172,6 +6307,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           };
           saveUsers(users);
           cloudSaveUser(users[targetUid]);
+          saveProPaymentRecordToCloud(users[targetUid], users[targetUid].sub);
           renderAdminUsersList();
           showToast(`☁️ ${users[targetUid].name} ka Super Pro Pass Cloud me activate kar diya!`);
         }
@@ -7568,9 +7704,109 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             const act = b.dataset.admtab === tab;
             b.className = `adm-tab-btn py-2 px-2 rounded-lg text-[11px] font-extrabold transition ${act ? 'bg-amber-500/25 text-amber-200 border border-amber-400/50' : 'text-slate-400 hover:text-white'}`;
           });
+          if (tab === 'pro') renderAdminProPayments(true);
           if (tab === 'cms') populateAdminCmsForm();
           if (tab === 'vocab') renderAdminCustomVocabList();
         });
+      });
+
+      function paintAdminProPayments() {
+        const listEl = document.getElementById('admin-pro-list');
+        const q = (document.getElementById('admin-pro-search')?.value || '').trim().toLowerCase();
+        const all = getProPaymentsLog();
+        const totalRev = all.reduce((s, r) => s + (Number(r.amountInr) || 99), 0);
+        const rzpCnt = all.filter(r => String(r.method || '').toLowerCase().includes('razorpay') || String(r.txnId || '').startsWith('pay_') || String(r.txnId || '').startsWith('RZP-')).length;
+        const cEl = document.getElementById('adm-pro-kpi-count'); if (cEl) cEl.textContent = String(all.length);
+        const rEl = document.getElementById('adm-pro-kpi-rev'); if (rEl) rEl.textContent = `₹${totalRev}`;
+        const zEl = document.getElementById('adm-pro-kpi-rzp'); if (zEl) zEl.textContent = String(rzpCnt);
+        if (!listEl) return;
+        const filtered = all.filter(r => !q || `${r.name || ''} ${r.uid || ''} ${r.email || ''} ${r.txnId || ''} ${r.method || ''}`.toLowerCase().includes(q));
+        if (!filtered.length) {
+          listEl.innerHTML = '<p class="text-slate-400 text-[11px]">Abhi koi Pro payment record nahi mila — 🔄 Sync dabayein ya neeche se past buyer add karein.</p>';
+          return;
+        }
+        listEl.innerHTML = filtered.map(r => `
+          <div class="p-2.5 rounded-xl bg-slate-900/95 border border-emerald-400/25 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <p class="font-bold text-white truncate">👑 ${r.name || r.uid} <span class="text-emerald-300 font-black">• ₹${r.amountInr || 99}</span></p>
+              <p class="text-[10px] text-slate-400 truncate">${r.email || r.uid} • <span class="font-mono text-cyan-300">${r.txnId || 'RZP'}</span></p>
+              <p class="text-[10px] text-amber-200/90">${r.method || 'Razorpay'} • Activated: ${r.activatedOn || '-'} • Valid till: ${r.expiryStr || '1 Year'}</p>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold shrink-0">PAID ✅</span>
+          </div>`).join('');
+      }
+
+      async function renderAdminProPayments(syncCloud = false) {
+        paintAdminProPayments();
+        if (syncCloud) {
+          await _fetchCloudUsersViaRest();
+          await fetchProPaymentsFromCloud();
+          paintAdminProPayments();
+        }
+      }
+
+      document.getElementById('admin-pro-search')?.addEventListener('input', paintAdminProPayments);
+      document.getElementById('admin-pro-sync-btn')?.addEventListener('click', async () => {
+        await renderAdminProPayments(true);
+        showToast('☁️ Pro Payments & Cloud Buyers Synced!');
+      });
+      document.getElementById('admin-pro-csv-btn')?.addEventListener('click', () => {
+        const rows = [['Name','Email/UID','Amount(INR)','TxnID','Method','ActivatedOn','ValidTill']];
+        getProPaymentsLog().forEach(r => {
+          rows.push([
+            `"${String(r.name || '').replace(/"/g, '""')}"`,
+            `"${String(r.email || r.uid || '').replace(/"/g, '""')}"`,
+            String(r.amountInr || 99),
+            `"${String(r.txnId || '').replace(/"/g, '""')}"`,
+            `"${String(r.method || '').replace(/"/g, '""')}"`,
+            `"${String(r.activatedOn || '')}"`,
+            `"${String(r.expiryStr || '')}"`
+          ]);
+        });
+        const blob = new Blob([rows.map(r => r.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `ssc_vocab_pro_payments_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+        showToast('📥 Pro Payments CSV Exported!');
+      });
+      document.getElementById('adm-add-pro-btn')?.addEventListener('click', async () => {
+        const email = (document.getElementById('adm-add-pro-email')?.value || '').trim().toLowerCase();
+        const nameInp = (document.getElementById('adm-add-pro-name')?.value || '').trim();
+        const txnInp = (document.getElementById('adm-add-pro-txn')?.value || '').trim();
+        if (!email || !email.includes('@')) { showToast('⚠️ Sahi Buyer Email address daalein.'); return; }
+        const users = getUsers();
+        const existing = users[email] || { uid: email, email: email, name: nameInp || email.split('@')[0], exam: 'SSC CGL', registeredAt: Date.now() };
+        if (nameInp) existing.name = nameInp;
+        const expMs = Date.now() + PAYMENT_CONFIG.validityDays * 86400000;
+        const finalTxn = txnInp || ('RZP-SYNC-' + Date.now().toString(36).toUpperCase());
+        const subRec = {
+          planId: 'super_pro',
+          planName: '👑 SUPER PRO PASS',
+          price: '₹99',
+          validityLabel: '1 Year (365 Days)',
+          activatedOn: calcExpiryStrFromMs(Date.now()),
+          expiryStr: calcExpiryStrFromMs(expMs),
+          expiresAt: expMs,
+          activatedAt: Date.now(),
+          method: 'Razorpay Verified (Admin Sync)',
+          txnId: finalTxn,
+          status: 'Razorpay Verified ✅'
+        };
+        existing.sub = subRec;
+        existing.lastRazorpayTxn = finalTxn;
+        if (!Array.isArray(existing.purchases)) existing.purchases = [];
+        existing.purchases.unshift(subRec);
+        users[email] = existing;
+        saveUsers(users);
+        await cloudSaveUser(existing);
+        await saveProPaymentRecordToCloud(existing, subRec);
+        document.getElementById('adm-add-pro-email').value = '';
+        document.getElementById('adm-add-pro-name').value = '';
+        document.getElementById('adm-add-pro-txn').value = '';
+        paintAdminProPayments();
+        if (typeof _paintAdminUsersList === 'function') _paintAdminUsersList();
+        showToast(`✅ ${existing.name} (${email}) Pro Log me save & Cloud activate ho gaya!`);
       });
 
       document.getElementById('admin-cms-save-btn')?.addEventListener('click', () => {
@@ -9859,8 +10095,9 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       </div>
 
       <div id="admin-gen-step" class="hidden space-y-4">
-        <div class="grid grid-cols-5 gap-1 p-1 rounded-xl bg-slate-950/90 border border-slate-700/80">
+        <div class="grid grid-cols-6 gap-1 p-1 rounded-xl bg-slate-950/90 border border-slate-700/80">
           <button type="button" data-admtab="keys" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold bg-amber-500/25 text-amber-200 border border-amber-400/50 transition">🔑 Keys</button>
+          <button type="button" data-admtab="pro" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">💳 Pro</button>
           <button type="button" data-admtab="cms" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">🎨 Panel</button>
           <button type="button" data-admtab="vocab" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">📚 Vocab</button>
           <button type="button" data-admtab="pdfs" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">📄 PDFs</button>
@@ -9975,6 +10212,48 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               <span id="admin-users-count" class="text-[11px] text-cyan-300 font-bold">0 users</span>
             </div>
             <div id="admin-users-list" class="max-h-[42vh] overflow-y-auto overscroll-contain space-y-1.5 text-xs pb-4" style="-webkit-overflow-scrolling: touch; touch-action: pan-y;"></div>
+          </div>
+        </div>
+
+        <!-- TAB 1B: DEDICATED RAZORPAY SUPER PRO BUYERS LOG -->
+        <div id="admin-panel-pro" class="adm-panel hidden space-y-3.5">
+          <div class="p-3 rounded-2xl bg-gradient-to-r from-emerald-950/80 via-slate-900 to-amber-950/70 border border-emerald-400/40 flex items-center justify-between gap-2">
+            <div>
+              <p class="text-xs font-black text-emerald-200">💳 Super Pro Pass Buyers (Auto-Saved Cloud Log)</p>
+              <p class="text-[10px] text-slate-300">Razorpay se payment karne wale sabhi students ka alag record yahan auto-save hota hai.</p>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button id="admin-pro-sync-btn" type="button" class="px-2.5 py-1.5 rounded-lg bg-slate-800 border border-cyan-400/40 text-cyan-200 text-[10px] font-bold">🔄 Sync</button>
+              <button id="admin-pro-csv-btn" type="button" class="px-2.5 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-[10px] font-extrabold">📥 CSV</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="p-2.5 rounded-xl bg-slate-900/95 border border-emerald-400/35">
+              <p class="text-[10px] text-slate-400 font-bold">Total Pro Buyers</p>
+              <p id="adm-pro-kpi-count" class="text-lg font-black text-emerald-300">0</p>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/95 border border-violet-400/35">
+              <p class="text-[10px] text-slate-400 font-bold">Total Revenue</p>
+              <p id="adm-pro-kpi-rev" class="text-lg font-black text-violet-300">₹0</p>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/95 border border-amber-400/35">
+              <p class="text-[10px] text-slate-400 font-bold">Razorpay Verified</p>
+              <p id="adm-pro-kpi-rzp" class="text-lg font-black text-amber-300">0</p>
+            </div>
+          </div>
+
+          <input id="admin-pro-search" type="text" placeholder="🔍 Search buyer name / email / Razorpay Txn ID..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white" />
+          <div id="admin-pro-list" class="max-h-[34vh] overflow-y-auto overscroll-contain space-y-2 text-xs pb-2" style="-webkit-overflow-scrolling: touch; touch-action: pan-y;"></div>
+
+          <div class="p-3 rounded-2xl bg-slate-900/95 border border-amber-400/35 space-y-2">
+            <p class="text-[11px] font-black text-amber-200">➕ Add / Sync Past Razorpay Buyer (Agar Kisi Dost Ka Miss Hua Ho)</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <input id="adm-add-pro-email" type="email" placeholder="Buyer Email (e.g. dost@gmail.com)" class="px-2.5 py-2 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white" />
+              <input id="adm-add-pro-name" type="text" placeholder="Name (optional)" class="px-2.5 py-2 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white" />
+              <input id="adm-add-pro-txn" type="text" placeholder="Razorpay ID (optional)" class="px-2.5 py-2 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white font-mono" />
+            </div>
+            <button id="adm-add-pro-btn" type="button" class="w-full py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-black text-xs hover:brightness-110 transition">⚡ Save to Pro Log &amp; Activate 1-Year Pass</button>
           </div>
         </div>
 
