@@ -12129,34 +12129,30 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           dlUrl = `https://drive.usercontent.google.com/download?id=${_drvFid}&export=download&confirm=t`;
         }
         if (!dlUrl) return;
-        // For same-origin GitHub Pages PDFs, fetch -> Blob for guaranteed real download on mobile & desktop!
-        if (dlUrl.startsWith(GH_PAGES_BASE) || dlUrl.startsWith('./') || dlUrl.startsWith('/')) {
-          try {
-            if (typeof showToast === 'function') showToast(`⏳ Downloading "${safeName}"...`);
-            const resp = await fetch(dlUrl);
-            if (resp.ok) {
-              const blob = await resp.blob();
-              const bUrl = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = bUrl;
-              a.download = safeName;
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
-              setTimeout(() => URL.revokeObjectURL(bUrl), 8000);
-              return;
-            }
-          } catch (e) {}
+        if (typeof showToast === 'function') showToast(`⬇️ "${safeName}" download shuru ho raha hai... Notification bar check karein!`);
+        // Native streaming download (never buffers 20-120 MB PDFs into mobile RAM!)
+        const isSameOrigin = dlUrl.startsWith(window.location.origin) || dlUrl.startsWith('./') || dlUrl.startsWith('/');
+        if (isSameOrigin) {
+          const a = document.createElement('a');
+          a.href = dlUrl;
+          a.download = safeName;
+          a.rel = 'noopener noreferrer';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          return;
         }
-        // Fallback direct download link (works for Google Drive & external PDFs)
-        const a = document.createElement('a');
-        a.href = dlUrl;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.download = safeName;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        // For cross-origin GitHub/Vercel/Google Drive large PDFs: open in new tab so Android DownloadManager handles it cleanly
+        const win = window.open(dlUrl, '_blank', 'noopener,noreferrer');
+        if (!win) {
+          const a = document.createElement('a');
+          a.href = dlUrl;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        }
       }
 
       let _activeViewingPdf = null;
