@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ssc-vocab-3d-pro-v80';
+const CACHE_NAME = 'ssc-vocab-3d-pro-v81';
 const CORE_ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -18,7 +18,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin || url.pathname.startsWith('/__/auth') || url.pathname.startsWith('/_netlify_api')) return;
+  if (url.origin !== self.location.origin || url.pathname.startsWith('/__/auth') || url.pathname.startsWith('/_netlify_api') || url.pathname.toLowerCase().endsWith('.pdf') || url.pathname.includes('/pdfs/')) return;
   event.respondWith(
     fetch(event.request)
       .then((resp) => {
