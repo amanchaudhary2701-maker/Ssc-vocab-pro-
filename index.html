@@ -764,6 +764,21 @@
       </form>
 
       <p class="text-[10px] text-center text-slate-400">🛡️ Fake number signup band hai • Bina email verify kiye app open nahi hoga • 1 Device = 1 Free Trial</p>
+
+      <div class="pt-3 mt-2 border-t border-slate-800/80 text-center space-y-1.5">
+        <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] font-bold text-slate-300">
+          <button type="button" data-legal-tab="about" class="hover:text-cyan-300 underline underline-offset-2">About Us</button>
+          <span class="text-slate-600">•</span>
+          <button type="button" data-legal-tab="contact" class="hover:text-cyan-300 underline underline-offset-2">Contact Us</button>
+          <span class="text-slate-600">•</span>
+          <button type="button" data-legal-tab="terms" class="hover:text-cyan-300 underline underline-offset-2">Terms &amp; Conditions</button>
+          <span class="text-slate-600">•</span>
+          <button type="button" data-legal-tab="privacy" class="hover:text-cyan-300 underline underline-offset-2">Privacy Policy</button>
+          <span class="text-slate-600">•</span>
+          <button type="button" data-legal-tab="refund" class="hover:text-cyan-300 underline underline-offset-2">Refund Policy</button>
+        </div>
+        <p class="text-[10px] text-slate-400">SSC Vocab 3D Pro (Aman Kumar) • 📧 amanchaudhary2701@gmail.com • 📞 +91 9151345504</p>
+      </div>
     </div>
   </div>
 
@@ -1209,7 +1224,22 @@
           </div>
           <button type="button" data-kgs-go="vocab" class="shrink-0 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-black text-xs">Continue Study →</button>
         </div>
-      </section>
+      
+      <div class="pt-3 mt-2 border-t border-slate-800/80 text-center space-y-1.5">
+        <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] font-bold text-slate-300">
+          <button type="button" data-legal-tab="about" class="hover:text-cyan-300 underline underline-offset-2">About Us</button>
+          <span class="text-slate-600">•</span>
+          <button type="button" data-legal-tab="contact" class="hover:text-cyan-300 underline underline-offset-2">Contact Us</button>
+          <span class="text-slate-600">•</span>
+          <button type="button" data-legal-tab="terms" class="hover:text-cyan-300 underline underline-offset-2">Terms &amp; Conditions</button>
+          <span class="text-slate-600">•</span>
+          <button type="button" data-legal-tab="privacy" class="hover:text-cyan-300 underline underline-offset-2">Privacy Policy</button>
+          <span class="text-slate-600">•</span>
+          <button type="button" data-legal-tab="refund" class="hover:text-cyan-300 underline underline-offset-2">Refund Policy</button>
+        </div>
+        <p class="text-[10px] text-slate-400">SSC Vocab 3D Pro (Aman Kumar) • 📧 amanchaudhary2701@gmail.com • 📞 +91 9151345504</p>
+      </div>
+    </section>
 
       <!-- ==================== DEDICATED MULTI-PAGE COURSE VIEW (Chapter Sets + Large-Font Reader + Swipe Mode) ==================== -->
       <section id="view-catpage" class="view-section hidden space-y-4">
@@ -13205,5 +13235,73 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
     })();
   </script>
 
-  </body>
+  
+  <!-- ==================== CASHFREE KYC & USER LEGAL/POLICY MODAL ==================== -->
+  <div id="legal-info-modal" class="fixed inset-0 z-[120] hidden bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="max-w-lg w-full glass-card rounded-3xl p-5 sm:p-6 border border-cyan-400/40 bg-slate-900 space-y-4 max-h-[88vh] flex flex-col">
+      <div class="flex items-center justify-between gap-2 shrink-0">
+        <div>
+          <span class="text-[10px] font-black uppercase tracking-wider text-cyan-300">SSC Vocab 3D Pro • Official Info</span>
+          <h3 id="legal-modal-title" class="text-lg font-black text-white">About Us</h3>
+        </div>
+        <button type="button" id="legal-modal-close" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm">✕</button>
+      </div>
+      <div class="flex flex-wrap gap-1.5 shrink-0">
+        <button type="button" data-legal-tab="about" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold hover:bg-cyan-500/20">About Us</button>
+        <button type="button" data-legal-tab="contact" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold hover:bg-cyan-500/20">Contact Us</button>
+        <button type="button" data-legal-tab="terms" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold hover:bg-cyan-500/20">Terms</button>
+        <button type="button" data-legal-tab="privacy" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold hover:bg-cyan-500/20">Privacy Policy</button>
+        <button type="button" data-legal-tab="refund" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold hover:bg-cyan-500/20">Refund Policy</button>
+      </div>
+      <div id="legal-modal-body" class="overflow-y-auto pr-1 text-xs sm:text-sm text-slate-200 space-y-3 leading-relaxed"></div>
+    </div>
+  </div>
+  <script>
+    (function() {
+      const LEGAL_PAGES = {
+        about: {
+          title: '🏫 About Us — SSC Vocab 3D Pro',
+          html: '<p><b>SSC Vocab 3D Pro</b> (operated by <b>Aman Kumar</b>) is an online educational learning platform built for Indian competitive exam aspirants preparing for SSC CGL, CHSL, MTS, CPO, GD, and Stenographer exams.</p><p>We provide bilingual (English + Hindi) vocabulary flashcards, memory tricks, previous year questions (PYQs), synonym/antonym clusters, daily 2:00 PM All-India Live Tests, and downloadable PDF revision packs.</p><p><b>Registered Business / Operator Name:</b> Aman Kumar (SSC Vocab 3D Pro)<br><b>Website:</b> https://ssc-vocab-pro.vercel.app/</p>'
+        },
+        contact: {
+          title: '📞 Contact Us',
+          html: '<p>For any account, Super Pro Pass, technical, or refund queries, please reach out to us directly:</p><ul class="list-disc pl-5 space-y-1.5"><li><b>Operator Name:</b> Aman Kumar (SSC Vocab 3D Pro)</li><li><b>Email ID:</b> <a href="mailto:amanchaudhary2701@gmail.com" class="text-cyan-300 underline">amanchaudhary2701@gmail.com</a></li><li><b>Phone / WhatsApp:</b> <a href="tel:+919151345504" class="text-cyan-300 underline">+91 9151345504</a></li><li><b>Location:</b> Uttar Pradesh, India</li><li><b>Support Hours:</b> Monday – Sunday, 10:00 AM to 7:00 PM IST</li></ul>'
+        },
+        terms: {
+          title: '📜 Terms & Conditions',
+          html: '<p>By accessing or using <b>SSC Vocab 3D Pro</b> (https://ssc-vocab-pro.vercel.app/), you agree to the following terms:</p><ul class="list-disc pl-5 space-y-1.5"><li><b>Educational Purpose:</b> All vocabulary, PYQs, PDFs, and mock tests are provided strictly for personal exam preparation.</li><li><b>Account &amp; Trial:</b> New users receive a 15-day free trial (limited to 1 device per trial). Optional Super Pro Pass (₹99/year) unlocks 1-year access for a single user account.</li><li><b>Fair Use:</b> Account sharing, automated scraping, or commercial redistribution of app content/PDFs is prohibited.</li><li><b>Governing Law:</b> These terms are governed by the laws of India.</li></ul>'
+        },
+        privacy: {
+          title: '🔒 Privacy Policy',
+          html: '<p><b>SSC Vocab 3D Pro</b> respects your privacy and never sells or rents your personal data.</p><ul class="list-disc pl-5 space-y-1.5"><li><b>Data Collected:</b> Name and email via Google Sign-In / Firebase Auth, plus your study progress and live test scores in Google Cloud Firestore.</li><li><b>Payments:</b> All online payments are processed securely by RBI-compliant payment gateway partners. We never store your UPI PIN, card number, or bank password.</li><li><b>Data Deletion:</b> Email <a href="mailto:amanchaudhary2701@gmail.com" class="text-cyan-300 underline">amanchaudhary2701@gmail.com</a> anytime to request account/data deletion.</li></ul><p><a href="./privacy.html" target="_blank" rel="noopener" class="text-amber-300 underline font-bold">Open Full Privacy Policy Page ↗</a></p>'
+        },
+        refund: {
+          title: '💳 Refund & Cancellation Policy',
+          html: '<p><b>SSC Vocab 3D Pro</b> offers a 15-day free trial so students can test all features before purchasing the optional ₹99/year Super Pro Pass.</p><ul class="list-disc pl-5 space-y-1.5"><li><b>Digital Pass Policy:</b> Once a digital Super Pro Pass is activated on your account, subscriptions are generally non-refundable.</li><li><b>Duplicate / Failed Activation Refund:</b> If money was debited twice or your pass was not activated automatically, email <a href="mailto:amanchaudhary2701@gmail.com" class="text-cyan-300 underline">amanchaudhary2701@gmail.com</a> or WhatsApp <b>+91 9151345504</b> with your transaction ID within 7 days.</li><li><b>Refund Timeline:</b> Approved refunds are credited back to the original payment method within <b>5–7 business days</b>.</li></ul>'
+        }
+      };
+      function openLegalTab(key) {
+        const modal = document.getElementById('legal-info-modal');
+        const titleEl = document.getElementById('legal-modal-title');
+        const bodyEl = document.getElementById('legal-modal-body');
+        const page = LEGAL_PAGES[key] || LEGAL_PAGES.about;
+        if (!modal || !titleEl || !bodyEl) return;
+        titleEl.textContent = page.title;
+        bodyEl.innerHTML = page.html;
+        modal.classList.remove('hidden');
+      }
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-legal-tab]');
+        if (btn) {
+          openLegalTab(btn.dataset.legalTab);
+          return;
+        }
+        if (e.target.id === 'legal-modal-close' || e.target.id === 'legal-info-modal') {
+          document.getElementById('legal-info-modal')?.classList.add('hidden');
+        }
+      });
+    })();
+  </script>
+
+</body>
 </html>
