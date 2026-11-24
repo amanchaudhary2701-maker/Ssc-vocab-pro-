@@ -11946,8 +11946,170 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         } catch (e) { return dataUrl; }
       }
 
+      function getIstPartsOffset(daysBack = 0) {
+        const istMs = Date.now() + 19800000 - (daysBack * 86400000);
+        const d = new Date(istMs);
+        const y = d.getUTCFullYear();
+        const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(d.getUTCDate()).padStart(2, '0');
+        const hh = d.getUTCHours();
+        const mm = d.getUTCMinutes();
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return {
+          dateKey: `${y}-${m}-${day}`,
+          dateLabel: `${day} ${months[d.getUTCMonth()]} ${y}`,
+          minsOfDay: hh * 60 + mm
+        };
+      }
+
+      function getAutoLiveTestPdfItems() {
+        if (typeof buildDaily100Questions !== 'function') return [];
+        const items = [];
+        const todayInfo = getIstPartsOffset(0);
+        const isAdm = (typeof isCurrentUserAdmin === 'function') ? isCurrentUserAdmin() : false;
+        let hasAttemptedToday = false;
+        try {
+          if (typeof getMyAiltAttempt === 'function' && getMyAiltAttempt(todayInfo.dateKey)) hasAttemptedToday = true;
+        } catch (e) {}
+
+        const offsets = [];
+        if (todayInfo.minsOfDay >= 880 || hasAttemptedToday || isAdm) offsets.push(0);
+        offsets.push(1, 2, 3);
+
+        offsets.forEach(off => {
+          const info = getIstPartsOffset(off);
+          items.push({
+            id: `auto_ailt_pdf_${info.dateKey}`,
+            isAutoLiveTestPdf: true,
+            liveDateKey: info.dateKey,
+            title: `🇮🇳 All-India 2 PM Live Vocab Test (${info.dateLabel}) — 100 Qs + Solutions`,
+            subject: 'English',
+            category: 'Daily 2PM Test PDFs',
+            sizeLabel: '100 Qs • Auto PDF',
+            dateStr: info.dateLabel,
+            createdAt: Date.now() - (off * 86400000)
+          });
+        });
+        return items;
+      }
+
+      function buildDailyLiveTestHtmlPaper(dateKey) {
+        const qs = (typeof buildDaily100Questions === 'function') ? buildDaily100Questions(dateKey) : [];
+        const esc = (s) => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const rowsHtml = qs.map((q, i) => {
+          const opts = (q.options || []).map((o, oi) => {
+            const lbl = ['A','B','C','D'][oi] || '*';
+            const isAns = oi === q.ansIdx;
+            return `<div class="opt ${isAns ? 'ans' : ''}"><b>(${lbl})</b> ${esc(o)} ${isAns ? '✅' : ''}</div>`;
+          }).join('');
+          const hi = q.meaningHi ? `<div class="hi">🇮🇳 Hindi: ${esc(q.meaningHi)}</div>` : '';
+          const tr = q.trick ? `<div class="tr">💡 Trick: ${esc(q.trick)}</div>` : '';
+          return `<div class="qcard"><div class="qmeta">Q${i + 1}. [${esc(q.secLabel || q.section || 'Vocab')}] ${q.src ? '• ' + esc(q.src) : ''}</div><div class="qtxt">${esc(q.prompt || q.word)}</div><div class="opts">${opts}</div>${hi}${tr}</div>`;
+        }).join('');
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+          body{margin:0;padding:16px;font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#0f172a;line-height:1.5}
+          .hdr{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;padding:16px;border-radius:14px;margin-bottom:16px}
+          .hdr h2{margin:0 0 4px;font-size:18px;color:#fde047} .hdr p{margin:0;font-size:12px;color:#bae6fd}
+          .qcard{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+          .qmeta{font-size:11px;font-weight:700;color:#2563eb;margin-bottom:4px}
+          .qtxt{font-size:14px;font-weight:700;margin-bottom:8px}
+          .opts{display:grid;grid-template-columns:1fr;gap:4px;margin-bottom:6px}
+          .opt{font-size:13px;padding:4px 8px;border-radius:6px;background:#f1f5f9}
+          .opt.ans{background:#dcfce7;color:#166534;font-weight:700;border:1px solid #86efac}
+          .hi{font-size:12px;color:#b45309;font-weight:600;margin-top:4px}
+          .tr{font-size:12px;color:#475569;margin-top:2px}
+        </style></head><body>
+          <div class="hdr"><h2>🇮🇳 SSC Vocab 3D Pro — All-India 2 PM Live Test (${esc(dateKey)})</h2><p>100 Eduquity Pattern Questions • 200 Marks (+2 / -0.50) • Full Solutions</p></div>
+          ${rowsHtml}
+        </body></html>`;
+      }
+
+      function generateDailyLiveTestPdfBlob(dateKey) {
+        const qs = (typeof buildDaily100Questions === 'function') ? buildDaily100Questions(dateKey) : [];
+        const cleanAscii = (s) => String(s || '').replace(/[^\x20-\x7E]/g, ' ').replace(/\s+/g, ' ').trim();
+        const wrapLine = (txt, maxLen = 84) => {
+          const words = cleanAscii(txt).split(' ');
+          const out = [];
+          let cur = '';
+          words.forEach(w => {
+            if ((cur + ' ' + w).trim().length > maxLen) { if (cur) out.push(cur); cur = w; }
+            else cur = (cur ? cur + ' ' : '') + w;
+          });
+          if (cur) out.push(cur);
+          return out.length ? out : [''];
+        };
+
+        const allLines = [
+          `SSC VOCAB 3D PRO - ALL-INDIA 2:00 PM LIVE TEST (${dateKey})`,
+          '100 Questions | 200 Marks (+2 / -0.50) | Official Answer Key & Vault',
+          '------------------------------------------------------------------------------------'
+        ];
+        qs.forEach((q, idx) => {
+          const sec = cleanAscii(q.secLabel || q.section || 'Vocab');
+          const prompt = cleanAscii(q.prompt || q.word);
+          wrapLine(`Q${idx + 1}. [${sec}] ${prompt}`, 86).forEach(l => allLines.push(l));
+          const optLine = (q.options || []).map((o, oi) => `(${['A','B','C','D'][oi]}) ${cleanAscii(o)}`).join('   ');
+          wrapLine(`   ${optLine}`, 86).forEach(l => allLines.push(l));
+          const ansLetter = ['A','B','C','D'][q.ansIdx] || 'A';
+          const ansText = cleanAscii((q.options || [])[q.ansIdx] || '');
+          allLines.push(`   Ans: (${ansLetter}) ${ansText}`);
+          allLines.push('');
+        });
+
+        const linesPerPage = 52;
+        const pages = [];
+        for (let i = 0; i < allLines.length; i += linesPerPage) {
+          pages.push(allLines.slice(i, i + linesPerPage));
+        }
+        if (!pages.length) pages.push(['SSC Vocab 3D Pro Live Test PDF']);
+
+        const pdfEsc = (s) => String(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+        const objs = [];
+        objs.push('1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj');
+        const pageObjIds = pages.map((_, idx) => 4 + idx * 2);
+        objs.push(`2 0 obj << /Type /Pages /Kids [${pageObjIds.map(id => id + ' 0 R').join(' ')}] /Count ${pages.length} >> endobj`);
+        objs.push('3 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj');
+
+        pages.forEach((pLines, pIdx) => {
+          const pageId = 4 + pIdx * 2;
+          const contId = pageId + 1;
+          let stream = 'BT /F1 9.5 Tf 38 805 Td 14 TL\n';
+          pLines.forEach(ln => { stream += `(${pdfEsc(ln)}) Tj T*\n`; });
+          stream += 'ET';
+          objs.push(`${pageId} 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents ${contId} 0 R >> endobj`);
+          objs.push(`${contId} 0 obj << /Length ${stream.length} >> stream\n${stream}\nendstream endobj`);
+        });
+
+        let pdf = '%PDF-1.4\n';
+        const offsets = [0];
+        objs.forEach(o => {
+          offsets.push(pdf.length);
+          pdf += o + '\n';
+        });
+        const xrefPos = pdf.length;
+        pdf += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n`;
+        for (let i = 1; i <= objs.length; i++) {
+          pdf += String(offsets[i]).padStart(10, '0') + ' 00000 n \n';
+        }
+        pdf += `trailer << /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xrefPos}\n%%EOF`;
+        return new Blob([pdf], { type: 'application/pdf' });
+      }
+
       async function triggerStudentPdfDownload(pdfObj) {
         if (!pdfObj) return;
+        if (pdfObj.isAutoLiveTestPdf && pdfObj.liveDateKey) {
+          const blob = generateDailyLiveTestPdfBlob(pdfObj.liveDateKey);
+          const blobUrl = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = `SSC_Vocab_Live_Test_${pdfObj.liveDateKey}_100Q.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 8000);
+          if (typeof showToast === 'function') showToast(`⬇️ Downloading Live Test PDF (${pdfObj.liveDateKey})...`);
+          return;
+        }
         const safeName = (String(pdfObj.title || 'SSC_Notes').replace(/[^a-zA-Z0-9._-]+/g, '_').replace(/^_+|_+$/g, '') || 'SSC_Notes') + '.pdf';
         if (pdfObj.dataUrl && pdfObj.dataUrl.startsWith('data:')) {
           const blobUrl = dataUrlToBlobUrl(pdfObj.dataUrl);
@@ -12024,15 +12186,26 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       function openStudentPdfView(pdfObj) {
         if (!pdfObj) return;
         _activeViewingPdf = pdfObj;
-        const embedUrl = buildInAppEmbedUrl(pdfObj);
-        if (!embedUrl) return;
         const modal = document.getElementById('inapp-pdf-viewer-modal');
         const iframe = document.getElementById('inapp-pdf-iframe');
         const titleEl = document.getElementById('inapp-pdf-title');
         const metaEl = document.getElementById('inapp-pdf-meta');
         if (titleEl) titleEl.textContent = pdfObj.title || 'SSC Study PDF';
         if (metaEl) metaEl.textContent = `${pdfObj.category || 'Vocab Notes'} • ${pdfObj.sizeLabel || 'PDF'} • In-App Reader`;
-        if (iframe) iframe.src = embedUrl;
+        if (pdfObj.isAutoLiveTestPdf && pdfObj.liveDateKey) {
+          if (iframe) {
+            iframe.removeAttribute('src');
+            iframe.srcdoc = buildDailyLiveTestHtmlPaper(pdfObj.liveDateKey);
+          }
+          modal?.classList.remove('hidden');
+          return;
+        }
+        const embedUrl = buildInAppEmbedUrl(pdfObj);
+        if (!embedUrl) return;
+        if (iframe) {
+          iframe.removeAttribute('srcdoc');
+          iframe.src = embedUrl;
+        }
         modal?.classList.remove('hidden');
       }
 
@@ -12122,11 +12295,13 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           }
         }
 
-        // 2. Student PDF Folder Modal List
+        // 2. Student PDF Folder Modal List (Admin PDFs + Auto Daily 2 PM Live Test PDFs)
         const stuList = document.getElementById('stu-pdf-list');
         if (stuList) {
           const q = (document.getElementById('stu-pdf-search')?.value || '').trim().toLowerCase();
-          const filtered = _pdfItems.filter(p => {
+          const _autoLivePdfs = getAutoLiveTestPdfItems();
+          const _combinedStuPdfs = [..._autoLivePdfs, ..._pdfItems];
+          const filtered = _combinedStuPdfs.filter(p => {
             const pSub = p.subject || 'English';
             const pCat = p.category || 'Vocab Notes';
             if (_stuSub !== 'All' && pSub !== _stuSub) return false;
@@ -12154,13 +12329,13 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             `).join('');
             stuList.querySelectorAll('[data-spdf-view]').forEach(b => {
               b.addEventListener('click', () => {
-                const it = _pdfItems.find(x => x.id === b.dataset.spdfView);
+                const it = _combinedStuPdfs.find(x => x.id === b.dataset.spdfView);
                 if (it) openStudentPdfView(it);
               });
             });
             stuList.querySelectorAll('[data-spdf-dl]').forEach(b => {
               b.addEventListener('click', () => {
-                const it = _pdfItems.find(x => x.id === b.dataset.spdfDl);
+                const it = _combinedStuPdfs.find(x => x.id === b.dataset.spdfDl);
                 if (it) triggerStudentPdfDownload(it);
               });
             });
