@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://amanchaudhary2701-maker.github.io/Ssc-vocab-pro-/sitemap.xml
+Sitemap: https://ssc-vocab-pro.vercel.app/sitemap.xml
