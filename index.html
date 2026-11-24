@@ -2847,7 +2847,14 @@
     async function cloudFetchUser(uid) {
       if (!fbDb || !uid) return null;
       try {
-        const snap = await withCloudTimeout(fbDb.collection('ssc_users').doc(safeFbDocId(uid)).get(), 4000, null);
+        const docRef = fbDb.collection('ssc_users').doc(safeFbDocId(uid));
+        let snap = null;
+        try {
+          snap = await withCloudTimeout(docRef.get({ source: 'server' }), 4000, null);
+        } catch (srvErr) {
+          snap = await withCloudTimeout(docRef.get(), 3500, null);
+        }
+        if (!snap) snap = await withCloudTimeout(docRef.get(), 3000, null);
         if (!snap) return null;
         window._lastCloudErr = '';
         return snap.exists ? snap.data() : null;
@@ -4838,9 +4845,70 @@
         };
       }
 
+      let _studentPassUnsub = null;
+      let _studentPassWatchUid = '';
+      function startStudentPassLiveWatch(uid) {
+        try {
+          if (!fbDb || !uid || uid === 'admin@aman') return;
+          if (_studentPassWatchUid === uid && _studentPassUnsub) return;
+          if (_studentPassUnsub) { try { _studentPassUnsub(); } catch (e) {} _studentPassUnsub = null; }
+          _studentPassWatchUid = uid;
+          _studentPassUnsub = fbDb.collection('ssc_users').doc(safeFbDocId(uid)).onSnapshot((snap) => {
+            try {
+              if (!snap || !snap.exists) return;
+              const cUser = snap.data() || {};
+              const users = getUsers();
+              const cur = users[uid];
+              if (!cur) return;
+              const wasPro = hasActiveSuperPro(cur);
+              const cloudPro = !!(cUser.sub && cUser.sub.expiresAt && Date.now() < cUser.sub.expiresAt);
+              const curExp = (cur.sub && cur.sub.expiresAt) || 0;
+              const cloudExp = (cUser.sub && cUser.sub.expiresAt) || 0;
+              if (cloudExp > curExp || (cUser.isAdmin && !cur.isAdmin)) {
+                users[uid] = { ...cur, ...cUser, uid, sub: cloudExp >= curExp ? cUser.sub : cur.sub };
+                saveUsers(users);
+                updatePassBadges(users[uid]);
+                syncAuthUI();
+                syncMenuScreen();
+                enforceAppAccessGate();
+                if (!wasPro && cloudPro && typeof showToast === 'function') {
+                  showToast('👑 Super Pro Pass Activate ho gaya! Enjoy 1-Year Access!');
+                  if (window.confetti) confetti({ particleCount: 75, spread: 70, origin: { y: 0.6 } });
+                }
+              }
+            } catch (e) {}
+          }, () => {});
+        } catch (e) {}
+      }
+
       async function syncActiveUserFromCloud(uid) {
         if (!uid) return;
-        const [cUser, cProg] = await Promise.all([cloudFetchUser(uid), cloudLoadProgress(uid)]);
+        startStudentPassLiveWatch(uid);
+        const [cUserRaw, cProg] = await Promise.all([cloudFetchUser(uid), cloudLoadProgress(uid)]);
+        let cUser = cUserRaw;
+        // Double safety net: also check ssc_pro_payments doc if ssc_users has no active sub yet
+        if (fbDb && (!cUser || !cUser.sub || !cUser.sub.expiresAt || Date.now() >= cUser.sub.expiresAt)) {
+          try {
+            const pSnap = await withCloudTimeout(fbDb.collection('ssc_pro_payments').doc(safeFbDocId(uid)).get({ source: 'server' }), 3000, null);
+            if (pSnap && pSnap.exists) {
+              const pData = pSnap.data() || {};
+              if (pData.expiresAt && Date.now() < pData.expiresAt) {
+                const fallbackSub = {
+                  planId: pData.planId || 'super_pro',
+                  planName: pData.planName || '👑 SUPER PRO PASS',
+                  price: pData.price || '₹99',
+                  validityLabel: pData.validityLabel || '1 Year (365 Days)',
+                  activatedOn: pData.activatedOn || calcExpiryStrFromMs(Date.now()),
+                  expiryStr: pData.expiryStr || calcExpiryStrFromMs(pData.expiresAt),
+                  expiresAt: pData.expiresAt,
+                  method: pData.method || 'Admin Activated',
+                  txnId: pData.txnId || ''
+                };
+                cUser = { ...(cUser || { uid }), sub: fallbackSub };
+              }
+            }
+          } catch (e) {}
+        }
         if (cUser) {
           const users = getUsers();
           const locU = users[uid] || {};
@@ -8337,7 +8405,15 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           const users = api.getUsers ? api.getUsers() : {};
           const user = users[uid];
           if (!user || user.isAdmin) return;
-          // Local countdown check only (no repetitive cloud writes — saves 98% Firebase quota!)
+          // If not yet Pro, check Cloud Pass status on resume/focus (throttled to max once per 15s)
+          const hasProNow = !!(user.sub && user.sub.expiresAt && Date.now() < user.sub.expiresAt);
+          if (!hasProNow && typeof syncActiveUserFromCloud === 'function') {
+            const nowTs = Date.now();
+            if (!window._lastPassCloudCheckAt || (nowTs - window._lastPassCloudCheckAt) > 15000) {
+              window._lastPassCloudCheckAt = nowTs;
+              syncActiveUserFromCloud(uid);
+            }
+          }
           if (api.updatePassBadges) api.updatePassBadges(user);
           // Exact expiry check: if 15-day trial finished & no active Pro Pass -> auto lock & open Buy Pass screen!
           const hasPro = !!(user.sub && user.sub.expiresAt && Date.now() < user.sub.expiresAt);
