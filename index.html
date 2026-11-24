@@ -623,7 +623,69 @@
     body.nav-mode-touch #desktop-top-nav { display: none !important; }
     body.nav-mode-touch #bottom-dock-nav { display: flex !important; }
 
-  </style>
+  
+    /* === FIGURE 2 STYLE: VISUAL VOCAB TRICK CARDS === */
+    .vt-card {
+      background: linear-gradient(160deg, rgba(15, 23, 46, 0.96), rgba(9, 14, 30, 0.98));
+      border: 1.5px solid rgba(250, 204, 21, 0.35);
+      border-radius: 1.15rem;
+      overflow: hidden;
+      box-shadow: 0 10px 26px rgba(2, 6, 23, 0.45);
+    }
+    body.light-mode .vt-card {
+      background: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+    }
+    .vt-header {
+      background: linear-gradient(90deg, #fde047 0%, #facc15 65%, #f59e0b 100%);
+      color: #0f172a !important;
+      padding: 0.65rem 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .vt-header-title {
+      color: #0f172a !important;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+    }
+    .vt-illus-box {
+      background: linear-gradient(180deg, #e0f2fe 0%, #dbeafe 100%);
+      border: 2px solid rgba(56, 189, 248, 0.45);
+      border-radius: 1rem;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 150px;
+      overflow: hidden;
+    }
+    body.light-mode .vt-illus-box {
+      background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%) !important;
+      border-color: #93c5fd !important;
+    }
+    .vt-trick-key {
+      color: #f59e0b;
+      font-weight: 800;
+    }
+    body.light-mode .vt-trick-key {
+      color: #b45309 !important;
+    }
+    body.light-mode .vt-body-text {
+      color: #1e293b !important;
+    }
+    body.light-mode .vt-muted-text {
+      color: #475569 !important;
+    }
+    body.light-mode .vt-sub-box {
+      background: #f8fafc !important;
+      border-color: #e2e8f0 !important;
+    }
+</style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -9504,51 +9566,76 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             if (!antDisp) antDisp = (inA ? cl.syns : cl.ants).slice(0, 6).join(', ');
           }
         }
+        const _vt = (typeof window.buildVocabTrickData === 'function') ? window.buildVocabTrickData(w, hiDisp) : { key: w.word, story: w.trick || w.answer, svg: '' };
         return `
-          <div class="glass-card rounded-2xl p-4 sm:p-5 border ${isLearned ? 'border-emerald-400/60' : 'border-slate-700/60'} space-y-3">
-            <div class="flex items-start justify-between gap-2">
-              <div class="min-w-0">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="text-xs font-mono font-bold text-slate-400">#${start + idx + 1}</span>
-                  <span class="px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-500 text-[11px] font-extrabold">${w.exam || 'BlackBook'}</span>
-                </div>
-                <h3 class="pro-grid-word font-black text-white mt-1 break-words">${w.word}</h3>
+          <div class="vt-card ${isLearned ? 'ring-2 ring-emerald-400/70' : ''}">
+            <!-- GOLDEN HEADER BAR (FIGURE 2 STYLE) -->
+            <div class="vt-header">
+              <div class="min-w-0 flex items-center gap-2 flex-wrap">
+                <h3 class="vt-header-title text-base sm:text-lg leading-tight break-words">${start + idx + 1}. ${String(w.word || '').toUpperCase()}</h3>
+                <span class="px-2 py-0.5 rounded-md bg-slate-950/90 text-amber-300 text-[10px] font-black shrink-0">${w.exam || 'BlackBook'}</span>
               </div>
-              <div class="flex items-center gap-1.5 shrink-0">
-                <button type="button" data-cp-speak="${String(w.word || '').replace(/"/g, '&quot;')}" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700 text-cyan-300 text-sm font-bold flex items-center justify-center" title="Pronounce">🔊</button>
-                <button type="button" data-cp-save="${w.id}" class="w-9 h-9 rounded-xl bg-slate-900 border ${isSaved ? 'border-amber-400 text-amber-400' : 'border-slate-700 text-slate-400'} text-sm font-bold flex items-center justify-center" title="Bookmark">${isSaved ? '⭐' : '☆'}</button>
-                <button type="button" data-cp-learn="${w.id}" class="px-3 h-9 rounded-xl border text-xs font-extrabold ${isLearned ? 'bg-emerald-500/20 border-emerald-400 text-emerald-400' : 'bg-slate-900 border-slate-700 text-slate-300'}">${isLearned ? '✓ Done' : 'Learn'}</button>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" data-cp-speak="${String(w.word || '').replace(/"/g, '&quot;')}" class="w-8 h-8 rounded-lg bg-slate-950/90 text-cyan-300 text-xs font-bold flex items-center justify-center" title="Pronounce">🔊</button>
+                <button type="button" data-cp-save="${w.id}" class="w-8 h-8 rounded-lg bg-slate-950/90 ${isSaved ? 'text-amber-300' : 'text-slate-300'} text-xs font-bold flex items-center justify-center" title="Bookmark">${isSaved ? '⭐' : '☆'}</button>
+                <button type="button" data-cp-learn="${w.id}" class="px-2.5 h-8 rounded-lg text-[11px] font-black ${isLearned ? 'bg-emerald-600 text-white' : 'bg-slate-950/90 text-white'}">${isLearned ? '✓ Done' : 'Learn'}</button>
               </div>
             </div>
 
-            <div data-hi-id="${w.id}" class="pro-read-hindi font-black text-amber-300">${hiDisp}</div>
-            <p class="pro-read-meaning font-bold text-slate-100">📘 <b>English Meaning:</b> ${w.answer}</p>
-            ${w.isRootItem && Array.isArray(w.examplesList) && w.examplesList.length ? `
-              <div class="pro-about-box rounded-2xl bg-slate-950/75 border border-emerald-400/35 p-3 space-y-2">
-                <p class="font-extrabold text-emerald-400 text-xs uppercase tracking-wider">🌱 इस Root Word से बनने वाले शब्द (हिंदी अर्थ सहित)</p>
-                <div class="space-y-1.5">
-                  ${w.examplesList.map(ex => {
-                    const exHi = lookupExampleWordHindi(ex);
-                    return `<div class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/70">
-                      <div class="min-w-0">
-                        <span class="font-black text-cyan-300">${ex}</span>
-                        <span data-rex-word="${ex.replace(/"/g, '&quot;')}" class="ml-1.5 font-extrabold text-amber-300">${exHi ? '🇮🇳 ' + exHi : 'Loading...'}</span>
-                      </div>
-                      <button type="button" data-cp-speak="${ex.replace(/"/g, '&quot;')}" class="px-2 py-0.5 rounded-lg bg-slate-800 text-cyan-300 text-xs font-bold shrink-0">🔊</button>
-                    </div>`;
-                  }).join('')}
+            <!-- 2-COLUMN VISUAL TRICK BODY -->
+            <div class="p-3.5 sm:p-4 space-y-3">
+              <div class="grid grid-cols-12 gap-3 items-stretch">
+                <!-- LEFT: HINDI MEANING + TRICK KEY + TRICK EXPLANATION -->
+                <div class="col-span-7 sm:col-span-7 space-y-2 flex flex-col justify-between min-w-0">
+                  <div class="space-y-1.5">
+                    <div class="text-xs sm:text-sm font-black text-amber-300 leading-snug">
+                      <span class="text-cyan-300">अर्थ:</span> <span data-hi-id="${w.id}">${hiDisp}</span>
+                    </div>
+                    <p class="vt-body-text text-xs font-bold text-slate-200 leading-snug">📘 ${w.answer}</p>
+                    <div class="pt-1">
+                      <p class="text-[11px] font-black text-cyan-300">Trick Key:</p>
+                      <p class="vt-trick-key text-xs sm:text-sm leading-snug">${_vt.key}</p>
+                    </div>
+                    <div>
+                      <p class="text-[11px] font-black text-cyan-300">Trick / Explanation:</p>
+                      <p class="vt-body-text text-[11px] sm:text-xs text-slate-200 leading-relaxed">${_vt.story}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- RIGHT: COLORFUL VISUAL MNEMONIC ILLUSTRATION BOX -->
+                <div class="col-span-5 sm:col-span-5 flex flex-col">
+                  <div class="vt-illus-box flex-1">
+                    ${_vt.svg}
+                  </div>
                 </div>
               </div>
-            ` : `
-              <div class="pro-about-box rounded-2xl bg-slate-950/75 border border-slate-700/60 p-3 space-y-1.5">
-                <p class="font-extrabold text-blue-400 text-xs uppercase tracking-wider">📖 इस शब्द के बारे में (Details &amp; Exam Usage)</p>
-                <p class="text-slate-200 font-medium">• <b>Exam Source:</b> ${w.exam || 'BlackBook SSC'} ${w.year ? '(' + w.year + ')' : ''} • <b>Category:</b> ${w.category || 'Vocab'}</p>
-                ${w.example ? `<p class="text-slate-200 italic">• <b>Usage:</b> ${w.example}</p>` : ''}
-                ${synDisp ? `<p class="text-emerald-400 font-bold">✅ <b>Synonyms:</b> ${synDisp}</p>` : ''}
-                ${antDisp ? `<p class="text-rose-400 font-bold">❌ <b>Antonyms:</b> ${antDisp}</p>` : ''}
-                ${w.trick ? `<p class="text-amber-300 font-semibold">💡 <b>Yaad Rakhne ki Trick:</b> ${w.trick}</p>` : ''}
-              </div>
-            `}
+
+              ${w.isRootItem && Array.isArray(w.examplesList) && w.examplesList.length ? `
+                <div class="vt-sub-box rounded-xl bg-slate-950/75 border border-emerald-400/35 p-2.5 space-y-1.5">
+                  <p class="font-extrabold text-emerald-400 text-[11px] uppercase tracking-wider">🌱 इस Root Word से बनने वाले शब्द (हिंदी अर्थ सहित)</p>
+                  <div class="space-y-1">
+                    ${w.examplesList.map(ex => {
+                      const exHi = lookupExampleWordHindi(ex);
+                      return `<div class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-slate-900/90 border border-slate-700/70">
+                        <div class="min-w-0 text-xs">
+                          <span class="font-black text-cyan-300">${ex}</span>
+                          <span data-rex-word="${ex.replace(/"/g, '&quot;')}" class="ml-1.5 font-extrabold text-amber-300">${exHi ? '🇮🇳 ' + exHi : 'Loading...'}</span>
+                        </div>
+                        <button type="button" data-cp-speak="${ex.replace(/"/g, '&quot;')}" class="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 text-xs font-bold shrink-0">🔊</button>
+                      </div>`;
+                    }).join('')}
+                  </div>
+                </div>
+              ` : `
+                <div class="vt-sub-box rounded-xl bg-slate-950/70 border border-slate-700/55 px-3 py-2 text-[11px] space-y-1">
+                  <p class="vt-muted-text text-slate-300"><b>Source:</b> ${w.exam || 'BlackBook SSC'} ${w.year ? '(' + w.year + ')' : ''} • <b>Type:</b> ${w.category || 'Vocab'}</p>
+                  ${synDisp ? `<p class="text-emerald-400 font-bold">✅ <b>Synonyms:</b> ${synDisp}</p>` : ''}
+                  ${antDisp ? `<p class="text-rose-400 font-bold">❌ <b>Antonyms:</b> ${antDisp}</p>` : ''}
+                  ${w.example ? `<p class="vt-muted-text text-slate-300 italic">• ${w.example}</p>` : ''}
+                </div>
+              `}
+            </div>
           </div>
         `;
       }).join('');
@@ -12993,6 +13080,148 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         sessionStorage.setItem('ssc_pwa_banner_dismissed', '1');
         banner?.classList.add('hidden');
       });
+    })();
+  </script>
+
+  <script>
+    (function initVisualVocabTrickEngine() {
+      const CURATED_TRICKS = {
+        'abdicate': { key: 'अब + दिक्कत', story: 'राजा को गद्दी संभालने में दिक्कत हुई, इसलिए उसने गद्दी छोड़ दी।', theme: 'crown', badge: 'GIVE UP THRONE' },
+        'abdication': { key: 'अब + दिक्कत', story: 'राजा ने राजगद्दी त्याग दी; त्याग की इस क्रिया को Abdication कहते हैं।', theme: 'crown', badge: 'ABDICATION' },
+        'aberration': { key: 'अब + राशन', story: 'गरीबों का राशन अपने कोटे में भरकर नेता सही रास्ते से भटक गए।', theme: 'road', badge: 'OFF THE PATH' },
+        'abeyance': { key: 'Abe + Yance (अबे + यहीं से)', story: 'पुलिस ने रोककर कहा — अभी आगे मत जाओ, कुछ समय के लिए रास्ता बंद (स्थगित) है।', theme: 'stop', badge: 'TEMP STOP' },
+        'ablution': { key: 'एक + Body + Lotion', story: 'एक व्यक्ति शरीर धोकर नहाता है और फिर Body Lotion लगाता है।', theme: 'water', badge: 'WASH / CLEAN' },
+        'abnegate': { key: 'अब + नहीं + Gate', story: 'राजा ने कहा: अब मैं महल के Gate की ओर नहीं जाऊँगा, मैं अपना अधिकार त्याग रहा हूँ।', theme: 'crown', badge: 'RENOUNCE' },
+        'abolish': { key: 'a + boli (एक बोली)', story: 'एक पुरानी प्रथा या कानून जो अब पूरी तरह समाप्त कर दिया गया।', theme: 'ban', badge: 'END / BAN' },
+        'aboriginal': { key: 'अब + Original', story: 'किसी स्थान पर शुरू से रहने वाले Original लोग ही मूल निवासी हैं।', theme: 'home', badge: 'ORIGINAL NATIVE' },
+        'aborigine': { key: 'अब + Origin', story: 'किसी देश में शुरू से रहने वाला Original व्यक्ति उस देश का मूल निवासी है।', theme: 'home', badge: 'NATIVE' },
+        'abridge': { key: 'एक + Bridge', story: 'जैसे एक Bridge दो स्थानों की दूरी छोटा कर देता है, वैसे ही Abridge किसी लेख को छोटा करता है।', theme: 'bridge', badge: 'SHORTEN' },
+        'abridgement': { key: 'एक + Bridge', story: 'Bridge दूरी कम करता है; वैसे ही बड़ी पुस्तक का छोटा/संक्षिप्त संस्करण Abridgement है।', theme: 'bridge', badge: 'SHORT BOOK' },
+        'abrogate': { key: 'अब + रो + Gate', story: 'कानून रद्द होने पर विद्यार्थी Gate पर खड़ा होकर रो रहा है — यही Abrogate है।', theme: 'law', badge: 'CANCEL LAW' },
+        'dishonest': { key: 'Dis (नहीं) + Honest (ईमानदार)', story: 'जो व्यक्ति Honest (ईमानदार) नहीं है, वही Dishonest (बेईमान / Mendacious) है।', theme: 'law', badge: 'NOT HONEST' },
+        'mendacious': { key: 'Men + Dacious (मन से डाकू)', story: 'जो मन से डाकू जैसा हो, वह हमेशा झूठा और बेईमान (Dishonest) होता है।', theme: 'law', badge: 'UNTRUTHFUL' },
+        'ephemeral': { key: 'E + Pher (फिर पल भर में)', story: 'जो चीज़ फिर पल भर में गायब हो जाए — यानी क्षणभंगुर (बहुत कम समय तक रहने वाला)।', theme: 'clock', badge: 'SHORT-LIVED' },
+        'candid': { key: 'Can + Did (साफ़ कहना)', story: 'जो बिना छिपाए साफ़-साफ़ बोल दे कि क्या किया — स्पष्टवादी और सच्चा।', theme: 'talk', badge: 'FRANK & HONEST' },
+        'prudent': { key: 'Pro + Student', story: 'एक समझदार (Pro) Student हमेशा सोच-समझकर और विवेक से फैसला लेता है।', theme: 'brain', badge: 'WISE / CAREFUL' },
+        'mitigate': { key: 'मिट्टी + Gate', story: 'बाढ़ रोकने के लिए Gate पर मिट्टी डालकर नुकसान को कम (Mitigate) किया गया।', theme: 'shield', badge: 'REDUCE PAIN' },
+        'benevolent': { key: 'Bene (अच्छा) + Volent', story: 'Bene का अर्थ हमेशा "अच्छा" होता है — जो दूसरों का भला करे वह परोपकारी है।', theme: 'heart', badge: 'KIND HEARTED' },
+        'lucid': { key: 'Lux (रोशनी) + Clear', story: 'रोशनी में हर चीज़ साफ़ दिखती है — जो बात बिल्कुल स्पष्ट समझ आए वही Lucid है।', theme: 'bulb', badge: 'CRYSTAL CLEAR' }
+      };
+
+      const PREFIX_HINTS = [
+        ['un', 'Un (नहीं)'], ['in', 'In (नहीं/अंदर)'], ['im', 'Im (नहीं)'], ['dis', 'Dis (उल्टा/नहीं)'],
+        ['ab', 'Ab (दूर/अलग)'], ['re', 'Re (फिर से)'], ['pre', 'Pre (पहले)'], ['pro', 'Pro (आगे/समर्थन)'],
+        ['sub', 'Sub (नीचे)'], ['super', 'Super (ऊपर/श्रेष्ठ)'], ['anti', 'Anti (विरोधी)'], ['auto', 'Auto (स्वयं)'],
+        ['bene', 'Bene (अच्छा)'], ['mal', 'Mal (बुरा)'], ['omni', 'Omni (सब जगह)'], ['poly', 'Poly (बहुत)'],
+        ['mono', 'Mono (एक)'], ['bi', 'Bi (दो)'], ['tri', 'Tri (तीन)'], ['ex', 'Ex (बाहर/पूर्व)'],
+        ['con', 'Con (साथ)'], ['com', 'Com (साथ)'], ['inter', 'Inter (बीच में)'], ['trans', 'Trans (पार)']
+      ];
+
+      function pickTheme(word, meaning, cat) {
+        const txt = `${word} ${meaning} ${cat}`.toLowerCase();
+        if (/(king|queen|throne|royal|crown|rule|reign|emperor|monarch|renounce|abdicate)/.test(txt)) return { theme: 'crown', badge: 'ROYAL / POWER' };
+        if (/(stop|halt|pause|ban|forbid|prohibit|abolish|suspend|cancel|end|cease)/.test(txt)) return { theme: 'stop', badge: 'STOP / END' };
+        if (/(law|court|legal|judge|crime|honest|lie|false|fraud|guilt|punish|theft|rule)/.test(txt)) return { theme: 'law', badge: 'LAW & TRUTH' };
+        if (/(bridge|short|brief|reduce|cut|lessen|small|condense|summary|concise)/.test(txt)) return { theme: 'bridge', badge: 'SHORTEN' };
+        if (/(water|wash|bath|clean|pure|rain|river|sea|flood|drink|liquid)/.test(txt)) return { theme: 'water', badge: 'CLEAN / FLOW' };
+        if (/(home|house|native|origin|live|build|place|village|city|land)/.test(txt)) return { theme: 'home', badge: 'ORIGIN / HOME' };
+        if (/(time|clock|short|brief|quick|fast|slow|old|ancient|new|modern|eternal|delay)/.test(txt)) return { theme: 'clock', badge: 'TIME & SPEED' };
+        if (/(speak|talk|word|voice|say|speech|loud|silent|quiet|praise|blame|idiom)/.test(txt)) return { theme: 'talk', badge: 'EXPRESSION' };
+        if (/(money|rich|poor|tax|cost|pay|gold|wealth|debt|cheap|spend|greed|rebate)/.test(txt)) return { theme: 'money', badge: 'VALUE / WEALTH' };
+        if (/(love|kind|friend|happy|joy|help|mercy|good|peace|generous|care|charity)/.test(txt)) return { theme: 'heart', badge: 'POSITIVE' };
+        if (/(war|fight|brave|fear|danger|enemy|attack|protect|safe|strong|power|hero)/.test(txt)) return { theme: 'shield', badge: 'STRENGTH' };
+        if (/(anger|fire|hate|cruel|harsh|wild|destroy|burn|bitter|evil|bad|sad|grief)/.test(txt)) return { theme: 'fire', badge: 'INTENSE' };
+        if (/(mind|think|wise|smart|clever|fool|know|learn|study|book|read|write|root)/.test(txt)) return { theme: 'brain', badge: 'SMART MEMORY' };
+        if (/(path|road|way|go|walk|move|travel|wander|stray|lead|follow|direction)/.test(txt)) return { theme: 'road', badge: 'DIRECTION' };
+        return { theme: 'bulb', badge: (cat || 'SSC VOCAB').toString().toUpperCase().slice(0, 14) };
+      }
+
+      function renderThemeSvg(theme, badgeText) {
+        const esc = (s) => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        let art = '';
+        if (theme === 'crown') {
+          art = '<ellipse cx="80" cy="112" rx="46" ry="8" fill="#93c5fd"/><path d="M36 92 L46 44 L66 68 L80 34 L94 68 L114 44 L124 92 Z" fill="#f59e0b" stroke="#b45309" stroke-width="3" stroke-linejoin="round"/><rect x="36" y="90" width="88" height="12" rx="5" fill="#fbbf24" stroke="#b45309" stroke-width="2.5"/><circle cx="80" cy="30" r="5" fill="#ef4444"/><circle cx="46" cy="40" r="4" fill="#3b82f6"/><circle cx="114" cy="40" r="4" fill="#10b981"/>';
+        } else if (theme === 'stop' || theme === 'ban') {
+          art = '<ellipse cx="80" cy="114" rx="46" ry="8" fill="#93c5fd"/><rect x="46" y="28" width="68" height="76" rx="8" fill="#fde68a" stroke="#d97706" stroke-width="2.5"/><line x1="58" y1="46" x2="102" y2="46" stroke="#b45309" stroke-width="3"/><line x1="58" y1="60" x2="102" y2="60" stroke="#b45309" stroke-width="3"/><line x1="58" y1="74" x2="90" y2="74" stroke="#b45309" stroke-width="3"/><circle cx="52" cy="76" r="22" fill="#ffffff" stroke="#dc2626" stroke-width="6"/><line x1="38" y1="62" x2="66" y2="90" stroke="#dc2626" stroke-width="6"/>';
+        } else if (theme === 'bridge') {
+          art = '<rect x="14" y="88" width="132" height="28" rx="6" fill="#38bdf8"/><path d="M18 86 Q80 36 142 86" fill="none" stroke="#b45309" stroke-width="8"/><line x1="18" y1="74" x2="142" y2="74" stroke="#f59e0b" stroke-width="6"/><line x1="50" y1="74" x2="50" y2="58" stroke="#92400e" stroke-width="3"/><line x1="80" y1="74" x2="80" y2="48" stroke="#92400e" stroke-width="3"/><line x1="110" y1="74" x2="110" y2="58" stroke="#92400e" stroke-width="3"/>';
+        } else if (theme === 'water') {
+          art = '<ellipse cx="80" cy="112" rx="44" ry="8" fill="#93c5fd"/><path d="M80 24 C80 24 44 66 44 86 C44 104 60 112 80 112 C100 112 116 104 116 86 C116 66 80 24 80 24 Z" fill="#0ea5e9" stroke="#0369a1" stroke-width="3"/><path d="M64 82 C64 92 70 98 78 98" fill="none" stroke="#e0f2fe" stroke-width="4" stroke-linecap="round"/>';
+        } else if (theme === 'home') {
+          art = '<ellipse cx="80" cy="114" rx="48" ry="8" fill="#93c5fd"/><polygon points="80,26 32,68 128,68" fill="#d97706" stroke="#92400e" stroke-width="3"/><rect x="44" y="68" width="72" height="44" rx="4" fill="#fde68a" stroke="#92400e" stroke-width="2.5"/><rect x="70" y="82" width="20" height="30" rx="3" fill="#78350f"/><circle cx="30" cy="96" r="12" fill="#22c55e"/><circle cx="130" cy="96" r="12" fill="#22c55e"/>';
+        } else if (theme === 'law') {
+          art = '<ellipse cx="80" cy="114" rx="44" ry="7" fill="#93c5fd"/><rect x="76" y="34" width="8" height="76" rx="3" fill="#1e3a8a"/><rect x="52" y="104" width="56" height="8" rx="4" fill="#1e3a8a"/><line x1="36" y1="46" x2="124" y2="46" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/><path d="M36 46 L26 76 L46 76 Z" fill="#38bdf8" stroke="#0369a1" stroke-width="2"/><path d="M124 46 L114 76 L134 76 Z" fill="#fbbf24" stroke="#b45309" stroke-width="2"/>';
+        } else if (theme === 'clock') {
+          art = '<circle cx="80" cy="70" r="42" fill="#ffffff" stroke="#2563eb" stroke-width="6"/><circle cx="80" cy="70" r="5" fill="#0f172a"/><line x1="80" y1="70" x2="80" y2="44" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/><line x1="80" y1="70" x2="100" y2="76" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round"/>';
+        } else if (theme === 'talk') {
+          art = '<rect x="26" y="30" width="108" height="62" rx="18" fill="#2563eb" stroke="#1d4ed8" stroke-width="3"/><polygon points="52,92 40,112 72,92" fill="#2563eb"/><line x1="46" y1="54" x2="114" y2="54" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/><line x1="46" y1="70" x2="94" y2="70" stroke="#fde047" stroke-width="5" stroke-linecap="round"/>';
+        } else if (theme === 'money') {
+          art = '<circle cx="80" cy="72" r="40" fill="#fbbf24" stroke="#b45309" stroke-width="5"/><circle cx="80" cy="72" r="30" fill="none" stroke="#fef08a" stroke-width="2" stroke-dasharray="5,4"/><text x="80" y="84" text-anchor="middle" font-size="38" font-weight="900" fill="#78350f">₹</text>';
+        } else if (theme === 'heart') {
+          art = '<path d="M80 108 C80 108 32 78 32 50 C32 34 45 26 58 26 C68 26 76 32 80 40 C84 32 92 26 102 26 C115 26 128 34 128 50 C128 78 80 108 80 108 Z" fill="#f43f5e" stroke="#be123c" stroke-width="3"/>';
+        } else if (theme === 'shield') {
+          art = '<path d="M80 22 L122 38 V72 C122 96 102 110 80 118 C58 110 38 96 38 72 V38 Z" fill="#10b981" stroke="#047857" stroke-width="3.5"/><path d="M62 72 L75 85 L100 56" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>';
+        } else if (theme === 'fire') {
+          art = '<path d="M82 22 C96 44 116 58 116 82 C116 102 100 114 80 114 C60 114 44 102 44 82 C44 64 58 48 68 38 C66 52 74 56 76 50 C78 38 82 22 82 22 Z" fill="#f97316" stroke="#c2410c" stroke-width="3"/><path d="M80 62 C90 74 96 82 96 92 C96 102 88 108 80 108 C72 108 64 102 64 92 C64 82 72 72 80 62 Z" fill="#fde047"/>';
+        } else if (theme === 'brain') {
+          art = '<circle cx="62" cy="64" r="24" fill="#8b5cf6" stroke="#5b21b6" stroke-width="3"/><circle cx="98" cy="64" r="24" fill="#6366f1" stroke="#4338ca" stroke-width="3"/><circle cx="66" cy="84" r="18" fill="#8b5cf6"/><circle cx="94" cy="84" r="18" fill="#6366f1"/><circle cx="80" cy="68" r="10" fill="#fde047"/>';
+        } else if (theme === 'road') {
+          art = '<polygon points="62,24 98,24 134,114 26,114" fill="#334155"/><line x1="80" y1="30" x2="80" y2="110" stroke="#fde047" stroke-width="4" stroke-dasharray="10,8"/><circle cx="118" cy="40" r="14" fill="#ef4444"/><line x1="118" y1="54" x2="118" y2="86" stroke="#0f172a" stroke-width="4"/>';
+        } else {
+          art = '<circle cx="80" cy="58" r="28" fill="#fde047" stroke="#d97706" stroke-width="3.5"/><rect x="66" y="86" width="28" height="16" rx="4" fill="#334155"/><line x1="80" y1="16" x2="80" y2="24" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/><line x1="36" y1="58" x2="44" y2="58" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/><line x1="116" y1="58" x2="124" y2="58" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/>';
+        }
+        return `<svg viewBox="0 0 160 152" class="w-full h-full max-h-[146px]" xmlns="http://www.w3.org/2000/svg">
+          ${art}
+          <rect x="14" y="124" width="132" height="22" rx="11" fill="#0f172a"/>
+          <text x="80" y="139" text-anchor="middle" font-size="10.5" font-weight="900" font-family="Inter,system-ui,sans-serif" fill="#fde047">${esc(badgeText)}</text>
+        </svg>`;
+      }
+
+      window.buildVocabTrickData = function(w, hiDisp) {
+        const wordStr = String((w && w.word) || '').trim();
+        const wl = wordStr.toLowerCase();
+        const ansStr = String((w && w.answer) || '').trim();
+        const hiClean = String(hiDisp || (w && w.meaningHi) || '').replace(/^🇮🇳\s*/, '').trim();
+        const cur = CURATED_TRICKS[wl];
+        if (cur) {
+          return {
+            key: cur.key,
+            story: cur.story,
+            svg: renderThemeSvg(cur.theme, cur.badge)
+          };
+        }
+        // Smart automatic Trick Key breakdown (prefix / root / syllable split)
+        let trickKey = '';
+        for (const [pref, label] of PREFIX_HINTS) {
+          if (wl.startsWith(pref) && wordStr.length > pref.length + 2) {
+            const rest = wordStr.slice(pref.length);
+            trickKey = `${label} + ${rest.charAt(0).toUpperCase() + rest.slice(1)}`;
+            break;
+          }
+        }
+        if (!trickKey) {
+          if (wordStr.includes(' ')) {
+            trickKey = wordStr.split(/\s+/).slice(0, 3).join(' + ');
+          } else if (wordStr.length >= 6) {
+            const mid = Math.ceil(wordStr.length / 2);
+            trickKey = `${wordStr.slice(0, mid)} + ${wordStr.slice(mid)}`;
+          } else {
+            trickKey = `${wordStr} → ${hiClean || ansStr.slice(0, 22)}`;
+          }
+        }
+        // Smart Trick / Explanation
+        const rawTrick = String((w && w.trick) || '').trim();
+        const isGenericTrick = !rawTrick || rawTrick.startsWith('Official SSC CGL') || rawTrick.startsWith('BlackBook');
+        const story = isGenericTrick
+          ? `"${wordStr}" को "${trickKey}" से जोड़कर याद रखें — इसका सीधा अर्थ है: ${hiClean ? hiClean + ' (' + ansStr + ')' : ansStr}।`
+          : rawTrick;
+        const picked = pickTheme(wordStr, ansStr + ' ' + hiClean, w && w.category);
+        return {
+          key: trickKey,
+          story: story,
+          svg: renderThemeSvg(picked.theme, picked.badge)
+        };
+      };
     })();
   </script>
 </body>
