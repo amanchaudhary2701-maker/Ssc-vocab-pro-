@@ -4767,6 +4767,23 @@
         }
       });
 
+      const OWNER_ADMIN_EMAIL = 'amanchaudhary2701@gmail.com';
+      function isOwnerAdminUid(uid) {
+        const norm = String(uid || '').trim().toLowerCase();
+        return norm === 'admin@aman' || norm === OWNER_ADMIN_EMAIL;
+      }
+      function buildAdminLifetimeSub() {
+        return {
+          planId: 'admin_lifetime',
+          planName: '🛡️ ADMIN LIFETIME PRO',
+          price: 'FREE (Owner)',
+          validityLabel: 'Lifetime Access',
+          activatedOn: new Date().toLocaleDateString('en-IN'),
+          expiryStr: 'LIFETIME',
+          expiresAt: Date.now() + 3650 * 86400000
+        };
+      }
+
       async function syncActiveUserFromCloud(uid) {
         if (!uid) return;
         const [cUser, cProg] = await Promise.all([cloudFetchUser(uid), cloudLoadProgress(uid)]);
@@ -4777,7 +4794,10 @@
           const bestSub = (locU.sub && locU.sub.expiresAt && (!cUser.sub || locU.sub.expiresAt > (cUser.sub.expiresAt || 0))) ? locU.sub : (cUser.sub || locU.sub || null);
           const mergedPurch = [...(Array.isArray(locU.purchases) ? locU.purchases : []), ...(Array.isArray(cUser.purchases) ? cUser.purchases : [])];
           const uniqPurch = mergedPurch.filter((p, idx, arr) => p && arr.findIndex(x => (x.txnId || x.activatedOn) === (p.txnId || p.activatedOn)) === idx);
-          users[uid] = { ...locU, ...cUser, sub: bestSub, purchases: uniqPurch, trialStartedAt: Math.min(locU.trialStartedAt || Infinity, cUser.trialStartedAt || Infinity) === Infinity ? Date.now() : Math.min(locU.trialStartedAt || Infinity, cUser.trialStartedAt || Infinity) };
+          const ownerAdmin = isOwnerAdminUid(uid);
+          const finalAdmin = ownerAdmin || !!locU.isAdmin || !!cUser.isAdmin;
+          const finalSub = (ownerAdmin && (!bestSub || bestSub.planId !== 'admin_lifetime')) ? buildAdminLifetimeSub() : bestSub;
+          users[uid] = { ...locU, ...cUser, isAdmin: finalAdmin, sub: finalSub, purchases: uniqPurch, trialStartedAt: Math.min(locU.trialStartedAt || Infinity, cUser.trialStartedAt || Infinity) === Infinity ? Date.now() : Math.min(locU.trialStartedAt || Infinity, cUser.trialStartedAt || Infinity) };
           saveUsers(users);
         }
         if (cProg) {
@@ -4945,6 +4965,7 @@
         const locExisting = users0[uid] || null;
         const initTrialStart = (locExisting && locExisting.trialStartedAt) ? locExisting.trialStartedAt : Date.now();
         const initTrialExp = (locExisting && locExisting.trialExpiresAt) ? locExisting.trialExpiresAt : (initTrialStart + PAYMENT_CONFIG.trialDays * 86400000);
+        const _isOwnerG = isOwnerAdminUid(uid);
         users0[uid] = {
           name: (locExisting && locExisting.name) || gUser.displayName || (uid.includes('@') ? uid.split('@')[0] : 'SSC Aspirant'),
           uid,
@@ -4953,9 +4974,10 @@
           pass: (locExisting && locExisting.pass) || 'GOOGLE_VERIFIED',
           photo: (locExisting && locExisting.photo) || gUser.photoURL || '',
           googleVerified: true,
+          isAdmin: _isOwnerG || !!(locExisting && locExisting.isAdmin),
           trialStartedAt: initTrialStart,
-          trialExpiresAt: initTrialExp,
-          sub: (locExisting && locExisting.sub) || null,
+          trialExpiresAt: _isOwnerG ? (Date.now() + 3650 * 86400000) : initTrialExp,
+          sub: _isOwnerG ? ((locExisting && locExisting.sub && locExisting.sub.planId === 'admin_lifetime') ? locExisting.sub : buildAdminLifetimeSub()) : ((locExisting && locExisting.sub) || null),
           purchases: (locExisting && locExisting.purchases) || [],
           wordsLearned: (locExisting && locExisting.wordsLearned) || 0,
           testsTaken: (locExisting && locExisting.testsTaken) || 0,
@@ -4989,7 +5011,8 @@
             name: (cloudRec && cloudRec.name) || cur.name,
             photo: (cloudRec && cloudRec.photo) || cur.photo || '',
             googleVerified: true,
-            sub: bestSub,
+            isAdmin: _isOwnerG || !!(cloudRec && cloudRec.isAdmin) || !!cur.isAdmin,
+            sub: _isOwnerG ? ((bestSub && bestSub.planId === 'admin_lifetime') ? bestSub : buildAdminLifetimeSub()) : bestSub,
             lastActiveAt: Date.now()
           };
           await enforceDeviceTrialLock(uid, merged);
@@ -5365,6 +5388,14 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           gateAuth?.classList.remove('hidden');
           gateSub?.classList.add('hidden');
           return;
+        }
+        // Auto-grant Owner Admin + Lifetime Pro for amanchaudhary2701@gmail.com
+        if (isOwnerAdminUid(uid) && (!user.isAdmin || !user.sub || user.sub.planId !== 'admin_lifetime')) {
+          user.isAdmin = true;
+          user.trialExpiresAt = Date.now() + 3650 * 86400000;
+          user.sub = buildAdminLifetimeSub();
+          users[uid] = user;
+          saveUsers(users);
         }
         // Backfill 15-day trial for any existing account created before this update
         if (!user.trialExpiresAt) {
@@ -6093,7 +6124,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       function isCurrentUserAdmin() {
         const uid = getCurrentUserId();
         const u = getUsers()[uid];
-        return !!(u && u.isAdmin);
+        return !!(isOwnerAdminUid(uid) || (u && u.isAdmin));
       }
 
       let _adminLiveUnsub = null;
@@ -10950,8 +10981,9 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         } catch (e) { return { uid: 'guest', name: 'SSC Aspirant', exam: 'SSC CGL', isAdmin: false }; }
       }
       function isAiltAdmin() {
+        const uid = getAiltUid();
         const u = getAiltUserObj();
-        return !!(u && u.isAdmin);
+        return !!(uid === 'admin@aman' || uid === 'amanchaudhary2701@gmail.com' || (u && u.isAdmin));
       }
 
       // Strictly isolated Attempt storage key per IST Date + exact Student UID!
