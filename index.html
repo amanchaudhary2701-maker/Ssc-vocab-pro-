@@ -3676,16 +3676,75 @@
       else renderVocabGrid();
     }
 
+    let _sscCachedVoices = [];
+    if ('speechSynthesis' in window) {
+      try {
+        _sscCachedVoices = window.speechSynthesis.getVoices() || [];
+        window.speechSynthesis.addEventListener?.('voiceschanged', () => {
+          try { _sscCachedVoices = window.speechSynthesis.getVoices() || []; } catch (e) {}
+        });
+      } catch (e) {}
+    }
+
+    function pickIndianMaleVoice() {
+      try {
+        if (!('speechSynthesis' in window)) return { voice: null, isMale: false };
+        const voices = (_sscCachedVoices && _sscCachedVoices.length)
+          ? _sscCachedVoices
+          : (window.speechSynthesis.getVoices() || []);
+        if (!voices.length) return { voice: null, isMale: false };
+
+        const maleRe = /\b(male|prabhat|ravi|rishi|madhur|hemant|aman|arjun|neeraj|kunal|man)\b|en-in-x-end|en-in-x-ene|en-in-x-ahp/i;
+        const femaleRe = /\b(female|heera|neerja|veena|kajal|aditi|raveena|lekha|sangeeta|priya|ananya|swara|shruti|kalpana|woman|girl)\b|en-in-x-ena|en-in-x-enc|en-in-x-enf/i;
+        const langOf = (v) => String(v.lang || '').replace('_', '-').toLowerCase();
+        const tagOf = (v) => `${v.name || ''} ${v.voiceURI || ''}`;
+
+        // Priority 1: Explicit Indian English (en-IN) Male voice (Prabhat, Ravi, Rishi, Google en-in-x-end/ene)
+        let v = voices.find(x => langOf(x) === 'en-in' && maleRe.test(tagOf(x)) && !femaleRe.test(tagOf(x)));
+        if (v) return { voice: v, isMale: true };
+
+        // Priority 2: Any en-IN voice that is NOT explicitly female
+        v = voices.find(x => langOf(x) === 'en-in' && !femaleRe.test(tagOf(x)));
+        if (v) return { voice: v, isMale: false };
+
+        // Priority 3: Any en-IN voice (fallback with deeper male pitch)
+        v = voices.find(x => langOf(x) === 'en-in');
+        if (v) return { voice: v, isMale: false };
+
+        // Priority 4: Indian Hindi/Regional Male voice (e.g. Madhur / Hemant) or any English Male voice
+        v = voices.find(x => langOf(x).endsWith('-in') && maleRe.test(tagOf(x)) && !femaleRe.test(tagOf(x)));
+        if (v) return { voice: v, isMale: true };
+
+        v = voices.find(x => langOf(x).startsWith('en') && maleRe.test(tagOf(x)) && !femaleRe.test(tagOf(x)));
+        if (v) return { voice: v, isMale: true };
+
+        return { voice: null, isMale: false };
+      } catch (e) {
+        return { voice: null, isMale: false };
+      }
+    }
+
+    function speakWithIndianMaleVoice(rawText) {
+      const clean = String(rawText || '').replace(/\(.*?\)/g, '').trim();
+      if (!clean) return false;
+      if (!('speechSynthesis' in window)) return false;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(clean);
+      const picked = pickIndianMaleVoice();
+      if (picked.voice) u.voice = picked.voice;
+      u.lang = (picked.voice && picked.voice.lang) ? picked.voice.lang : 'en-IN';
+      u.rate = 0.90;
+      u.pitch = picked.isMale ? 0.92 : 0.80;
+      window.speechSynthesis.speak(u);
+      return true;
+    }
+
     function speakCurrentWord() {
       const item = activeVocabDeck[state.currentCardIdx];
       if (!item) return;
       if ('speechSynthesis' in window) {
         try {
-          window.speechSynthesis.cancel();
-          const u = new SpeechSynthesisUtterance(item.word.replace(/\(.*?\)/g, ''));
-          u.lang = 'en-IN';
-          u.rate = 0.92;
-          window.speechSynthesis.speak(u);
+          speakWithIndianMaleVoice(item.word);
         } catch (e) {
           showToast('Audio unavailable in this browser');
         }
@@ -4575,10 +4634,7 @@
           }
           const spkBtn = e.target.closest('[data-pyq-speak]');
           if (spkBtn && 'speechSynthesis' in window) {
-            const u = new SpeechSynthesisUtterance(spkBtn.dataset.pyqSpeak);
-            u.lang = 'en-IN';
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(u);
+            speakWithIndianMaleVoice(spkBtn.dataset.pyqSpeak);
             return;
           }
           const bmBtn = e.target.closest('[data-pyq-bm]');
@@ -8269,11 +8325,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
     function speakWord(text) {
       try {
         if (!('speechSynthesis' in window) || !text) return;
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(String(text));
-        u.lang = 'en-IN';
-        u.rate = 0.92;
-        window.speechSynthesis.speak(u);
+        speakWithIndianMaleVoice(text);
       } catch (e) {}
     }
 
