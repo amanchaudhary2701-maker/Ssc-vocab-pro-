@@ -15378,7 +15378,38 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       // High-Accuracy Gemini Vision API (processes 1 file at a time so 8+ photos never fail or truncate!)
       async function callGeminiExtractMcqs(files, apiKey, subject, chapter) {
         const allExtracted = [];
-        const models = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
+        async function getCandidateModels(key) {
+          const priority = [
+            'gemini-3.8-flash',
+            'gemini-3.7-flash',
+            'gemini-3.6-flash',
+            'gemini-3.5-flash',
+            'gemini-3.5-flash-lite',
+            'gemini-3-flash-preview',
+            'gemini-2.5-flash'
+          ];
+          const discovered = [];
+          try {
+            const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100', {
+              headers: { 'x-goog-api-key': key }
+            });
+            if (r.ok) {
+              const j = await r.json();
+              (j.models || []).forEach(m => {
+                const name = String(m.name || '').replace(/^models\//, '');
+                const methods = Array.isArray(m.supportedGenerationMethods) ? m.supportedGenerationMethods : [];
+                if (methods.includes('generateContent') && /gemini/i.test(name) && /flash/i.test(name) && !/tts|audio|live|embedding|imagen|veo|2\.0|2\.5/i.test(name)) {
+                  discovered.push(name);
+                }
+              });
+              discovered.sort().reverse();
+            }
+          } catch (_) {}
+          const saved = (() => { try { return localStorage.getItem('ssc_tm_gemini_model') || ''; } catch(_) { return ''; } })();
+          return Array.from(new Set([saved, ...discovered, ...priority].filter(Boolean)));
+        }
+
+        const models = await getCandidateModels(apiKey);
         let workingModel = null;
         let lastErr = '';
 
@@ -15441,6 +15472,7 @@ Return ONLY a valid JSON array (no markdown fences) of objects:
               const arr = JSON.parse(jsonMatch ? jsonMatch[0] : clean);
               if (Array.isArray(arr)) {
                 workingModel = model;
+                try { localStorage.setItem('ssc_tm_gemini_model', model); } catch (_) {}
                 pageQs = arr.map((q, qi) => normalizeQuestion(q, allExtracted.length + qi, chapter, subject)).filter(q => q.cbtPrompt || q.promptHi);
                 break;
               }
@@ -15806,21 +15838,50 @@ Return ONLY a valid JSON array (no markdown fences) of objects:
             setTmStatus('⚠️ Pehle "AQ." ya "AIza" se shuru hone wali Gemini API Key paste karein.', 'err');
             return;
           }
-          setTmStatus('⏳ Gemini API Key check ho rahi hai...', 'info');
+          setTmStatus('⏳ Latest Gemini Flash model auto-detect & verify ho raha hai...', 'info');
           try {
-            const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'x-goog-api-key': k },
-              body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Say OK' }] }] })
-            });
-            if (resp.ok) {
-              try { localStorage.setItem('ssc_tm_gemini_key', k); } catch (_) {}
-              refreshAiKeyBadge();
-              setTmStatus('✅ Gemini AI Key 100% Working! Ab Photo/PDF bilkul saaf Hindi + Maths me scan hoga!', 'ok');
-            } else {
-              const et = await resp.text().catch(() => '');
-              setTmStatus(`❌ Key Error (${resp.status}): ${et.slice(0, 110)}`, 'err');
+            const priority = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3-flash-preview', 'gemini-2.5-flash'];
+            const discovered = [];
+            try {
+              const lr = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100', {
+                headers: { 'x-goog-api-key': k }
+              });
+              if (lr.ok) {
+                const lj = await lr.json();
+                (lj.models || []).forEach(m => {
+                  const name = String(m.name || '').replace(/^models\//, '');
+                  const methods = Array.isArray(m.supportedGenerationMethods) ? m.supportedGenerationMethods : [];
+                  if (methods.includes('generateContent') && /gemini/i.test(name) && /flash/i.test(name) && !/tts|audio|live|embedding|imagen|veo|2\.0|2\.5/i.test(name)) {
+                    discovered.push(name);
+                  }
+                });
+                discovered.sort().reverse();
+              }
+            } catch (_) {}
+
+            const tryList = Array.from(new Set([...discovered, ...priority]));
+            let lastErr = '';
+            for (const mdl of tryList) {
+              const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${mdl}:generateContent`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-goog-api-key': k },
+                body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Say OK' }] }] })
+              });
+              if (resp.ok) {
+                try {
+                  localStorage.setItem('ssc_tm_gemini_key', k);
+                  localStorage.setItem('ssc_tm_gemini_model', mdl);
+                } catch (_) {}
+                refreshAiKeyBadge();
+                setTmStatus(`✅ Gemini AI Key 100% Working! (Active Model: ${mdl}) — Ab Photo/PDF bilkul saaf Hindi + Maths me scan hoga!`, 'ok');
+                return;
+              } else {
+                const et = await resp.text().catch(() => '');
+                lastErr = `${mdl} (${resp.status}): ${et.slice(0, 110)}`;
+                if (resp.status === 401 || resp.status === 403) break;
+              }
             }
+            setTmStatus(`❌ Key Error: ${lastErr}`, 'err');
           } catch (e) {
             setTmStatus(`❌ Network Error: ${e?.message || 'Check internet'}`, 'err');
           }
