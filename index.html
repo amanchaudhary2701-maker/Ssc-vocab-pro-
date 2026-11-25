@@ -11591,7 +11591,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900/95 to-cyan-950/60 border border-emerald-400/40 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v124</span>
                 <h4 class="text-sm font-black text-white mt-1">Instant Student Test Maker (Free Auto-OCR)</h4>
                 <p class="text-[11px] text-slate-300">Bina kisi API key ke Photo ya PDF upload karein, Subject &amp; Chapter likhein — auto-scan hokar seedha Students ke Test Panel me live ho jayega!</p>
               </div>
@@ -11711,7 +11711,10 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 space-y-2.5">
             <div class="flex items-center justify-between gap-2">
               <h5 class="text-xs font-black text-amber-200">📋 Published Live Tests (<span id="tm-pub-count">0</span>)</h5>
-              <button type="button" id="tm-refresh-pub-btn" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-200 text-[10px] font-bold">🔄 Sync Cloud</button>
+              <div class="flex items-center gap-1.5">
+                <button type="button" id="tm-force-update-btn" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-200 text-[10px] font-bold">⚡ Refresh App</button>
+                <button type="button" id="tm-refresh-pub-btn" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-200 text-[10px] font-bold">🔄 Sync Cloud</button>
+              </div>
             </div>
             <div id="tm-published-list" class="space-y-2 max-h-56 overflow-y-auto pr-1 text-xs text-slate-400">
               Abhi koi custom test publish nahi hua hai.
@@ -15988,6 +15991,20 @@ Keep exp & trick very concise (max 15 words) for speed.`
         document.getElementById('tm-clear-draft-btn')?.addEventListener('click', () => {
           tmDraftQuestions = [];
           renderDraftPreview();
+        });
+
+        document.getElementById('tm-force-update-btn')?.addEventListener('click', async () => {
+          try {
+            if ('caches' in window) {
+              const keys = await caches.keys();
+              await Promise.all(keys.map(k => caches.delete(k)));
+            }
+            if ('serviceWorker' in navigator) {
+              const regs = await navigator.serviceWorker.getRegistrations();
+              await Promise.all(regs.map(r => r.unregister()));
+            }
+          } catch (_) {}
+          location.reload(true);
         });
 
         document.getElementById('tm-refresh-pub-btn')?.addEventListener('click', async () => {
