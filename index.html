@@ -770,123 +770,175 @@
     </div>
   </div>
 
-  <!-- ==================== STAGE 2: GOOGLE + REAL EMAIL VERIFICATION GATE ==================== -->
-  <div id="gate-auth-screen" class="fixed inset-0 z-[80] hidden overflow-y-auto flex items-center justify-center p-4" style="background: radial-gradient(circle at 20% 20%, #15214d 0%, #070b1a 60%, #03050c 100%);">
-    <div class="glass-card rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-4 border-cyan-400/40 shadow-2xl my-auto">
-      <div class="text-center space-y-1.5">
-        <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-blue-900 via-blue-700 to-indigo-800 border-2 border-amber-400 flex flex-col items-center justify-center shadow-lg">
-          <span class="text-xl leading-none">👑</span>
-          <span class="text-[8px] font-black text-amber-300 tracking-widest mt-0.5">SSC PRO</span>
+  <!-- ==================== STAGE 2: PREMIUM SECURE LOGIN STUDIO (v129) ==================== -->
+  <div id="gate-auth-screen" class="fixed inset-0 z-[80] hidden overflow-y-auto flex items-center justify-center p-4" style="background: radial-gradient(circle at 18% 15%, rgba(34,211,238,0.18) 0%, transparent 42%), radial-gradient(circle at 82% 85%, rgba(99,102,241,0.22) 0%, transparent 45%), radial-gradient(circle at 50% 0%, #121c42 0%, #060916 65%, #02040a 100%);">
+    <div class="relative max-w-md w-full my-auto">
+      <!-- Soft Ambient Glow Ring -->
+      <div class="pointer-events-none absolute -inset-0.5 rounded-[28px] bg-gradient-to-br from-cyan-400/35 via-indigo-500/25 to-amber-400/35 blur-md opacity-70"></div>
+
+      <div class="relative rounded-[26px] bg-slate-950/90 backdrop-blur-2xl border border-white/15 p-6 sm:p-7 space-y-4 shadow-[0_24px_80px_rgba(0,0,0,0.75)]">
+        <!-- Brand Header -->
+        <div class="text-center space-y-2">
+          <div class="relative w-16 h-16 mx-auto">
+            <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-amber-400 via-cyan-400 to-indigo-500 blur opacity-55"></div>
+            <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-amber-400/70 flex flex-col items-center justify-center shadow-xl">
+              <span class="text-2xl leading-none">👑</span>
+              <span class="text-[8px] font-black text-amber-300 tracking-[0.18em] mt-0.5">SSC PRO</span>
+            </div>
+          </div>
+          <div>
+            <h2 class="text-2xl font-black tracking-tight bg-gradient-to-r from-white via-cyan-100 to-amber-200 bg-clip-text text-transparent">SSC Vocab 3D Pro</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Sign in to continue your SSC preparation</p>
+          </div>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/35 text-amber-200 text-[11px] font-bold">
+            <span>🎁</span><span>15-Day Free Trial Included</span>
+          </div>
         </div>
-        <h2 class="text-2xl font-black bg-gradient-to-r from-cyan-200 via-white to-amber-200 bg-clip-text text-transparent">SSC VOCAB PRO</h2>
-        <p class="text-xs text-slate-300">Verified Google ya Email Verify Link se login karein — <span class="text-amber-300 font-extrabold">1 Device = 1 Free 15-Day Trial</span></p>
-      </div>
 
-      <!-- 1-TAP GOOGLE SIGN-IN -->
-      <button type="button" id="gate-google-signin-btn" class="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-black text-sm shadow-lg flex items-center justify-center gap-2.5 transition">
-        <span class="text-lg font-black text-blue-600">G</span>
-        <span>Continue with Google (⚡ 1-Sec Instant — No Wait)</span>
-      </button>
+        <!-- Official Clean 1-Tap Google Sign-In -->
+        <button type="button" id="gate-google-signin-btn" class="w-full py-3 px-4 rounded-2xl bg-white hover:bg-slate-50 active:scale-[0.99] text-slate-900 font-extrabold text-sm shadow-[0_8px_24px_rgba(255,255,255,0.12)] flex items-center justify-center gap-2.5 transition">
+          <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.2-2.27H12v4.3h6.44a5.5 5.5 0 0 1-2.39 3.61v3h3.87c2.26-2.08 3.57-5.15 3.57-8.64z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.93-2.91l-3.87-3c-1.07.72-2.45 1.15-4.06 1.15-3.12 0-5.77-2.11-6.72-4.95H1.28v3.09A12 12 0 0 0 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.29a7.2 7.2 0 0 1 0-4.58V6.62H1.28a12 12 0 0 0 0 10.76l4-3.09z"/>
+            <path fill="#EA4335" d="M12 4.76c1.76 0 3.34.61 4.58 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.28 6.62l4 3.09c.95-2.84 3.6-4.95 6.72-4.95z"/>
+          </svg>
+          <span>Continue with Google</span>
+          <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black">Instant</span>
+        </button>
 
-      <div class="flex items-center gap-2 text-[11px] text-slate-400">
-        <div class="h-px flex-1 bg-white/10"></div>
-        <span>YA Verified Email se (No Fake Numbers)</span>
-        <div class="h-px flex-1 bg-white/10"></div>
-      </div>
+        <!-- Clean Divider -->
+        <div class="flex items-center gap-3 text-[11px] font-semibold text-slate-500">
+          <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/15 to-white/15"></div>
+          <span>or continue with email</span>
+          <div class="h-px flex-1 bg-gradient-to-l from-transparent via-white/15 to-white/15"></div>
+        </div>
 
-      <div class="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-900/90 border border-slate-700">
-        <button type="button" id="gate-em-tab-login" class="py-2 rounded-lg text-xs font-extrabold bg-cyan-500/25 text-cyan-200 border border-cyan-400/50">🔐 Email Login</button>
-        <button type="button" id="gate-em-tab-signup" class="py-2 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white">✉️ Verify &amp; Sign Up</button>
-      </div>
+        <!-- Segmented Tab Switcher -->
+        <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-900/90 border border-white/10">
+          <button type="button" id="gate-em-tab-login" class="py-2 rounded-xl text-xs font-extrabold bg-cyan-500/20 text-cyan-200 border border-cyan-400/45 transition">🔐 Sign In</button>
+          <button type="button" id="gate-em-tab-signup" class="py-2 rounded-xl text-xs font-extrabold text-slate-400 hover:text-white transition">✨ Create Account</button>
+        </div>
 
-      <p id="gate-auth-err" class="hidden text-xs font-bold text-rose-300 bg-rose-500/15 border border-rose-400/35 rounded-xl px-3.5 py-2"></p>
+        <p id="gate-auth-err" class="hidden text-xs font-bold text-rose-200 bg-rose-500/15 border border-rose-400/35 rounded-xl px-3.5 py-2.5 leading-snug"></p>
 
-      <!-- Mandatory Email Verification Pending Box -->
-      <div id="gate-verify-box" class="hidden p-4 rounded-2xl bg-amber-500/15 border border-amber-400/50 space-y-3">
-        <div class="flex items-start gap-2.5">
-          <span class="text-xl leading-none">📧</span>
+        <!-- Mandatory Email Verification Pending Box -->
+        <div id="gate-verify-box" class="hidden p-4 rounded-2xl bg-amber-500/10 border border-amber-400/45 space-y-3">
+          <div class="flex items-start gap-2.5">
+            <span class="text-xl leading-none">📧</span>
+            <div class="space-y-1">
+              <p class="text-xs font-black text-amber-200">Verify Your Email</p>
+              <p id="gate-verify-msg" class="text-[11px] text-slate-200 leading-relaxed">Aapke email inbox (ya Spam folder) me verification link bheja gaya hai. Link par click karne ke baad niche button dabayein.</p>
+            </div>
+          </div>
+          <p class="text-[10px] text-emerald-300 font-bold animate-pulse">⚡ Auto-checking every 2s — verify hote hi app open ho jayega</p>
+          <div class="grid grid-cols-3 gap-1.5">
+            <a href="https://mail.google.com/" target="_blank" rel="noopener noreferrer" class="py-2 px-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-[11px] text-center transition">📬 Gmail</a>
+            <button type="button" id="gate-verify-check-btn" class="py-2 px-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[11px] transition">✅ Verified</button>
+            <button type="button" id="gate-verify-resend-btn" class="py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-amber-400/40 text-amber-200 font-bold text-[11px] transition">🔁 Resend</button>
+          </div>
+        </div>
+
+        <!-- Clean Secure Email Login Form -->
+        <form id="gate-em-login-form" class="space-y-3.5">
           <div class="space-y-1">
-            <p class="text-xs font-black text-amber-200">Email Verification Required!</p>
-            <p id="gate-verify-msg" class="text-[11px] text-slate-200 leading-relaxed">Aapke email inbox (ya Spam folder) me verification link bheja gaya hai. Link par click karne ke baad niche button dabayein.</p>
+            <label for="gate-em-login-email" class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Email Address</label>
+            <div class="relative">
+              <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">✉️</span>
+              <input id="gate-em-login-email" type="email" autocomplete="email" required placeholder="yourname@gmail.com" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/25 transition" />
+            </div>
           </div>
-        </div>
-        <p class="text-[10px] text-emerald-300 font-bold animate-pulse">⚡ Auto-Checking every 2s — link par click karte hi app apne aap khul jayega!</p>
-        <div class="grid grid-cols-3 gap-1.5">
-          <a href="https://mail.google.com/" target="_blank" rel="noopener noreferrer" class="py-2 px-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-[11px] text-center transition">📬 Gmail</a>
-          <button type="button" id="gate-verify-check-btn" class="py-2 px-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[11px] transition">✅ Verified</button>
-          <button type="button" id="gate-verify-resend-btn" class="py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-amber-400/40 text-amber-200 font-bold text-[11px] transition">🔁 Resend</button>
-        </div>
-      </div>
-
-      <!-- Verified Email Login Form -->
-      <form id="gate-em-login-form" class="space-y-3">
-        <div>
-          <label class="text-xs font-bold text-slate-300 block mb-1">Verified Email Address</label>
-          <input id="gate-em-login-email" type="email" required placeholder="e.g. yourname@gmail.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-        </div>
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="text-xs font-bold text-slate-300">Password</label>
-            <button type="button" id="gate-em-forgot-btn" class="text-[11px] font-bold text-cyan-300 hover:text-cyan-200">Forgot Password?</button>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <label for="gate-em-login-pass" class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Password</label>
+              <button type="button" id="gate-em-forgot-btn" class="text-[11px] font-bold text-cyan-300 hover:text-cyan-200 transition">Forgot password?</button>
+            </div>
+            <div class="relative">
+              <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔒</span>
+              <input id="gate-em-login-pass" type="password" autocomplete="current-password" required minlength="6" placeholder="Enter your password" class="w-full pl-10 pr-11 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/25 transition" />
+              <button type="button" onclick="window._toggleAuthPass('gate-em-login-pass', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-1 rounded-lg text-slate-400 hover:text-white text-xs transition" aria-label="Show password">👁️</button>
+            </div>
           </div>
-          <input id="gate-em-login-pass" type="password" required minlength="6" placeholder="Apna Password dalein" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-        </div>
-        <button type="submit" id="gate-em-login-submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-violet-600 text-white font-black text-sm shadow-xl hover:brightness-110 transition">🚀 Login with Verified Email</button>
-      </form>
+          <button type="submit" id="gate-em-login-submit" class="w-full py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:brightness-110 active:scale-[0.99] text-white font-black text-sm shadow-[0_10px_28px_rgba(34,211,238,0.28)] transition">Sign In Securely →</button>
+        </form>
 
-      <!-- Verified Email Sign Up Form -->
-      <form id="gate-em-signup-form" class="hidden space-y-2.5">
-        <div>
-          <label class="text-xs font-bold text-slate-300 block mb-1">Student Full Name</label>
-          <input id="gate-em-signup-name" type="text" required placeholder="e.g. Aman Kumar" class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-        </div>
-        <div>
-          <label class="text-xs font-bold text-slate-300 block mb-1">Real Email Address (Verification Link Aayega)</label>
-          <input id="gate-em-signup-email" type="email" required placeholder="e.g. yourname@gmail.com" class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="text-xs font-bold text-slate-300 block mb-1">Target Exam</label>
-            <select id="gate-em-signup-exam" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400">
-              <option value="SSC CGL">SSC CGL</option>
-              <option value="SSC CHSL">SSC CHSL</option>
-              <option value="SSC MTS">SSC MTS</option>
-              <option value="SSC CPO">SSC CPO</option>
-              <option value="SSC GD">SSC GD</option>
-            </select>
+        <!-- Clean Secure Sign Up Form -->
+        <form id="gate-em-signup-form" class="hidden space-y-3">
+          <div class="space-y-1">
+            <label for="gate-em-signup-name" class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Full Name</label>
+            <div class="relative">
+              <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">👤</span>
+              <input id="gate-em-signup-name" type="text" autocomplete="name" required placeholder="e.g. Aman Kumar" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/25 transition" />
+            </div>
           </div>
-          <div>
-            <label class="text-xs font-bold text-slate-300 block mb-1">Daily Goal</label>
-            <select id="gate-em-signup-goal" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400">
-              <option value="10">10 Words/Day</option>
-              <option value="20" selected>20 Words/Day</option>
-              <option value="30">30 Words/Day</option>
-              <option value="50">50 Words/Day</option>
-            </select>
+          <div class="space-y-1">
+            <label for="gate-em-signup-email" class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Email Address</label>
+            <div class="relative">
+              <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">✉️</span>
+              <input id="gate-em-signup-email" type="email" autocomplete="email" required placeholder="yourname@gmail.com" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/25 transition" />
+            </div>
           </div>
-        </div>
-        <div>
-          <label class="text-xs font-bold text-slate-300 block mb-1">Create Password (min 6 characters)</label>
-          <input id="gate-em-signup-pass" type="password" required minlength="6" placeholder="Kam se kam 6 characters" class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400" />
-        </div>
-        <button type="submit" id="gate-em-signup-submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-600 text-white font-black text-sm shadow-xl hover:brightness-110 transition">✉️ Send Verification Link &amp; Register</button>
-      </form>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="space-y-1">
+              <label for="gate-em-signup-exam" class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Target Exam</label>
+              <select id="gate-em-signup-exam" class="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-white/15 text-xs text-white focus:outline-none focus:border-cyan-400">
+                <option value="SSC CGL">SSC CGL</option>
+                <option value="SSC CHSL">SSC CHSL</option>
+                <option value="SSC MTS">SSC MTS</option>
+                <option value="SSC CPO">SSC CPO</option>
+                <option value="SSC GD">SSC GD</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label for="gate-em-signup-goal" class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Daily Goal</label>
+              <select id="gate-em-signup-goal" class="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-white/15 text-xs text-white focus:outline-none focus:border-cyan-400">
+                <option value="10">10 Words/Day</option>
+                <option value="20" selected>20 Words/Day</option>
+                <option value="30">30 Words/Day</option>
+                <option value="50">50 Words/Day</option>
+              </select>
+            </div>
+          </div>
+          <div class="space-y-1">
+            <label for="gate-em-signup-pass" class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Create Password</label>
+            <div class="relative">
+              <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔒</span>
+              <input id="gate-em-signup-pass" type="password" autocomplete="new-password" required minlength="6" placeholder="Min 6 characters" oninput="window._updatePassStrength(this.value)" class="w-full pl-10 pr-11 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/25 transition" />
+              <button type="button" onclick="window._toggleAuthPass('gate-em-signup-pass', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-1 rounded-lg text-slate-400 hover:text-white text-xs transition" aria-label="Show password">👁️</button>
+            </div>
+            <!-- Live Password Strength Bar -->
+            <div class="flex items-center gap-2 pt-1">
+              <div class="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                <div id="gate-pass-strength-bar" class="h-full w-0 rounded-full transition-all duration-200 bg-rose-500"></div>
+              </div>
+              <span id="gate-pass-strength-lbl" class="text-[10px] font-bold text-slate-400">6+ chars</span>
+            </div>
+          </div>
+          <button type="submit" id="gate-em-signup-submit" class="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-600 hover:brightness-110 active:scale-[0.99] text-slate-950 font-black text-sm shadow-[0_10px_28px_rgba(16,185,129,0.25)] transition">Create Verified Account →</button>
+        </form>
 
-      <p class="text-[10px] text-center text-slate-400">🛡️ Fake number signup band hai • Bina email verify kiye app open nahi hoga • 1 Device = 1 Free Trial</p>
-
-      <div class="pt-3 mt-2 border-t border-slate-800/80 text-center space-y-1.5">
-        <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] font-bold text-slate-300">
-          <button type="button" data-legal-tab="about" class="hover:text-cyan-300 underline underline-offset-2">About Us</button>
-          <span class="text-slate-600">•</span>
-          <button type="button" data-legal-tab="contact" class="hover:text-cyan-300 underline underline-offset-2">Contact Us</button>
-          <span class="text-slate-600">•</span>
-          <button type="button" data-legal-tab="terms" class="hover:text-cyan-300 underline underline-offset-2">Terms &amp; Conditions</button>
-          <span class="text-slate-600">•</span>
-          <button type="button" data-legal-tab="privacy" class="hover:text-cyan-300 underline underline-offset-2">Privacy Policy</button>
-          <span class="text-slate-600">•</span>
-          <button type="button" data-legal-tab="refund" class="hover:text-cyan-300 underline underline-offset-2">Refund Policy</button>
+        <!-- Clean Security Trust Pills -->
+        <div class="flex flex-wrap items-center justify-center gap-2 pt-1 text-[10px] font-semibold text-slate-400">
+          <span class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10">🔒 SSL Encrypted</span>
+          <span class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10">🛡️ Firebase Auth</span>
+          <span class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10">✅ Verified Accounts</span>
         </div>
-        <p class="text-[10px] text-slate-400">SSC Vocab 3D Pro (Aman Kumar) • 📧 amanchaudhary2701@gmail.com • 📞 +91 9151345504</p>
+
+        <!-- Minimal Legal Footer -->
+        <div class="pt-3 border-t border-white/10 text-center space-y-1">
+          <div class="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-[10px] font-semibold text-slate-400">
+            <button type="button" data-legal-tab="about" class="hover:text-cyan-300 transition">About</button>
+            <span class="text-slate-700">•</span>
+            <button type="button" data-legal-tab="contact" class="hover:text-cyan-300 transition">Contact</button>
+            <span class="text-slate-700">•</span>
+            <button type="button" data-legal-tab="terms" class="hover:text-cyan-300 transition">Terms</button>
+            <span class="text-slate-700">•</span>
+            <button type="button" data-legal-tab="privacy" class="hover:text-cyan-300 transition">Privacy</button>
+            <span class="text-slate-700">•</span>
+            <button type="button" data-legal-tab="refund" class="hover:text-cyan-300 transition">Refund</button>
+          </div>
+          <p class="text-[10px] text-slate-500">SSC Vocab 3D Pro • Aman Kumar • +91 9151345504</p>
+        </div>
       </div>
     </div>
   </div>
@@ -6142,7 +6194,7 @@
           }
         } finally {
           btn.disabled = false;
-          btn.innerHTML = '<span class="text-lg font-black text-blue-600">G</span><span>Continue with Google (1-Tap Verified)</span>';
+          btn.innerHTML = '<span class="text-base font-black text-blue-600">G</span><span>Continue with Google</span><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black">Instant</span>';
         }
       });
 
@@ -6649,7 +6701,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           }
         } finally {
           btn.disabled = false;
-          btn.textContent = '🚀 Login with Verified Email';
+          btn.textContent = 'Sign In Securely →';
         }
       });
 
@@ -11598,7 +11650,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900/95 to-cyan-950/60 border border-emerald-400/40 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v128</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v129</span>
                 <h4 class="text-sm font-black text-white mt-1">Instant Student Test Maker (Free Auto-OCR)</h4>
                 <p class="text-[11px] text-slate-300">Bina kisi API key ke Photo ya PDF upload karein, Subject &amp; Chapter likhein — auto-scan hokar seedha Students ke Test Panel me live ho jayega!</p>
               </div>
@@ -16174,6 +16226,100 @@ Keep exp & trick very concise (max 15 words) for speed.`
       } else {
         setTimeout(wireTestMakerUi, 200);
       }
+    })();
+  </script>
+
+
+  <!-- ==================== v129 LOGIN STUDIO UX & SECURITY HELPERS ==================== -->
+  <script>
+    (function() {
+      window._toggleAuthPass = function(inputId, btn) {
+        const inp = document.getElementById(inputId);
+        if (!inp) return;
+        const isPass = inp.type === 'password';
+        inp.type = isPass ? 'text' : 'password';
+        if (btn) btn.textContent = isPass ? '🙈' : '👁️';
+      };
+
+      window._updatePassStrength = function(val) {
+        const bar = document.getElementById('gate-pass-strength-bar');
+        const lbl = document.getElementById('gate-pass-strength-lbl');
+        if (!bar || !lbl) return;
+        const s = String(val || '');
+        let score = 0;
+        if (s.length >= 6) score++;
+        if (s.length >= 8) score++;
+        if (/[A-Z]/.test(s) && /[a-z]/.test(s)) score++;
+        if (/\d/.test(s)) score++;
+        if (/[^A-Za-z0-9]/.test(s)) score++;
+
+        if (!s.length) {
+          bar.style.width = '0%';
+          bar.className = 'h-full rounded-full transition-all duration-200 bg-rose-500';
+          lbl.textContent = '6+ chars';
+          lbl.className = 'text-[10px] font-bold text-slate-400';
+        } else if (score <= 2) {
+          bar.style.width = '35%';
+          bar.className = 'h-full rounded-full transition-all duration-200 bg-rose-500';
+          lbl.textContent = 'Weak';
+          lbl.className = 'text-[10px] font-bold text-rose-300';
+        } else if (score === 3) {
+          bar.style.width = '70%';
+          bar.className = 'h-full rounded-full transition-all duration-200 bg-amber-400';
+          lbl.textContent = 'Medium';
+          lbl.className = 'text-[10px] font-bold text-amber-300';
+        } else {
+          bar.style.width = '100%';
+          bar.className = 'h-full rounded-full transition-all duration-200 bg-emerald-400';
+          lbl.textContent = 'Strong 🔒';
+          lbl.className = 'text-[10px] font-bold text-emerald-300';
+        }
+      };
+
+      // Disposable temp-mail blocker + brute-force login throttle
+      const BLOCKED_DOMAINS = ['tempmail.com','10minutemail.com','guerrillamail.com','yopmail.com','mailinator.com','trashmail.com','throwawaymail.com','fakeinbox.com','sharklasers.com'];
+      let _loginFails = 0;
+      let _lockUntil = 0;
+
+      document.getElementById('gate-em-signup-form')?.addEventListener('submit', function(e) {
+        const em = (document.getElementById('gate-em-signup-email')?.value || '').trim().toLowerCase();
+        const dom = em.split('@')[1] || '';
+        if (BLOCKED_DOMAINS.some(d => dom === d || dom.endsWith('.' + d))) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          const err = document.getElementById('gate-auth-err');
+          if (err) {
+            err.textContent = '🛡️ Temporary/disposable email allowed nahi hai — apna real Gmail ya email use karein.';
+            err.classList.remove('hidden');
+          }
+        }
+      }, true);
+
+      document.getElementById('gate-em-login-form')?.addEventListener('submit', function(e) {
+        const now = Date.now();
+        if (_lockUntil > now) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          const sec = Math.ceil((_lockUntil - now) / 1000);
+          const err = document.getElementById('gate-auth-err');
+          if (err) {
+            err.textContent = `🛡️ Security Lock: Bahut zyada wrong attempts — ${sec}s baad dobara try karein.`;
+            err.classList.remove('hidden');
+          }
+          return;
+        }
+        // Track rapid failed attempts via error box observer
+        setTimeout(() => {
+          const err = document.getElementById('gate-auth-err');
+          if (err && !err.classList.contains('hidden') && /wrong|invalid|password|credential/i.test(err.textContent || '')) {
+            _loginFails++;
+            if (_loginFails >= 5) {
+              _lockUntil = Date.now() + 30000;
+              _loginFails = 0;
+            }
+          }
+        }, 1200);
+      }, true);
     })();
   </script>
 
