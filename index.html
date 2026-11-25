@@ -4953,8 +4953,10 @@
       const yrStr = (q.exam && q.year && String(q.exam).includes(String(q.year))) ? q.exam : `${q.exam || ''} ${q.year || ''}`.trim();
       document.getElementById('cbt-q-year').textContent = q.rep ? `${q.exam} • ${q.rep}` : yrStr;
       const isMathsQ = String(q.id || '').startsWith('m_');
+      const isCustomTestQ = String(q.id || '').startsWith('tm_q_');
       document.getElementById('cbt-q-instruction').textContent =
         isMathsQ ? 'Solve & select the correct option (गणित प्रश्न हल करें):' :
+        isCustomTestQ ? 'Solve & select the correct option (सही उत्तर चुनें):' :
         q.category === 'Synonym' ? 'Select the most appropriate SYNONYM:' :
         q.category === 'Antonym' ? 'Select the most appropriate ANTONYM:' :
         q.category === 'Idiom' ? 'Select the most appropriate meaning of the IDIOM:' :
@@ -4970,7 +4972,7 @@
       const hiTxt = q.promptHi || '';
       const lm = window._cbtLangMode || 'both';
       const chartBlock = q.chartHtml || '';
-      if (isMathsQ) {
+      if (isMathsQ || isCustomTestQ) {
         let resolvedHi = hiTxt;
         if (!resolvedHi) {
           try {
@@ -11672,7 +11674,10 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               <summary class="text-[11px] font-bold text-slate-300 cursor-pointer select-none">📝 Paste MCQ Text / View Scanned OCR Text</summary>
               <div class="mt-2 space-y-1.5">
                 <textarea id="tm-raw-text" rows="4" placeholder="Q1. 20% of 150 is:&#10;(a) 25  (b) 30  (c) 35  (d) 40&#10;Ans: b" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-[11px] text-white font-mono focus:outline-none focus:border-emerald-400"></textarea>
-                <button type="button" id="tm-reparse-text-btn" class="px-3 py-1.5 rounded-lg bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 text-[10px] font-black hover:bg-indigo-500/35">🔄 Parse Above Text to Questions</button>
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <button type="button" id="tm-reparse-text-btn" class="px-3 py-1.5 rounded-lg bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 text-[10px] font-black hover:bg-indigo-500/35">🔄 Parse Text / JSON to Test</button>
+                  <button type="button" id="tm-copy-prompt-btn" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-[10px] font-black hover:bg-emerald-500/35">📋 Copy 100% Accurate JSON Prompt</button>
+                </div>
               </div>
             </details>
 
@@ -15817,6 +15822,19 @@ Return ONLY a valid JSON array (no markdown fences) of objects:
             }
           } catch (e) {
             setTmStatus(`❌ Network Error: ${e?.message || 'Check internet'}`, 'err');
+          }
+        });
+
+        document.getElementById('tm-copy-prompt-btn')?.addEventListener('click', () => {
+          const promptStr = 'Is photo/PDF ke SAARE questions aur chaaron options (a,b,c,d) ko 100% sahi Hindi + English me solve karke sirf valid JSON array me do: [{"cbtPrompt":"English Q","promptHi":"Hindi Q","options":["A","B","C","D"],"answer":"Exact Correct Option","exp":"Short solution","trick":"1-line trick"}]';
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(promptStr).then(() => {
+              setTmStatus('📋 Prompt copied! Gemini/ChatGPT me apni photo + ye prompt bhejein, JSON copy karke yahan paste karein — 100% saare Qs perfect aayenge!', 'ok');
+            }).catch(() => {});
+          } else {
+            const box = document.getElementById('tm-raw-text');
+            if (box) { box.value = promptStr; box.select(); }
+            setTmStatus('📋 Prompt box me aa gaya hai — copy kar lein!', 'ok');
           }
         });
 
