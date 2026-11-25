@@ -11633,7 +11633,15 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               </div>
               <input id="tm-file-input" type="file" accept="image/*,.pdf,.txt,.json" multiple class="block w-full text-[11px] text-slate-300 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-black file:bg-cyan-500/25 file:text-cyan-200 hover:file:bg-cyan-500/40 cursor-pointer" />
               <div id="tm-file-chips" class="flex flex-wrap gap-1.5"></div>
-              <p class="text-[10px] text-emerald-300/90 font-semibold">✨ Built-in Free OCR active! Multi-photo (JPG/PNG) aur PDF dono bina API key ke auto-scan ho jayenge.</p>
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
+                <label for="tm-ocr-lang" class="text-[10px] font-black text-amber-200">🌐 Photo/PDF Language:</label>
+                <select id="tm-ocr-lang" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-amber-400/45 text-[11px] font-bold text-white focus:outline-none focus:border-emerald-400">
+                  <option value="hin+eng" selected>🇮🇳 Hindi + English (Default)</option>
+                  <option value="hin">🇮🇳 Pure Hindi (हिंदी बुक)</option>
+                  <option value="eng">🇬🇧 Pure English</option>
+                </select>
+              </div>
+              <p class="text-[10px] text-emerald-300/90 font-semibold">✨ Built-in Free Hindi + English OCR active! Bina API key ke Hindi &amp; English dono photos/PDF auto-scan honge.</p>
             </div>
 
             <!-- Live OCR Progress Bar -->
@@ -15044,8 +15052,18 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           year: String(new Date().getFullYear()),
           word: `${ch} • Q${idx + 1}`,
           meaningHi: `${subjLbl} (${ch})`,
-          cbtPrompt: String(q.cbtPrompt || q.question || q.prompt || '').trim(),
-          promptHi: String(q.promptHi || q.questionHi || '').trim(),
+          cbtPrompt: (function() {
+            const p = String(q.cbtPrompt || q.question || q.prompt || '').trim();
+            return p;
+          })(),
+          promptHi: (function() {
+            const hi = String(q.promptHi || q.questionHi || '').trim();
+            if (hi) return hi;
+            const p = String(q.cbtPrompt || q.question || q.prompt || '').trim();
+            // If question contains Hindi Devanagari text, also populate promptHi automatically
+            if (/[\u0900-\u097F]/.test(p)) return p;
+            return '';
+          })(),
           options: finalOpts,
           answer: ans,
           cbtAnswer: ans,
@@ -15102,14 +15120,29 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             if (opts.length === 4) break;
           }
 
-          // Fallback: numbered options (1) ... (2) ... (3) ... (4) ...
+          // Fallback 1: numbered options (1) ... (2) ... (3) ... (4) ... or 1) 2) 3) 4)
           if (opts.length < 2) {
             opts = [];
             firstOptIdx = -1;
-            const numOptRx = /\(([1-4])\)\s*([^\n]+?)(?=(?:\s+\([1-4]\)|\n|$))/g;
+            const numOptRx = /(?:\(([1-4])\)|(?:^|[\s\n])([1-4])\))\s*([^\n]+?)(?=(?:\s+\([1-4]\)|\s+[1-4]\)|\n|$))/g;
             while ((m = numOptRx.exec(body)) !== null) {
+              const val = (m[3] || '').trim();
+              if (!val) continue;
               if (firstOptIdx === -1) firstOptIdx = m.index;
-              opts.push(m[2].trim());
+              opts.push(val);
+              if (opts.length === 4) break;
+            }
+          }
+          // Fallback 2: Hindi Devanagari options (क)/(ख)/(ग)/(घ) or (अ)/(ब)/(स)/(द)
+          if (opts.length < 2) {
+            opts = [];
+            firstOptIdx = -1;
+            const hiOptRx = /\(?([कखगघअबसद])\)?[.)]?\s*([^\n]+?)(?=(?:\s+\(?[कखगघअबसद]\)?[.)]?|\n|$))/g;
+            while ((m = hiOptRx.exec(body)) !== null) {
+              const val = (m[2] || '').trim();
+              if (!val) continue;
+              if (firstOptIdx === -1) firstOptIdx = m.index;
+              opts.push(val);
               if (opts.length === 4) break;
             }
           }
@@ -15152,7 +15185,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       }
 
       // Compress & enhance phone camera photo for fast accurate OCR / Vision
-      function preprocessImageFile(file, maxW = 1500, grayscale = true) {
+      function preprocessImageFile(file, maxW = 1800, grayscale = true) {
         return new Promise((resolve, reject) => {
           const img = new Image();
           const url = URL.createObjectURL(file);
@@ -15172,7 +15205,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
                 for (let i = 0; i < d.length; i += 4) {
                   let g = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
                   // Gentle contrast boost for crisp printed book text
-                  g = Math.min(255, Math.max(0, (g - 128) * 1.35 + 128));
+                  g = Math.min(255, Math.max(0, (g - 128) * 1.18 + 128));
                   d[i] = d[i+1] = d[i+2] = g;
                 }
                 ctx.putImageData(imgData, 0, 0);
@@ -15227,7 +15260,9 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           if (typeof window.Tesseract === 'undefined') {
             await loadExternalScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
           }
-          worker = await window.Tesseract.createWorker('eng');
+          const ocrLang = document.getElementById('tm-ocr-lang')?.value || 'hin+eng';
+          setTmProgress(true, `Loading Free OCR (${ocrLang === 'hin' ? 'Hindi' : ocrLang === 'eng' ? 'English' : 'Hindi + English'})...`, 8);
+          worker = await window.Tesseract.createWorker(ocrLang);
           return worker;
         }
 
@@ -15270,7 +15305,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           } else {
             // Photo image -> preprocess + Tesseract OCR
             setTmProgress(true, `Scanning Photo ${fi + 1}/${total} (${f.name})...`, basePct + (100 / total) * 0.25);
-            const enhancedDataUrl = await preprocessImageFile(f, 1500, true);
+            const enhancedDataUrl = await preprocessImageFile(f, 1800, true);
             const w = await getOcrWorker();
             setTmProgress(true, `Reading Text from Photo ${fi + 1}/${total}...`, basePct + (100 / total) * 0.65);
             const res = await w.recognize(enhancedDataUrl);
