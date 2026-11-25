@@ -631,6 +631,65 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style id="cbt-fullscreen-style">
+    /* TRUE Fullscreen Distraction-Free Phone & Desktop CBT Exam Mode */
+    body.cbt-fullscreen-mode {
+      overflow: hidden !important;
+      background: #ffffff !important;
+    }
+    body.cbt-fullscreen-mode header,
+    body.cbt-fullscreen-mode #bottom-dock-nav,
+    body.cbt-fullscreen-mode #ai-guru-fab,
+    body.cbt-fullscreen-mode #ai-guru-modal,
+    body.cbt-fullscreen-mode #ailt-test-banner,
+    body.cbt-fullscreen-mode #ai-live-test-card,
+    body.cbt-fullscreen-mode #pwa-install-banner,
+    body.cbt-fullscreen-mode #test-setup-panel,
+    body.cbt-fullscreen-mode footer {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+    body.cbt-fullscreen-mode #test-active-panel {
+      display: block !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      z-index: 99990 !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      padding: 0 0 96px 0 !important;
+      margin: 0 !important;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      max-width: 100vw !important;
+    }
+    #cbt-pause-overlay {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 2147483646 !important;
+    }
+    #cbt-palette-drawer {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 2147483645 !important;
+    }
+    body.light-mode #cbt-options-box button {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.light-mode #cbt-options-box button.cbt-opt-selected {
+      background: #e0f2fe !important;
+      border-color: #0284c7 !important;
+      color: #0c4a6e !important;
+    }
+  </style>
 </head>
 <body class="text-slate-100 antialiased selection:bg-cyan-400/30 selection:text-cyan-100">
   <!-- ==================== STAGE 1: 3D ANIMATED SPLASH SCREEN ==================== -->
@@ -4313,23 +4372,28 @@
       if (btn) btn.textContent = next === 'both' ? 'E/अ' : (next === 'en' ? 'EN' : 'हिं');
       renderCbtQuestion();
     };
-    window.toggleCbtPause = function() {
-      if (!cbt.active) return;
+    window.toggleCbtPause = function(ev) {
+      if (ev && ev.stopPropagation) ev.stopPropagation();
+      if (!cbt || !cbt.active) return;
       cbt.paused = !cbt.paused;
       const ov = document.getElementById('cbt-pause-overlay');
       const btn = document.getElementById('cbt-pause-btn');
-      if (ov) ov.classList.toggle('hidden', !cbt.paused);
+      if (ov) {
+        ov.classList.toggle('hidden', !cbt.paused);
+        ov.style.display = cbt.paused ? 'flex' : 'none';
+      }
       if (btn) btn.textContent = cbt.paused ? '▶' : '⏸';
     };
-    window.exitCbtToSetup = function() {
+    window.exitCbtToSetup = function(ev) {
+      if (ev && ev.stopPropagation) ev.stopPropagation();
       if (cbt.timerId) { clearInterval(cbt.timerId); cbt.timerId = null; }
       cbt.active = false;
       cbt.paused = false;
       document.body.classList.remove('cbt-fullscreen-mode');
-      document.getElementById('cbt-pause-overlay')?.classList.add('hidden');
-      cbt.paused = false;
-      document.body.classList.remove('cbt-fullscreen-mode');
-      document.getElementById('cbt-pause-overlay')?.classList.add('hidden');
+      const ov = document.getElementById('cbt-pause-overlay');
+      if (ov) { ov.classList.add('hidden'); ov.style.display = 'none'; }
+      const dr = document.getElementById('cbt-palette-drawer');
+      if (dr) dr.classList.add('hidden');
       document.getElementById('test-active-panel')?.classList.add('hidden');
       document.getElementById('test-result-panel')?.classList.add('hidden');
       document.getElementById('test-setup-panel')?.classList.remove('hidden');
@@ -4432,10 +4496,15 @@
       };
 
       cbt.paused = false;
-      document.getElementById('cbt-pause-overlay')?.classList.add('hidden');
+      const ovReset = document.getElementById('cbt-pause-overlay');
+      if (ovReset) { ovReset.classList.add('hidden'); ovReset.style.display = 'none'; }
       const pBtn = document.getElementById('cbt-pause-btn');
       if (pBtn) pBtn.textContent = '⏸';
+      const badgeEl = document.getElementById('cbt-mode-badge');
+      if (badgeEl) badgeEl.textContent = label || 'SSC CBT Mock';
       document.body.classList.add('cbt-fullscreen-mode');
+      const actPanel = document.getElementById('test-active-panel');
+      if (actPanel) actPanel.scrollTop = 0;
       document.getElementById('test-setup-panel').classList.add('hidden');
       document.getElementById('test-result-panel').classList.add('hidden');
       document.getElementById('test-active-panel').classList.remove('hidden');
@@ -12581,36 +12650,6 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           .opt.ans{background:#dcfce7;color:#166534;font-weight:700;border:1px solid #86efac}
           .hi{font-size:12px;color:#b45309;font-weight:600;margin-top:4px}
           .tr{font-size:12px;color:#475569;margin-top:2px}
-      
-    /* Fullscreen Distraction-Free CBT Exam Mode */
-    body.cbt-fullscreen-mode header,
-    body.cbt-fullscreen-mode #bottom-dock-nav,
-    body.cbt-fullscreen-mode #ai-guru-fab,
-    body.cbt-fullscreen-mode #ailt-test-banner,
-    body.cbt-fullscreen-mode #test-setup-panel {
-      display: none !important;
-    }
-    body.cbt-fullscreen-mode #test-active-panel {
-      position: fixed !important;
-      inset: 0 !important;
-      z-index: 9990 !important;
-      overflow-y: auto !important;
-      padding: 0 0 84px 0 !important;
-      background: #ffffff !important;
-      color: #0f172a !important;
-      margin: 0 !important;
-      max-width: 100vw !important;
-    }
-    body.light-mode #cbt-options-box button {
-      background: #ffffff !important;
-      color: #0f172a !important;
-      border-color: #cbd5e1 !important;
-    }
-    body.light-mode #cbt-options-box button.cbt-opt-selected {
-      background: #e0f2fe !important;
-      border-color: #0284c7 !important;
-      color: #0c4a6e !important;
-    }
   </style></head><body>
           <div class="hdr"><h2>🇮🇳 SSC Vocab 3D Pro — All-India 2 PM Live Test (${esc(dateKey)})</h2><p>100 Eduquity Pattern Questions • 200 Marks (+2 / -0.50) • Full Solutions</p></div>
           ${rowsHtml}
@@ -13920,6 +13959,8 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         mathBox?.classList.toggle('hidden', subj !== 'maths');
         othBox?.classList.toggle('hidden', subj === 'english' || subj === 'maths');
         if (ailtBan) ailtBan.classList.toggle('hidden', subj !== 'english');
+        const ailtCard = document.getElementById('ai-live-test-card');
+        if (ailtCard) ailtCard.classList.toggle('hidden', subj !== 'english');
 
         if (subj !== 'english' && subj !== 'maths') {
           const meta = {
