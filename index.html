@@ -11641,7 +11641,11 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
                   <option value="eng">🇬🇧 Pure English</option>
                 </select>
               </div>
-              <p class="text-[10px] text-emerald-300/90 font-semibold">✨ Built-in Free Hindi + English OCR active! Bina API key ke Hindi &amp; English dono photos/PDF auto-scan honge.</p>
+              <label class="flex items-center gap-2 text-[11px] font-bold text-cyan-200 cursor-pointer select-none pt-1">
+                <input id="tm-two-col" type="checkbox" checked class="w-4 h-4 accent-cyan-400 rounded" />
+                <span>📖 2-Column Book Page Auto-Split (Left + Right alag scan karein)</span>
+              </label>
+              <p class="text-[10px] text-emerald-300/90 font-semibold">✨ High-Accuracy Hindi OCR (4.0 Best) active! 99% perfect Hindi + Maths formulas ke liye niche Free Google AI Key lagayein.</p>
             </div>
 
             <!-- Live OCR Progress Bar -->
@@ -11672,14 +11676,17 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               </div>
             </details>
 
-            <!-- Collapsible: Optional Gemini AI Boost Key -->
-            <details class="rounded-xl bg-slate-950/60 border border-slate-800 p-2.5">
-              <summary class="text-[11px] font-bold text-slate-400 cursor-pointer select-none">✨ Optional: Gemini AI Key (For Auto-Solve + Hindi Translation Boost)</summary>
-              <div id="tm-key-row" class="mt-2 flex items-center gap-2">
-                <input id="tm-gemini-key-inline" type="password" placeholder="Optional: AIza... (leave empty to use Free OCR)" class="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-[11px] text-white font-mono focus:outline-none focus:border-cyan-400" />
-                <button type="button" id="tm-save-key-btn" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-cyan-400/40 text-cyan-200 text-[11px] font-black whitespace-nowrap">💾 Save</button>
+            <!-- 99% Accurate Hindi + Maths AI Vision Box (Free Google AI Studio Key) -->
+            <div class="rounded-xl bg-indigo-950/50 border border-indigo-400/45 p-3 space-y-2">
+              <div class="flex flex-wrap items-center justify-between gap-1.5">
+                <span class="text-[11px] font-black text-indigo-200">✨ 99% Perfect Hindi + Maths Scan (Free AI Key)</span>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-indigo-500/30 border border-indigo-400/50 text-indigo-100 text-[10px] font-black hover:bg-indigo-500/50 transition">🔑 Free Key Banayein ↗</a>
               </div>
-            </details>
+              <div id="tm-key-row" class="flex items-center gap-2">
+                <input id="tm-gemini-key-inline" type="password" placeholder="Paste Free Gemini Key (AIza...) for 99% Hindi + Maths" class="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-[11px] text-white font-mono focus:outline-none focus:border-cyan-400" />
+                <button type="button" id="tm-save-key-btn" class="px-3 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-[11px] font-black whitespace-nowrap">💾 Save</button>
+              </div>
+            </div>
           </div>
 
           <!-- Step 3: Draft Questions Preview & Editor -->
@@ -15261,8 +15268,10 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             await loadExternalScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
           }
           const ocrLang = document.getElementById('tm-ocr-lang')?.value || 'hin+eng';
-          setTmProgress(true, `Loading Free OCR (${ocrLang === 'hin' ? 'Hindi' : ocrLang === 'eng' ? 'English' : 'Hindi + English'})...`, 8);
-          worker = await window.Tesseract.createWorker(ocrLang);
+          setTmProgress(true, `Loading High-Accuracy OCR (${ocrLang === 'hin' ? 'Hindi Best' : ocrLang === 'eng' ? 'English Best' : 'Hindi + English Best'})...`, 8);
+          worker = await window.Tesseract.createWorker(ocrLang, 1, {
+            langPath: 'https://tessdata.projectnaptha.com/4.0.0_best'
+          });
           return worker;
         }
 
@@ -15303,13 +15312,45 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               }
             }
           } else {
-            // Photo image -> preprocess + Tesseract OCR
-            setTmProgress(true, `Scanning Photo ${fi + 1}/${total} (${f.name})...`, basePct + (100 / total) * 0.25);
-            const enhancedDataUrl = await preprocessImageFile(f, 1800, true);
+            // Photo image -> preprocess (+ optional 2-column split so left & right columns never mix!)
+            const twoCol = !!document.getElementById('tm-two-col')?.checked;
+            setTmProgress(true, `Scanning Photo ${fi + 1}/${total} (${f.name})...`, basePct + (100 / total) * 0.2);
             const w = await getOcrWorker();
-            setTmProgress(true, `Reading Text from Photo ${fi + 1}/${total}...`, basePct + (100 / total) * 0.65);
-            const res = await w.recognize(enhancedDataUrl);
-            combinedText += `\n${res?.data?.text || ''}\n`;
+            if (twoCol) {
+              const halves = await new Promise((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(f);
+                img.onload = () => {
+                  try {
+                    const out = [];
+                    const halfW = Math.floor(img.width / 2);
+                    const scale = Math.min(1.5, 1100 / Math.max(halfW, 1));
+                    [0, halfW].forEach(sx => {
+                      const c = document.createElement('canvas');
+                      c.width = Math.max(1, Math.round(halfW * scale));
+                      c.height = Math.max(1, Math.round(img.height * scale));
+                      const ctx = c.getContext('2d');
+                      ctx.drawImage(img, sx, 0, halfW, img.height, 0, 0, c.width, c.height);
+                      out.push(c.toDataURL('image/jpeg', 0.9));
+                    });
+                    URL.revokeObjectURL(url);
+                    resolve(out);
+                  } catch (e) { URL.revokeObjectURL(url); reject(e); }
+                };
+                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image split failed')); };
+                img.src = url;
+              });
+              setTmProgress(true, `Reading Left Column ${fi + 1}/${total}...`, basePct + (100 / total) * 0.45);
+              const r1 = await w.recognize(halves[0]);
+              setTmProgress(true, `Reading Right Column ${fi + 1}/${total}...`, basePct + (100 / total) * 0.8);
+              const r2 = await w.recognize(halves[1]);
+              combinedText += `\n${r1?.data?.text || ''}\n${r2?.data?.text || ''}\n`;
+            } else {
+              const enhancedDataUrl = await preprocessImageFile(f, 1800, true);
+              setTmProgress(true, `Reading Text from Photo ${fi + 1}/${total}...`, basePct + (100 / total) * 0.65);
+              const res = await w.recognize(enhancedDataUrl);
+              combinedText += `\n${res?.data?.text || ''}\n`;
+            }
           }
         }
 
