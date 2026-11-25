@@ -122,7 +122,7 @@
       width: 100%;
       min-height: 390px;
       transform-style: preserve-3d;
-      transition: transform 0.68s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform 0.68s cubic-bezier(0.22, 1, 0.36, 1), min-height 0.35s ease;
       cursor: pointer;
     }
 
@@ -136,11 +136,18 @@
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       border-radius: 1.5rem;
-      padding: 1.75rem;
+      padding: 1.45rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       overflow-y: auto;
+    }
+
+    #main-flashcard.is-flipped .card-back {
+      overflow-y: visible;
+      height: auto;
+      min-height: 100%;
+      bottom: auto;
     }
 
     .card-front {
@@ -3830,6 +3837,212 @@
       grid.innerHTML = filterBar + cards + pager;
     }
 
+
+    // ==================== AUTO VOCAB SYNONYM / ANTONYM / HINDI ENRICHER (v107) ====================
+    const SSC_CURATED_THESAURUS = {
+      apathy: { hi: 'उदासीनता / अनिच्छा', syn: ['Indifference','Unconcern','Lethargy','Detachment','Insouciance'], ant: ['Empathy','Enthusiasm','Interest','Passion','Zeal'] },
+      abandon: { hi: 'त्याग देना / छोड़ देना', syn: ['Forsake','Desert','Relinquish','Renounce','Abdicate'], ant: ['Keep','Retain','Continue','Maintain','Pursue'] },
+      abate: { hi: 'कम करना / घटाना', syn: ['Subside','Diminish','Lessen','Decrease','Alleviate'], ant: ['Intensify','Increase','Aggravate','Escalate','Amplify'] },
+      abhor: { hi: 'घृणा करना / नफरत करना', syn: ['Detest','Loathe','Despise','Hate','Execrate'], ant: ['Love','Adore','Admire','Cherish','Like'] },
+      abundant: { hi: 'प्रचुर / भरपूर', syn: ['Plentiful','Copious','Ample','Profuse','Bountiful'], ant: ['Scarce','Meager','Sparse','Deficient','Scanty'] },
+      adamant: { hi: 'अटल / हठी / ज़िद्दी', syn: ['Stubborn','Obstinate','Inflexible','Unyielding','Resolute'], ant: ['Flexible','Compliant','Yielding','Pliable','Docile'] },
+      adept: { hi: 'निपुण / कुशल / दक्ष', syn: ['Skilled','Proficient','Expert','Adroit','Dexterous'], ant: ['Inept','Clumsy','Unskilled','Amateur','Awkward'] },
+      admonish: { hi: 'चेतावनी देना / डाँटना', syn: ['Reprimand','Rebuke','Scold','Chide','Warn'], ant: ['Praise','Commend','Applaud','Laud','Compliment'] },
+      adverse: { hi: 'प्रतिकूल / विपरीत', syn: ['Unfavorable','Hostile','Antagonistic','Detrimental','Harmful'], ant: ['Favorable','Beneficial','Auspicious','Propitious','Helpful'] },
+      affluent: { hi: 'समृद्ध / धनी / अमीर', syn: ['Wealthy','Opulent','Prosperous','Rich','Well-off'], ant: ['Poor','Indigent','Destitute','Impoverished','Needy'] },
+      alleviate: { hi: 'कम करना / राहत देना', syn: ['Relieve','Ease','Mitigate','Assuage','Soothe'], ant: ['Aggravate','Worsen','Intensify','Exacerbate','Increase'] },
+      aloof: { hi: 'अलग-थलग / उदासीन', syn: ['Distant','Detached','Remote','Reserved','Stand-offish'], ant: ['Friendly','Sociable','Warm','Approachable','Cordial'] },
+      ambiguous: { hi: 'अस्पष्ट / द्विअर्थी', syn: ['Vague','Unclear','Equivocal','Cryptic','Obscure'], ant: ['Clear','Explicit','Unambiguous','Lucid','Definite'] },
+      amiable: { hi: 'मिलनसार / स्नेही', syn: ['Friendly','Affable','Cordial','Genial','Congenial'], ant: ['Hostile','Unfriendly','Aloof','Surly','Antagonistic'] },
+      audacious: { hi: 'साहसी / निर्भीक / निडर', syn: ['Bold','Daring','Intrepid','Fearless','Valiant'], ant: ['Timid','Cowardly','Cautious','Meek','Fearful'] },
+      benevolent: { hi: 'दयालु / परोपकारी', syn: ['Kind','Charitable','Altruistic','Generous','Magnanimous'], ant: ['Malevolent','Cruel','Selfish','Malicious','Spiteful'] },
+      candid: { hi: 'स्पष्टवादी / निष्कपट', syn: ['Frank','Honest','Outspoken','Blunt','Forthright'], ant: ['Deceitful','Evasive','Secretive','Guarded','Insincere'] },
+      capricious: { hi: 'चंचल / मनमौजी / अस्थिर', syn: ['Fickle','Changeable','Whimsical','Erratic','Volatile'], ant: ['Steadfast','Consistent','Constant','Stable','Predictable'] },
+      clandestine: { hi: 'गुप्त / छिपा हुआ', syn: ['Secret','Covert','Furtive','Stealthy','Surreptitious'], ant: ['Open','Overt','Public','Transparent','Candid'] },
+      concise: { hi: 'संक्षिप्त / छोटा', syn: ['Brief','Succinct','Terse','Laconic','Pithy'], ant: ['Verbose','Wordy','Prolix','Lengthy','Rambling'] },
+      diligent: { hi: 'मेहनती / परिश्रमी', syn: ['Industrious','Assiduous','Hardworking','Sedulous','Meticulous'], ant: ['Lazy','Indolent','Lethargic','Slothful','Negligent'] },
+      eloquent: { hi: 'वाक्पटु / सुवक्ता', syn: ['Articulate','Fluent','Expressive','Persuasive','Silver-tongued'], ant: ['Inarticulate','Halting','Mumbling','Tongue-tied','Hesitant'] },
+      ephemeral: { hi: 'क्षणभंगुर / अल्पकालिक', syn: ['Transient','Fleeting','Short-lived','Momentary','Evanescent'], ant: ['Permanent','Eternal','Perpetual','Enduring','Everlasting'] },
+      erudite: { hi: 'विद्वान / ज्ञानी', syn: ['Scholarly','Learned','Knowledgeable','Educated','Sagacious'], ant: ['Ignorant','Uneducated','Illiterate','Uninformed','Naive'] },
+      frugal: { hi: 'मितव्ययी / किफायती', syn: ['Thrifty','Economical','Sparing','Prudent','Provident'], ant: ['Extravagant','Lavish','Prodigal','Wasteful','Spendthrift'] },
+      gregarious: { hi: 'मिलनसार / सामाजिक', syn: ['Sociable','Outgoing','Convivial','Affable','Extroverted'], ant: ['Solitary','Introverted','Reclusive','Antisocial','Aloof'] },
+      hostile: { hi: 'शत्रुतापूर्ण / विरोधी', syn: ['Antagonistic','Unfriendly','Adverse','Inimical','Belligerent'], ant: ['Friendly','Amicable','Cordial','Hospitable','Benevolent'] },
+      impeccable: { hi: 'त्रुटिहीन / निर्दोष', syn: ['Flawless','Faultless','Spotless','Immaculate','Perfect'], ant: ['Flawed','Imperfect','Defective','Faulty','Blemished'] },
+      indolent: { hi: 'आलसी / सुस्त', syn: ['Lazy','Slothful','Lethargic','Idle','Sluggish'], ant: ['Diligent','Industrious','Energetic','Active','Assiduous'] },
+      jubilant: { hi: 'उल्लासित / अत्यंत प्रसन्न', syn: ['Elated','Ecstatic','Overjoyed','Exultant','Euphoric'], ant: ['Dejected','Melancholy','Morose','Despondent','Gloomy'] },
+      lethargic: { hi: 'सुस्त / आलसी / निष्क्रिय', syn: ['Sluggish','Listless','Torpid','Languid','Indolent'], ant: ['Energetic','Vigorous','Lively','Active','Dynamic'] },
+      lucid: { hi: 'स्पष्ट / सुबोध', syn: ['Clear','Transparent','Intelligible','Coherent','Explicit'], ant: ['Obscure','Vague','Ambiguous','Confusing','Murky'] },
+      magnanimous: { hi: 'उदार / महामना', syn: ['Generous','Noble','Benevolent','Charitable','Chivalrous'], ant: ['Petty','Mean','Selfish','Vindictive','Stingy'] },
+      meticulous: { hi: 'अति सूक्ष्म / सावधान', syn: ['Careful','Thorough','Scrupulous','Fastidious','Painstaking'], ant: ['Careless','Sloppy','Negligent','Haphazard','Reckless'] },
+      mitigate: { hi: 'कम करना / शांत करना', syn: ['Alleviate','Lessen','Reduce','Assuage','Moderate'], ant: ['Aggravate','Intensify','Worsen','Exacerbate','Escalate'] },
+      notorious: { hi: 'कुख्यात / बदनाम', syn: ['Infamous','Disreputable','Ill-famed','Scandalous','Flagrant'], ant: ['Famous','Reputable','Renowned','Esteemed','Honored'] },
+      obsolete: { hi: 'अप्रचलित / पुराना', syn: ['Outdated','Antiquated','Archaic','Outmoded','Defunct'], ant: ['Modern','Current','Contemporary','Up-to-date','New'] },
+      obstinate: { hi: 'ज़िद्दी / हठी', syn: ['Stubborn','Adamant','Headstrong','Intransigent','Obdurate'], ant: ['Flexible','Compliant','Docile','Amenable','Yielding'] },
+      pragmatic: { hi: 'व्यावहारिक / यथार्थवादी', syn: ['Practical','Realistic','Sensible','Matter-of-fact','Rational'], ant: ['Idealistic','Impractical','Unrealistic','Visionary','Quixotic'] },
+      resilient: { hi: 'लचीला / शीघ्र उबरने वाला', syn: ['Flexible','Tough','Adaptable','Buoyant','Hardy'], ant: ['Fragile','Brittle','Rigid','Vulnerable','Weak'] },
+      skeptical: { hi: 'संदेहवादी / शंकालु', syn: ['Doubtful','Dubious','Incredulous','Cynical','Suspicious'], ant: ['Credulous','Gullible','Trusting','Certain','Convinced'] },
+      tenacious: { hi: 'दृढ़ / अडिग', syn: ['Persistent','Determined','Resolute','Steadfast','Dogged'], ant: ['Weak','Irresolute','Yielding','Vacillating','Fickle'] },
+      ubiquitous: { hi: 'सर्वव्यापी / हर जगह मौजूद', syn: ['Omnipresent','Everywhere','Universal','Pervasive','All-pervading'], ant: ['Rare','Scarce','Uncommon','Localized','Sporadic'] },
+      vigilant: { hi: 'सतर्क / चौकन्ना', syn: ['Watchful','Alert','Observant','Wary','Attentive'], ant: ['Careless','Negligent','Inattentive','Oblivious','Heedless'] },
+      zealous: { hi: 'उत्साही / जोशीला', syn: ['Enthusiastic','Fervent','Passionate','Ardent','Eager'], ant: ['Apathetic','Indifferent','Lukewarm','Unenthusiastic','Detached'] },
+      anomalous: { hi: 'असामान्य / अनियमित / असंगत', syn: ['Abnormal','Irregular','Unusual','Atypical','Aberrant'], ant: ['Normal','Regular','Typical','Standard','Ordinary'] },
+      aberrant: { hi: 'असामान्य / पथभ्रष्ट', syn: ['Anomalous','Deviant','Abnormal','Atypical','Irregular'], ant: ['Normal','Typical','Regular','Conventional','Standard'] },
+      acrimony: { hi: 'कटुता / कड़वाहट', syn: ['Bitterness','Rancor','Hostility','Animosity','Resentment'], ant: ['Goodwill','Harmony','Amity','Kindness','Cordiality'] },
+      alacrity: { hi: 'तत्परता / उत्साह', syn: ['Eagerness','Readiness','Promptness','Enthusiasm','Zeal'], ant: ['Apathy','Reluctance','Hesitation','Indifference','Lethargy'] },
+      ameliorate: { hi: 'सुधारना / बेहतर बनाना', syn: ['Improve','Better','Enhance','Amend','Upgrade'], ant: ['Worsen','Deteriorate','Aggravate','Degrade','Impair'] },
+      belligerent: { hi: 'लड़ाकू / आक्रामक', syn: ['Aggressive','Hostile','Pugnacious','Combative','Quarrelsome'], ant: ['Peaceful','Pacifist','Friendly','Amicable','Docile'] },
+      callous: { hi: 'कठोर / संवेदनहीन', syn: ['Insensitive','Heartless','Unfeeling','Cruel','Cold-blooded'], ant: ['Compassionate','Sympathetic','Kind','Sensitive','Tender'] },
+      dearth: { hi: 'कमी / अभाव', syn: ['Scarcity','Shortage','Lack','Deficiency','Paucity'], ant: ['Abundance','Plenty','Surplus','Excess','Profusion'] },
+      exacerbate: { hi: 'बिगाड़ना / और खराब करना', syn: ['Worsen','Aggravate','Intensify','Inflame','Heighten'], ant: ['Alleviate','Mitigate','Improve','Soothe','Relieve'] },
+      haughty: { hi: 'घमंडी / अभिमानी', syn: ['Arrogant','Proud','Conceited','Supercilious','Pompous'], ant: ['Humble','Modest','Meek','Unassuming','Lowly'] }
+    };
+
+    let _vocabLexCache = null;
+    function getVocabLexIndex() {
+      if (_vocabLexCache) return _vocabLexCache;
+      const synMap = new Map();
+      const antMap = new Map();
+      const hiMap = new Map();
+
+      const addSet = (mp, k, val) => {
+        const key = String(k || '').trim().toLowerCase();
+        const v = String(val || '').trim();
+        if (!key || !v || v === '—' || v === '-' || v.toLowerCase() === key) return;
+        if (v.length > 32) return;
+        if (!mp.has(key)) mp.set(key, new Set());
+        mp.get(key).add(v);
+      };
+
+      // 1. Seed from SSC_CURATED_THESAURUS
+      Object.entries(SSC_CURATED_THESAURUS).forEach(([w, d]) => {
+        if (d.hi) hiMap.set(w, d.hi);
+        (d.syn || []).forEach(s => { addSet(synMap, w, s); addSet(synMap, s, w[0].toUpperCase() + w.slice(1)); });
+        (d.ant || []).forEach(a => { addSet(antMap, w, a); addSet(antMap, a, w[0].toUpperCase() + w.slice(1)); });
+      });
+
+      // 2. Seed from SYN_ANT_CLUSTERS (39 clusters, 3,036+ words)
+      if (typeof SYN_ANT_CLUSTERS !== 'undefined' && Array.isArray(SYN_ANT_CLUSTERS)) {
+        SYN_ANT_CLUSTERS.forEach(cl => {
+          const syns = (cl.syns || []).map(x => String(x).trim()).filter(Boolean);
+          const ants = (cl.ants || []).map(x => String(x).trim()).filter(Boolean);
+          syns.forEach(w => {
+            if (cl.hindi && !hiMap.has(w.toLowerCase())) hiMap.set(w.toLowerCase(), cl.hindi);
+            syns.slice(0, 8).forEach(s => addSet(synMap, w, s));
+            ants.slice(0, 6).forEach(a => addSet(antMap, w, a));
+          });
+          ants.forEach(w => {
+            ants.slice(0, 8).forEach(s => addSet(synMap, w, s));
+            syns.slice(0, 6).forEach(a => addSet(antMap, w, a));
+          });
+        });
+      }
+
+      // 3. Cross-index all 9,291+ words in getAllWords()
+      if (typeof getAllWords === 'function') {
+        getAllWords().forEach(it => {
+          const w = String(it.word || '').trim();
+          const wl = w.toLowerCase();
+          if (!w || w.split(/\s+/).length > 2) return;
+          if (it.meaningHi && /[\u0900-\u097F]/.test(it.meaningHi) && !hiMap.has(wl)) {
+            hiMap.set(wl, it.meaningHi);
+          }
+          const rawSyn = String(it.syn || '').split(',').map(x => x.trim()).filter(x => x && x !== '—' && x !== '-');
+          const rawAnt = String(it.ant || '').split(',').map(x => x.trim()).filter(x => x && x !== '—' && x !== '-');
+          rawSyn.forEach(s => { addSet(synMap, wl, s); addSet(synMap, s, w); });
+          rawAnt.forEach(a => { addSet(antMap, wl, a); addSet(antMap, a, w); });
+          if (it.category === 'Synonym' && it.answer && it.answer.split(/\s+/).length <= 2) {
+            addSet(synMap, wl, it.answer);
+            addSet(synMap, it.answer, w);
+          } else if (it.category === 'Antonym' && it.answer && it.answer.split(/\s+/).length <= 2) {
+            addSet(antMap, wl, it.answer);
+            addSet(antMap, it.answer, w);
+          }
+        });
+      }
+
+      _vocabLexCache = { synMap, antMap, hiMap };
+      return _vocabLexCache;
+    }
+
+    function getEnrichedSynAntForItem(item) {
+      const idx = getVocabLexIndex();
+      const baseWord = String(item.word || '').trim();
+      const key = baseWord.toLowerCase();
+      const ansKey = String(item.answer || '').trim().toLowerCase();
+
+      const synSet = new Set();
+      const antSet = new Set();
+      const pushClean = (set, val) => {
+        const v = String(val || '').trim();
+        if (!v || v === '—' || v === '-' || v.toLowerCase() === key) return;
+        if (v.length > 34) return;
+        set.add(v);
+      };
+
+      String(item.syn || '').split(',').forEach(s => pushClean(synSet, s));
+      String(item.ant || '').split(',').forEach(a => pushClean(antSet, a));
+
+      (idx.synMap.get(key) || []).forEach(s => pushClean(synSet, s));
+      (idx.antMap.get(key) || []).forEach(a => pushClean(antSet, a));
+
+      // Also check via primary answer if it's a single word
+      if (ansKey && ansKey.split(/\s+/).length === 1) {
+        if (item.category === 'Antonym') {
+          (idx.antMap.get(ansKey) || []).forEach(s => pushClean(synSet, s));
+          (idx.synMap.get(ansKey) || []).forEach(a => pushClean(antSet, a));
+        } else {
+          (idx.synMap.get(ansKey) || []).forEach(s => pushClean(synSet, s));
+          (idx.antMap.get(ansKey) || []).forEach(a => pushClean(antSet, a));
+        }
+      }
+
+      // Check localStorage live-fetched cache
+      try {
+        const ls = JSON.parse(localStorage.getItem('ssc_live_thesaurus_v1') || '{}');
+        if (ls[key]) {
+          (ls[key].syn || []).forEach(s => pushClean(synSet, s));
+          (ls[key].ant || []).forEach(a => pushClean(antSet, a));
+        }
+      } catch (_) {}
+
+      const hi = (item.meaningHi && /[\u0900-\u097F]/.test(item.meaningHi))
+        ? item.meaningHi
+        : (idx.hiMap.get(key) || idx.hiMap.get(ansKey) || '');
+
+      return {
+        syns: Array.from(synSet).slice(0, 5),
+        ants: Array.from(antSet).slice(0, 5),
+        hi
+      };
+    }
+
+    async function fetchLiveSynAntFallback(word, targetWordKey) {
+      const w = String(word || '').trim().toLowerCase();
+      if (!w || !/^[a-z-]{3,24}$/.test(w)) return;
+      try {
+        const [synRes, antRes] = await Promise.all([
+          fetch(`https://api.datamuse.com/words?rel_syn=${encodeURIComponent(w)}&max=5`).then(r => r.ok ? r.json() : []).catch(() => []),
+          fetch(`https://api.datamuse.com/words?rel_ant=${encodeURIComponent(w)}&max=5`).then(r => r.ok ? r.json() : []).catch(() => [])
+        ]);
+        const syns = (synRes || []).map(x => x.word ? x.word[0].toUpperCase() + x.word.slice(1) : '').filter(Boolean).slice(0, 5);
+        const ants = (antRes || []).map(x => x.word ? x.word[0].toUpperCase() + x.word.slice(1) : '').filter(Boolean).slice(0, 5);
+        if (!syns.length && !ants.length) return;
+        const ls = JSON.parse(localStorage.getItem('ssc_live_thesaurus_v1') || '{}');
+        ls[w] = { syn: syns, ant: ants };
+        localStorage.setItem('ssc_live_thesaurus_v1', JSON.stringify(ls));
+        // Live-update card if user is still viewing this word
+        const curWord = (document.getElementById('fc-back-word')?.textContent || '').trim().toLowerCase();
+        if (curWord === targetWordKey) {
+          if (syns.length) {
+            document.getElementById('fc-syns').innerHTML = syns.map(s => `<span class="px-2 py-0.5 rounded-md bg-cyan-500/15 border border-cyan-400/30 text-cyan-100 text-[11px] font-medium">${s}</span>`).join('');
+          }
+          if (ants.length) {
+            document.getElementById('fc-ants').innerHTML = ants.map(a => `<span class="px-2 py-0.5 rounded-md bg-rose-500/15 border border-rose-400/30 text-rose-100 text-[11px] font-medium">${a}</span>`).join('');
+          }
+        }
+      } catch (_) {}
+    }
+
     function renderFlashcard() {
       const deck = activeVocabDeck;
       const cardEl = document.getElementById('main-flashcard');
@@ -3888,23 +4101,31 @@
       // Back Face
       document.getElementById('fc-back-word').textContent = item.word.length > 26 ? item.word.slice(0, 26) + '…' : item.word;
       document.getElementById('fc-answer').textContent = item.answer;
+      const _enr = getEnrichedSynAntForItem(item);
       const _fcHiEl = document.getElementById('fc-hindi');
-      const _fcInstant = (typeof getInstantHindi === 'function' ? getInstantHindi(item) : '') || item.meaningHi || '';
+      const _fcInstant = _enr.hi || (typeof getInstantHindi === 'function' ? getInstantHindi(item) : '') || item.meaningHi || '';
       _fcHiEl.textContent = _fcInstant ? (hasDevanagari(_fcInstant) ? `🇮🇳 ${_fcInstant}` : `🇮🇳 Loading Hindi... (${_fcInstant.slice(0, 45)})`) : '🇮🇳 Loading Hindi meaning...';
-      if (typeof fetchLiveHindiForItem === 'function' && !hasDevanagari(item.meaningHi)) {
+      if (typeof fetchLiveHindiForItem === 'function' && !hasDevanagari(_fcInstant)) {
         fetchLiveHindiForItem(item).then(hi => {
           if (hi && hasDevanagari(hi) && document.getElementById('fc-back-word')?.textContent) _fcHiEl.textContent = `🇮🇳 ${hi}`;
         });
       }
-      document.getElementById('fc-syns').innerHTML = item.syn.split(',').map(s => s.trim()).filter(Boolean)
+      const _synsShow = _enr.syns.length ? _enr.syns : ['—'];
+      const _antsShow = _enr.ants.length ? _enr.ants : ['—'];
+      document.getElementById('fc-syns').innerHTML = _synsShow
         .map(s => `<span class="px-2 py-0.5 rounded-md bg-cyan-500/15 border border-cyan-400/30 text-cyan-100 text-[11px] font-medium">${s}</span>`).join('');
-      document.getElementById('fc-ants').innerHTML = item.ant.split(',').map(a => a.trim()).filter(Boolean)
+      document.getElementById('fc-ants').innerHTML = _antsShow
         .map(a => `<span class="px-2 py-0.5 rounded-md bg-rose-500/15 border border-rose-400/30 text-rose-100 text-[11px] font-medium">${a}</span>`).join('');
+      if (_enr.syns.length < 3 || _enr.ants.length < 3) {
+        const lookupW = (item.word && item.word.split(/\s+/).length === 1) ? item.word : (item.answer && item.answer.split(/\s+/).length === 1 ? item.answer : '');
+        if (lookupW) fetchLiveSynAntFallback(lookupW, (item.word.length > 26 ? item.word.slice(0, 26) + '…' : item.word).toLowerCase());
+      }
       document.getElementById('fc-trick').textContent = item.trick;
       document.getElementById('fc-example').textContent = item.example;
       document.getElementById('fc-back-exam').textContent = `${item.exam} ${item.year}`;
 
       if (window.lucide) lucide.createIcons();
+      if (window.syncFlashcardAutoHeight) setTimeout(window.syncFlashcardAutoHeight, 40);
     }
 
     function renderVocabGrid() {
@@ -4452,7 +4673,10 @@
     };
     window.toggleCbtDrawer = function(open) {
       const dr = document.getElementById('cbt-palette-drawer');
-      if (dr) dr.classList.toggle('hidden', !open);
+      if (dr) {
+        dr.classList.toggle('hidden', !open);
+        dr.style.display = open ? 'flex' : 'none';
+      }
     };
     window.bookmarkCurrentCbtQ = function() {
       const q = cbt.questions && cbt.questions[cbt.currentIndex];
@@ -4484,16 +4708,18 @@
     };
     window.toggleCbtPause = function(ev) {
       if (ev && ev.stopPropagation) ev.stopPropagation();
-      if (!cbt || !cbt.active) return;
-      cbt.paused = !cbt.paused;
-      window._cbtPaused = cbt.paused;
       const ov = document.getElementById('cbt-pause-overlay');
+      const isCurrentlyPaused = !!(cbt && cbt.paused) || (ov && ov.style.display === 'flex');
+      if (!isCurrentlyPaused && (!cbt || !cbt.active)) return;
+      const nextPaused = !isCurrentlyPaused;
+      if (cbt) cbt.paused = nextPaused;
+      window._cbtPaused = nextPaused;
       const btn = document.getElementById('cbt-pause-btn');
       if (ov) {
-        ov.classList.toggle('hidden', !cbt.paused);
-        ov.style.display = cbt.paused ? 'flex' : 'none';
+        ov.classList.toggle('hidden', !nextPaused);
+        ov.style.display = nextPaused ? 'flex' : 'none';
       }
-      if (btn) btn.textContent = cbt.paused ? '▶' : '⏸';
+      if (btn) btn.textContent = nextPaused ? '▶' : '⏸';
     };
     window.closeAnalysisToSubjectHome = function() {
       document.body.classList.remove('cbt-result-fullscreen');
@@ -4547,19 +4773,21 @@
     };
     window.exitCbtToSetup = function(ev) {
       if (ev && ev.stopPropagation) ev.stopPropagation();
-      if (cbt.timerId) { clearInterval(cbt.timerId); cbt.timerId = null; }
-      cbt.active = false;
-      cbt.paused = false;
+      if (cbt && cbt.timerId) { clearInterval(cbt.timerId); cbt.timerId = null; }
+      if (cbt) { cbt.active = false; cbt.paused = false; }
       window._cbtPaused = false;
-      window._lastCbtSubject = (selected[0] && String(selected[0].id || '').startsWith('m_')) ? 'maths' : 'english';
       document.body.classList.remove('cbt-fullscreen-mode');
+      document.body.classList.remove('cbt-result-fullscreen');
       const ov = document.getElementById('cbt-pause-overlay');
       if (ov) { ov.classList.add('hidden'); ov.style.display = 'none'; }
       const dr = document.getElementById('cbt-palette-drawer');
-      if (dr) dr.classList.add('hidden');
-      document.getElementById('test-active-panel')?.classList.add('hidden');
-      document.getElementById('test-result-panel')?.classList.add('hidden');
+      if (dr) { dr.classList.add('hidden'); dr.style.display = 'none'; }
+      const ap = document.getElementById('test-active-panel');
+      if (ap) { ap.classList.add('hidden'); ap.style.display = 'none'; }
+      const rp = document.getElementById('test-result-panel');
+      if (rp) { rp.classList.add('hidden'); rp.style.display = 'none'; }
       document.getElementById('test-setup-panel')?.classList.remove('hidden');
+      if (window.selectTestSubject) window.selectTestSubject(window._lastCbtSubject || 'english');
     };
     function startCbtTest(customPool = null, customLabel = null, customQty = null, customSeconds = null) {
       const mode = document.getElementById('test-mode-select').value;
@@ -4659,6 +4887,8 @@
       };
 
       cbt.paused = false;
+      window._cbtPaused = false;
+      window._lastCbtSubject = (selected[0] && String(selected[0].id || '').startsWith('m_')) ? 'maths' : 'english';
       const ovReset = document.getElementById('cbt-pause-overlay');
       if (ovReset) { ovReset.classList.add('hidden'); ovReset.style.display = 'none'; }
       const pBtn = document.getElementById('cbt-pause-btn');
@@ -4862,7 +5092,8 @@
       filterResReview('all');
     }
 
-    function finishCbtTest() {
+    window.finishCbtTest = function finishCbtTest() {
+      if (!cbt || !cbt.questions || !cbt.questions.length) return;
       if (cbt.timerId) {
         clearInterval(cbt.timerId);
         cbt.timerId = null;
@@ -11493,8 +11724,8 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
 
 
   <!-- ==================== BUILT-IN AI STUDY ASSISTANT (SSC AI GURU) ==================== -->
-  <button id="ai-guru-fab" type="button" class="ai-fab-glow fixed bottom-20 md:bottom-5 right-4 z-40 px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-violet-600 text-white font-black text-xs sm:text-sm flex items-center gap-2 border border-cyan-300/50 hover:scale-105 transition" title="Ask SSC AI Guru">
-    <span class="text-base">🤖</span><span>AI Guru</span>
+  <button id="ai-guru-fab" type="button" class="fixed bottom-20 md:bottom-5 right-3 z-30 w-10 h-10 rounded-full bg-slate-900/35 hover:bg-indigo-600/85 backdrop-blur-sm text-white flex items-center justify-center border border-cyan-400/30 opacity-30 hover:opacity-100 transition shadow-sm" title="Ask SSC AI Guru">
+    <span class="text-base">🤖</span>
   </button>
 
   <div id="ai-guru-modal" class="fixed inset-0 z-[92] hidden bg-slate-950/80 flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -14496,5 +14727,32 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
     })();
   </script>
 
+
+  <script>
+    // v108 AUTO-EXPAND 3D FLASHCARD ON FLIP (ZERO INTERNAL SCROLLING)
+    window.syncFlashcardAutoHeight = function() {
+      const card = document.getElementById('main-flashcard');
+      if (!card) return;
+      if (card.classList.contains('is-flipped')) {
+        const back = card.querySelector('.card-back');
+        if (back) {
+          requestAnimationFrame(() => {
+            const needed = Math.max(460, back.scrollHeight + 24);
+            card.style.minHeight = needed + 'px';
+          });
+        }
+      } else {
+        card.style.minHeight = '390px';
+      }
+    };
+    (function initFlashcardHeightObserver() {
+      const card = document.getElementById('main-flashcard');
+      if (!card || typeof MutationObserver === 'undefined') return;
+      const obs = new MutationObserver(() => window.syncFlashcardAutoHeight());
+      obs.observe(card, { attributes: true, attributeFilter: ['class'] });
+      window.addEventListener('resize', () => window.syncFlashcardAutoHeight());
+    })();
+
+  </script>
 </body>
 </html>
