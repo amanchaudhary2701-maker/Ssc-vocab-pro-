@@ -878,20 +878,14 @@
           <button data-nav="home" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
             <i data-lucide="home" class="w-3.5 h-3.5"></i> Home
           </button>
-          <button data-nav="vocab" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
-            <i data-lucide="box" class="w-3.5 h-3.5"></i> Vocab
+          <button data-nav="subject" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
+            <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Subject
           </button>
           <button data-nav="pyq" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
             <i data-lucide="history" class="w-3.5 h-3.5"></i> PYQ
           </button>
-          <button data-nav="rev" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
-            <i data-lucide="layers" class="w-3.5 h-3.5"></i> Clusters
-          </button>
           <button data-nav="test" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
-            <i data-lucide="file-check-2" class="w-3.5 h-3.5"></i> CBT Test
-          </button>
-          <button data-nav="tracker" class="nav-btn px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0 transition">
-            <i data-lucide="flame" class="w-3.5 h-3.5"></i> Track
+            <i data-lucide="file-check-2" class="w-3.5 h-3.5"></i> Test
           </button>
           <button type="button" id="desk-nav-pdf-btn" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-cyan-200 hover:text-white hover:bg-white/5 flex items-center gap-1 whitespace-nowrap shrink-0 transition">
             <span>📂</span> PDFs
@@ -1255,6 +1249,50 @@
     </section>
 
       <!-- ==================== DEDICATED MULTI-PAGE COURSE VIEW (Chapter Sets + Large-Font Reader + Swipe Mode) ==================== -->
+      <!-- ==================== VIEW: SUBJECT HUB (REAS | ENGLISH | GS | STATIC GK | MATHS) ==================== -->
+      <section id="view-subject" class="view-section hidden space-y-4 sm:space-y-5">
+        <div class="glass-card rounded-3xl p-4 sm:p-5 border border-cyan-400/35 bg-gradient-to-r from-sky-950/90 via-slate-900 to-indigo-950/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="inline-block px-2.5 py-0.5 rounded-full bg-cyan-400/20 border border-cyan-300/45 text-cyan-200 text-[10px] font-black uppercase tracking-wider">📚 All 5 SSC Subjects</span>
+            <h2 class="text-xl sm:text-2xl font-black text-white mt-1">Subject-Wise Preparation Hub</h2>
+            <p class="text-xs text-slate-300">Reasoning • English • GS • Static GK • Maths — Notes, PDFs, Tricks &amp; Practice</p>
+          </div>
+          <button type="button" onclick="document.getElementById('mob-nav-pdf-btn')?.click()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs shadow transition shrink-0">📂 All Subject PDFs</button>
+        </div>
+
+        <!-- 5 Subject Selector Pills -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5" id="subject-tabs-grid">
+          <button type="button" data-subj-tab="reasoning" class="subj-tab-btn p-3 rounded-2xl border border-violet-400/40 bg-violet-500/15 hover:bg-violet-500/25 text-left transition">
+            <span class="text-2xl">🧠</span>
+            <p class="text-sm font-black text-white mt-1">Reasoning</p>
+            <p class="text-[10px] text-violet-200">Tricks &amp; PDFs</p>
+          </button>
+          <button type="button" data-subj-tab="english" class="subj-tab-btn p-3 rounded-2xl border border-cyan-400 bg-cyan-500/25 text-left shadow-lg transition">
+            <span class="text-2xl">📘</span>
+            <p class="text-sm font-black text-white mt-1">English</p>
+            <p class="text-[10px] text-cyan-200">Vocab, Clusters &amp; PYQ</p>
+          </button>
+          <button type="button" data-subj-tab="gs" class="subj-tab-btn p-3 rounded-2xl border border-emerald-400/40 bg-emerald-500/15 hover:bg-emerald-500/25 text-left transition">
+            <span class="text-2xl">🌍</span>
+            <p class="text-sm font-black text-white mt-1">GS</p>
+            <p class="text-[10px] text-emerald-200">History, Polity, Sci</p>
+          </button>
+          <button type="button" data-subj-tab="static" class="subj-tab-btn p-3 rounded-2xl border border-amber-400/40 bg-amber-500/15 hover:bg-amber-500/25 text-left transition">
+            <span class="text-2xl">🏆</span>
+            <p class="text-sm font-black text-white mt-1">Static GK</p>
+            <p class="text-[10px] text-amber-200">Awards, Art, Days</p>
+          </button>
+          <button type="button" data-subj-tab="maths" class="subj-tab-btn col-span-2 sm:col-span-1 p-3 rounded-2xl border border-rose-400/40 bg-rose-500/15 hover:bg-rose-500/25 text-left transition">
+            <span class="text-2xl">➗</span>
+            <p class="text-sm font-black text-white mt-1">Maths</p>
+            <p class="text-[10px] text-rose-200">Formulas &amp; Shortcuts</p>
+          </button>
+        </div>
+
+        <!-- Active Subject Workspace -->
+        <div id="subject-active-panel" class="glass-card rounded-3xl p-4 sm:p-5 border border-white/15 space-y-4"></div>
+      </section>
+
       <section id="view-catpage" class="view-section hidden space-y-4">
         <!-- Sticky Sub-Page Header Bar -->
         <div class="glass-card rounded-2xl p-3.5 sm:p-4 border border-blue-400/35 space-y-3">
@@ -2244,17 +2282,14 @@
       <button data-nav="home" class="nav-btn-mob flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-extrabold transition">
         <span class="text-base leading-none">🏠</span><span>Home</span>
       </button>
-      <button data-nav="vocab" class="nav-btn-mob flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-extrabold transition">
-        <span class="text-base leading-none">📚</span><span>Vocab</span>
+      <button data-nav="subject" class="nav-btn-mob flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-extrabold transition">
+        <span class="text-base leading-none">📚</span><span>Subject</span>
       </button>
       <button data-nav="pyq" class="nav-btn-mob flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-extrabold transition">
-        <span class="text-base leading-none">🏛️</span><span>PYQs</span>
-      </button>
-      <button data-nav="rev" class="nav-btn-mob flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-extrabold transition">
-        <span class="text-base leading-none">🧩</span><span>Clusters</span>
+        <span class="text-base leading-none">🏛️</span><span>PYQ</span>
       </button>
       <button data-nav="test" class="nav-btn-mob flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-extrabold transition">
-        <span class="text-base leading-none">📝</span><span>Tests</span>
+        <span class="text-base leading-none">📝</span><span>Test</span>
       </button>
       <button type="button" id="mob-nav-pdf-btn" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-extrabold text-cyan-300 border border-transparent hover:text-white transition">
         <span class="text-base leading-none">📂</span><span>PDFs</span>
@@ -13370,6 +13405,156 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         const ss = String(sec % 60).padStart(2, '0');
         el.textContent = `${mm}:${ss}`;
       }, 1000);
+    })();
+  </script>
+
+
+  <script>
+    (function() {
+      const SUBJECT_DATA = {
+        reasoning: {
+          title: '🧠 Reasoning (SSC CGL / CHSL / MTS / CPO / GD)',
+          desc: 'High-scoring topics, shortcuts, practice sets aur Reasoning PDFs.',
+          actions: [
+            { label: '📂 Open Reasoning PDFs', cls: 'bg-violet-500 text-white', fn: "openSubjectPdf('Reasoning')" },
+            { label: '🤖 Ask AI Reasoning Guru', cls: 'bg-slate-800 border border-violet-400/45 text-violet-200', fn: "askSubjectAi('Reasoning ke top 5 SSC tricks aur formulas batao')" }
+          ],
+          topics: [
+            { name: 'Number & Letter Series', tag: '3-4 Qs/Shift', tip: 'Difference, Square/Cube (±1), Prime gaps & Alternate series check karein.' },
+            { name: 'Coding - Decoding', tag: '2-3 Qs/Shift', tip: 'EJOTY (5-10-15-20-25) aur Opposite Pair (AZ, BY, CX, DW...) yaad rakhein.' },
+            { name: 'Syllogism & Venn Diagram', tag: '2 Qs/Shift', tip: '100-50 rule ya Venn circles se All / Some / No conclusions solve karein.' },
+            { name: 'Analogy & Classification', tag: '3-4 Qs/Shift', tip: 'Square/Cube relation, GK/Capital/Currency aur Alphabet shift dekhein.' },
+            { name: 'Dice, Cube & Mirror Image', tag: '2 Qs/Shift', tip: '1-Common Face clockwise rule se opposite face turant nikalta hai.' },
+            { name: 'Blood Relation & Direction', tag: '2 Qs/Shift', tip: 'Male (+), Female (-), Generation tree bana kar 15 sec me solve karein.' }
+          ]
+        },
+        english: {
+          title: '📘 English (Vocab, Clusters, PYQs & Grammar)',
+          desc: '9,291+ BlackBook Words, 3,036 Syn/Ant Clusters, 467 CGL 2026 PYQs aur English PDFs.',
+          actions: [
+            { label: '📚 Open 3D Vocab Studio', cls: 'bg-cyan-500 text-slate-950', fn: "switchTab('vocab')" },
+            { label: '🧩 Syn/Ant Clusters (3,036)', cls: 'bg-emerald-500 text-slate-950', fn: "switchTab('rev')" },
+            { label: '🏛️ English PYQs', cls: 'bg-amber-400 text-slate-950', fn: "switchTab('pyq')" },
+            { label: '📂 English PDFs', cls: 'bg-slate-800 border border-cyan-400/45 text-cyan-200', fn: "openSubjectPdf('English')" }
+          ],
+          topics: [
+            { name: 'Synonyms & Antonyms', tag: '4-6 Qs/Shift', tip: '39 Memory Clusters me ek saath root-families revise karein.' },
+            { name: 'One Word Substitution (OWS)', tag: '2-3 Qs/Shift', tip: 'BlackBook A1/A2/A3 sets + Root Words (-phobia, -mania, -cide).' },
+            { name: 'Idioms & Phrases', tag: '2-3 Qs/Shift', tip: 'BlackBook B1/B2/B3 + 2026 CGL Tier-1 verified idioms.' },
+            { name: 'Spelling & Homonyms', tag: '2-3 Qs/Shift', tip: 'E2 Spellings aur D1 Confusing Pairs daily revise karein.' },
+            { name: 'Active-Passive & Narration', tag: '2-3 Qs/Shift', tip: 'Tense + Pronoun + Helping Verb elimination se 5 sec me answer.' },
+            { name: 'Cloze Test & Grammar Rules', tag: '5+ Qs/Shift', tip: 'Fixed Prepositions (F2) aur Phrasal Verbs (F1) master karein.' }
+          ]
+        },
+        gs: {
+          title: '🌍 General Studies (History, Polity, Geography, Science)',
+          desc: 'SSC GS high-yield notes, Articles, Battles, Science aur GS PDFs.',
+          actions: [
+            { label: '📂 Open GS PDFs', cls: 'bg-emerald-500 text-slate-950', fn: "openSubjectPdf('GS')" },
+            { label: '🤖 Ask AI GS Guru', cls: 'bg-slate-800 border border-emerald-400/45 text-emerald-200', fn: "askSubjectAi('SSC CGL ke liye Indian Polity ke top 15 Articles aur Amendments batao')" }
+          ],
+          topics: [
+            { name: 'Indian Polity & Constitution', tag: '3-4 Qs/Shift', tip: 'Articles 12–51A, Amendments (42, 44, 73, 86, 101), Parliament & Schedules.' },
+            { name: 'Modern & Ancient History', tag: '3-4 Qs/Shift', tip: 'Indus Valley, Buddhism/Jainism, Delhi Sultanate, 1857–1947 INC Sessions.' },
+            { name: 'Indian & World Geography', tag: '2-3 Qs/Shift', tip: 'River systems, Mountain passes, Monsoon, Soils & Biosphere Reserves.' },
+            { name: 'Physics, Chemistry & Biology', tag: '3-4 Qs/Shift', tip: 'Vitamins, Diseases, SI Units, pH values, Periodic Table & Cell organelles.' },
+            { name: 'Indian Economy & Five-Year Plans', tag: '1-2 Qs/Shift', tip: 'RBI Monetary Policy, Repo/CRR, GST, Census 2011 & Five-Year Plans.' }
+          ]
+        },
+        static: {
+          title: '🏆 Static GK (High-Weightage SSC Topics)',
+          desc: 'SSC ke har shift me 5–7 Qs seedha Static GK se aate hain — yahan se revise karein.',
+          actions: [
+            { label: '📂 Open Static GK PDFs', cls: 'bg-amber-400 text-slate-950', fn: "openSubjectPdf('Static GK')" },
+            { label: '🤖 Ask AI Static GK Guru', cls: 'bg-slate-800 border border-amber-400/45 text-amber-200', fn: "askSubjectAi('SSC ke liye Classical Dances aur unke famous artists ki list do')" }
+          ],
+          topics: [
+            { name: 'Classical & Folk Dances', tag: '1-2 Qs/Shift', tip: '8 Classical Dances, Gharanas, Musical Instruments & Padma Awardees.' },
+            { name: 'Festivals, Fairs & Temples', tag: '1-2 Qs/Shift', tip: 'State-wise festivals (Hornbill, Pongal, Bihu, Losar) & UNESCO sites.' },
+            { name: 'Books, Authors & Awards', tag: '1-2 Qs/Shift', tip: 'Bharat Ratna, Nobel, Booker, Sports Awards & Famous Autobiographies.' },
+            { name: 'National Parks & Tiger Reserves', tag: '1 Q/Shift', tip: 'State-wise National Parks, Ramsar Wetlands & Wildlife Sanctuaries.' },
+            { name: 'Sports, Trophies & First in India', tag: '1-2 Qs/Shift', tip: 'Olympics, Asian Games, Cricket/Football Cups & First Men/Women.' }
+          ]
+        },
+        maths: {
+          title: '➗ Maths (Arithmetic + Advance Formula Hub)',
+          desc: 'SSC Maths short tricks, formula sheets, aur Maths PDFs.',
+          actions: [
+            { label: '📂 Open Maths PDFs', cls: 'bg-rose-500 text-white', fn: "openSubjectPdf('Maths')" },
+            { label: '🤖 Ask AI Maths Guru', cls: 'bg-slate-800 border border-rose-400/45 text-rose-200', fn: "askSubjectAi('SSC CGL Trigonometry aur Algebra ke sabse important formulas batao')" }
+          ],
+          topics: [
+            { name: 'Percentage, Profit & Loss, CI/SI', tag: '4-5 Qs/Shift', tip: 'Fraction-to-% table (1/2 to 1/20) aur successive % formula yaad rakhein.' },
+            { name: 'Ratio, Time & Work, TSD', tag: '4-5 Qs/Shift', tip: 'LCM method (Time & Work) aur Relative Speed concepts fast solve karein.' },
+            { name: 'Algebra & Number System', tag: '3-4 Qs/Shift', tip: 'x + 1/x = k shortcuts, Divisibility (7, 11, 13, 72, 88, 99) & Remainder.' },
+            { name: 'Geometry & Mensuration (2D/3D)', tag: '4-5 Qs/Shift', tip: 'Circle chords, Triangle centers, Sphere/Cone/Cylinder surface & volume.' },
+            { name: 'Trigonometry & DI', tag: '4-5 Qs/Shift', tip: 'Value putting (0°, 30°, 45°, 60°, 90°), Triplets & quick % DI ratios.' }
+          ]
+        }
+      };
+
+      window.openSubjectPdf = function(subj) {
+        const pdfBtn = document.getElementById('mob-nav-pdf-btn') || document.getElementById('desk-nav-pdf-btn');
+        if (pdfBtn) pdfBtn.click();
+        setTimeout(() => {
+          const tab = document.querySelector(`[data-pdf-subj="${subj}"]`);
+          if (tab) tab.click();
+        }, 120);
+      };
+
+      window.askSubjectAi = function(promptText) {
+        const fab = document.getElementById('ai-guru-fab');
+        if (fab) fab.click();
+        setTimeout(() => {
+          const inp = document.getElementById('ai-guru-input');
+          const frm = document.getElementById('ai-guru-form');
+          if (inp && frm) {
+            inp.value = promptText;
+            frm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+          }
+        }, 150);
+      };
+
+      function renderSubjectPanel(key) {
+        const d = SUBJECT_DATA[key] || SUBJECT_DATA.english;
+        document.querySelectorAll('.subj-tab-btn').forEach(b => {
+          const act = b.dataset.subjTab === key;
+          b.classList.toggle('ring-2', act);
+          b.classList.toggle('ring-cyan-300', act);
+          b.classList.toggle('scale-[1.01]', act);
+        });
+        const panel = document.getElementById('subject-active-panel');
+        if (!panel) return;
+        panel.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-white">${d.title}</h3>
+              <p class="text-xs text-slate-300 mt-0.5">${d.desc}</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              ${d.actions.map(a => `<button type="button" onclick="${a.fn}" class="px-3.5 py-2 rounded-xl text-xs font-black shadow hover:brightness-110 transition ${a.cls}">${a.label}</button>`).join('')}
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            ${d.topics.map(t => `
+              <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 space-y-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <h4 class="text-xs sm:text-sm font-black text-white">${t.name}</h4>
+                  <span class="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-400/35 text-cyan-300 text-[10px] font-bold shrink-0">${t.tag}</span>
+                </div>
+                <p class="text-[11px] text-slate-300 leading-relaxed">${t.tip}</p>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      document.getElementById('subject-tabs-grid')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-subj-tab]');
+        if (btn) renderSubjectPanel(btn.dataset.subjTab);
+      });
+
+      renderSubjectPanel('english');
     })();
   </script>
 
