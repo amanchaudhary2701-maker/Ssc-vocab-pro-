@@ -3886,11 +3886,6 @@
       document.getElementById('pyq-count-label').textContent = `Showing ${list.length} verified SSC PYQs (2021–2026 + BlackBook)`;
 
       const container = document.getElementById('pyq-list-container');
-      const _cwiKeep = document.getElementById('cluster-word-inspect');
-      if (_cwiKeep && _cwiKeep.parentElement === grid && grid.parentElement) {
-        _cwiKeep.classList.add('hidden');
-        grid.parentElement.insertBefore(_cwiKeep, grid);
-      }
       if (!list.length) {
         container.innerHTML = '<div class="col-span-full glass-card rounded-2xl p-8 text-center text-slate-400 text-sm">Is filter combination me koi PYQ nahi mila. Filters reset karein.</div>';
         return;
@@ -7276,6 +7271,11 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           c.syns.some(w => w.toLowerCase().includes(q)) || c.ants.some(w => w.toLowerCase().includes(q));
       });
 
+      const _cwiKeep = document.getElementById('cluster-word-inspect');
+      if (_cwiKeep && _cwiKeep.parentElement === grid && grid.parentElement) {
+        _cwiKeep.classList.add('hidden');
+        grid.parentElement.insertBefore(_cwiKeep, grid);
+      }
       if (!list.length) {
         grid.innerHTML = `<div class="col-span-full glass-card rounded-2xl p-8 text-center text-slate-400 text-sm">Koi matching category nahi mili — search clear karke dekhein.</div>`;
         return;
