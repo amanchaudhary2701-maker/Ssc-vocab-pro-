@@ -694,6 +694,43 @@
       border-color: #0284c7 !important;
       color: #0c4a6e !important;
     }
+    /* Fullscreen Test Analysis Board Mode */
+    body.cbt-result-fullscreen {
+      overflow: hidden !important;
+      background: #f8fafc !important;
+    }
+    body.cbt-result-fullscreen header,
+    body.cbt-result-fullscreen #bottom-dock-nav,
+    body.cbt-result-fullscreen #ai-guru-fab,
+    body.cbt-result-fullscreen #ai-guru-modal,
+    body.cbt-result-fullscreen #ailt-test-banner,
+    body.cbt-result-fullscreen #ai-live-test-card,
+    body.cbt-result-fullscreen #pwa-install-banner,
+    body.cbt-result-fullscreen #test-setup-panel,
+    body.cbt-result-fullscreen #test-active-panel,
+    body.cbt-result-fullscreen footer {
+      display: none !important;
+    }
+    body.cbt-result-fullscreen #test-result-panel {
+      display: flex !important;
+      flex-direction: column !important;
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      z-index: 99992 !important;
+      overflow: hidden !important;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%) !important;
+      color: #0f172a !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    #res-scroll-body {
+      flex: 1 1 auto !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
   </style>
 </head>
 <body class="text-slate-100 antialiased selection:bg-cyan-400/30 selection:text-cyan-100">
@@ -2034,7 +2071,18 @@
           </button>
           </div>
 
-          <div id="test-subj-other" class="hidden space-y-4">
+          <!-- Student Saved Tests & Solutions Archive -->
+          <div id="saved-tests-card" class="rounded-2xl p-4 border border-indigo-400/30 bg-slate-950/75 space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <h4 class="text-xs sm:text-sm font-black text-cyan-300">💾 My Saved Tests &amp; Solutions (<span id="saved-tests-count">0</span>)</h4>
+              <span class="text-[10px] text-slate-400 font-semibold">Auto-saved after Submit</span>
+            </div>
+            <div id="saved-tests-list" class="space-y-2 max-h-56 overflow-y-auto">
+              <p class="text-[11px] text-slate-400">Abhi koi test submit nahi hua hai. Test submit karte hi Qs, Answers &amp; Solutions yahan save ho jayenge.</p>
+            </div>
+          </div>
+
+                    <div id="test-subj-other" class="hidden space-y-4">
             <div class="rounded-2xl p-5 border border-indigo-400/35 bg-slate-900/90 text-center space-y-3">
               <div id="test-other-icon" class="text-4xl">🧠</div>
               <h3 id="test-other-title" class="text-lg font-black text-white">Reasoning CBT Mock Hub</h3>
@@ -2164,38 +2212,72 @@
           </div>
         </div>
 
-        <!-- CBT Result Screen -->
-        <div id="test-result-panel" class="hidden space-y-5">
-          <div class="glass-card rounded-2xl p-5 sm:p-6 text-center space-y-4">
-            <h2 class="text-xl sm:text-2xl font-extrabold text-white">CBT Mock Test Result</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-cyan-400/30">
-                <p class="text-[11px] text-slate-400 font-semibold">SSC Score</p>
-                <p id="res-score" class="text-2xl font-black text-cyan-300 mt-0.5">0 / 30</p>
-              </div>
-              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-emerald-400/30">
-                <p class="text-[11px] text-slate-400 font-semibold">Accuracy</p>
-                <p id="res-accuracy" class="text-2xl font-black text-emerald-300 mt-0.5">0%</p>
-              </div>
-              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-indigo-400/30">
-                <p class="text-[11px] text-slate-400 font-semibold">Correct / Wrong</p>
-                <p id="res-cw" class="text-2xl font-black text-indigo-200 mt-0.5">0 / 0</p>
-              </div>
-              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-amber-400/30">
-                <p class="text-[11px] text-slate-400 font-semibold">Skipped</p>
-                <p id="res-skipped" class="text-2xl font-black text-amber-300 mt-0.5">0</p>
+        <!-- CBT Result Screen (Fullscreen Test Analysis Board) -->
+        <div id="test-result-panel" class="hidden">
+          <!-- Sticky Top Analysis Header -->
+          <div class="shrink-0 bg-gradient-to-r from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-white px-3 sm:px-6 py-3 flex items-center justify-between gap-2 shadow-md">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <button type="button" id="res-back-home-btn" onclick="closeAnalysisToSubjectHome()" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-xs font-black text-white transition shrink-0">← Back</button>
+              <div class="min-w-0">
+                <h2 class="text-sm sm:text-base font-black text-white truncate">📊 Test Analysis &amp; Solutions</h2>
+                <p id="res-test-title" class="text-[11px] text-cyan-300 font-semibold truncate">SSC CBT Mock Test</p>
               </div>
             </div>
-            <div class="flex flex-wrap justify-center gap-2.5 pt-1">
-              <button id="res-new-test-btn" class="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs sm:text-sm transition">New Mock Test</button>
-              <button id="res-goto-track-btn" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs sm:text-sm border border-slate-600 transition">View Daily Tracker</button>
-            </div>
+            <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/45 text-emerald-200 text-[10px] font-black shrink-0">💾 Saved</span>
           </div>
 
-          <div class="space-y-3">
-            <h3 class="text-sm sm:text-base font-bold text-white">Detailed Answer Review &amp; Hindi Explanations</h3>
-            <div id="res-review-list" class="space-y-3">
-              <!-- Dynamic review cards -->
+          <!-- Scrollable Analysis Content -->
+          <div id="res-scroll-body" class="px-3 sm:px-6 py-4">
+            <div class="max-w-4xl mx-auto space-y-4 pb-8">
+              <!-- Score Summary Cards -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div class="p-3.5 rounded-2xl bg-white border-2 border-indigo-200 shadow-xs text-center">
+                  <p class="text-[11px] text-slate-500 font-bold uppercase">SSC Score</p>
+                  <p id="res-score" class="text-2xl font-black text-indigo-700 mt-0.5">0 / 50</p>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-white border-2 border-emerald-200 shadow-xs text-center">
+                  <p class="text-[11px] text-slate-500 font-bold uppercase">Accuracy</p>
+                  <p id="res-accuracy" class="text-2xl font-black text-emerald-600 mt-0.5">0%</p>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-white border-2 border-sky-200 shadow-xs text-center">
+                  <p class="text-[11px] text-slate-500 font-bold uppercase">Correct / Wrong</p>
+                  <p id="res-cw" class="text-2xl font-black text-sky-700 mt-0.5">0 / 0</p>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-white border-2 border-amber-200 shadow-xs text-center">
+                  <p class="text-[11px] text-slate-500 font-bold uppercase">Skipped</p>
+                  <p id="res-skipped" class="text-2xl font-black text-amber-600 mt-0.5">0</p>
+                </div>
+              </div>
+
+              <!-- Strong vs Weak Topic Analysis Card -->
+              <div class="bg-white rounded-2xl p-4 sm:p-5 border border-indigo-100 shadow-sm space-y-3">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                  <h3 class="text-sm sm:text-base font-black text-indigo-950">🎯 Topic-Wise Analysis (Strong vs Weak)</h3>
+                  <div class="flex items-center gap-1.5 text-[10px] font-bold">
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">🟢 Strong ≥70%</span>
+                    <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">🟡 Avg 50-69%</span>
+                    <span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">🔴 Weak &lt;50%</span>
+                  </div>
+                </div>
+                <div id="res-topic-analysis" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+              </div>
+
+              <!-- Action Row -->
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex flex-wrap gap-1.5" id="res-filter-bar">
+                  <button type="button" onclick="filterResReview('all')" data-rf="all" class="res-flt-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-black shadow-xs">All</button>
+                  <button type="button" onclick="filterResReview('correct')" data-rf="correct" class="res-flt-btn px-3 py-1.5 rounded-xl bg-white border border-emerald-300 text-emerald-700 text-xs font-bold">✅ Correct</button>
+                  <button type="button" onclick="filterResReview('wrong')" data-rf="wrong" class="res-flt-btn px-3 py-1.5 rounded-xl bg-white border border-rose-300 text-rose-700 text-xs font-bold">❌ Wrong</button>
+                  <button type="button" onclick="filterResReview('skipped')" data-rf="skipped" class="res-flt-btn px-3 py-1.5 rounded-xl bg-white border border-amber-300 text-amber-700 text-xs font-bold">⏭️ Skipped</button>
+                </div>
+                <div class="flex gap-2">
+                  <button type="button" id="res-new-test-btn" onclick="closeAnalysisToSubjectHome()" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-black text-xs shadow">🔄 New Mock Test</button>
+                  <button type="button" id="res-goto-track-btn" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-white font-bold text-xs">📈 Tracker</button>
+                </div>
+              </div>
+
+              <!-- Full Question-by-Question Solutions List -->
+              <div id="res-review-list" class="space-y-3"></div>
             </div>
           </div>
         </div>
@@ -4393,10 +4475,18 @@
       if (btn) btn.textContent = next === 'both' ? 'E/अ' : (next === 'en' ? 'EN' : 'हिं');
       renderCbtQuestion();
     };
+    window.selectCbtOpt = function(btn) {
+      if (!btn || !cbt || !cbt.active || cbt.paused) return;
+      const q = cbt.questions[cbt.currentIndex];
+      if (!q) return;
+      cbt.answers[q.id] = btn.dataset.cbtOpt;
+      renderCbtQuestion();
+    };
     window.toggleCbtPause = function(ev) {
       if (ev && ev.stopPropagation) ev.stopPropagation();
       if (!cbt || !cbt.active) return;
       cbt.paused = !cbt.paused;
+      window._cbtPaused = cbt.paused;
       const ov = document.getElementById('cbt-pause-overlay');
       const btn = document.getElementById('cbt-pause-btn');
       if (ov) {
@@ -4405,11 +4495,63 @@
       }
       if (btn) btn.textContent = cbt.paused ? '▶' : '⏸';
     };
+    window.closeAnalysisToSubjectHome = function() {
+      document.body.classList.remove('cbt-result-fullscreen');
+      document.body.classList.remove('cbt-fullscreen-mode');
+      const rp = document.getElementById('test-result-panel');
+      if (rp) { rp.classList.add('hidden'); rp.style.display = 'none'; }
+      const ap = document.getElementById('test-active-panel');
+      if (ap) { ap.classList.add('hidden'); ap.style.display = 'none'; }
+      document.getElementById('test-setup-panel')?.classList.remove('hidden');
+      const lastSubj = window._lastCbtSubject || 'english';
+      if (window.selectTestSubject) window.selectTestSubject(lastSubj);
+      if (window.renderSavedTestsList) window.renderSavedTestsList();
+    };
+    window.filterResReview = function(flt) {
+      document.querySelectorAll('.res-flt-btn').forEach(b => {
+        const act = b.dataset.rf === flt;
+        b.classList.toggle('bg-indigo-600', act);
+        b.classList.toggle('text-white', act);
+      });
+      document.querySelectorAll('[data-rev-status]').forEach(card => {
+        const st = card.dataset.revStatus;
+        card.classList.toggle('hidden', flt !== 'all' && st !== flt);
+      });
+    };
+    window.renderSavedTestsList = function() {
+      const listEl = document.getElementById('saved-tests-list');
+      const cntEl = document.getElementById('saved-tests-count');
+      if (!listEl) return;
+      const saved = Array.isArray(state.savedTestPapers) ? state.savedTestPapers : [];
+      if (cntEl) cntEl.textContent = String(saved.length);
+      if (!saved.length) {
+        listEl.innerHTML = '<p class="text-[11px] text-slate-400">Abhi koi test submit nahi hua hai. Test submit karte hi Qs, Answers &amp; Solutions yahan save ho jayenge.</p>';
+        return;
+      }
+      listEl.innerHTML = saved.map((p, idx) => `
+        <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <p class="text-xs font-black text-white truncate">${p.mode}</p>
+            <p class="text-[10px] text-slate-400">${p.date} • Score: <strong class="text-cyan-300">${p.score}/${p.maxScore}</strong> • Acc: <strong class="text-emerald-300">${p.accuracy}%</strong></p>
+          </div>
+          <button type="button" onclick="openSavedTestAnalysis(${idx})" class="px-2.5 py-1.5 rounded-lg bg-indigo-500/25 hover:bg-indigo-500/45 border border-indigo-400/50 text-indigo-200 text-[11px] font-black shrink-0">📊 View Solutions</button>
+        </div>
+      `).join('');
+    };
+    window.openSavedTestAnalysis = function(idx) {
+      const saved = Array.isArray(state.savedTestPapers) ? state.savedTestPapers : [];
+      const paper = saved[idx];
+      if (!paper) return;
+      window._lastCbtSubject = paper.subject || 'english';
+      renderFullscreenAnalysisBoard(paper);
+    };
     window.exitCbtToSetup = function(ev) {
       if (ev && ev.stopPropagation) ev.stopPropagation();
       if (cbt.timerId) { clearInterval(cbt.timerId); cbt.timerId = null; }
       cbt.active = false;
       cbt.paused = false;
+      window._cbtPaused = false;
+      window._lastCbtSubject = (selected[0] && String(selected[0].id || '').startsWith('m_')) ? 'maths' : 'english';
       document.body.classList.remove('cbt-fullscreen-mode');
       const ov = document.getElementById('cbt-pause-overlay');
       if (ov) { ov.classList.add('hidden'); ov.style.display = 'none'; }
@@ -4533,7 +4675,7 @@
       if (scBody) scBody.scrollTop = 0;
       document.getElementById('test-setup-panel').classList.add('hidden');
       document.getElementById('test-result-panel').classList.add('hidden');
-      document.getElementById('test-active-panel').classList.remove('hidden');
+      const _apShow = document.getElementById('test-active-panel'); _apShow.classList.remove('hidden'); _apShow.style.display = '';
 
       updateCbtTimerDisplay();
       cbt.timerId = setInterval(() => {
@@ -4600,7 +4742,7 @@
       document.getElementById('cbt-options-box').innerHTML = q.shuffledOptions.map((opt, idx) => {
         const isSel = selectedOpt === opt;
         return `
-          <button data-cbt-opt="${opt.replace(/"/g, '&quot;')}" class="w-full text-left px-4 py-3.5 rounded-xl border flex items-center gap-3.5 transition ${
+          <button type="button" onclick="selectCbtOpt(this)" data-cbt-opt="${opt.replace(/"/g, '&quot;')}" class="w-full text-left px-4 py-3.5 rounded-xl border flex items-center gap-3.5 transition ${
             isSel
               ? 'cbt-opt-selected bg-gradient-to-r from-sky-50 to-indigo-50 border-2 border-sky-500 text-indigo-950 font-extrabold shadow-sm'
               : 'bg-white border border-indigo-100 text-slate-800 hover:border-indigo-300 shadow-xs'
@@ -4629,19 +4771,137 @@
       }).join('');
     }
 
+    function renderFullscreenAnalysisBoard(paper) {
+      document.body.classList.remove('cbt-fullscreen-mode');
+      const ap = document.getElementById('test-active-panel');
+      if (ap) { ap.classList.add('hidden'); ap.style.display = 'none'; }
+
+      const rp = document.getElementById('test-result-panel');
+      if (rp && rp.parentElement !== document.body) {
+        document.body.appendChild(rp);
+      }
+      document.body.classList.add('cbt-result-fullscreen');
+      if (rp) { rp.classList.remove('hidden'); rp.style.display = 'flex'; }
+      const rScroll = document.getElementById('res-scroll-body');
+      if (rScroll) rScroll.scrollTop = 0;
+
+      const tEl = document.getElementById('res-test-title');
+      if (tEl) tEl.textContent = `${paper.mode} • ${paper.date}`;
+      document.getElementById('res-score').textContent = `${paper.score} / ${paper.maxScore}`;
+      document.getElementById('res-accuracy').textContent = `${paper.accuracy}%`;
+      document.getElementById('res-cw').textContent = `${paper.correct} / ${paper.wrong}`;
+      document.getElementById('res-skipped').textContent = `${paper.skipped}`;
+
+      // Topic-wise Strong vs Weak Breakdown
+      const topics = {};
+      (paper.items || []).forEach(it => {
+        const cat = it.category || 'General';
+        if (!topics[cat]) topics[cat] = { total: 0, correct: 0, wrong: 0, skipped: 0 };
+        topics[cat].total++;
+        if (it.status === 'correct') topics[cat].correct++;
+        else if (it.status === 'wrong') topics[cat].wrong++;
+        else topics[cat].skipped++;
+      });
+
+      const topicBox = document.getElementById('res-topic-analysis');
+      if (topicBox) {
+        const sortedTopics = Object.entries(topics).sort((a, b) => {
+          const accA = a[1].total ? (a[1].correct / a[1].total) : 0;
+          const accB = b[1].total ? (b[1].correct / b[1].total) : 0;
+          return accA - accB; // Weakest topics first so student spots them immediately
+        });
+        topicBox.innerHTML = sortedTopics.map(([name, st]) => {
+          const pct = Math.round((st.correct / Math.max(1, st.total)) * 100);
+          const tag = pct >= 70 ? { lbl: '🟢 Strong', cls: 'bg-emerald-100 text-emerald-800', bar: 'bg-emerald-500' }
+                    : pct >= 50 ? { lbl: '🟡 Average', cls: 'bg-amber-100 text-amber-800', bar: 'bg-amber-500' }
+                    : { lbl: '🔴 Weak Topic', cls: 'bg-rose-100 text-rose-800', bar: 'bg-rose-500' };
+          return `
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-extrabold text-slate-800 truncate">${name}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 ${tag.cls}">${tag.lbl} (${pct}%)</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                <div class="h-full ${tag.bar}" style="width: ${pct}%"></div>
+              </div>
+              <p class="text-[10px] font-semibold text-slate-500">✓ ${st.correct} Correct • ✕ ${st.wrong} Wrong • ⏭ ${st.skipped} Skipped (Total ${st.total})</p>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Full Bilingual Question-by-Question Review & Solutions
+      const revBox = document.getElementById('res-review-list');
+      if (revBox) {
+        revBox.innerHTML = (paper.items || []).map((it, idx) => {
+          const badge = it.status === 'correct'
+            ? '<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-black">✅ Correct (+2)</span>'
+            : it.status === 'wrong'
+            ? '<span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[11px] font-black">❌ Wrong (-0.50)</span>'
+            : '<span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-black">⏭️ Skipped</span>';
+          return `
+            <div data-rev-status="${it.status}" class="bg-white rounded-2xl p-4 border border-indigo-100 shadow-xs space-y-2">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span class="text-xs font-extrabold text-indigo-700">Q${idx + 1} • ${it.category} (${it.exam})</span>
+                ${badge}
+              </div>
+              <p class="text-sm font-bold text-slate-900 leading-relaxed">${it.prompt}</p>
+              ${it.promptHi ? `<p class="text-xs font-semibold text-indigo-900 bg-indigo-50/80 border-l-4 border-indigo-400 px-2.5 py-1.5 rounded-r-lg">${it.promptHi}</p>` : ''}
+              <div class="text-xs space-y-1 pt-1 border-t border-slate-100">
+                <p><span class="text-slate-500 font-semibold">Your Answer:</span> <strong class="${it.status === 'correct' ? 'text-emerald-700' : it.status === 'wrong' ? 'text-rose-700' : 'text-amber-700'}">${it.userAns || 'Not Attempted'}</strong></p>
+                <p><span class="text-emerald-700 font-bold">Correct Answer:</span> <strong class="text-emerald-800">${it.correctAns}</strong></p>
+                <div class="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200 text-slate-800 space-y-1 mt-1">
+                  <p><strong class="text-emerald-800">💡 Solution:</strong> ${it.exp || ''}</p>
+                  ${it.trick ? `<p class="text-indigo-800 font-bold">⚡ Trick: ${it.trick}</p>` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      filterResReview('all');
+    }
+
     function finishCbtTest() {
       if (cbt.timerId) {
         clearInterval(cbt.timerId);
         cbt.timerId = null;
       }
       cbt.active = false;
+      cbt.paused = false;
+      window._cbtPaused = false;
+      const ov = document.getElementById('cbt-pause-overlay');
+      if (ov) { ov.classList.add('hidden'); ov.style.display = 'none'; }
+      const dr = document.getElementById('cbt-palette-drawer');
+      if (dr) dr.classList.add('hidden');
 
       let correct = 0, wrong = 0, skipped = 0;
-      cbt.questions.forEach(q => {
+      const items = cbt.questions.map(q => {
         const a = cbt.answers[q.id];
-        if (a === undefined) skipped++;
-        else if (isSameAns(a, q.cbtAnswer || q.answer)) correct++;
-        else { wrong++; if (!state.weakIds) state.weakIds = []; if (!state.weakIds.includes(q.id)) state.weakIds.push(q.id); }
+        const expAns = q.cbtAnswer || q.answer;
+        let status = 'skipped';
+        if (a === undefined) {
+          skipped++;
+        } else if (isSameAns(a, expAns)) {
+          correct++;
+          status = 'correct';
+        } else {
+          wrong++;
+          status = 'wrong';
+          if (!state.weakIds) state.weakIds = [];
+          if (!state.weakIds.includes(q.id)) state.weakIds.push(q.id);
+        }
+        return {
+          category: q.category || 'General',
+          exam: q.exam || 'SSC PYQ',
+          prompt: q.cbtPrompt || q.word || '',
+          promptHi: q.promptHi || '',
+          userAns: a || '',
+          correctAns: expAns || '',
+          exp: q.exp || '',
+          trick: q.trick || '',
+          status
+        };
       });
 
       const attempted = correct + wrong;
@@ -4649,12 +4909,23 @@
       const maxScore = cbt.questions.length * 2;
       const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
 
-      // Update Daily Tracker & History
       const today = getTodayActivity();
       today.quizzes += attempted;
+      const paper = {
+        date: `${getTodayStr()} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+        mode: cbt.modeLabel || 'SSC CBT Mock',
+        subject: window._lastCbtSubject || 'english',
+        score,
+        maxScore,
+        correct,
+        wrong,
+        skipped,
+        accuracy,
+        items
+      };
       state.testHistory.unshift({
         date: getTodayStr(),
-        mode: cbt.modeLabel,
+        mode: paper.mode,
         score,
         maxScore,
         correct,
@@ -4662,41 +4933,18 @@
         skipped,
         accuracy
       });
+      if (!Array.isArray(state.savedTestPapers)) state.savedTestPapers = [];
+      state.savedTestPapers.unshift(paper);
+      if (state.savedTestPapers.length > 25) state.savedTestPapers = state.savedTestPapers.slice(0, 25);
       saveState();
       syncHeaderStats();
+      if (window.renderSavedTestsList) window.renderSavedTestsList();
 
-      document.getElementById('test-active-panel').classList.add('hidden');
-      document.getElementById('test-result-panel').classList.remove('hidden');
-
-      document.getElementById('res-score').textContent = `${score} / ${maxScore}`;
-      document.getElementById('res-accuracy').textContent = `${accuracy}%`;
-      document.getElementById('res-cw').textContent = `${correct} / ${wrong}`;
-      document.getElementById('res-skipped').textContent = `${skipped}`;
+      renderFullscreenAnalysisBoard(paper);
 
       if (accuracy >= 70 && attempted >= 5 && window.confetti) {
         confetti({ particleCount: 95, spread: 75, origin: { y: 0.6 } });
       }
-
-      document.getElementById('res-review-list').innerHTML = cbt.questions.map((q, idx) => {
-        const a = cbt.answers[q.id];
-        const expAns = q.cbtAnswer || q.answer;
-        const status = a === undefined ? 'Skipped' : (isSameAns(a, expAns) ? 'Correct (+2)' : 'Wrong (-0.50)');
-        const badgeCls = a === undefined ? 'bg-amber-500/20 text-amber-200' : (isSameAns(a, expAns) ? 'bg-emerald-500/20 text-emerald-200' : 'bg-rose-500/20 text-rose-200');
-        return `
-          <div class="glass-card rounded-2xl p-4 space-y-2">
-            <div class="flex items-center justify-between gap-2 flex-wrap">
-              <span class="text-xs font-bold text-cyan-300">Q${idx + 1} • ${q.category} (${q.exam} ${q.year})</span>
-              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${badgeCls}">${status}</span>
-            </div>
-            <p class="text-sm sm:text-base font-extrabold text-white">${q.cbtPrompt || q.word}</p>
-            <div class="text-xs space-y-1">
-              <p><span class="text-slate-400">Your Answer:</span> <span class="font-semibold text-white">${a || 'Not Attempted'}</span></p>
-              <p><span class="text-emerald-300 font-bold">Correct Answer:</span> <span class="font-bold text-emerald-200">${expAns}</span> ${q.meaningHi ? `<span class="text-amber-300 font-semibold">(${q.meaningHi})</span>` : ''}</p>
-              <p class="text-slate-300">${q.exp} <span class="text-indigo-300">Trick: ${q.trick}</span></p>
-            </div>
-          </div>
-        `;
-      }).join('');
     }
 
     // =========================================================================
@@ -7299,7 +7547,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         document.getElementById('test-result-panel').classList.add('hidden');
         document.getElementById('test-setup-panel').classList.remove('hidden');
       });
-      document.getElementById('res-goto-track-btn').addEventListener('click', () => switchTab('tracker'));
+      document.getElementById('res-goto-track-btn').addEventListener('click', () => { closeAnalysisToSubjectHome(); switchTab('tracker'); });
 
       // Tracker Controls
       document.getElementById('set-word-range').addEventListener('input', (e) => {
@@ -13708,6 +13956,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         const el = document.getElementById('cbt-q-timer');
         const panel = document.getElementById('test-active-panel');
         if (!el || !panel || panel.classList.contains('hidden')) return;
+        if (window._cbtPaused) return;
         const start = window._cbtQStartMs || Date.now();
         const sec = Math.max(0, Math.floor((Date.now() - start) / 1000));
         const mm = String(Math.floor(sec / 60)).padStart(2, '0');
@@ -14243,6 +14492,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
 
       renderSubjectPanel('english');
       if (window.selectTestSubject) selectTestSubject('english');
+      if (window.renderSavedTestsList) window.renderSavedTestsList();
     })();
   </script>
 
