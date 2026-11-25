@@ -15375,9 +15375,48 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         return combinedText.trim();
       }
 
-      // High-Accuracy Gemini Vision API (processes 1 file at a time so 8+ photos never fail or truncate!)
-      async function callGeminiExtractMcqs(files, apiKey, subject, chapter) {
-        const allExtracted = [];
+      // Ultra-Fast Gemini Vision API (v122: Splits PDFs page-by-page via PDF.js + 35s timeout + Live Preview after EVERY page!)
+      async function renderPdfToPageJpegs(file, maxPages = 15) {
+        if (typeof window.pdfjsLib === 'undefined') {
+          await loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+          if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          }
+        }
+        const buf = await readFileAsArrayBuffer(file);
+        const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+        const count = Math.min(pdf.numPages, maxPages);
+        const pages = [];
+        for (let pno = 1; pno <= count; pno++) {
+          setTmProgress(true, `📄 Preparing PDF Page ${pno}/${count}...`, (pno / count) * 15);
+          const page = await pdf.getPage(pno);
+          const vp0 = page.getViewport({ scale: 1.0 });
+          const scale = Math.min(1.8, 1250 / Math.max(vp0.width, 1));
+          const vp = page.getViewport({ scale });
+          const c = document.createElement('canvas');
+          c.width = Math.max(1, Math.round(vp.width));
+          c.height = Math.max(1, Math.round(vp.height));
+          await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+          pages.push({
+            label: `${file.name} (Page ${pno}/${count})`,
+            dataUrl: c.toDataURL('image/jpeg', 0.82),
+            mime: 'image/jpeg'
+          });
+        }
+        return pages;
+      }
+
+      async function fetchWithTimeout(url, options, timeoutMs = 35000) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+        try {
+          return await fetch(url, { ...options, signal: ctrl.signal });
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      async function callGeminiExtractMcqs(files, apiKey, subject, chapter, onPageQs) {
         async function getCandidateModels(key) {
           const priority = [
             'gemini-3.8-flash',
@@ -15390,9 +15429,9 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           ];
           const discovered = [];
           try {
-            const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100', {
+            const r = await fetchWithTimeout('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100', {
               headers: { 'x-goog-api-key': key }
-            });
+            }, 12000);
             if (r.ok) {
               const j = await r.json();
               (j.models || []).forEach(m => {
@@ -15409,60 +15448,69 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           return Array.from(new Set([saved, ...discovered, ...priority].filter(Boolean)));
         }
 
+        // Expand PDFs into crisp individual page JPEGs so EVERY page scans in ~5-8 sec instead of hanging!
+        const pageItems = [];
+        for (let i = 0; i < files.length; i++) {
+          const f = files[i];
+          const isPdf = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+          if (isPdf) {
+            try {
+              const pdfPages = await renderPdfToPageJpegs(f, 15);
+              pageItems.push(...pdfPages);
+            } catch (_) {
+              const rawUrl = await readFileAsDataUrl(f);
+              pageItems.push({ label: f.name, dataUrl: rawUrl, mime: 'application/pdf' });
+            }
+          } else {
+            const imgUrl = await preprocessImageFile(f, 1280, false);
+            pageItems.push({ label: `Photo ${i + 1}`, dataUrl: imgUrl, mime: 'image/jpeg' });
+          }
+        }
+
         const models = await getCandidateModels(apiKey);
         let workingModel = null;
         let lastErr = '';
+        const allExtracted = [];
 
-        for (let i = 0; i < files.length; i++) {
-          const f = files[i];
-          const basePct = (i / files.length) * 100;
-          setTmProgress(true, `✨ AI Vision scanning File ${i + 1}/${files.length} (${allExtracted.length} Qs ready)...`, basePct + 10);
-          const isPdf = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
-          const dataUrl = isPdf ? await readFileAsDataUrl(f) : await preprocessImageFile(f, 1400, false);
-          const comma = dataUrl.indexOf(',');
-          const b64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
-          const mime = isPdf ? 'application/pdf' : 'image/jpeg';
+        for (let i = 0; i < pageItems.length; i++) {
+          const item = pageItems[i];
+          const pct = 15 + Math.round((i / Math.max(1, pageItems.length)) * 85);
+          setTmProgress(true, `⚡ Fast AI Scan ${i + 1}/${pageItems.length}: ${item.label} (${allExtracted.length} Qs ready)`, pct);
+
+          const comma = item.dataUrl.indexOf(',');
+          const b64 = comma >= 0 ? item.dataUrl.slice(comma + 1) : item.dataUrl;
 
           const parts = [
             {
-              text: `You are an expert Indian SSC exam digitizer. Read this ${isPdf ? 'PDF' : 'book page photo'} VERY CAREFULLY (handle 2-column layouts left-column first then right-column, ignore phone watermarks like "Shot on moto...").
-Extract EVERY complete MCQ for Subject="${subject}", Chapter="${chapter}".
-Rules:
-1. If the question is in Hindi, put exact clean Hindi in "promptHi" AND clear English translation in "cbtPrompt" (or put clean Hindi in both if it is a Hindi-medium paper).
-2. Preserve all math numbers, powers, fractions, and symbols accurately.
-3. Extract all 4 options cleanly in "options" array (4 strings).
-4. Solve each question carefully and put the EXACT matching option string in "answer", plus short explanation in "exp" and 1-line trick in "trick".
-Return ONLY a valid JSON array (no markdown fences) of objects:
-[{"cbtPrompt":"...","promptHi":"...","options":["...","...","...","..."],"answer":"...","exp":"...","trick":"..."}]`
+              text: `Extract ALL MCQs from this Indian SSC exam page (Subject="${subject}", Chapter="${chapter}"). Handle 2-column layouts cleanly (left column then right), ignore watermarks.
+Return ONLY a compact JSON array (no markdown):
+[{"cbtPrompt":"English question","promptHi":"Exact Hindi question","options":["A","B","C","D"],"answer":"Exact matching option","exp":"Brief 1-line solution","trick":"Short trick"}]
+Keep exp & trick very concise (max 15 words) for speed.`
             },
-            { inlineData: { mimeType: mime, data: b64 } }
+            { inlineData: { mimeType: item.mime, data: b64 } }
           ];
 
-          const tryModels = workingModel ? [workingModel, ...models.filter(m => m !== workingModel)] : models;
+          const tryModels = workingModel ? [workingModel, ...models.filter(m => m !== workingModel)] : models.slice(0, 4);
           let pageQs = null;
           for (const model of tryModels) {
             try {
-              const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+              const resp = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
                 body: JSON.stringify({
                   contents: [{ role: 'user', parts }],
-                  generationConfig: { temperature: 0.1, maxOutputTokens: 8192, responseMimeType: 'application/json' }
+                  generationConfig: { temperature: 0.1, maxOutputTokens: 4096, responseMimeType: 'application/json' }
                 })
-              });
+              }, 35000);
               if (!resp.ok) {
                 const et = await resp.text().catch(() => '');
                 let msg = `${model} (${resp.status})`;
                 try {
                   const ej = JSON.parse(et);
-                  if (ej?.error?.message) msg = `${model} (${resp.status}): ${ej.error.message.slice(0, 120)}`;
-                } catch (_) {
-                  if (et) msg = `${model} (${resp.status}): ${et.slice(0, 100)}`;
-                }
+                  if (ej?.error?.message) msg = `${model} (${resp.status}): ${ej.error.message.slice(0, 100)}`;
+                } catch (_) {}
                 lastErr = msg;
-                if (resp.status === 400 && /API_KEY_INVALID|API key not valid/i.test(et)) {
-                  throw new Error('Invalid Gemini API Key — Google AI Studio se sahi AIza... key copy karein.');
-                }
+                if (resp.status === 401 || resp.status === 403) throw new Error(msg);
                 continue;
               }
               const data = await resp.json();
@@ -15477,14 +15525,19 @@ Return ONLY a valid JSON array (no markdown fences) of objects:
                 break;
               }
             } catch (e) {
-              if (e && /Invalid Gemini API Key/i.test(e.message)) throw e;
+              if (e && e.name === 'AbortError') {
+                lastErr = `${model} timed out (35s) — trying next`;
+                continue;
+              }
+              if (e && /401|403/.test(String(e.message))) throw e;
               lastErr = e && e.message ? e.message : 'parse-error';
             }
           }
           if (pageQs && pageQs.length) {
             allExtracted.push(...pageQs);
+            if (typeof onPageQs === 'function') onPageQs(pageQs);
           }
-          setTmProgress(true, `✨ Done File ${i + 1}/${files.length} (${allExtracted.length} Qs extracted)`, ((i + 1) / files.length) * 100);
+          setTmProgress(true, `✅ Page ${i + 1}/${pageItems.length} Done (${allExtracted.length} Qs ready)`, 15 + Math.round(((i + 1) / Math.max(1, pageItems.length)) * 85));
         }
 
         if (!allExtracted.length) {
@@ -15980,9 +16033,16 @@ Return ONLY a valid JSON array (no markdown fences) of objects:
             if (mediaFiles.length) {
               const apiKey = getSavedGeminiKey();
               if (apiKey) {
-                setTmStatus(`✨ AI Vision ${mediaFiles.length} file(s) page-by-page scan kar raha hai (99% Hindi + Maths)...`, 'info');
-                const aiQs = await callGeminiExtractMcqs(mediaFiles, apiKey, SUBJ_META[subject]?.label || subject, chapter);
-                extracted = extracted.concat(aiQs);
+                setTmStatus(`⚡ Fast AI Vision page-by-page scan chal raha hai (5-8 sec/page)...`, 'info');
+                const aiQs = await callGeminiExtractMcqs(mediaFiles, apiKey, SUBJ_META[subject]?.label || subject, chapter, (pageQs) => {
+                  tmDraftQuestions = tmDraftQuestions.concat(pageQs);
+                  renderDraftPreview();
+                  setTmStatus(`⚡ Live scanning... abhi tak ${tmDraftQuestions.length} Questions ready ho chuke hain!`, 'ok');
+                });
+                // Already appended incrementally via onPageQs callback
+                if (!extracted.length && aiQs.length) {
+                  setTmStatus(`✅ Total ${tmDraftQuestions.length} Questions ready! Niche check karein aur "🚀 Publish to Student Panel" dabayein.`, 'ok');
+                }
               } else {
                 // ZERO API KEY NEEDED — Free Built-in Browser OCR!
                 setTmStatus(`🔍 Free Auto-OCR ${mediaFiles.length} Photo/PDF scan kar raha hai... (thoda wait karein)`, 'info');
