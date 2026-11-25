@@ -1743,7 +1743,7 @@
       <!-- ================= VIEW 3: CBT MOCK TEST ================= -->
       <section id="view-test" class="view-section hidden space-y-5">
         <!-- NEXT-GEN 3D CBT EXAM ARENA HEADER -->
-        <div class="sheen-3d classic-banner-keep rounded-3xl p-5 bg-gradient-to-r from-rose-700 via-indigo-800 to-blue-900 border-2 border-rose-400/40 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div id="ailt-test-banner" class="sheen-3d classic-banner-keep rounded-3xl p-5 bg-gradient-to-r from-rose-700 via-indigo-800 to-blue-900 border-2 border-rose-400/40 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex items-center gap-3.5">
             <div class="anim-float-3d w-12 h-12 rounded-2xl bg-white/15 border border-white/30 flex items-center justify-center text-2xl shrink-0">🏆</div>
             <div>
@@ -1777,7 +1777,20 @@
         </div>
 
         <!-- Test Setup Screen -->
-        <div id="test-setup-panel" class="glass-card rounded-2xl p-5 sm:p-6 max-w-3xl mx-auto space-y-5">
+        <div id="test-setup-panel" class="glass-card rounded-2xl p-4 sm:p-6 max-w-3xl mx-auto space-y-5">
+          <!-- Top Subject Switcher Bar for Main Test Section -->
+          <div class="space-y-2 border-b border-white/10 pb-3.5">
+            <p class="text-[11px] font-black uppercase tracking-wider text-slate-400">🎯 Select Test Subject (Fullscreen Testbook Exam)</p>
+            <div class="grid grid-cols-3 sm:grid-cols-5 gap-2" id="test-subject-tabs">
+              <button type="button" data-test-subj="english" onclick="selectTestSubject('english')" class="test-subj-pill px-2.5 py-2 rounded-xl border border-cyan-400 bg-cyan-500/25 text-white text-xs font-black shadow transition flex items-center justify-center gap-1">📘 English</button>
+              <button type="button" data-test-subj="maths" onclick="selectTestSubject('maths')" class="test-subj-pill px-2.5 py-2 rounded-xl border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-rose-400/60 text-xs font-black transition flex items-center justify-center gap-1">➗ Maths</button>
+              <button type="button" data-test-subj="reasoning" onclick="selectTestSubject('reasoning')" class="test-subj-pill px-2.5 py-2 rounded-xl border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-violet-400/60 text-xs font-black transition flex items-center justify-center gap-1">🧠 Reas.</button>
+              <button type="button" data-test-subj="gs" onclick="selectTestSubject('gs')" class="test-subj-pill px-2.5 py-2 rounded-xl border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-emerald-400/60 text-xs font-black transition flex items-center justify-center gap-1">🌍 GS</button>
+              <button type="button" data-test-subj="static" onclick="selectTestSubject('static')" class="test-subj-pill px-2.5 py-2 rounded-xl border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-amber-400/60 text-xs font-black transition flex items-center justify-center gap-1">🏆 Static</button>
+            </div>
+          </div>
+
+          <div id="test-subj-maths" class="hidden space-y-4">
           <!-- SSC New-Pattern Maths CBT Series (3 Models • 25 Qs • 15 Min) -->
           <div class="rounded-2xl p-4 sm:p-5 border border-rose-400/40 bg-gradient-to-br from-rose-950/60 via-slate-900/95 to-indigo-950/60 space-y-3.5">
             <div class="flex flex-wrap items-center justify-between gap-2">
@@ -1847,6 +1860,9 @@
               </div>
             </div>
           </div>
+          </div>
+
+          <div id="test-subj-english" class="space-y-5">
           <div class="text-center space-y-1.5">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
               🎯 Real SSC Tier-1 Marking: +2 Correct | -0.50 Wrong
@@ -1948,6 +1964,19 @@
           <button id="start-cbt-btn" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-violet-500 hover:brightness-110 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2 transition">
             <i data-lucide="zap" class="w-5 h-5"></i> Start CBT Mock Test
           </button>
+          </div>
+
+          <div id="test-subj-other" class="hidden space-y-4">
+            <div class="rounded-2xl p-5 border border-indigo-400/35 bg-slate-900/90 text-center space-y-3">
+              <div id="test-other-icon" class="text-4xl">🧠</div>
+              <h3 id="test-other-title" class="text-lg font-black text-white">Reasoning CBT Mock Hub</h3>
+              <p id="test-other-desc" class="text-xs text-slate-300 max-w-md mx-auto">Is subject ke chapter-wise practice sets aur AI Guru instant quiz yahan se start karein.</p>
+              <div class="flex flex-wrap justify-center gap-2.5 pt-1">
+                <button type="button" id="test-other-ai-btn" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-black text-xs shadow hover:brightness-110 transition">🤖 Start AI 10-Q Live Drill</button>
+                <button type="button" id="test-other-pdf-btn" class="px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-600 text-slate-200 font-bold text-xs hover:bg-slate-700 transition">📂 Practice PDFs</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Active CBT Exam Screen (Testbook Fullscreen Exam Model) -->
@@ -13768,6 +13797,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
 
         const testBtn = document.querySelector('[data-nav="test"]');
         if (testBtn) testBtn.click();
+        if (window.selectTestSubject) selectTestSubject('maths');
         setTimeout(() => {
           startCbtTest(pool, label, Math.min(25, pool.length), 900);
         }, 120);
@@ -13831,38 +13861,267 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         `;
       };
 
+      let activeSubjKey = 'english';
+      let activeSubjSubTab = {
+        english: 'overview',
+        maths: 'chapterwise',
+        reasoning: 'theory',
+        gs: 'theory',
+        static: 'theory'
+      };
+
+      const SUBJ_SUBTABS = {
+        english: [
+          { id: 'vocab', icon: '📖', label: 'Vocab', action: "switchTab('vocab')" },
+          { id: 'clusters', icon: '🧩', label: 'Clusters', action: "switchTab('rev')" },
+          { id: 'pyq', icon: '🏛️', label: 'PYQ', action: "switchTab('pyq')" },
+          { id: 'test', icon: '📝', label: 'Revision Test', action: "openTestForSubject('english')" }
+        ],
+        maths: [
+          { id: 'theory', icon: '📐', label: 'Theory' },
+          { id: 'chapterwise', icon: '📚', label: 'Chapter-Wise' },
+          { id: 'revtest', icon: '📝', label: 'Revision Test' }
+        ],
+        reasoning: [
+          { id: 'theory', icon: '💡', label: 'Theory' },
+          { id: 'chapterwise', icon: '📚', label: 'Chapter-Wise' },
+          { id: 'revtest', icon: '📝', label: 'Revision Test' }
+        ],
+        gs: [
+          { id: 'theory', icon: '📖', label: 'Theory' },
+          { id: 'chapterwise', icon: '📚', label: 'Chapter-Wise' },
+          { id: 'revtest', icon: '📝', label: 'Revision Test' }
+        ],
+        static: [
+          { id: 'theory', icon: '📖', label: 'Theory' },
+          { id: 'chapterwise', icon: '📚', label: 'Chapter-Wise' },
+          { id: 'revtest', icon: '📝', label: 'Revision Test' }
+        ]
+      };
+
+      window.selectTestSubject = function(subj) {
+        const engBox = document.getElementById('test-subj-english');
+        const mathBox = document.getElementById('test-subj-maths');
+        const othBox = document.getElementById('test-subj-other');
+        const ailtBan = document.getElementById('ailt-test-banner');
+
+        document.querySelectorAll('.test-subj-pill').forEach(btn => {
+          const act = btn.dataset.testSubj === subj;
+          btn.classList.toggle('border-cyan-400', act);
+          btn.classList.toggle('bg-cyan-500/25', act);
+          btn.classList.toggle('text-white', act);
+          btn.classList.toggle('shadow', act);
+          btn.classList.toggle('border-slate-700', !act);
+          btn.classList.toggle('bg-slate-900/80', !act);
+          btn.classList.toggle('text-slate-300', !act);
+        });
+
+        engBox?.classList.toggle('hidden', subj !== 'english');
+        mathBox?.classList.toggle('hidden', subj !== 'maths');
+        othBox?.classList.toggle('hidden', subj === 'english' || subj === 'maths');
+        if (ailtBan) ailtBan.classList.toggle('hidden', subj !== 'english');
+
+        if (subj !== 'english' && subj !== 'maths') {
+          const meta = {
+            reasoning: { icon: '🧠', title: 'Reasoning CBT Mock Hub', desc: 'SSC CGL / CHSL / MTS Reasoning ke mixed practice sets, tricks aur AI 10-Q timed drill.', pdf: 'Reasoning', ai: 'SSC CGL Reasoning ke 10 important PYQ MCQ questions (options ke saath) test ke liye do' },
+            gs: { icon: '🌍', title: 'General Studies (GS) CBT Mock Hub', desc: 'History, Polity, Geography, Science aur Economy ke high-yield SSC PYQs aur AI drill.', pdf: 'GS', ai: 'SSC CGL GS (Polity, History, Science) ke 10 important PYQ MCQ questions options ke saath do' },
+            static: { icon: '🏆', title: 'Static GK CBT Mock Hub', desc: 'Classical Dances, Festivals, Awards, National Parks aur Sports ke SSC PYQs.', pdf: 'Static GK', ai: 'SSC Static GK (Dances, Awards, Festivals, Parks) ke 10 important PYQ MCQ questions options ke saath do' }
+          }[subj];
+          if (meta) {
+            const ic = document.getElementById('test-other-icon');
+            const ti = document.getElementById('test-other-title');
+            const de = document.getElementById('test-other-desc');
+            const ab = document.getElementById('test-other-ai-btn');
+            const pb = document.getElementById('test-other-pdf-btn');
+            if (ic) ic.textContent = meta.icon;
+            if (ti) ti.textContent = meta.title;
+            if (de) de.textContent = meta.desc;
+            if (ab) ab.onclick = () => askSubjectAi(meta.ai);
+            if (pb) pb.onclick = () => openSubjectPdf(meta.pdf);
+          }
+        }
+      };
+
+      window.openTestForSubject = function(subj) {
+        const testBtn = document.querySelector('[data-nav="test"]');
+        if (testBtn) testBtn.click();
+        setTimeout(() => selectTestSubject(subj), 60);
+      };
+
+      window.setSubjectSubTab = function(subjKey, subTabId) {
+        activeSubjKey = subjKey;
+        activeSubjSubTab[subjKey] = subTabId;
+        renderSubjectPanel(subjKey);
+      };
+
+      function renderMathsRevisionTestPanel() {
+        const chCounts = {};
+        (window.MATHS_BOOK_QS || []).forEach(q => { chCounts[q.chapter] = (chCounts[q.chapter] || 0) + 1; });
+        const optsHtml = ['<option value="all">All 30 Chapters Mix (25 Qs)</option>']
+          .concat(Object.keys(chCounts).sort().map(c => `<option value="ch:${c}">${c} (${chCounts[c]} Qs)</option>`)).join('');
+        return `
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <div class="p-4 rounded-2xl bg-slate-900/95 border border-cyan-400/40 flex flex-col justify-between gap-3">
+              <div>
+                <span class="text-[10px] font-black text-cyan-300 uppercase">Model 1 • Fullscreen CBT</span>
+                <h4 class="text-sm font-black text-white mt-1">🔀 Mixed Revision Test</h4>
+                <p class="text-[11px] text-slate-400 mt-1">25 Shuffled Qs • 15:00 Min • +2 / -0.50</p>
+              </div>
+              <button type="button" onclick="launchMathsModelTest('mixed')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xs shadow">▶ Start Mixed Test</button>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-900/95 border border-emerald-400/40 flex flex-col justify-between gap-2.5">
+              <div>
+                <span class="text-[10px] font-black text-emerald-300 uppercase">Model 2 • Chapter CBT</span>
+                <h4 class="text-sm font-black text-white mt-1">📚 Chapter-Wise Test</h4>
+                <select id="subj-maths-ch-pick" class="mt-2 w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-[11px] text-white">${optsHtml}</select>
+              </div>
+              <button type="button" onclick="launchMathsModelTest('subject', document.getElementById('subj-maths-ch-pick')?.value || 'all')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black text-xs shadow">▶ Start Chapter Test</button>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-900/95 border border-amber-400/45 flex flex-col justify-between gap-3">
+              <div>
+                <span class="text-[10px] font-black text-amber-300 uppercase">Model 3 • High Weightage</span>
+                <h4 class="text-sm font-black text-white mt-1">🔥 Important PYQs Test</h4>
+                <p class="text-[11px] text-slate-400 mt-1">25 Hard &amp; Mains Qs • 15:00 Min</p>
+              </div>
+              <button type="button" onclick="launchMathsModelTest('important')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs shadow">▶ Start Important Test</button>
+            </div>
+          </div>
+        `;
+      }
+
       function renderSubjectPanel(key) {
-        const d = SUBJECT_DATA[key] || SUBJECT_DATA.english;
+        activeSubjKey = key || 'english';
+        const d = SUBJECT_DATA[activeSubjKey] || SUBJECT_DATA.english;
+        const tabs = SUBJ_SUBTABS[activeSubjKey] || [];
+        const curSub = activeSubjSubTab[activeSubjKey] || (tabs[0] && tabs[0].id) || 'theory';
+
         document.querySelectorAll('.subj-tab-btn').forEach(b => {
-          const act = b.dataset.subjTab === key;
+          const act = b.dataset.subjTab === activeSubjKey;
           b.classList.toggle('ring-2', act);
           b.classList.toggle('ring-cyan-300', act);
           b.classList.toggle('scale-[1.01]', act);
         });
         const panel = document.getElementById('subject-active-panel');
         if (!panel) return;
+
+        // Top Subject Sub-Header Icon Bar (Vocab/Clusters/PYQ for English; Theory/Chapter-Wise/Revision Test for Maths & others)
+        const subHeaderHtml = `
+          <div class="flex flex-wrap items-center gap-2 pb-3 border-b border-white/10">
+            ${tabs.map(tb => {
+              const isAct = !tb.action && tb.id === curSub;
+              const clickAttr = tb.action ? `onclick="${tb.action}"` : `onclick="setSubjectSubTab('${activeSubjKey}','${tb.id}')"`;
+              return `
+                <button type="button" ${clickAttr} class="px-3.5 py-2 rounded-xl text-xs font-black border transition flex items-center gap-1.5 ${
+                  isAct
+                    ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white border-cyan-300 shadow-lg'
+                    : 'bg-slate-900/90 text-slate-200 border-slate-700 hover:border-cyan-400/60 hover:text-white'
+                }">
+                  <span>${tb.icon}</span><span>${tb.label}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        `;
+
+        let bodyHtml = '';
+        if (activeSubjKey === 'maths') {
+          if (curSub === 'theory') {
+            bodyHtml = `
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                ${d.topics.map(t => `
+                  <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 space-y-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                      <h4 class="text-xs sm:text-sm font-black text-white">${t.name}</h4>
+                      <span class="px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-400/35 text-rose-200 text-[10px] font-bold shrink-0">${t.tag}</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 leading-relaxed">${t.tip}</p>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="flex flex-wrap gap-2 pt-2">
+                <button type="button" onclick="openSubjectPdf('Maths')" class="px-3.5 py-2 rounded-xl bg-rose-500 text-white text-xs font-black shadow">📂 Open Maths Formula PDFs</button>
+                <button type="button" onclick="askSubjectAi('SSC CGL Maths ke sabse important short tricks aur formulas batao')" class="px-3.5 py-2 rounded-xl bg-slate-800 border border-rose-400/45 text-rose-200 text-xs font-black">🤖 Ask AI Maths Guru</button>
+              </div>
+            `;
+          } else if (curSub === 'revtest') {
+            bodyHtml = renderMathsRevisionTestPanel();
+          } else {
+            bodyHtml = window.renderMathsBankHtml ? window.renderMathsBankHtml() : '';
+          }
+        } else if (activeSubjKey === 'english') {
+          bodyHtml = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              ${d.topics.map(t => `
+                <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 space-y-1.5">
+                  <div class="flex items-center justify-between gap-2">
+                    <h4 class="text-xs sm:text-sm font-black text-white">${t.name}</h4>
+                    <span class="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-400/35 text-cyan-300 text-[10px] font-bold shrink-0">${t.tag}</span>
+                  </div>
+                  <p class="text-[11px] text-slate-300 leading-relaxed">${t.tip}</p>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          // Reasoning, GS, Static GK -> Theory / Chapter-Wise / Revision Test
+          if (curSub === 'revtest') {
+            bodyHtml = `
+              <div class="p-5 rounded-2xl bg-slate-900/90 border border-indigo-400/35 text-center space-y-3">
+                <h4 class="text-base font-black text-white">${d.title} — Revision Test</h4>
+                <p class="text-xs text-slate-300">Direct test section mein jaakar ya AI Guru se 10-Q instant drill start karein.</p>
+                <div class="flex flex-wrap justify-center gap-2">
+                  <button type="button" onclick="openTestForSubject('${activeSubjKey}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-xs font-black shadow">📝 Open ${activeSubjKey.toUpperCase()} Test Hub</button>
+                  ${d.actions.map(a => `<button type="button" onclick="${a.fn}" class="px-3.5 py-2 rounded-xl text-xs font-black shadow ${a.cls}">${a.label}</button>`).join('')}
+                </div>
+              </div>
+            `;
+          } else if (curSub === 'chapterwise') {
+            bodyHtml = `
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                ${d.topics.map((t, idx) => `
+                  <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 flex flex-col justify-between gap-2.5">
+                    <div>
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="text-[10px] font-black text-cyan-300">Chapter ${idx + 1}</span>
+                        <span class="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-400/35 text-cyan-300 text-[10px] font-bold">${t.tag}</span>
+                      </div>
+                      <h4 class="text-sm font-black text-white mt-1">${t.name}</h4>
+                      <p class="text-[11px] text-slate-300 mt-1">${t.tip}</p>
+                    </div>
+                    <button type="button" onclick="askSubjectAi('SSC exam ke liye ${t.name.replace(/'/g, '')} ke 5 important PYQ MCQ questions solution ke saath do')" class="w-full py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-cyan-400/35 text-cyan-200 text-[11px] font-bold">⚡ Practice 5 PYQs</button>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          } else {
+            bodyHtml = `
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                ${d.topics.map(t => `
+                  <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 space-y-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                      <h4 class="text-xs sm:text-sm font-black text-white">${t.name}</h4>
+                      <span class="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-400/35 text-cyan-300 text-[10px] font-bold shrink-0">${t.tag}</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 leading-relaxed">${t.tip}</p>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="flex flex-wrap gap-2 pt-2">
+                ${d.actions.map(a => `<button type="button" onclick="${a.fn}" class="px-3.5 py-2 rounded-xl text-xs font-black shadow hover:brightness-110 transition ${a.cls}">${a.label}</button>`).join('')}
+              </div>
+            `;
+          }
+        }
+
         panel.innerHTML = `
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
+          ${subHeaderHtml}
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h3 class="text-base sm:text-lg font-black text-white">${d.title}</h3>
               <p class="text-xs text-slate-300 mt-0.5">${d.desc}</p>
             </div>
-            <div class="flex flex-wrap gap-2">
-              ${d.actions.map(a => `<button type="button" onclick="${a.fn}" class="px-3.5 py-2 rounded-xl text-xs font-black shadow hover:brightness-110 transition ${a.cls}">${a.label}</button>`).join('')}
-            </div>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            ${d.topics.map(t => `
-              <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 space-y-1.5">
-                <div class="flex items-center justify-between gap-2">
-                  <h4 class="text-xs sm:text-sm font-black text-white">${t.name}</h4>
-                  <span class="px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-400/35 text-cyan-300 text-[10px] font-bold shrink-0">${t.tag}</span>
-                </div>
-                <p class="text-[11px] text-slate-300 leading-relaxed">${t.tip}</p>
-              </div>
-            `).join('')}
-          </div>
-          ${key === 'maths' && window.renderMathsBankHtml ? window.renderMathsBankHtml() : ''}
+          ${bodyHtml}
         `;
       }
 
@@ -13913,6 +14172,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       });
 
       renderSubjectPanel('english');
+      if (window.selectTestSubject) selectTestSubject('english');
     })();
   </script>
 
