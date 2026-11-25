@@ -15419,13 +15419,13 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       async function callGeminiExtractMcqs(files, apiKey, subject, chapter, onPageQs) {
         async function getCandidateModels(key) {
           const priority = [
-            'gemini-3.8-flash',
-            'gemini-3.7-flash',
-            'gemini-3.6-flash',
-            'gemini-3.5-flash',
             'gemini-3.5-flash-lite',
+            'gemini-3.6-flash',
+            'gemini-3.7-flash',
+            'gemini-3.8-flash',
             'gemini-3-flash-preview',
-            'gemini-2.5-flash'
+            'gemini-flash-latest',
+            'gemini-flash-lite-latest'
           ];
           const discovered = [];
           try {
@@ -15437,15 +15437,17 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               (j.models || []).forEach(m => {
                 const name = String(m.name || '').replace(/^models\//, '');
                 const methods = Array.isArray(m.supportedGenerationMethods) ? m.supportedGenerationMethods : [];
-                if (methods.includes('generateContent') && /gemini/i.test(name) && /flash/i.test(name) && !/tts|audio|live|embedding|imagen|veo|2\.0|2\.5/i.test(name)) {
+                // Strictly numeric gemini-3+/4+ flash models; exclude omni/robotics/tts/image/2.0/2.5
+                if (methods.includes('generateContent') && /^gemini-[3-9][^\s]*flash/i.test(name) && !/omni|robotics|tts|audio|live|image|video|computer|embedding|2\.0|2\.5/i.test(name)) {
                   discovered.push(name);
                 }
               });
               discovered.sort().reverse();
             }
           } catch (_) {}
-          const saved = (() => { try { return localStorage.getItem('ssc_tm_gemini_model') || ''; } catch(_) { return ''; } })();
-          return Array.from(new Set([saved, ...discovered, ...priority].filter(Boolean)));
+          const savedRaw = (() => { try { return localStorage.getItem('ssc_tm_gemini_model') || ''; } catch(_) { return ''; } })();
+          const saved = (savedRaw && !/omni|robotics|2\.0|2\.5/i.test(savedRaw)) ? savedRaw : '';
+          return Array.from(new Set([saved, ...priority, ...discovered].filter(Boolean)));
         }
 
         // Expand PDFs into crisp individual page JPEGs so EVERY page scans in ~5-8 sec instead of hanging!
@@ -15490,7 +15492,8 @@ Keep exp & trick very concise (max 15 words) for speed.`
             { inlineData: { mimeType: item.mime, data: b64 } }
           ];
 
-          const tryModels = workingModel ? [workingModel, ...models.filter(m => m !== workingModel)] : models.slice(0, 4);
+          if (i > 0) await new Promise(res => setTimeout(res, 1200));
+          const tryModels = workingModel ? [workingModel, ...models.filter(m => m !== workingModel)] : models;
           let pageQs = null;
           for (const model of tryModels) {
             try {
@@ -15893,7 +15896,7 @@ Keep exp & trick very concise (max 15 words) for speed.`
           }
           setTmStatus('⏳ Latest Gemini Flash model auto-detect & verify ho raha hai...', 'info');
           try {
-            const priority = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3-flash-preview', 'gemini-2.5-flash'];
+            const priority = ['gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-3.8-flash', 'gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-flash-lite-latest'];
             const discovered = [];
             try {
               const lr = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100', {
@@ -15904,7 +15907,7 @@ Keep exp & trick very concise (max 15 words) for speed.`
                 (lj.models || []).forEach(m => {
                   const name = String(m.name || '').replace(/^models\//, '');
                   const methods = Array.isArray(m.supportedGenerationMethods) ? m.supportedGenerationMethods : [];
-                  if (methods.includes('generateContent') && /gemini/i.test(name) && /flash/i.test(name) && !/tts|audio|live|embedding|imagen|veo|2\.0|2\.5/i.test(name)) {
+                  if (methods.includes('generateContent') && /^gemini-[3-9][^\s]*flash/i.test(name) && !/omni|robotics|tts|audio|live|image|video|computer|embedding|2\.0|2\.5/i.test(name)) {
                     discovered.push(name);
                   }
                 });
@@ -15912,7 +15915,7 @@ Keep exp & trick very concise (max 15 words) for speed.`
               }
             } catch (_) {}
 
-            const tryList = Array.from(new Set([...discovered, ...priority]));
+            const tryList = Array.from(new Set([...priority, ...discovered]));
             let lastErr = '';
             for (const mdl of tryList) {
               const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${mdl}:generateContent`, {
