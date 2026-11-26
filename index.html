@@ -2153,6 +2153,32 @@
           </div>
         </div>
 
+        <!-- 🤖 v133: DAILY 9:00 AM IST AUTO-AI FULL 100-Q SSC TIER-1 MOCK TEST -->
+        <div id="daily-ai-full-ssc-card" class="glass-card rounded-2xl p-4 sm:p-5 border-2 border-emerald-400/55 bg-gradient-to-r from-emerald-950/80 via-slate-900/95 to-cyan-950/80 space-y-3 shadow-xl">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span id="dai-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black uppercase">🤖 DAILY 9:00 AM IST AUTO-AI</span>
+                <span class="text-[11px] font-bold text-cyan-200">Full SSC Tier-1 • 100 Qs • 200 Marks • 60 Mins • Bilingual</span>
+              </div>
+              <h3 class="text-base sm:text-lg font-black text-white">⚡ Daily Auto-AI Full SSC Tier-1 Mock Test</h3>
+              <p class="text-[11px] text-slate-300">25 Maths (Real PYQ) + 25 English (Real PYQ) + 25 Reasoning (AI Daily) + 25 GK/GS (AI Daily) • Roz 9:00 AM IST Auto-New</p>
+            </div>
+            <p id="dai-countdown" class="font-mono text-xs font-black text-emerald-300 bg-black/40 px-3 py-1.5 rounded-xl border border-emerald-400/40 shrink-0">⏳ Checking IST...</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-bold">
+            <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/35 text-emerald-200">📐 25 Maths PYQ</span>
+            <span class="px-2 py-0.5 rounded-md bg-cyan-500/20 border border-cyan-400/35 text-cyan-200">📘 25 English PYQ</span>
+            <span id="dai-reas-pill" class="px-2 py-0.5 rounded-md bg-purple-500/20 border border-purple-400/35 text-purple-200">🧠 25 Reasoning (AI)</span>
+            <span id="dai-gk-pill" class="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-400/35 text-amber-200">🌍 25 GK/GS (AI)</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="dai-start-btn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 font-black text-xs shadow-lg transition">🚀 Start Today's 100-Q Full SSC Test</button>
+            <button type="button" id="dai-refresh-btn" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold text-xs transition">🔄 Sync Today's AI Paper</button>
+            <span id="dai-sync-msg" class="text-[11px] font-semibold text-slate-300"></span>
+          </div>
+        </div>
+
         <!-- Test Setup Screen -->
         <div id="test-setup-panel" class="glass-card rounded-2xl p-4 sm:p-6 max-w-3xl mx-auto space-y-5">
           <!-- Top Subject Switcher Bar for Main Test Section -->
@@ -9451,8 +9477,11 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             const entries = [];
             zip.forEach((relPath, zipEntry) => {
               if (!zipEntry.dir && !relPath.startsWith('__MACOSX')) {
-                const cleanName = relPath.split('/').pop();
-                if (cleanName && ['index.html','manifest.json','sw.js','icon-192.png','icon-512.png'].includes(cleanName)) {
+                const normPath = relPath.replace(/^\.?\/+/, '');
+                const cleanName = normPath.split('/').pop();
+                if (normPath.startsWith('api/') && cleanName.endsWith('.js')) {
+                  entries.push({ name: normPath, entry: zipEntry });
+                } else if (cleanName && ['index.html','manifest.json','sw.js','vercel.json','icon-192.png','icon-512.png','robots.txt','sitemap.xml'].includes(cleanName)) {
                   entries.push({ name: cleanName, entry: zipEntry });
                 }
               }
@@ -11917,6 +11946,12 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             <input id="admin-deploy-zip-file" type="file" accept=".zip,application/zip,.html" class="w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-extrabold file:bg-emerald-400 file:text-slate-950 cursor-pointer" />
             <button id="admin-deploy-zip-btn" type="button" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-cyan-500 to-indigo-500 text-slate-950 font-black text-xs sm:text-sm shadow-lg hover:brightness-110 transition">🚀 Push ZIP to GitHub &amp; Auto-Deploy Live</button>
             <div id="admin-deploy-status" class="hidden text-xs font-bold rounded-xl px-3 py-2"></div>
+            <div class="p-3 rounded-xl bg-emerald-950/50 border border-emerald-400/40 space-y-2">
+              <div class="text-[11px] font-black text-emerald-200">🤖 Daily 9:00 AM IST Auto-AI Server Setup (1-Tap Push)</div>
+              <p class="text-[10px] text-slate-300 leading-relaxed">Ek tap me <b>vercel.json</b> (9 AM IST Cron) aur <b>api/daily-ssc-test.js</b> (Gemini AI → Firestore) seedha GitHub par push karein — bina laptop ke!</p>
+              <button id="admin-push-ai-cron-btn" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-400 hover:brightness-110 text-slate-950 font-black text-xs shadow transition">🤖 1-Tap Push Auto-AI Files (vercel.json + api/daily-ssc-test.js)</button>
+              <div id="admin-ai-cron-status" class="hidden text-[11px] font-bold rounded-lg px-2.5 py-1.5"></div>
+            </div>
           </div>
         </div>
 
@@ -11925,7 +11960,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900/95 to-cyan-950/60 border border-emerald-400/40 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v132</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v134</span>
                 <h4 class="text-sm font-black text-white mt-1">Instant Student Test Maker (Free Auto-OCR)</h4>
                 <p class="text-[11px] text-slate-300">Bina kisi API key ke Photo ya PDF upload karein, Subject &amp; Chapter likhein — auto-scan hokar seedha Students ke Test Panel me live ho jayega!</p>
               </div>
@@ -17612,6 +17647,315 @@ const mState = {
       // Initialize UI
       applyModeUI();
       renderTestMixedSets();
+    })();
+  </script>
+
+
+  <!-- ================= v133: DAILY 9:00 AM IST AUTO-AI FULL 100-Q SSC TEST ENGINE ================= -->
+  <script>
+    (function initDailyAiFullSscTest() {
+      const FS_ROOT = 'https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents';
+      const FS_KEY = (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey)
+        ? FIREBASE_CONFIG.apiKey
+        : 'AIzaSyBs_w5tmFnNc-fygZ-t5wdS_C7KtsVie7k';
+
+      // Deterministic PRNG seeded by IST date string so every student gets the EXACT same daily PYQ subset!
+      function seededRng(seedStr) {
+        let h = 2166136261 >>> 0;
+        for (let i = 0; i < seedStr.length; i++) {
+          h ^= seedStr.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return function() {
+          h += 0x6D2B79F5;
+          let t = Math.imul(h ^ (h >>> 15), 1 | h);
+          t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function pickDeterministic(arr, count, seedStr) {
+        if (!Array.isArray(arr) || !arr.length) return [];
+        const rng = seededRng(seedStr);
+        const copy = arr.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(rng() * (i + 1));
+          const tmp = copy[i]; copy[i] = copy[j]; copy[j] = tmp;
+        }
+        return copy.slice(0, Math.min(count, copy.length));
+      }
+
+      function getIstNow() {
+        const now = new Date();
+        const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+        return new Date(utcMs + 5.5 * 3600000);
+      }
+
+      // Active daily paper key: before 9:00 AM IST uses yesterday's paper; at/after 9:00 AM IST uses today's paper!
+      function getActivePaperDateKey() {
+        const ist = getIstNow();
+        const target = new Date(ist.getTime());
+        if (ist.getHours() < 9) {
+          target.setDate(target.getDate() - 1);
+        }
+        const y = target.getFullYear();
+        const m = String(target.getMonth() + 1).padStart(2, '0');
+        const d = String(target.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+
+      function updateCountdown() {
+        const ist = getIstNow();
+        const badge = document.getElementById('dai-status-badge');
+        const cd = document.getElementById('dai-countdown');
+        const dateKey = getActivePaperDateKey();
+
+        // Next 9:00 AM IST
+        const next9 = new Date(ist.getTime());
+        next9.setHours(9, 0, 0, 0);
+        if (ist.getHours() >= 9) next9.setDate(next9.getDate() + 1);
+        const diffSec = Math.max(0, Math.floor((next9.getTime() - ist.getTime()) / 1000));
+        const hh = String(Math.floor(diffSec / 3600)).padStart(2, '0');
+        const mm = String(Math.floor((diffSec % 3600) / 60)).padStart(2, '0');
+        const ss = String(diffSec % 60).padStart(2, '0');
+
+        if (badge) badge.textContent = `🟢 LIVE PAPER • ${dateKey}`;
+        if (cd) cd.textContent = `Next Auto-AI Paper (9 AM): ${hh}:${mm}:${ss}`;
+      }
+
+      let cachedAiDoc = null;
+      let cachedDateKey = '';
+
+      async function loadAiDailySections(forceTrigger) {
+        const dateKey = getActivePaperDateKey();
+        const msgEl = document.getElementById('dai-sync-msg');
+        const rPill = document.getElementById('dai-reas-pill');
+        const gPill = document.getElementById('dai-gk-pill');
+
+        if (!forceTrigger && cachedAiDoc && cachedDateKey === dateKey) {
+          return cachedAiDoc;
+        }
+
+        if (msgEl) msgEl.textContent = '⏳ Loading today\'s AI Reasoning + GK paper...';
+
+        // 1. Try localStorage cache first for instant load
+        try {
+          const lsRaw = localStorage.getItem('ssc_daily_ai_full_' + dateKey);
+          if (!forceTrigger && lsRaw) {
+            const parsed = JSON.parse(lsRaw);
+            if (parsed && Array.isArray(parsed.reasoning) && parsed.reasoning.length >= 20) {
+              cachedAiDoc = parsed;
+              cachedDateKey = dateKey;
+              if (rPill) rPill.textContent = `🧠 ${parsed.reasoning.length} Reasoning (AI Ready)`;
+              if (gPill) gPill.textContent = `🌍 ${parsed.gk.length} GK/GS (AI Ready)`;
+              if (msgEl) msgEl.textContent = `✅ Today's AI Paper (${dateKey}) Ready`;
+              return parsed;
+            }
+          }
+        } catch (e) {}
+
+        // 2. Fetch from Firebase Firestore (daily_ssc_full_tests/{dateKey})
+        try {
+          const fsRes = await fetch(`${FS_ROOT}/daily_ssc_full_tests/${encodeURIComponent(dateKey)}?key=${encodeURIComponent(FS_KEY)}`);
+          if (fsRes.ok) {
+            const fsDoc = await fsRes.json();
+            const payloadStr = fsDoc && fsDoc.fields && fsDoc.fields.payload && fsDoc.fields.payload.stringValue;
+            if (payloadStr) {
+              const parsed = JSON.parse(payloadStr);
+              if (parsed && Array.isArray(parsed.reasoning) && parsed.reasoning.length) {
+                cachedAiDoc = parsed;
+                cachedDateKey = dateKey;
+                try { localStorage.setItem('ssc_daily_ai_full_' + dateKey, payloadStr); } catch (_) {}
+                if (rPill) rPill.textContent = `🧠 ${parsed.reasoning.length} Reasoning (AI Live)`;
+                if (gPill) gPill.textContent = `🌍 ${parsed.gk.length} GK/GS (AI Live)`;
+                if (msgEl) msgEl.textContent = `✅ Auto-Synced from Cloud (${dateKey})`;
+                return parsed;
+              }
+            }
+          }
+        } catch (e) {}
+
+        // 3. If not in Firestore yet (and running on hosted Vercel domain), auto-trigger /api/daily-ssc-test!
+        if (window.location && /^https?:/.test(window.location.protocol) && !window.location.hostname.includes('localhost')) {
+          try {
+            if (msgEl) msgEl.textContent = '🤖 Generating today\'s AI Reasoning + GK paper (first visitor trigger)...';
+            const apiRes = await fetch(`/api/daily-ssc-test?date=${encodeURIComponent(dateKey)}`);
+            if (apiRes.ok) {
+              const data = await apiRes.json();
+              if (data && data.ok && Array.isArray(data.reasoning) && data.reasoning.length) {
+                cachedAiDoc = data;
+                cachedDateKey = dateKey;
+                try { localStorage.setItem('ssc_daily_ai_full_' + dateKey, JSON.stringify(data)); } catch (_) {}
+                if (rPill) rPill.textContent = `🧠 ${data.reasoning.length} Reasoning (AI Live)`;
+                if (gPill) gPill.textContent = `🌍 ${data.gk.length} GK/GS (AI Live)`;
+                if (msgEl) msgEl.textContent = `✅ Fresh AI Paper Generated (${dateKey})`;
+                return data;
+              }
+            }
+          } catch (e) {}
+        }
+
+        if (msgEl) msgEl.textContent = 'ℹ️ AI server key setup pending — Maths (25) + English (25) PYQ Daily Mock ready!';
+        return null;
+      }
+
+      function buildMaths25(dateKey) {
+        const DATA = window.PINNACLE_MATHS_DATA;
+        if (!DATA || !Array.isArray(DATA.questions)) return [];
+        const picked = pickDeterministic(DATA.questions, 25, 'MATHS_' + dateKey);
+        return picked.map((it, idx) => {
+          const chName = DATA.chapters[it[1]] || 'Maths';
+          const exName = DATA.exams[it[2]] || 'SSC Maths';
+          const opts = [it[5], it[6], it[7], it[8]];
+          const ansText = opts[it[9]] || opts[0];
+          return {
+            id: 'm_dai_' + dateKey + '_' + idx,
+            word: 'Maths • ' + chName,
+            meaningHi: 'गणित (' + chName + ')',
+            category: 'Maths: ' + chName,
+            subject: 'maths',
+            exam: it[3] || exName,
+            year: 'Daily ' + dateKey,
+            cbtPrompt: it[4],
+            options: opts,
+            answer: ansText,
+            cbtAnswer: ansText,
+            exp: `Maths (${chName}) • Correct: (${['A','B','C','D'][it[9]]}) ${ansText}`
+          };
+        });
+      }
+
+      function buildEnglish25(dateKey) {
+        if (typeof getAllWords !== 'function') return [];
+        const allW = getAllWords().filter(w => w && w.options && w.options.length >= 4 && (w.answer || w.cbtAnswer));
+        return pickDeterministic(allW, 25, 'ENG_' + dateKey);
+      }
+
+      function mapAiItems(items, subjLabel, prefix, dateKey) {
+        return (items || []).slice(0, 25).map((q, idx) => {
+          const opts = Array.isArray(q.options) && q.options.length >= 4 ? q.options.slice(0, 4) : ['Option A', 'Option B', 'Option C', 'Option D'];
+          const aIdx = (typeof q.ans === 'number' && q.ans >= 0 && q.ans < 4) ? q.ans : 0;
+          const ansText = opts[aIdx];
+          return {
+            id: 'm_ai_' + prefix + '_' + dateKey + '_' + idx,
+            word: subjLabel + ' • Q.' + (idx + 1),
+            meaningHi: subjLabel,
+            category: subjLabel + (q.topic ? ': ' + q.topic : ''),
+            subject: prefix,
+            exam: 'AI Daily SSC ' + dateKey,
+            year: dateKey,
+            cbtPrompt: q.qEn || q.q || '',
+            promptHi: q.qHi || '',
+            options: opts,
+            answer: ansText,
+            cbtAnswer: ansText,
+            exp: q.exp || (`Answer: (${['A','B','C','D'][aIdx]}) ${ansText}`)
+          };
+        });
+      }
+
+      document.getElementById('dai-start-btn')?.addEventListener('click', async () => {
+        if (typeof startCbtTest !== 'function') return;
+        const btn = document.getElementById('dai-start-btn');
+        const dateKey = getActivePaperDateKey();
+        if (btn) { btn.disabled = true; btn.textContent = '⏳ Preparing Daily SSC Paper...'; }
+
+        const aiData = await loadAiDailySections(false);
+        const maths25 = buildMaths25(dateKey);
+        const eng25 = buildEnglish25(dateKey);
+        const reas25 = aiData ? mapAiItems(aiData.reasoning, 'Reasoning', 'reas', dateKey) : [];
+        const gk25 = aiData ? mapAiItems(aiData.gk, 'GK / GS', 'gk', dateKey) : [];
+
+        const fullPool = [...reas25, ...gk25, ...maths25, ...eng25];
+        if (btn) { btn.disabled = false; btn.textContent = "🚀 Start Today's 100-Q Full SSC Test"; }
+        if (!fullPool.length) return;
+
+        window._cbtLangMode = 'both';
+        const mins = fullPool.length >= 90 ? 60 : 30;
+        const label = fullPool.length >= 90
+          ? `🤖 Daily Auto-AI Full SSC Mock (${dateKey} • 100 Qs • 60m)`
+          : `⚡ Daily SSC PYQ Mock (${dateKey} • ${fullPool.length} Qs • Maths+Eng)`;
+        startCbtTest(fullPool, label, fullPool.length, mins * 60);
+      });
+
+      document.getElementById('dai-refresh-btn')?.addEventListener('click', () => {
+        loadAiDailySections(true);
+      });
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+      // Background check on load
+      setTimeout(() => loadAiDailySections(false), 1800);
+    })();
+  </script>
+
+
+  <!-- ================= v134: ADMIN 1-TAP PUSH AUTO-AI CRON SERVER FILES ================= -->
+  <script>
+    (function initAdminAiCronPusher() {
+      const VERCEL_JSON_CONTENT = "{\n  \"crons\": [\n    {\n      \"path\": \"/api/daily-ssc-test\",\n      \"schedule\": \"30 3 * * *\"\n    }\n  ]\n}\n";
+      const API_DAILY_JS_CONTENT = "// Vercel Serverless Function + Daily 9:00 AM IST Cron (03:30 UTC)\n// Automatically generates 25 Reasoning + 25 GK/GS (Bilingual EN+HI) via Free Gemini API\n// and publishes to Firebase Firestore: daily_ssc_full_tests/{YYYY-MM-DD}\n\nconst FS_ROOT = 'https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents';\nconst FS_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyBs_w5tmFnNc-fygZ-t5wdS_C7KtsVie7k';\n\nfunction getIstDateKey() {\n  const now = new Date();\n  const ist = new Date(now.getTime() + 5.5 * 3600000);\n  const y = ist.getUTCFullYear();\n  const m = String(ist.getUTCMonth() + 1).padStart(2, '0');\n  const d = String(ist.getUTCDate()).padStart(2, '0');\n  return `${y}-${m}-${d}`;\n}\n\nasync function fetchFromFirestore(dateKey) {\n  const res = await fetch(`${FS_ROOT}/daily_ssc_full_tests/${encodeURIComponent(dateKey)}?key=${encodeURIComponent(FS_KEY)}`);\n  if (!res.ok) return null;\n  const doc = await res.json();\n  const raw = doc?.fields?.payload?.stringValue;\n  return raw ? JSON.parse(raw) : null;\n}\n\nasync function saveToFirestore(dateKey, dataObj) {\n  const body = {\n    fields: {\n      dateKey: { stringValue: dateKey },\n      createdAt: { stringValue: new Date().toISOString() },\n      payload: { stringValue: JSON.stringify(dataObj) }\n    }\n  };\n  const res = await fetch(`${FS_ROOT}/daily_ssc_full_tests/${encodeURIComponent(dateKey)}?key=${encodeURIComponent(FS_KEY)}`, {\n    method: 'PATCH',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(body)\n  });\n  if (!res.ok) {\n    const txt = await res.text();\n    throw new Error('Firestore save failed: ' + txt);\n  }\n}\n\nasync function generateSectionWithGemini(apiKey, sectionName, count, dateKey, topicsHint) {\n  const prompt = `You are an expert SSC CGL/CHSL Tier-1 exam paper setter.\nGenerate exactly ${count} fresh, accurate, exam-level ${sectionName} MCQ questions for date ${dateKey} (SSC Tier-1 latest pattern).\nTopics to cover evenly: ${topicsHint}.\nRules:\n1. Every question MUST be Bilingual: \"qEn\" (clean English) AND \"qHi\" (natural Hindi in Devanagari).\n2. Exactly 4 distinct options in \"options\" array (short, clear).\n3. \"ans\" must be the 0-based integer index (0, 1, 2, or 3) of the single verified correct option.\n4. \"exp\" must be a crisp 1-line explanation.\n5. \"topic\" must be a short 1-3 word topic tag.\nReturn ONLY valid JSON matching: {\"items\":[{\"topic\":\"...\",\"qEn\":\"...\",\"qHi\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"ans\":0,\"exp\":\"...\"}]}`;\n\n  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({\n      contents: [{ parts: [{ text: prompt }] }],\n      generationConfig: {\n        responseMimeType: 'application/json',\n        temperature: 0.85\n      }\n    })\n  });\n  if (!res.ok) {\n    const errTxt = await res.text();\n    throw new Error(`Gemini API error (${sectionName}): ${errTxt}`);\n  }\n  const json = await res.json();\n  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';\n  const parsed = JSON.parse(text);\n  return Array.isArray(parsed.items) ? parsed.items.slice(0, count) : [];\n}\n\nexport default async function handler(req, res) {\n  res.setHeader('Access-Control-Allow-Origin', '*');\n  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');\n  if (req.method === 'OPTIONS') return res.status(200).end();\n\n  try {\n    const dateKey = (req.query && req.query.date && /^\\d{4}-\\d{2}-\\d{2}$/.test(req.query.date))\n      ? req.query.date\n      : getIstDateKey();\n    const force = req.query && req.query.force === '1';\n\n    if (!force) {\n      const existing = await fetchFromFirestore(dateKey);\n      if (existing && Array.isArray(existing.reasoning) && existing.reasoning.length >= 20) {\n        return res.status(200).json({ ok: true, cached: true, ...existing });\n      }\n    }\n\n    const apiKey = process.env.GEMINI_API_KEY;\n    if (!apiKey) {\n      return res.status(500).json({\n        ok: false,\n        error: 'GEMINI_API_KEY is not set in Vercel Environment Variables.'\n      });\n    }\n\n    const [reasoning, gk] = await Promise.all([\n      generateSectionWithGemini(\n        apiKey,\n        'General Intelligence & Reasoning',\n        25,\n        dateKey,\n        'Analogy, Coding-Decoding, Number Series, Letter Series, Odd One Out, Syllogism, Blood Relations, Mathematical Operations, Direction & Distance, Seating Arrangement, Order & Ranking, Dice, Missing Number, Mirror Image concept'\n      ),\n      generateSectionWithGemini(\n        apiKey,\n        'General Awareness (GK / GS)',\n        25,\n        dateKey,\n        'Indian Polity & Constitution, Ancient/Medieval/Modern History, Indian Geography, Economics & RBI, Physics, Chemistry, Biology, Static GK (Classical Dances, Awards, Books, Sports, Festivals)'\n      )\n    ]);\n\n    const payload = {\n      dateKey,\n      generatedAt: new Date().toISOString(),\n      reasoning,\n      gk\n    };\n\n    await saveToFirestore(dateKey, payload);\n    return res.status(200).json({ ok: true, cached: false, ...payload });\n  } catch (err) {\n    return res.status(500).json({ ok: false, error: err.message || String(err) });\n  }\n}\n";
+
+      function utf8ToB64(str) {
+        const bytes = new TextEncoder().encode(str);
+        let bin = '';
+        for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+        return btoa(bin);
+      }
+
+      async function pushSingleGithubFile(repo, tok, path, contentStr, message) {
+        const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+        const headers = {
+          'Authorization': `Bearer ${tok}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        };
+        let sha = undefined;
+        const getR = await fetch(url, { headers });
+        if (getR.ok) {
+          const j = await getR.json();
+          sha = j.sha;
+        }
+        const body = { message, content: utf8ToB64(contentStr) };
+        if (sha) body.sha = sha;
+        const putR = await fetch(url, { method: 'PUT', headers, body: JSON.stringify(body) });
+        if (!putR.ok) {
+          const t = await putR.text().catch(() => '');
+          throw new Error(`${path} push failed (${putR.status}): ${t.slice(0, 100)}`);
+        }
+      }
+
+      document.getElementById('admin-push-ai-cron-btn')?.addEventListener('click', async () => {
+        const btn = document.getElementById('admin-push-ai-cron-btn');
+        const st = document.getElementById('admin-ai-cron-status');
+        const tok = (document.getElementById('admin-gh-token')?.value || localStorage.getItem('ssc_admin_gh_tok_v1') || '').trim();
+        const repo = (document.getElementById('admin-gh-repo')?.value || localStorage.getItem('ssc_admin_gh_repo_v1') || '').trim().replace(/^https?:\/\/github\.com\//, '').replace(/\/+$/, '');
+
+        const showMsg = (msg, ok) => {
+          if (!st) return;
+          st.innerHTML = msg;
+          st.className = `text-[11px] font-bold rounded-lg px-2.5 py-1.5 border ${ok ? 'bg-emerald-500/15 border-emerald-400/40 text-emerald-200' : 'bg-rose-500/15 border-rose-400/40 text-rose-200'}`;
+          st.classList.remove('hidden');
+        };
+
+        if (!repo || !repo.includes('/')) { showMsg('❌ Upar apna GitHub Repo (username/repo) dalein.', false); return; }
+        if (!tok) { showMsg('❌ Upar apna GitHub Token dalein aur Save karein.', false); return; }
+
+        btn.disabled = true;
+        btn.textContent = '⏳ Pushing vercel.json & api/daily-ssc-test.js...';
+        try {
+          showMsg('⏳ 1/2 Pushing vercel.json (Daily 9:00 AM IST Cron)...', true);
+          await pushSingleGithubFile(repo, tok, 'vercel.json', VERCEL_JSON_CONTENT, 'Setup Daily 9AM IST Auto-AI Cron (vercel.json)');
+          showMsg('⏳ 2/2 Pushing api/daily-ssc-test.js (Gemini AI → Firestore)...', true);
+          await pushSingleGithubFile(repo, tok, 'api/daily-ssc-test.js', API_DAILY_JS_CONTENT, 'Add Daily Auto-AI SSC Test Generator API');
+          showMsg('✅ Dono Auto-AI server files GitHub par push ho gayi! Ab bas Vercel → Settings → Environment Variables me <b>GEMINI_API_KEY</b> save karke Redeploy kar dein.', true);
+        } catch (e) {
+          showMsg('❌ ' + (e.message || e), false);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '🤖 1-Tap Push Auto-AI Files (vercel.json + api/daily-ssc-test.js)';
+        }
+      });
     })();
   </script>
 
