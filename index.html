@@ -2162,7 +2162,7 @@
                 <span class="text-[11px] font-bold text-cyan-200">Full SSC Tier-1 • 100 Qs • 200 Marks • 60 Mins • Bilingual</span>
               </div>
               <h3 class="text-base sm:text-lg font-black text-white">⚡ Daily Auto-AI Full SSC Tier-1 Mock Test</h3>
-              <p class="text-[11px] text-slate-300">25 Maths (Real PYQ) + 25 English (Real PYQ) + 25 Reasoning (AI Daily) + 25 GK/GS (AI Daily) • Roz 9:00 AM IST Auto-New</p>
+              <p class="text-[11px] text-slate-300">SSC Eduquity Sectional Pattern • 4 Sections × 25 Qs × 15 Min Each (Auto Next Section) • Roz 9:00 AM IST Auto-Update</p>
             </div>
             <p id="dai-countdown" class="font-mono text-xs font-black text-emerald-300 bg-black/40 px-3 py-1.5 rounded-xl border border-emerald-400/40 shrink-0">⏳ Checking IST...</p>
           </div>
@@ -2174,7 +2174,7 @@
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button type="button" id="dai-start-btn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 font-black text-xs shadow-lg transition">🚀 Start Today's 100-Q Full SSC Test</button>
-            <button type="button" id="dai-refresh-btn" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold text-xs transition">🔄 Sync Today's AI Paper</button>
+            <button type="button" id="dai-refresh-btn" class="hidden" aria-hidden="true"></button>
             <span id="dai-sync-msg" class="text-[11px] font-semibold text-slate-300"></span>
           </div>
         </div>
@@ -2489,6 +2489,12 @@
                 <button type="button" onclick="adjustCbtZoom(1)" title="Zoom In" class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-[11px] font-black text-white transition">A+</button>
                 <button type="button" id="cbt-lang-btn" onclick="cycleCbtLang()" title="Switch Language" class="px-2 py-1 rounded-lg bg-cyan-500/25 hover:bg-cyan-500/40 border border-cyan-400/50 text-[11px] font-black text-cyan-200 transition">E/अ</button>
               </div>
+            </div>
+
+            <!-- 1A-2. v136 EDUQUITY 4-SECTION SEQUENTIAL BAR (15 Min × 25 Qs per Section) -->
+            <div id="cbt-eduquity-secbar" class="hidden bg-slate-900 border-b border-indigo-400/35 px-2.5 sm:px-5 py-1.5 flex flex-wrap items-center justify-between gap-2">
+              <div id="cbt-eduquity-sec-pills" class="flex items-center gap-1.5 overflow-x-auto"></div>
+              <button type="button" id="cbt-eduquity-nextsec-btn" onclick="advanceEduquitySection(true)" class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 hover:brightness-110 text-slate-950 text-[10px] sm:text-[11px] font-black shadow shrink-0 transition">Next Section →</button>
             </div>
 
             <!-- 1B. Eduquity Section Info & Live Answered Counter Strip -->
@@ -5239,7 +5245,9 @@
         return;
       }
 
-      const selected = shuffleArray(pool).slice(0, Math.min(qty, pool.length)).map(normalizeCbtQuestion);
+      const _secCfg = window._eduquitySectionalConfig || null;
+      window._eduquitySectionalConfig = null;
+      const selected = (_secCfg ? pool.slice(0, Math.min(qty, pool.length)) : shuffleArray(pool).slice(0, Math.min(qty, pool.length))).map(normalizeCbtQuestion);
 
       if (cbt.timerId) clearInterval(cbt.timerId);
       cbt = {
@@ -5248,9 +5256,10 @@
         answers: {},
         reviews: {},
         currentIndex: 0,
-        secondsLeft: customSeconds || (selected.length * 30),
+        secondsLeft: (_secCfg && _secCfg.sections && _secCfg.sections[0]) ? _secCfg.sections[0].seconds : (customSeconds || (selected.length * 30)),
         timerId: null,
-        modeLabel: label
+        modeLabel: label,
+        sectional: _secCfg ? { active: true, secIdx: 0, sections: _secCfg.sections } : null
       };
 
       cbt.paused = false;
@@ -5280,7 +5289,11 @@
         cbt.secondsLeft--;
         updateCbtTimerDisplay();
         if (cbt.secondsLeft <= 0) {
-          finishCbtTest();
+          if (cbt.sectional && cbt.sectional.active && cbt.sectional.secIdx < cbt.sectional.sections.length - 1) {
+            advanceEduquitySection(false);
+          } else {
+            finishCbtTest();
+          }
         }
       }, 1000);
 
@@ -5382,7 +5395,10 @@
       if (q && q.id !== undefined) cbt.visited[q.id] = true;
       window._cbtQStartMs = Date.now();
       // Palette (Testbook 4-state: Green=Answered, Purple=Review, Red=Not Answered/Visited, Gray=Not Visited)
+      const _pSec = (cbt.sectional && cbt.sectional.active) ? cbt.sectional.sections[cbt.sectional.secIdx] : null;
+      if (typeof window.renderEduquitySecBar === 'function') window.renderEduquitySecBar();
       document.getElementById('cbt-palette-grid').innerHTML = cbt.questions.map((item, idx) => {
+        if (_pSec && (idx < _pSec.start || idx >= _pSec.end)) return '';
         const ans = cbt.answers[item.id] !== undefined;
         const rev = !!cbt.reviews[item.id];
         const vis = !!(cbt.visited && cbt.visited[item.id]);
@@ -8161,15 +8177,20 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         renderCbtQuestion();
       });
       document.getElementById('cbt-prev-btn').addEventListener('click', () => {
-        if (cbt.currentIndex > 0) {
+        const minIdx = (cbt.sectional && cbt.sectional.active) ? cbt.sectional.sections[cbt.sectional.secIdx].start : 0;
+        if (cbt.currentIndex > minIdx) {
           cbt.currentIndex--;
           renderCbtQuestion();
         }
       });
       document.getElementById('cbt-next-btn').addEventListener('click', () => {
-        if (cbt.currentIndex < cbt.questions.length - 1) {
+        const sec = (cbt.sectional && cbt.sectional.active) ? cbt.sectional.sections[cbt.sectional.secIdx] : null;
+        const maxIdx = sec ? (sec.end - 1) : (cbt.questions.length - 1);
+        if (cbt.currentIndex < maxIdx) {
           cbt.currentIndex++;
           renderCbtQuestion();
+        } else if (sec && cbt.sectional.secIdx < cbt.sectional.sections.length - 1) {
+          showToast(`✅ Section ${cbt.sectional.secIdx + 1} ka last question! Upar "Next Section →" dabayein ya timer complete hone dein.`);
         } else {
           showToast('Last question reached — click Submit Test!');
         }
@@ -11960,7 +11981,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900/95 to-cyan-950/60 border border-emerald-400/40 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v135</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v136</span>
                 <h4 class="text-sm font-black text-white mt-1">Instant Student Test Maker (Free Auto-OCR)</h4>
                 <p class="text-[11px] text-slate-300">Bina kisi API key ke Photo ya PDF upload karein, Subject &amp; Chapter likhein — auto-scan hokar seedha Students ke Test Panel me live ho jayega!</p>
               </div>
@@ -17720,6 +17741,12 @@ const mState = {
         const ss = String(diffSec % 60).padStart(2, '0');
 
         if (badge) badge.textContent = `🟢 LIVE PAPER • ${dateKey}`;
+        if (window._lastAutoDaiDateKey && window._lastAutoDaiDateKey !== dateKey) {
+          window._lastAutoDaiDateKey = dateKey;
+          loadAiDailySections(true);
+        } else if (!window._lastAutoDaiDateKey) {
+          window._lastAutoDaiDateKey = dateKey;
+        }
         if (cd) cd.textContent = `Next Auto-AI Paper (9 AM): ${hh}:${mm}:${ss}`;
       }
 
@@ -17875,11 +17902,20 @@ const mState = {
         if (!fullPool.length) return;
 
         window._cbtLangMode = 'both';
-        const mins = fullPool.length >= 90 ? 60 : 30;
-        const label = fullPool.length >= 90
-          ? `🤖 Daily Auto-AI Full SSC Mock (${dateKey} • 100 Qs • 60m)`
-          : `⚡ Daily SSC PYQ Mock (${dateKey} • ${fullPool.length} Qs • Maths+Eng)`;
-        startCbtTest(fullPool, label, fullPool.length, mins * 60);
+        if (fullPool.length >= 90) {
+          const rLen = reas25.length, gLen = gk25.length, mLen = maths25.length, eLen = eng25.length;
+          window._eduquitySectionalConfig = {
+            sections: [
+              { name: '🧠 Reasoning', start: 0, end: rLen, seconds: 900 },
+              { name: '🌍 GK / GS', start: rLen, end: rLen + gLen, seconds: 900 },
+              { name: '📐 Maths', start: rLen + gLen, end: rLen + gLen + mLen, seconds: 900 },
+              { name: '📘 English', start: rLen + gLen + mLen, end: rLen + gLen + mLen + eLen, seconds: 900 }
+            ]
+          };
+          startCbtTest(fullPool, `⚡ SSC Eduquity Full Mock (${dateKey} • 4×25 Qs • 15m/Sec)`, fullPool.length, 900);
+        } else {
+          startCbtTest(fullPool, `⚡ Daily SSC Mock (${dateKey} • ${fullPool.length} Qs)`, fullPool.length, 1800);
+        }
       });
 
       document.getElementById('dai-refresh-btn')?.addEventListener('click', () => {
@@ -18215,6 +18251,87 @@ const mState = {
           setTimeout(() => startCbtTest(pool, '🌍 SSC GK/GS Bilingual Mock (25 Qs • 15m)', 25, 900), 120);
         });
         gkBannerBtn.parentElement.insertBefore(b, gkBannerBtn);
+      }
+    })();
+  </script>
+
+
+  <!-- ================= v136: EDUQUITY 4-SECTION SEQUENTIAL CONTROLLER (15 Min × 25 Qs) ================= -->
+  <script>
+    (function initEduquitySectionalController() {
+      window.renderEduquitySecBar = function() {
+        const bar = document.getElementById('cbt-eduquity-secbar');
+        const pills = document.getElementById('cbt-eduquity-sec-pills');
+        const nextBtn = document.getElementById('cbt-eduquity-nextsec-btn');
+        if (!bar || !pills) return;
+
+        if (typeof cbt === 'undefined' || !cbt || !cbt.sectional || !cbt.sectional.active) {
+          bar.classList.add('hidden');
+          return;
+        }
+        bar.classList.remove('hidden');
+        const cur = cbt.sectional.secIdx;
+        const secs = cbt.sectional.sections;
+
+        pills.innerHTML = secs.map((s, idx) => {
+          const isCur = idx === cur;
+          const isDone = idx < cur;
+          const cls = isCur
+            ? 'bg-emerald-500 text-slate-950 border-emerald-300 font-black shadow'
+            : isDone
+              ? 'bg-slate-800 text-emerald-300 border-emerald-500/40 font-bold opacity-85'
+              : 'bg-slate-950 text-slate-400 border-slate-700 font-semibold opacity-70';
+          const tag = isCur ? '● LIVE' : isDone ? '✓ Done' : '🔒';
+          return `<span class="px-2 py-1 rounded-lg border text-[10px] sm:text-[11px] whitespace-nowrap shrink-0 ${cls}">S${idx + 1}: ${s.name} (${s.end - s.start}) ${tag}</span>`;
+        }).join('');
+
+        if (nextBtn) {
+          if (cur < secs.length - 1) {
+            nextBtn.textContent = `Finish S${cur + 1} → Start ${secs[cur + 1].name}`;
+          } else {
+            nextBtn.textContent = '✅ Final Submit Test';
+          }
+        }
+      };
+
+      window.advanceEduquitySection = function(manualClick) {
+        if (typeof cbt === 'undefined' || !cbt || !cbt.sectional || !cbt.sectional.active) return;
+        const cur = cbt.sectional.secIdx;
+        const secs = cbt.sectional.sections;
+
+        if (cur >= secs.length - 1) {
+          if (typeof finishCbtTest === 'function') finishCbtTest();
+          return;
+        }
+
+        const nextIdx = cur + 1;
+        const nextSec = secs[nextIdx];
+        cbt.sectional.secIdx = nextIdx;
+        cbt.currentIndex = nextSec.start;
+        cbt.secondsLeft = nextSec.seconds || 900;
+
+        if (typeof updateCbtTimerDisplay === 'function') updateCbtTimerDisplay();
+        if (typeof renderCbtQuestion === 'function') renderCbtQuestion();
+
+        const scBody = document.getElementById('cbt-scroll-body');
+        if (scBody) scBody.scrollTop = 0;
+
+        if (typeof showToast === 'function') {
+          showToast(manualClick
+            ? `🚀 Section ${nextIdx + 1} Started: ${nextSec.name} (${nextSec.end - nextSec.start} Qs • 15:00 Min)`
+            : `⏱️ Section ${cur + 1} Time Up! Auto-starting Section ${nextIdx + 1}: ${nextSec.name} (15:00 Min)`);
+        }
+      };
+
+      // Hide sectional bar whenever test finishes or exits
+      const origFinish = window.finishCbtTest;
+      if (typeof origFinish === 'function') {
+        window.finishCbtTest = function() {
+          const bar = document.getElementById('cbt-eduquity-secbar');
+          if (bar) bar.classList.add('hidden');
+          if (typeof cbt !== 'undefined' && cbt) cbt.sectional = null;
+          return origFinish.apply(this, arguments);
+        };
       }
     })();
   </script>
