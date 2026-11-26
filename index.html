@@ -2162,7 +2162,7 @@
                 <span class="text-[11px] font-bold text-cyan-200">Full SSC Tier-1 • 100 Qs • 200 Marks • 60 Mins • Bilingual</span>
               </div>
               <h3 class="text-base sm:text-lg font-black text-white">⚡ Daily Auto-AI Full SSC Tier-1 Mock Test</h3>
-              <p class="text-[11px] text-slate-300">SSC Eduquity Sectional Pattern • 4 Sections × 25 Qs × 15 Min Each (Auto Next Section) • Roz 9:00 AM IST Auto-Update</p>
+              <p class="text-[11px] text-slate-300">SSC Eduquity Pattern (4×25 Qs • 15m/Sec) • Easy–Moderate–Hard + Latest Current Affairs • Live: 9:00 AM – 6:00 PM IST</p>
             </div>
             <p id="dai-countdown" class="font-mono text-xs font-black text-emerald-300 bg-black/40 px-3 py-1.5 rounded-xl border border-emerald-400/40 shrink-0">⏳ Checking IST...</p>
           </div>
@@ -9454,14 +9454,23 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       async function ghPutFile(repo, tok, path, base64Content, msg) {
         const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
         const headers = { 'Authorization': `Bearer ${tok}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' };
-        let sha = undefined;
-        try {
-          const getR = await fetch(apiUrl, { headers });
-          if (getR.ok) { const d = await getR.json(); sha = d.sha; }
-        } catch (e) {}
-        const body = { message: msg, content: base64Content };
-        if (sha) body.sha = sha;
-        const putR = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+        let putR = null;
+        let lastErr = null;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            let sha = undefined;
+            const getR = await fetch(apiUrl, { headers });
+            if (getR.ok) { const d = await getR.json(); sha = d.sha; }
+            const body = { message: msg, content: base64Content };
+            if (sha) body.sha = sha;
+            putR = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+            if (putR.ok || (putR.status >= 400 && putR.status < 500 && putR.status !== 409)) break;
+          } catch (e) {
+            lastErr = e;
+          }
+          if (attempt < 3) await new Promise(r => setTimeout(r, attempt * 1800));
+        }
+        if (!putR) throw (lastErr || new Error('Network busy — please check 5G/WiFi & tap Push again.'));
         if (!putR.ok) {
           const errD = await putR.json().catch(() => ({}));
           throw new Error(`${path}: ${errD.message || 'HTTP ' + putR.status}`);
@@ -11973,6 +11982,24 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               <button id="admin-push-ai-cron-btn" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-400 hover:brightness-110 text-slate-950 font-black text-xs shadow transition">🤖 1-Tap Push Auto-AI Files (vercel.json + api/daily-ssc-test.js)</button>
               <div id="admin-ai-cron-status" class="hidden text-[11px] font-bold rounded-lg px-2.5 py-1.5"></div>
             </div>
+            <!-- 👁️ v137: ADMIN DAILY 100-Q QUESTION & SOLUTION INSPECTOR -->
+            <div class="p-3 rounded-xl bg-indigo-950/55 border border-indigo-400/40 space-y-2.5">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <div class="text-[11px] font-black text-indigo-200">👁️ Admin Question Viewer (Today's 100-Q SSC Paper)</div>
+                  <p class="text-[10px] text-slate-300">Admin sabhi 100 questions (Reasoning, GK, Maths, English) + Answers &amp; Best Solutions yahin check kar sakte hain.</p>
+                </div>
+                <button id="admin-inspect-dai-btn" type="button" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-400 to-cyan-400 text-slate-950 font-black text-[11px] shadow transition">👁️ View 100 Questions</button>
+              </div>
+              <div id="admin-dai-filter-row" class="hidden flex flex-wrap gap-1.5">
+                <button type="button" data-admdai-sec="all" class="px-2 py-1 rounded-lg bg-cyan-400 text-slate-950 font-black text-[10px]">All (100)</button>
+                <button type="button" data-admdai-sec="reas" class="px-2 py-1 rounded-lg bg-slate-800 text-slate-200 font-bold text-[10px]">🧠 Reasoning (25)</button>
+                <button type="button" data-admdai-sec="gk" class="px-2 py-1 rounded-lg bg-slate-800 text-slate-200 font-bold text-[10px]">🌍 GK/GS (25)</button>
+                <button type="button" data-admdai-sec="maths" class="px-2 py-1 rounded-lg bg-slate-800 text-slate-200 font-bold text-[10px]">📐 Maths (25)</button>
+                <button type="button" data-admdai-sec="eng" class="px-2 py-1 rounded-lg bg-slate-800 text-slate-200 font-bold text-[10px]">📘 English (25)</button>
+              </div>
+              <div id="admin-dai-preview-list" class="hidden max-h-80 overflow-y-auto space-y-2 pr-1"></div>
+            </div>
           </div>
         </div>
 
@@ -11981,7 +12008,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900/95 to-cyan-950/60 border border-emerald-400/40 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v136</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v140</span>
                 <h4 class="text-sm font-black text-white mt-1">Instant Student Test Maker (Free Auto-OCR)</h4>
                 <p class="text-[11px] text-slate-300">Bina kisi API key ke Photo ya PDF upload karein, Subject &amp; Chapter likhein — auto-scan hokar seedha Students ke Test Panel me live ho jayega!</p>
               </div>
@@ -13689,6 +13716,10 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             createdAt: Date.now() - (off * 86400000)
           });
         });
+        if (typeof window.getAutoSavedMathsTestPdfs === 'function') {
+          const savedM = window.getAutoSavedMathsTestPdfs();
+          if (Array.isArray(savedM) && savedM.length) items.unshift(...savedM);
+        }
         return items;
       }
 
@@ -13858,6 +13889,10 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
 
       async function triggerStudentPdfDownload(pdfObj) {
         if (!pdfObj) return;
+        if (pdfObj.isAutoMathsTestPdf && typeof window.downloadSavedMathsTestPaper === 'function') {
+          window.downloadSavedMathsTestPaper(pdfObj);
+          return;
+        }
         if (pdfObj.isAutoLiveTestPdf && pdfObj.liveDateKey) {
           const blob = generateDailyLiveTestPdfBlob(pdfObj.liveDateKey);
           const blobUrl = URL.createObjectURL(blob);
@@ -13949,6 +13984,14 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
         const metaEl = document.getElementById('inapp-pdf-meta');
         if (titleEl) titleEl.textContent = pdfObj.title || 'SSC Study PDF';
         if (metaEl) metaEl.textContent = `${pdfObj.category || 'Vocab Notes'} • ${pdfObj.sizeLabel || 'PDF'} • In-App Reader`;
+        if (pdfObj.isAutoMathsTestPdf && typeof window.buildSavedMathsTestHtmlPaper === 'function') {
+          if (iframe) {
+            iframe.removeAttribute('src');
+            iframe.srcdoc = window.buildSavedMathsTestHtmlPaper(pdfObj.id);
+          }
+          modal?.classList.remove('hidden');
+          return;
+        }
         if (pdfObj.isAutoLiveTestPdf && pdfObj.liveDateKey) {
           if (iframe) {
             iframe.removeAttribute('src');
@@ -17863,14 +17906,19 @@ const mState = {
           const opts = Array.isArray(q.options) && q.options.length >= 4 ? q.options.slice(0, 4) : ['Option A', 'Option B', 'Option C', 'Option D'];
           const aIdx = (typeof q.ans === 'number' && q.ans >= 0 && q.ans < 4) ? q.ans : 0;
           const ansText = opts[aIdx];
+          const lvl = q.level ? ' • ' + q.level : '';
+          const svgWrap = (q.svg && String(q.svg).includes('<svg'))
+            ? `<div class="mb-3 p-2.5 rounded-xl bg-slate-50 border border-indigo-200 flex justify-center overflow-x-auto">${q.svg}</div>`
+            : '';
           return {
             id: 'm_ai_' + prefix + '_' + dateKey + '_' + idx,
             word: subjLabel + ' • Q.' + (idx + 1),
             meaningHi: subjLabel,
-            category: subjLabel + (q.topic ? ': ' + q.topic : ''),
+            category: subjLabel + (q.topic ? ': ' + q.topic : '') + lvl,
             subject: prefix,
-            exam: 'AI Daily SSC ' + dateKey,
+            exam: 'AI Daily SSC ' + dateKey + lvl,
             year: dateKey,
+            chartHtml: svgWrap,
             cbtPrompt: q.qEn || q.q || '',
             promptHi: q.qHi || '',
             options: opts,
@@ -17881,13 +17929,10 @@ const mState = {
         });
       }
 
-      document.getElementById('dai-start-btn')?.addEventListener('click', async () => {
-        if (typeof startCbtTest !== 'function') return;
-        const btn = document.getElementById('dai-start-btn');
+      function assembleTodayFull100Instant() {
         const dateKey = getActivePaperDateKey();
-        if (btn) { btn.disabled = true; btn.textContent = '⏳ Preparing Daily SSC Paper...'; }
-
-        const aiData = await loadAiDailySections(false);
+        // Zero network wait: use already-cached AI doc if synced in background, else instant built-in Bilingual engine!
+        const aiData = (cachedAiDoc && cachedDateKey === dateKey) ? cachedAiDoc : null;
         const maths25 = buildMaths25(dateKey);
         const eng25 = buildEnglish25(dateKey);
         const reas25 = (aiData && Array.isArray(aiData.reasoning) && aiData.reasoning.length >= 20)
@@ -17896,9 +17941,13 @@ const mState = {
         const gk25 = (aiData && Array.isArray(aiData.gk) && aiData.gk.length >= 20)
           ? mapAiItems(aiData.gk, 'GK / GS', 'gk', dateKey)
           : (typeof window.buildBuiltinDailyGk25 === 'function' ? window.buildBuiltinDailyGk25(dateKey) : []);
+        return { dateKey, reas25, gk25, maths25, eng25, fullPool: [...reas25, ...gk25, ...maths25, ...eng25] };
+      }
+      window.__buildTodayFull100Paper = assembleTodayFull100Instant;
 
-        const fullPool = [...reas25, ...gk25, ...maths25, ...eng25];
-        if (btn) { btn.disabled = false; btn.textContent = "🚀 Start Today's 100-Q Full SSC Test"; }
+      document.getElementById('dai-start-btn')?.addEventListener('click', () => {
+        if (typeof startCbtTest !== 'function') return;
+        const { dateKey, reas25, gk25, maths25, eng25, fullPool } = assembleTodayFull100Instant();
         if (!fullPool.length) return;
 
         window._cbtLangMode = 'both';
@@ -17934,7 +17983,7 @@ const mState = {
   <script>
     (function initAdminAiCronPusher() {
       const VERCEL_JSON_CONTENT = "{\n  \"crons\": [\n    {\n      \"path\": \"/api/daily-ssc-test\",\n      \"schedule\": \"30 3 * * *\"\n    }\n  ]\n}\n";
-      const API_DAILY_JS_CONTENT = "// Vercel Serverless Function + Daily 9:00 AM IST Cron (03:30 UTC)\n// Automatically generates 25 Reasoning + 25 GK/GS (Bilingual EN+HI) via Free Gemini API\n// and publishes to Firebase Firestore: daily_ssc_full_tests/{YYYY-MM-DD}\n\nconst FS_ROOT = 'https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents';\nconst FS_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyBs_w5tmFnNc-fygZ-t5wdS_C7KtsVie7k';\n\nfunction getIstDateKey() {\n  const now = new Date();\n  const ist = new Date(now.getTime() + 5.5 * 3600000);\n  const y = ist.getUTCFullYear();\n  const m = String(ist.getUTCMonth() + 1).padStart(2, '0');\n  const d = String(ist.getUTCDate()).padStart(2, '0');\n  return `${y}-${m}-${d}`;\n}\n\nasync function fetchFromFirestore(dateKey) {\n  const res = await fetch(`${FS_ROOT}/daily_ssc_full_tests/${encodeURIComponent(dateKey)}?key=${encodeURIComponent(FS_KEY)}`);\n  if (!res.ok) return null;\n  const doc = await res.json();\n  const raw = doc?.fields?.payload?.stringValue;\n  return raw ? JSON.parse(raw) : null;\n}\n\nasync function saveToFirestore(dateKey, dataObj) {\n  const body = {\n    fields: {\n      dateKey: { stringValue: dateKey },\n      createdAt: { stringValue: new Date().toISOString() },\n      payload: { stringValue: JSON.stringify(dataObj) }\n    }\n  };\n  const res = await fetch(`${FS_ROOT}/daily_ssc_full_tests/${encodeURIComponent(dateKey)}?key=${encodeURIComponent(FS_KEY)}`, {\n    method: 'PATCH',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(body)\n  });\n  if (!res.ok) {\n    const txt = await res.text();\n    throw new Error('Firestore save failed: ' + txt);\n  }\n}\n\nasync function generateSectionWithGemini(apiKey, sectionName, count, dateKey, topicsHint) {\n  const prompt = `You are an expert SSC CGL/CHSL Tier-1 exam paper setter.\nGenerate exactly ${count} fresh, accurate, exam-level ${sectionName} MCQ questions for date ${dateKey} (SSC Tier-1 latest pattern).\nTopics to cover evenly: ${topicsHint}.\nRules:\n1. Every question MUST be Bilingual: \"qEn\" (clean English) AND \"qHi\" (natural Hindi in Devanagari).\n2. Exactly 4 distinct options in \"options\" array (short, clear).\n3. \"ans\" must be the 0-based integer index (0, 1, 2, or 3) of the single verified correct option.\n4. \"exp\" must be a crisp 1-line explanation.\n5. \"topic\" must be a short 1-3 word topic tag.\nReturn ONLY valid JSON matching: {\"items\":[{\"topic\":\"...\",\"qEn\":\"...\",\"qHi\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"ans\":0,\"exp\":\"...\"}]}`;\n\n  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({\n      contents: [{ parts: [{ text: prompt }] }],\n      generationConfig: {\n        responseMimeType: 'application/json',\n        temperature: 0.85\n      }\n    })\n  });\n  if (!res.ok) {\n    const errTxt = await res.text();\n    throw new Error(`Gemini API error (${sectionName}): ${errTxt}`);\n  }\n  const json = await res.json();\n  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';\n  const parsed = JSON.parse(text);\n  return Array.isArray(parsed.items) ? parsed.items.slice(0, count) : [];\n}\n\nexport default async function handler(req, res) {\n  res.setHeader('Access-Control-Allow-Origin', '*');\n  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');\n  if (req.method === 'OPTIONS') return res.status(200).end();\n\n  try {\n    const dateKey = (req.query && req.query.date && /^\\d{4}-\\d{2}-\\d{2}$/.test(req.query.date))\n      ? req.query.date\n      : getIstDateKey();\n    const force = req.query && req.query.force === '1';\n\n    if (!force) {\n      const existing = await fetchFromFirestore(dateKey);\n      if (existing && Array.isArray(existing.reasoning) && existing.reasoning.length >= 20) {\n        return res.status(200).json({ ok: true, cached: true, ...existing });\n      }\n    }\n\n    const apiKey = process.env.GEMINI_API_KEY;\n    if (!apiKey) {\n      return res.status(500).json({\n        ok: false,\n        error: 'GEMINI_API_KEY is not set in Vercel Environment Variables.'\n      });\n    }\n\n    const [reasoning, gk] = await Promise.all([\n      generateSectionWithGemini(\n        apiKey,\n        'General Intelligence & Reasoning',\n        25,\n        dateKey,\n        'Analogy, Coding-Decoding, Number Series, Letter Series, Odd One Out, Syllogism, Blood Relations, Mathematical Operations, Direction & Distance, Seating Arrangement, Order & Ranking, Dice, Missing Number, Mirror Image concept'\n      ),\n      generateSectionWithGemini(\n        apiKey,\n        'General Awareness (GK / GS)',\n        25,\n        dateKey,\n        'Indian Polity & Constitution, Ancient/Medieval/Modern History, Indian Geography, Economics & RBI, Physics, Chemistry, Biology, Static GK (Classical Dances, Awards, Books, Sports, Festivals)'\n      )\n    ]);\n\n    const payload = {\n      dateKey,\n      generatedAt: new Date().toISOString(),\n      reasoning,\n      gk\n    };\n\n    await saveToFirestore(dateKey, payload);\n    return res.status(200).json({ ok: true, cached: false, ...payload });\n  } catch (err) {\n    return res.status(500).json({ ok: false, error: err.message || String(err) });\n  }\n}\n";
+      const API_DAILY_JS_CONTENT = "// Vercel Serverless Function + Daily 9:00 AM IST Cron (03:30 UTC)\n// Generates 25 Reasoning (Easy/Moderate/Hard mix + 6 Non-Verbal SVG Figures)\n// + 25 GK/GS (Easy/Moderate/Hard mix + 6-7 Latest 6-Month / Latest-Year Current Affairs)\n// via Free Gemini API and saves to Firebase Firestore: daily_ssc_full_tests/{YYYY-MM-DD}\n\nconst FS_ROOT = 'https://firestore.googleapis.com/v1/projects/ssc-pro-6ca83/databases/(default)/documents';\nconst FS_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyBs_w5tmFnNc-fygZ-t5wdS_C7KtsVie7k';\n\nfunction getIstDateKey() {\n  const now = new Date();\n  const ist = new Date(now.getTime() + 5.5 * 3600000);\n  const y = ist.getUTCFullYear();\n  const m = String(ist.getUTCMonth() + 1).padStart(2, '0');\n  const d = String(ist.getUTCDate()).padStart(2, '0');\n  return `${y}-${m}-${d}`;\n}\n\nasync function fetchFromFirestore(dateKey) {\n  const res = await fetch(`${FS_ROOT}/daily_ssc_full_tests/${encodeURIComponent(dateKey)}?key=${encodeURIComponent(FS_KEY)}`);\n  if (!res.ok) return null;\n  const doc = await res.json();\n  const raw = doc?.fields?.payload?.stringValue;\n  return raw ? JSON.parse(raw) : null;\n}\n\nasync function saveToFirestore(dateKey, dataObj) {\n  const body = {\n    fields: {\n      dateKey: { stringValue: dateKey },\n      createdAt: { stringValue: new Date().toISOString() },\n      payload: { stringValue: JSON.stringify(dataObj) }\n    }\n  };\n  const res = await fetch(`${FS_ROOT}/daily_ssc_full_tests/${encodeURIComponent(dateKey)}?key=${encodeURIComponent(FS_KEY)}`, {\n    method: 'PATCH',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(body)\n  });\n  if (!res.ok) {\n    const txt = await res.text();\n    throw new Error('Firestore save failed: ' + txt);\n  }\n}\n\nasync function generateSectionWithGemini(apiKey, sectionName, count, dateKey, topicsHint, includeSvgHint) {\n  const prompt = `You are a senior SSC CGL/CHSL/CPO Tier-1 Eduquity paper setter.\nGenerate exactly ${count} fresh, 100% factually/mathematically verified ${sectionName} MCQ questions for exam date ${dateKey}.\n\nSTRICT DIFFICULTY MIX (must include all 3 levels):\n- 9 Easy questions (\"level\": \"Easy\")\n- 11 Moderate questions (\"level\": \"Moderate\")\n- 5 Hard questions (\"level\": \"Hard\")\n\nQUESTION TYPES & TOPICS TO COVER EVENLY:\n${topicsHint}\n${includeSvgHint ? `\nNON-VERBAL VISUAL FIGURE REQUIREMENT:\n- At least 5 questions MUST be visual figure questions (Counting Triangles/Squares, Dice Opposite Faces, Venn Diagram with numbers, Mirror Image, Paper Folding, or Figure Rotation Series).\n- For every visual question, include a clean, self-contained inline \"<svg viewBox='0 0 260 130' width='260' height='130'>...<\/svg>\" string in the \"svg\" field (simple crisp geometric shapes/lines/text, no scripts, dark stroke #1e293b on light background). For non-visual questions, set \"svg\": \"\".` : ''}\n\nRULES:\n1. Every question MUST be Bilingual: \"qEn\" (clear English) AND \"qHi\" (natural Hindi in Devanagari).\n2. Exactly 4 distinct options in \"options\" array.\n3. \"ans\" MUST be the 0-based integer index (0, 1, 2, or 3) of the single verified correct option.\n4. \"exp\" MUST be a clear step-by-step best solution + exam shortcut/fact.\n5. \"topic\" MUST be a short 1-3 word topic tag, and \"level\" MUST be \"Easy\", \"Moderate\", or \"Hard\".\nReturn ONLY valid JSON: {\"items\":[{\"topic\":\"...\",\"level\":\"Easy|Moderate|Hard\",\"qEn\":\"...\",\"qHi\":\"...\",\"svg\":\"\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"ans\":0,\"exp\":\"...\"}]}`;\n\n  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({\n      contents: [{ parts: [{ text: prompt }] }],\n      generationConfig: {\n        responseMimeType: 'application/json',\n        temperature: 0.85\n      }\n    })\n  });\n  if (!res.ok) {\n    const errTxt = await res.text();\n    throw new Error(`Gemini API error (${sectionName}): ${errTxt}`);\n  }\n  const json = await res.json();\n  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';\n  const parsed = JSON.parse(text);\n  return Array.isArray(parsed.items) ? parsed.items.slice(0, count) : [];\n}\n\nexport default async function handler(req, res) {\n  res.setHeader('Access-Control-Allow-Origin', '*');\n  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');\n  if (req.method === 'OPTIONS') return res.status(200).end();\n\n  try {\n    const dateKey = (req.query && req.query.date && /^\\d{4}-\\d{2}-\\d{2}$/.test(req.query.date))\n      ? req.query.date\n      : getIstDateKey();\n    const force = req.query && req.query.force === '1';\n\n    if (!force) {\n      const existing = await fetchFromFirestore(dateKey);\n      if (existing && Array.isArray(existing.reasoning) && existing.reasoning.length >= 20) {\n        return res.status(200).json({ ok: true, cached: true, ...existing });\n      }\n    }\n\n    const apiKey = process.env.GEMINI_API_KEY;\n    if (!apiKey) {\n      return res.status(500).json({ ok: false, error: 'GEMINI_API_KEY is not set in Vercel Environment Variables.' });\n    }\n\n    const [reasoning, gk] = await Promise.all([\n      generateSectionWithGemini(\n        apiKey,\n        'General Intelligence & Reasoning',\n        25,\n        dateKey,\n        'Number Series (Easy & Hard double-diff), Letter Series, Coding-Decoding, Word & Number Analogy, Odd One Out, Syllogism (2 & 3 statements), Blood Relations (coded & pointing), Mathematical Operations, Direction & Distance, Seating Arrangement (Linear/Circular), Order & Ranking, Statement & Conclusion, Counting Figures (with SVG), Dice Opposite Faces (with SVG), Venn Diagram (with SVG), Mirror/Water Image (with SVG), Paper Folding (with SVG), Figure Rotation Series (with SVG)',\n        true\n      ),\n      generateSectionWithGemini(\n        apiKey,\n        'General Awareness (GK / GS + Latest 6-Month Current Affairs)',\n        25,\n        dateKey,\n        `MANDATORY MIX FOR SSC TIER-1:\n- 6 to 7 LATEST CURRENT AFFAIRS questions (covering the last 6 months & latest year relative to ${dateKey}: Union Budget & Govt Schemes, Major National/International Appointments, Sports Winners, Padma/Nobel/National Awards, ISRO/DRDO Missions, Summits & Global Indices).\n- 18 to 19 CORE GS & STATIC GK questions across Indian Polity, Ancient/Medieval/Modern History, Geography, Economics, Physics, Chemistry, Biology & Static GK.\n- DIFFICULTY TYPES: 9 Easy (direct factual), 11 Moderate (multi-statement / chronological / scheme details), 5 Hard (Assertion-Reason / Match-the-Following / deep constitutional or scientific concepts).`,\n        false\n      )\n    ]);\n\n    const payload = { dateKey, generatedAt: new Date().toISOString(), reasoning, gk };\n    await saveToFirestore(dateKey, payload);\n    return res.status(200).json({ ok: true, cached: false, ...payload });\n  } catch (err) {\n    return res.status(500).json({ ok: false, error: err.message || String(err) });\n  }\n}\n";
 
       function utf8ToB64(str) {
         const bytes = new TextEncoder().encode(str);
@@ -17968,8 +18017,8 @@ const mState = {
       document.getElementById('admin-push-ai-cron-btn')?.addEventListener('click', async () => {
         const btn = document.getElementById('admin-push-ai-cron-btn');
         const st = document.getElementById('admin-ai-cron-status');
-        const tok = (document.getElementById('admin-gh-token')?.value || localStorage.getItem('ssc_admin_gh_tok_v1') || '').trim();
-        const repo = (document.getElementById('admin-gh-repo')?.value || localStorage.getItem('ssc_admin_gh_repo_v1') || '').trim().replace(/^https?:\/\/github\.com\//, '').replace(/\/+$/, '');
+        const tok = (document.getElementById('admin-gh-token')?.value || localStorage.getItem('ssc_admin_gh_token_local_only_v1') || '').trim();
+        const repo = (document.getElementById('admin-gh-repo')?.value || localStorage.getItem('ssc_admin_gh_repo_local_only_v1') || '').trim().replace(/^https?:\/\/github\.com\//, '').replace(/\/+$/, '');
 
         const showMsg = (msg, ok) => {
           if (!st) return;
@@ -18333,6 +18382,781 @@ const mState = {
           return origFinish.apply(this, arguments);
         };
       }
+    })();
+  </script>
+
+
+  <!-- ================= v137: BEST SOLUTIONS + AUTO-SAVE TO PDFs->MATHS + ADMIN QUESTION INSPECTOR ================= -->
+  <script>
+    (function initV137SolutionsAutoPdfAndInspector() {
+      const STORAGE_KEY = 'ssc_auto_maths_test_pdfs_v1';
+
+      // Best Exam Shortcut & Formula Guide for all 27 SSC Maths Chapters
+      const MATHS_TRICKS = {
+        'Number System': 'Divisibility: 3/9→Sum of digits; 8→Last 3 digits; 11→|(Odd pos sum)-(Even pos sum)| = 0 or 11. Remainder: use negative remainder & Fermat/Euler cyclic pattern.',
+        'HCF and LCM': 'Formula: LCM × HCF = Product of 2 numbers. For fractions: LCM = LCM(Num)/HCF(Den), HCF = HCF(Num)/LCM(Den).',
+        'Simplification': 'Follow VBODMAS strictly. For √(a±2√b), split b = x·y where x+y = a ⇒ √x ± √y.',
+        'Trigonometry': 'Put smart angle values (θ = 0°, 30°, 45°, 60°) when options are constants. Key: sin²θ+cos²θ=1, sec²θ-tan²θ=1, cosec²θ-cot²θ=1.',
+        'Height and Distance': 'Use golden right-triangle ratios: 30°-60°-90° → 1 : √3 : 2; 45°-45°-90° → 1 : 1 : √2.',
+        'Mensuration': 'Check π (11-divisibility) in options! Cylinder V=πr²h, Cone V=⅓πr²h, Sphere V=⁴⁄₃πr³.',
+        'Geometry': 'Angle at centre = 2 × angle at circumference. Opposite angles of cyclic quad sum to 180°. Use similar triangle side/area² ratios.',
+        'Algebra': 'If x + 1/x = k ⇒ x² + 1/x² = k² - 2 and x³ + 1/x³ = k³ - 3k. Put value (e.g., c=0) when variables > equations.',
+        'Ratio and Proportion': 'Make common term equal to combine A:B & B:C. Mean proportional = √(ab), Third = b²/a, Fourth = bc/a.',
+        'Partnership': 'Profit Ratio = (Investment × Time). Always convert all time periods into the same unit (months).',
+        'Mixture and Alligation': 'Alligation Rule: (Dearer - Mean) : (Mean - Cheaper) = Qty(Cheaper) : Qty(Dearer).',
+        'Work and Time': 'LCM Method: Total Work = LCM of days; Efficiency = Work/Days; Combined Time = Total Work / Sum of Efficiencies.',
+        'Pipe and Cistern': 'LCM Method: Tank Capacity = LCM of times; Inlet efficiency (+), Outlet/Leak efficiency (-).',
+        'Time, Speed and Distance': 'Distance = Speed × Time; km/h × (5/18) = m/s. Average Speed (equal dist) = 2xy/(x+y).',
+        'Linear/Circular Race': 'In a race, Ratio of Distances covered in same time = Ratio of Speeds. Circular same-dir meeting = L/(v1-v2).',
+        'Boat and Stream': 'Downstream D = B + S, Upstream U = B - S ⇒ Boat B = (D+U)/2, Stream S = (D-U)/2.',
+        'Percentage': 'Use Fraction-to-% (1/6=16.67%, 1/7=14.28%, 1/8=12.5%, 1/9=11.11%). Successive change = x + y + xy/100.',
+        'Profit and Loss': 'Always calculate Profit/Loss % on CP. Ratio trick: CP/MP = (100 - D%)/(100 + P%).',
+        'Discount': 'Equivalent discount of a% & b% = a + b - (ab/100). SP = MP × (1 - D/100).',
+        'Simple Interest': 'SI = (P × R × T)/100. Effective interest % = (R × T)%.',
+        'Compound Interest': 'Use Ratio/Tree method: for 2 yrs effective rate = 2r + r²/100; 2-yr CI - SI = P(r/100)².',
+        'Installment': 'SI Installment: P = x·n + x·r·n(n-1)/200. CI Installment: P = x/(1+r) + x/(1+r)² + ...',
+        'Average': 'Deviation Method: Net deviation around assumed average = 0. New value = Old Avg ± (Change × Total count).',
+        'Data Interpretation': 'Use approximation & ratio comparison instead of exact division; check % increase = (Diff/Base)×100.',
+        'Mean, Median & Mode': 'Empirical Formula: Mode = 3·Median - 2·Mean. Always sort data ascending before finding Median.',
+        'Coordinate Geometry': 'Distance = √[(x2-x1)²+(y2-y1)²], Midpoint = ((x1+x2)/2, (y1+y2)/2), Slope m = (y2-y1)/(x2-x1).',
+        'Probability': 'P(E) = Favourable Outcomes / Total Outcomes. P(at least one) = 1 - P(none).'
+      };
+
+      function getBestTrickForQ(q) {
+        if (!q) return '';
+        if (q.trick && String(q.trick).length > 18 && !String(q.trick).startsWith('Correct Option:')) return q.trick;
+        const cat = String(q.chapter || q.category || '').replace(/^Maths:\s*/i, '');
+        for (const k of Object.keys(MATHS_TRICKS)) {
+          if (cat.toLowerCase().includes(k.toLowerCase())) return MATHS_TRICKS[k];
+        }
+        return q.exp || '';
+      }
+
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      // ------------------------------------------------------------------
+      // A. Auto-Save Completed Maths & Full SSC Tests into PDFs -> Maths!
+      // ------------------------------------------------------------------
+      function loadSavedMathsPdfs() {
+        try {
+          const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+          return Array.isArray(arr) ? arr : [];
+        } catch (e) { return []; }
+      }
+
+      function saveCompletedTestToMathsPdf(cbtSnapshot) {
+        if (!cbtSnapshot || !Array.isArray(cbtSnapshot.questions) || !cbtSnapshot.questions.length) return;
+        const lbl = String(cbtSnapshot.modeLabel || 'SSC Test');
+        const hasMaths = cbtSnapshot.questions.some(q =>
+          q.subject === 'maths' || String(q.id || '').startsWith('m_') || /maths|eduquity|full mock|pinnacle/i.test(lbl)
+        );
+        if (!hasMaths) return;
+
+        let right = 0, wrong = 0;
+        const compactQs = cbtSnapshot.questions.map((q, idx) => {
+          const chosen = cbtSnapshot.answers ? cbtSnapshot.answers[idx] : undefined;
+          const correctAns = q.cbtAnswer || q.answer || '';
+          if (chosen !== undefined && chosen !== null && chosen !== '') {
+            if (chosen === correctAns) right++;
+            else wrong++;
+          }
+          return {
+            n: idx + 1,
+            cat: q.category || q.chapter || 'Maths',
+            exam: q.exam || '',
+            qEn: q.cbtPrompt || q.word || '',
+            qHi: q.promptHi || '',
+            chartHtml: q.chartHtml || '',
+            opts: Array.isArray(q.options) ? q.options.slice(0, 4) : [],
+            ans: correctAns,
+            you: chosen || '',
+            exp: q.exp || '',
+            trick: getBestTrickForQ(q)
+          };
+        });
+
+        const score = (right * 2 - wrong * 0.5).toFixed(2);
+        const maxMarks = compactQs.length * 2;
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+        const record = {
+          id: 'auto_maths_pdf_' + Date.now(),
+          isAutoMathsTestPdf: true,
+          title: `📐 ${lbl} — Score ${score}/${maxMarks} (Full Solutions)`,
+          subject: 'Maths',
+          category: 'Completed Test Solutions',
+          sizeLabel: `${compactQs.length} Qs • Solutions PDF`,
+          dateStr: `${dateStr} ${timeStr}`,
+          scoreText: `${score} / ${maxMarks} (✓${right} ✗${wrong})`,
+          createdAt: Date.now(),
+          questions: compactQs
+        };
+
+        const existing = loadSavedMathsPdfs();
+        existing.unshift(record);
+        // Keep latest 10 tests so localStorage stays fast & clean
+        const trimmed = existing.slice(0, 10);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+        } catch (e) {
+          // If quota tight, keep latest 4
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed.slice(0, 4))); } catch (_) {}
+        }
+
+        if (typeof showToast === 'function') {
+          showToast('📂 Test + Best Solutions automatically PDFs → Maths me save ho gaye!');
+        }
+      }
+
+      window.getAutoSavedMathsTestPdfs = function() {
+        return loadSavedMathsPdfs().map(r => ({
+          id: r.id,
+          isAutoMathsTestPdf: true,
+          title: r.title,
+          subject: 'Maths',
+          category: r.category || 'Completed Test Solutions',
+          sizeLabel: r.sizeLabel || `${(r.questions || []).length} Qs • Solutions`,
+          dateStr: r.dateStr || '',
+          createdAt: r.createdAt || Date.now()
+        }));
+      };
+
+      window.buildSavedMathsTestHtmlPaper = function(pdfId) {
+        const rec = loadSavedMathsPdfs().find(x => x.id === pdfId);
+        if (!rec) return '<html><body style="font-family:sans-serif;padding:24px;">Test record not found.</body></html>';
+        const LETTERS = ['A', 'B', 'C', 'D'];
+        const cards = (rec.questions || []).map(q => {
+          const isCorrect = q.you && q.you === q.ans;
+          const status = !q.you ? '<span style="color:#64748b">Unattempted (0)</span>'
+            : isCorrect ? '<span style="color:#059669;font-weight:800">✓ Correct (+2.00)</span>'
+            : '<span style="color:#dc2626;font-weight:800">✗ Wrong (-0.50)</span>';
+          const optsHtml = (q.opts || []).map((o, i) => {
+            const isA = o === q.ans;
+            const isU = o === q.you && !isA;
+            const bg = isA ? '#ecfdf5;border-color:#10b981;font-weight:700' : isU ? '#fef2f2;border-color:#ef4444' : '#f8fafc;border-color:#e2e8f0';
+            return `<div style="padding:6px 10px;border:1px solid;border-radius:8px;margin:4px 0;background:${bg}"><b>(${LETTERS[i]})</b> ${esc(o)} ${isA ? '✅' : isU ? '❌ (Your Ans)' : ''}</div>`;
+          }).join('');
+          return `<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid #0ea5e9;border-radius:12px;padding:14px;margin-bottom:12px;page-break-inside:avoid;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#475569;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+              <span><b>Q.${q.n}</b> • ${esc(q.cat)} ${q.exam ? '• ' + esc(q.exam) : ''}</span>
+              <span>${status}</span>
+            </div>
+            ${q.chartHtml || ''}<div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:4px;">${esc(q.qEn)}</div>
+            ${q.qHi ? `<div style="font-size:13px;font-weight:600;color:#312e81;background:#eef2ff;padding:6px 10px;border-radius:8px;margin-bottom:8px;">🇮🇳 ${esc(q.qHi)}</div>` : ''}
+            <div style="font-size:13px;">${optsHtml}</div>
+            <div style="margin-top:8px;padding:8px 10px;border-radius:8px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;color:#14532d;">
+              <div><b>✅ Correct Answer:</b> ${esc(q.ans)}</div>
+              ${q.exp ? `<div style="margin-top:4px;"><b>📝 Full Solution:</b> ${esc(q.exp)}</div>` : ''}
+              ${q.trick && q.trick !== q.exp ? `<div style="margin-top:4px;color:#0f766e;"><b>⚡ Best Exam Shortcut:</b> ${esc(q.trick)}</div>` : ''}
+            </div>
+          </div>`;
+        }).join('');
+
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(rec.title)}</title></head>
+        <body style="font-family:system-ui,-apple-system,sans-serif;background:#f1f5f9;margin:0;padding:14px;color:#0f172a;">
+          <div style="max-width:860px;margin:0 auto;">
+            <div style="background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;padding:16px 18px;border-radius:14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+              <div>
+                <div style="font-size:11px;opacity:.85;text-transform:uppercase;letter-spacing:.06em;">SSC Vocab 3D Pro • Auto-Saved Maths &amp; Full Test Solutions</div>
+                <h1 style="margin:4px 0 2px;font-size:17px;">${esc(rec.title)}</h1>
+                <div style="font-size:12px;color:#a7f3d0;font-weight:700;">Score: ${esc(rec.scoreText)} • ${esc(rec.dateStr)}</div>
+              </div>
+              <button onclick="window.print()" style="padding:8px 14px;border:none;border-radius:10px;background:#34d399;color:#020617;font-weight:900;font-size:12px;cursor:pointer;">🖨️ Save / Print PDF</button>
+            </div>
+            ${cards}
+          </div>
+        </body></html>`;
+      };
+
+      window.downloadSavedMathsTestPaper = function(pdfObj) {
+        const htmlStr = window.buildSavedMathsTestHtmlPaper(pdfObj.id);
+        const blob = new Blob([htmlStr], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = (String(pdfObj.title || 'SSC_Maths_Solutions').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 60)) + '.html';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 6000);
+        if (typeof showToast === 'function') showToast('⬇️ Full Solutions File Downloaded!');
+      };
+
+      // Wrap window.finishCbtTest to:
+      // (1) Auto-save Maths & Full SSC test into PDFs -> Maths
+      // (2) Inject "Best Exam Shortcut & Full Solution" cards onto the post-test Analysis screen (#res-review-list)
+      const prevFinish = window.finishCbtTest;
+      if (typeof prevFinish === 'function') {
+        window.finishCbtTest = function() {
+          const snap = (typeof cbt !== 'undefined' && cbt && Array.isArray(cbt.questions))
+            ? { modeLabel: cbt.modeLabel, questions: cbt.questions.slice(), answers: Object.assign({}, cbt.answers || {}) }
+            : null;
+          const res = prevFinish.apply(this, arguments);
+          if (snap) {
+            saveCompletedTestToMathsPdf(snap);
+            setTimeout(() => enhanceResultScreenWithBestSolutions(snap), 80);
+          }
+          return res;
+        };
+      }
+
+      function enhanceResultScreenWithBestSolutions(snap) {
+        const list = document.getElementById('res-review-list');
+        if (!list || !snap || !snap.questions.length) return;
+        const cards = list.children;
+        for (let i = 0; i < Math.min(cards.length, snap.questions.length); i++) {
+          const q = snap.questions[i];
+          const card = cards[i];
+          if (!card || card.querySelector('.v137-best-sol')) continue;
+          const trick = getBestTrickForQ(q);
+          const exp = q.exp || '';
+          if (!trick && !exp) continue;
+          const box = document.createElement('div');
+          box.className = 'v137-best-sol mt-2.5 p-2.5 rounded-xl bg-emerald-950/60 border border-emerald-400/35 text-[11px] sm:text-xs text-emerald-100 space-y-1';
+          box.innerHTML = `${exp ? `<div><b class="text-emerald-300">📝 Full Solution:</b> ${esc(exp)}</div>` : ''}${trick && trick !== exp ? `<div><b class="text-cyan-300">⚡ Best Shortcut:</b> ${esc(trick)}</div>` : ''}`;
+          card.appendChild(box);
+        }
+      }
+
+      // ------------------------------------------------------------------
+      // B. Admin Daily 100-Q Question Inspector (View All 100 Qs + Best Solutions)
+      // ------------------------------------------------------------------
+      let _admPaperCache = null;
+      let _admSecFilter = 'all';
+
+      function renderAdminDaiPreview() {
+        const box = document.getElementById('admin-dai-preview-list');
+        const fRow = document.getElementById('admin-dai-filter-row');
+        if (!box || !_admPaperCache) return;
+        box.classList.remove('hidden');
+        if (fRow) fRow.classList.remove('hidden');
+
+        let items = [];
+        if (_admSecFilter === 'all') items = _admPaperCache.fullPool;
+        else if (_admSecFilter === 'reas') items = _admPaperCache.reas25;
+        else if (_admSecFilter === 'gk') items = _admPaperCache.gk25;
+        else if (_admSecFilter === 'maths') items = _admPaperCache.maths25;
+        else if (_admSecFilter === 'eng') items = _admPaperCache.eng25;
+
+        const LETTERS = ['A', 'B', 'C', 'D'];
+        box.innerHTML = items.map((q, idx) => {
+          const opts = Array.isArray(q.options) ? q.options : [];
+          const ans = q.cbtAnswer || q.answer || '';
+          const trick = getBestTrickForQ(q);
+          return `<div class="p-2.5 rounded-xl bg-slate-900/95 border border-white/10 text-[11px] space-y-1.5">
+            <div class="flex items-center justify-between gap-2 text-[10px] text-cyan-300 font-extrabold">
+              <span>Q.${idx + 1} • ${esc(q.category || q.word || '')}</span>
+              <span class="text-slate-400">${esc(q.exam || _admPaperCache.dateKey)}</span>
+            </div>
+            ${q.chartHtml || ''}<div class="text-white font-bold leading-snug">${esc(q.cbtPrompt || q.word || '')}</div>
+            ${q.promptHi ? `<div class="text-indigo-200 font-semibold">🇮🇳 ${esc(q.promptHi)}</div>` : ''}
+            <div class="grid grid-cols-2 gap-1 pt-0.5">
+              ${opts.map((o, oi) => `<div class="px-2 py-1 rounded-lg border ${o === ans ? 'bg-emerald-500/20 border-emerald-400 text-emerald-200 font-bold' : 'bg-slate-950 border-slate-800 text-slate-300'}">(${LETTERS[oi]}) ${esc(o)}</div>`).join('')}
+            </div>
+            <div class="text-[10px] text-emerald-300 pt-0.5"><b>💡 Solution:</b> ${esc(q.exp || ans)}${trick && trick !== q.exp ? ' • ⚡ ' + esc(trick) : ''}</div>
+          </div>`;
+        }).join('');
+      }
+
+      document.getElementById('admin-inspect-dai-btn')?.addEventListener('click', () => {
+        if (typeof window.__buildTodayFull100Paper === 'function') {
+          _admPaperCache = window.__buildTodayFull100Paper();
+          renderAdminDaiPreview();
+        }
+      });
+
+      document.getElementById('admin-dai-filter-row')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-admdai-sec]');
+        if (!btn) return;
+        _admSecFilter = btn.getAttribute('data-admdai-sec') || 'all';
+        document.querySelectorAll('#admin-dai-filter-row [data-admdai-sec]').forEach(b => {
+          const act = b.getAttribute('data-admdai-sec') === _admSecFilter;
+          b.className = act
+            ? 'px-2 py-1 rounded-lg bg-cyan-400 text-slate-950 font-black text-[10px]'
+            : 'px-2 py-1 rounded-lg bg-slate-800 text-slate-200 font-bold text-[10px]';
+        });
+        renderAdminDaiPreview();
+      });
+    })();
+  </script>
+
+
+  <!-- ================= v138: MIXED DIFFICULTY (EASY/MODERATE/HARD) + NON-VERBAL SVG REASONING FIGURES ================= -->
+  <script>
+    (function initV138FiguresAndMixedLevels() {
+      const origReasFn = window.buildBuiltinDailyReasoning25;
+      const origGkFn = window.buildBuiltinDailyGk25;
+
+      function seededRng(seedStr) {
+        let h = 2166136261 >>> 0;
+        for (let i = 0; i < seedStr.length; i++) {
+          h ^= seedStr.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return function() {
+          h += 0x6D2B79F5;
+          let t = Math.imul(h ^ (h >>> 15), 1 | h);
+          t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function shuffleDet(arr, rng) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(rng() * (i + 1));
+          const t = a[i]; a[i] = a[j]; a[j] = t;
+        }
+        return a;
+      }
+
+      function wrapSvg(svgInner, caption) {
+        return `<div class="mb-3 p-2.5 rounded-xl bg-white border border-indigo-200 flex flex-col items-center justify-center shadow-xs overflow-x-auto">${svgInner}${caption ? `<div class="text-[10px] font-bold text-slate-500 mt-1">${caption}</div>` : ''}</div>`;
+      }
+
+      // Generate 6 Authentic Non-Verbal Visual SVG Figure Questions (Counting Triangles, Dice, Venn Diagram, Mirror Image, Paper Folding, Figure Rotation)
+      function buildVisualFigureQuestions(dateKey) {
+        const rng = seededRng('FIG_SVG_' + dateKey);
+        const randInt = (lo, hi) => lo + Math.floor(rng() * (hi - lo + 1));
+        const figs = [];
+
+        // --- FIGURE 1: Counting Triangles (Moderate/Hard) ---
+        const cols = randInt(3, 5); // 3, 4, or 5 base parts
+        const rows = randInt(1, 2); // 1 or 2 horizontal levels
+        const totalTri = Math.round((cols * (cols + 1) / 2) * rows);
+        let triLines = '';
+        for (let c = 1; c < cols; c++) {
+          const x = 30 + (200 * c) / cols;
+          triLines += `<line x1="130" y1="15" x2="${x.toFixed(1)}" y2="115" stroke="#1e293b" stroke-width="2"/>`;
+        }
+        if (rows === 2) {
+          triLines += `<line x1="80" y1="65" x2="180" y2="65" stroke="#2563eb" stroke-width="2"/>`;
+        }
+        const triSvg = `<svg viewBox="0 0 260 130" width="240" height="120" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="130,15 30,115 230,115" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/>
+          ${triLines}
+        </svg>`;
+        const triOpts = shuffleDet([totalTri, totalTri - 2, totalTri + 2, totalTri + cols].map(String), rng);
+        figs.push({
+          topic: 'Counting Figures',
+          level: rows === 2 ? 'Hard' : 'Moderate',
+          chartHtml: wrapSvg(triSvg, 'Figure: Counting Triangles'),
+          qEn: 'How many total triangles are present in the given figure?',
+          qHi: 'दी गई आकृति में कुल कितने त्रिभुज (Triangles) हैं?',
+          options: triOpts,
+          ans: triOpts.indexOf(String(totalTri)),
+          exp: `Base parts n = ${cols} ⇒ n(n+1)/2 = ${cols * (cols + 1) / 2}. Horizontal levels = ${rows} ⇒ Total triangles = ${cols * (cols + 1) / 2} × ${rows} = ${totalTri}.`
+        });
+
+        // --- FIGURE 2: Two-Position 3D Dice (Moderate) ---
+        const faces = shuffleDet([1, 2, 3, 4, 5, 6], rng);
+        const common = faces[0], f1 = faces[1], f2 = faces[2], f3 = faces[3], f4 = faces[4], oppCommon = faces[5];
+        // Dice 1: top=common, left=f1, right=f2 (clockwise from common: f2 -> f1)
+        // Dice 2: top=common, left=f3, right=f4 (clockwise from common: f4 -> f3)
+        // Therefore f1 opposite f3, f2 opposite f4, common opposite oppCommon!
+        function drawCube(xOff, topN, leftN, rightN) {
+          return `<g transform="translate(${xOff},12)">
+            <polygon points="50,5 95,28 50,52 5,28" fill="#e0e7ff" stroke="#1e293b" stroke-width="2"/>
+            <polygon points="5,28 50,52 50,100 5,76" fill="#f1f5f9" stroke="#1e293b" stroke-width="2"/>
+            <polygon points="95,28 50,52 50,100 95,76" fill="#cbd5e1" stroke="#1e293b" stroke-width="2"/>
+            <text x="50" y="34" text-anchor="middle" font-size="18" font-weight="900" fill="#1e1b4b">${topN}</text>
+            <text x="27" y="70" text-anchor="middle" font-size="18" font-weight="900" fill="#0f172a">${leftN}</text>
+            <text x="73" y="70" text-anchor="middle" font-size="18" font-weight="900" fill="#0f172a">${rightN}</text>
+          </g>`;
+        }
+        const diceSvg = `<svg viewBox="0 0 260 125" width="250" height="120" xmlns="http://www.w3.org/2000/svg">
+          ${drawCube(15, common, f1, f2)}
+          ${drawCube(145, common, f3, f4)}
+        </svg>`;
+        const diceOpts = shuffleDet([f3, f2, f4, oppCommon].map(String), rng);
+        figs.push({
+          topic: 'Dice & Cube',
+          level: 'Moderate',
+          chartHtml: wrapSvg(diceSvg, 'Figure: Two Positions of a Dice'),
+          qEn: `Two different positions of the same dice are shown above. Which number will be on the face opposite to '${f1}'?`,
+          qHi: `ऊपर एक ही पासे की दो अलग-अलग स्थितियाँ दिखाई गई हैं। '${f1}' के विपरीत फलक पर कौन-सी संख्या होगी?`,
+          options: diceOpts,
+          ans: diceOpts.indexOf(String(f3)),
+          exp: `Common face '${common}' is on the Top in both dice. Matching corresponding positions directly: Left face '${f1}' is opposite to Left face '${f3}' (and '${f2}' ↔ '${f4}').`
+        });
+
+        // --- FIGURE 3: Venn Diagram with Region Numbers (Moderate) ---
+        const nOnlyA = randInt(8, 16), nAB = randInt(5, 11), nABC = randInt(3, 7), nAC = randInt(4, 9), nOnlyB = randInt(9, 18), nBC = randInt(4, 8), nOnlyC = randInt(7, 15);
+        const vennSvg = `<svg viewBox="0 0 260 145" width="250" height="138" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="95" cy="60" r="42" fill="#3b82f6" fill-opacity="0.16" stroke="#2563eb" stroke-width="2"/>
+          <circle cx="165" cy="60" r="42" fill="#10b981" fill-opacity="0.16" stroke="#059669" stroke-width="2"/>
+          <circle cx="130" cy="100" r="40" fill="#f59e0b" fill-opacity="0.16" stroke="#d97706" stroke-width="2"/>
+          <text x="56" y="20" font-size="10" font-weight="800" fill="#1d4ed8">Engineers</text>
+          <text x="172" y="20" font-size="10" font-weight="800" fill="#047857">Doctors</text>
+          <text x="108" y="142" font-size="10" font-weight="800" fill="#b45309">Teachers</text>
+          <text x="76" y="58" text-anchor="middle" font-size="13" font-weight="800" fill="#0f172a">${nOnlyA}</text>
+          <text x="130" y="50" text-anchor="middle" font-size="13" font-weight="800" fill="#0f172a">${nAB}</text>
+          <text x="182" y="58" text-anchor="middle" font-size="13" font-weight="800" fill="#0f172a">${nOnlyB}</text>
+          <text x="130" y="77" text-anchor="middle" font-size="13" font-weight="800" fill="#0f172a">${nABC}</text>
+          <text x="103" y="92" text-anchor="middle" font-size="12" font-weight="800" fill="#0f172a">${nAC}</text>
+          <text x="157" y="92" text-anchor="middle" font-size="12" font-weight="800" fill="#0f172a">${nBC}</text>
+          <text x="130" y="118" text-anchor="middle" font-size="13" font-weight="800" fill="#0f172a">${nOnlyC}</text>
+        </svg>`;
+        const vOpts = shuffleDet([nAB, nAB + nABC, nABC, nAC].map(String), rng);
+        figs.push({
+          topic: 'Venn Diagram',
+          level: 'Moderate',
+          chartHtml: wrapSvg(vennSvg, 'Figure: Venn Diagram'),
+          qEn: 'From the given Venn diagram, how many Engineers are Doctors but NOT Teachers?',
+          qHi: 'दिए गए वेन आरेख के अनुसार, कितने इंजीनियर डॉक्टर हैं लेकिन शिक्षक (Teachers) नहीं हैं?',
+          options: vOpts,
+          ans: vOpts.indexOf(String(nAB)),
+          exp: `Region inside BOTH Engineers and Doctors circles, excluding Teachers circle = ${nAB}.`
+        });
+
+        // --- FIGURE 4: Mirror Image (Easy) ---
+        const words = ['S 4 R 7 K', 'M 9 B 3 P', 'G 5 T 2 N', 'F 8 D 6 L', 'W 3 C 9 R'];
+        const mw = words[randInt(0, words.length - 1)];
+        const rev = mw.split(' ').reverse().join(' ');
+        const mirSvg = `<svg viewBox="0 0 260 90" width="250" height="86" xmlns="http://www.w3.org/2000/svg">
+          <rect x="14" y="16" width="166" height="54" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+          <text x="97" y="51" text-anchor="middle" font-size="22" font-weight="900" letter-spacing="3" fill="#0f172a">${mw}</text>
+          <line x1="205" y1="8" x2="205" y2="82" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="5,4"/>
+          <text x="205" y="12" dx="12" font-size="11" font-weight="900" fill="#e11d48">M</text>
+          <text x="205" y="80" dx="12" font-size="11" font-weight="900" fill="#e11d48">N</text>
+        </svg>`;
+        const revArr = mw.split(' ').reverse();
+        const mOptCorrect = `${revArr.join(' ')} (each laterally inverted)`;
+        const mOpts = shuffleDet([
+          mOptCorrect,
+          `${mw} (each laterally inverted)`,
+          `${revArr[0]} ${revArr[2]} ${revArr[1]} ${revArr[3]} ${revArr[4]} (inverted)`,
+          `${revArr.slice().reverse().join(' ')} (upside-down)`
+        ], rng);
+        figs.push({
+          topic: 'Mirror Image',
+          level: 'Easy',
+          chartHtml: wrapSvg(mirSvg, 'Figure: Mirror placed at MN (Right Side)'),
+          qEn: 'If a mirror is placed on the line MN to the right of the figure, what will be the correct sequence & orientation of its mirror image?',
+          qHi: 'यदि दर्पण को आकृति के दाईं ओर रेखा MN पर रखा जाए, तो दर्पण प्रतिबिंब का सही क्रम और स्वरूप क्या होगा?',
+          options: mOpts,
+          ans: mOpts.indexOf(mOptCorrect),
+          exp: `In a vertical mirror on the right, left and right swap completely: '${mw}' reverses order to '${rev}' with each character laterally inverted.`
+        });
+
+        // --- FIGURE 5: Paper Folding & Punching (Hard) ---
+        const punches = randInt(2, 3);
+        const unfolded = punches * 4;
+        const dots = punches === 2
+          ? '<circle cx="212" cy="40" r="4" fill="#e11d48"/><circle cx="228" cy="54" r="4" fill="#e11d48"/>'
+          : '<circle cx="212" cy="36" r="3.8" fill="#e11d48"/><circle cx="228" cy="36" r="3.8" fill="#e11d48"/><circle cx="220" cy="54" r="3.8" fill="#e11d48"/>';
+        const foldSvg = `<svg viewBox="0 0 260 100" width="250" height="96" xmlns="http://www.w3.org/2000/svg">
+          <rect x="12" y="20" width="56" height="56" fill="#eff6ff" stroke="#1e293b" stroke-width="2"/>
+          <line x1="40" y1="20" x2="40" y2="76" stroke="#2563eb" stroke-dasharray="4,3" stroke-width="1.5"/>
+          <text x="40" y="92" text-anchor="middle" font-size="9" font-weight="700" fill="#475569">1. Fold Half</text>
+          <text x="80" y="52" font-size="14" font-weight="900" fill="#64748b">→</text>
+          <rect x="100" y="20" width="56" height="56" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+          <rect x="128" y="20" width="28" height="56" fill="#dbeafe" stroke="#1e293b" stroke-width="2"/>
+          <line x1="128" y1="48" x2="156" y2="48" stroke="#2563eb" stroke-dasharray="4,3" stroke-width="1.5"/>
+          <text x="128" y="92" text-anchor="middle" font-size="9" font-weight="700" fill="#475569">2. Fold Quarter</text>
+          <text x="168" y="52" font-size="14" font-weight="900" fill="#64748b">→</text>
+          <rect x="190" y="20" width="56" height="56" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+          <rect x="200" y="24" width="40" height="40" fill="#bfdbfe" stroke="#1e293b" stroke-width="2"/>
+          ${dots}
+          <text x="220" y="92" text-anchor="middle" font-size="9" font-weight="700" fill="#e11d48">3. ${punches} Punches</text>
+        </svg>`;
+        const fOpts = shuffleDet([unfolded, unfolded - 2, unfolded + 4, punches * 2].map(n => `${n} holes`), rng);
+        figs.push({
+          topic: 'Paper Folding',
+          level: 'Hard',
+          chartHtml: wrapSvg(foldSvg, 'Figure: Square Paper Folded Twice & Punched'),
+          qEn: `A square sheet of paper is folded into half, then folded again into a quarter, and ${punches} holes are punched inside the folded area (not on edges). How many total holes will appear when completely unfolded?`,
+          qHi: `एक वर्गाकार कागज को पहले आधा मोड़ा जाता है, फिर चौथाई मोड़कर अंदर ${punches} छेद किए जाते हैं। पूरा खोलने पर कुल कितने छेद दिखाई देंगे?`,
+          options: fOpts,
+          ans: fOpts.indexOf(`${unfolded} holes`),
+          exp: `Folding twice creates 2 × 2 = 4 layers. Each punch pierces all 4 layers ⇒ ${punches} × 4 = ${unfolded} holes.`
+        });
+
+        // --- FIGURE 6: Figure Rotation Series (Easy/Moderate) ---
+        // Arrow rotates 90° clockwise each step: Top(0°) -> Right(90°) -> Bottom(180°) -> Left(270°)
+        const startDir = randInt(0, 3);
+        const dirs = ['North (Up ↑)', 'East (Right →)', 'South (Down ↓)', 'West (Left ←)'];
+        const angles = [0, 90, 180, 270];
+        function drawArrowBox(x, deg, lbl) {
+          return `<g transform="translate(${x},12)">
+            <rect x="0" y="0" width="52" height="52" rx="6" fill="#f8fafc" stroke="#1e293b" stroke-width="2"/>
+            <g transform="translate(26,26) rotate(${deg})">
+              <line x1="0" y1="14" x2="0" y2="-12" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+              <polygon points="0,-16 -6,-7 6,-7" fill="#2563eb"/>
+            </g>
+            <text x="26" y="68" text-anchor="middle" font-size="10" font-weight="800" fill="#475569">${lbl}</text>
+          </g>`;
+        }
+        const rotSvg = `<svg viewBox="0 0 260 88" width="250" height="85" xmlns="http://www.w3.org/2000/svg">
+          ${drawArrowBox(8, angles[startDir % 4], 'Fig 1')}
+          ${drawArrowBox(72, angles[(startDir + 1) % 4], 'Fig 2')}
+          ${drawArrowBox(136, angles[(startDir + 2) % 4], 'Fig 3')}
+          <g transform="translate(200,12)">
+            <rect x="0" y="0" width="52" height="52" rx="6" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" stroke-dasharray="4,3"/>
+            <text x="26" y="34" text-anchor="middle" font-size="22" font-weight="900" fill="#4f46e5">?</text>
+            <text x="26" y="68" text-anchor="middle" font-size="10" font-weight="800" fill="#4f46e5">Fig 4</text>
+          </g>
+        </svg>`;
+        const ansDir = dirs[(startDir + 3) % 4];
+        const rOpts = shuffleDet(dirs, rng);
+        figs.push({
+          topic: 'Figure Series',
+          level: 'Easy',
+          chartHtml: wrapSvg(rotSvg, 'Figure: Clockwise Rotation Series'),
+          qEn: 'Observe the pattern in Fig 1, Fig 2, and Fig 3. In which direction will the arrow point in Fig 4?',
+          qHi: 'चित्र 1, चित्र 2 और चित्र 3 के पैटर्न को देखें। चित्र 4 में तीर (Arrow) किस दिशा की ओर इंगित करेगा?',
+          options: rOpts,
+          ans: rOpts.indexOf(ansDir),
+          exp: `In each step, the arrow rotates 90° clockwise: ${dirs[startDir % 4]} → ${dirs[(startDir + 1) % 4]} → ${dirs[(startDir + 2) % 4]} → ${ansDir}.`
+        });
+
+        return figs;
+      }
+
+      // Override buildBuiltinDailyReasoning25 to include ALL 6 SVG Visual Figures + 19 Mixed (Easy/Moderate/Hard) Verbal & Logical Qs = 25 Qs!
+      window.buildBuiltinDailyReasoning25 = function(dateKey) {
+        const base25 = typeof origReasFn === 'function' ? origReasFn(dateKey) : [];
+        const visual6 = buildVisualFigureQuestions(dateKey).map((it, idx) => {
+          const ansText = it.options[it.ans] || it.options[0];
+          return {
+            id: 'm_fig_reas_' + dateKey + '_' + idx,
+            word: 'Reasoning (Figure) • Q.' + (idx + 1),
+            meaningHi: 'Reasoning Visual Figure',
+            category: `Reasoning: ${it.topic} • ${it.level}`,
+            subject: 'reas',
+            exam: `Daily SSC ${dateKey} • ${it.level}`,
+            year: dateKey,
+            chartHtml: it.chartHtml,
+            cbtPrompt: it.qEn,
+            promptHi: it.qHi,
+            options: it.options,
+            answer: ansText,
+            cbtAnswer: ansText,
+            exp: it.exp
+          };
+        });
+
+        // Tag remaining 19 questions with realistic Easy / Moderate / Hard difficulty labels
+        const levels = ['Easy', 'Easy', 'Easy', 'Easy', 'Easy', 'Easy', 'Easy', 'Moderate', 'Moderate', 'Moderate', 'Moderate', 'Moderate', 'Moderate', 'Moderate', 'Moderate', 'Hard', 'Hard', 'Hard', 'Hard'];
+        const verbal19 = base25.slice(0, 19).map((q, i) => {
+          const lv = levels[i] || 'Moderate';
+          return Object.assign({}, q, {
+            category: `${q.category} • ${lv}`,
+            exam: `${q.exam} • ${lv}`
+          });
+        });
+
+        // Interleave visual figures cleanly across the 25 questions
+        return [...verbal19.slice(0, 5), visual6[0], visual6[1], ...verbal19.slice(5, 11), visual6[2], visual6[3], ...verbal19.slice(11, 16), visual6[4], visual6[5], ...verbal19.slice(16, 19)];
+      };
+
+      // Enhance buildBuiltinDailyGk25 with Easy / Moderate / Hard difficulty mix tags
+      if (typeof origGkFn === 'function') {
+        window.buildBuiltinDailyGk25 = function(dateKey) {
+          const base25 = origGkFn(dateKey);
+          const lvMap = ['Easy','Easy','Easy','Easy','Easy','Easy','Easy','Easy','Easy','Moderate','Moderate','Moderate','Moderate','Moderate','Moderate','Moderate','Moderate','Moderate','Moderate','Moderate','Hard','Hard','Hard','Hard','Hard'];
+          return base25.map((q, i) => {
+            const lv = lvMap[i] || 'Moderate';
+            return Object.assign({}, q, {
+              category: `${q.category} • ${lv}`,
+              exam: `${q.exam} • ${lv}`
+            });
+          });
+        };
+      }
+    })();
+  </script>
+
+
+  <!-- ================= v139: GS EASY/MODERATE/HARD + CURRENT AFFAIRS + STRICT 9 AM–6 PM IST WINDOW ================= -->
+  <script>
+    (function initV139GsCaAndLiveWindow() {
+      const EXTRA_GS_CA = [["Current Affairs","Moderate","Who was appointed as the Chairman of the 16th Finance Commission of India?","भारत के 16वें वित्त आयोग (16th Finance Commission) के अध्यक्ष के रूप में किसे नियुक्त किया गया?",["N. K. Singh","Dr. Arvind Panagariya","Raghuram Rajan","Shaktikanta Das"],1,"Dr. Arvind Panagariya (former Vice-Chairman of NITI Aayog) was appointed Chairman of the 16th Finance Commission."],["Current Affairs","Easy","Which Constitutional Amendment Act provides 33% reservation for women in Lok Sabha and State Legislative Assemblies (Nari Shakti Vandan Adhiniyam)?","किस संविधान संशोधन अधिनियम ने लोकसभा और राज्य विधानसभाओं में महिलाओं को 33% आरक्षण (नारी शक्ति वंदन अधिनियम) प्रदान किया?",["104th Amendment","105th Amendment","106th Amendment","107th Amendment"],2,"The 106th Constitutional Amendment Act (Nari Shakti Vandan Adhiniyam) provides 33% reservation for women."],["Current Affairs","Moderate","ISRO's 'Aditya-L1' mission was launched to study which celestial body from the Lagrange Point L1?","ISRO का 'आदित्य-L1' (Aditya-L1) मिशन लैग्रेंज बिंदु L1 से किस खगोलीय पिंड का अध्ययन करने के लिए लॉन्च किया गया?",["Moon","Mars","Sun","Venus"],2,"Aditya-L1 is India's first solar observatory placed in a halo orbit around the Sun-Earth L1 point (~1.5 million km away)."],["Current Affairs","Moderate","ISRO's SpaDeX (Space Docking Experiment) mission made India the ___ country in the world to achieve autonomous space docking.","ISRO के SpaDeX (स्पेस डॉकिंग एक्सपेरिमेंट) मिशन ने भारत को अंतरिक्ष में डॉकिंग हासिल करने वाला दुनिया का ___ देश बनाया।",["2nd","3rd","4th","5th"],2,"After the USA, Russia, and China, India became the 4th country to achieve space docking via SpaDeX (Chaser & Target satellites)."],["Current Affairs","Easy","India won BOTH the Open and Women's Gold Medals for the first time at which 45th FIDE Chess Olympiad host city?","भारत ने 45वें FIDE शतरंज ओलंपियाड में पहली बार ओपन और महिला दोनों वर्गों में स्वर्ण पदक किस मेज़बान शहर में जीता?",["Chennai","Budapest","Baku","Riyadh"],1,"At the 45th FIDE Chess Olympiad in Budapest (Hungary), India clinched historic Gold in both Open and Women's categories."],["Current Affairs","Easy","Who became the youngest World Chess Champion in history by defeating Ding Liren in Singapore?","सिंगापुर में डिंग लिरेन को हराकर इतिहास के सबसे कम उम्र के विश्व शतरंज चैंपियन कौन बने?",["R. Praggnanandhaa","Arjun Erigaisi","D. Gukesh","Vidit Gujrathi"],2,"Dommaraju Gukesh (D. Gukesh) won the World Chess Championship at age 18, becoming the youngest ever World Chess Champion."],["Current Affairs","Moderate","Under the Bharatiya Nyaya Sanhita (BNS), which colonial-era law was replaced across India?","भारतीय न्याय संहिता (BNS) ने भारत में किस औपनिवेशिक कानून का स्थान लिया?",["Indian Penal Code (IPC), 1860","Code of Criminal Procedure (CrPC), 1973","Indian Evidence Act, 1872","Indian Contract Act, 1872"],0,"BNS replaced IPC 1860; BNSS replaced CrPC 1973; BSA replaced the Indian Evidence Act 1872."],["Current Affairs","Moderate","Which country hosted the 2024 Summer Olympics where Manu Bhaker became the first Indian post-independence to win 2 medals in a single Olympics?","2024 ग्रीष्मकालीन ओलंपिक की मेज़बानी किस देश ने की, जहाँ मनु भाकर एक ही ओलंपिक में 2 पदक जीतने वाली स्वतंत्र भारत की पहली एथलीट बनीं?",["Japan","France (Paris)","USA","Australia"],1,"Paris (France) hosted the 2024 Summer Olympics; Manu Bhaker won 2 Bronze medals in shooting."],["Current Affairs","Moderate","Which Indian state became the first after independence to implement a Uniform Civil Code (UCC) Act?","स्वतंत्रता के बाद समान नागरिक संहिता (UCC) अधिनियम लागू करने वाला भारत का पहला राज्य कौन-सा बना?",["Gujarat","Uttarakhand","Assam","Madhya Pradesh"],1,"Uttarakhand became the first Indian state post-independence to enact and implement the Uniform Civil Code (Article 44)."],["Current Affairs","Easy","The Unified Pension Scheme (UPS) approved by the Union Cabinet guarantees an assured pension equal to what percentage of average basic pay (for 25+ years of service)?","केंद्रीय मंत्रिमंडल द्वारा स्वीकृत एकीकृत पेंशन योजना (UPS) 25+ वर्ष की सेवा पर औसत मूल वेतन के कितने प्रतिशत की सुनिश्चित पेंशन देती है?",["30%","40%","50%","60%"],2,"UPS guarantees an assured pension of 50% of the average basic pay drawn over the last 12 months prior to superannuation (min 25 yrs service)."],["Current Affairs","Moderate","Which city hosted the Maha Kumbh 2025, celebrated after 144 years at the Triveni Sangam?","त्रिवेणी संगम पर 144 वर्षों के विशेष योग के बाद महाकुंभ 2025 का आयोजन किस शहर में हुआ?",["Haridwar","Ujjain","Prayagraj","Nashik"],2,"Maha Kumbh 2025 was held in Prayagraj (Uttar Pradesh) at the confluence of Ganga, Yamuna, and mythical Saraswati."],["Current Affairs","Hard","Consider the following statements about PM Surya Ghar: Muft Bijli Yojana:\n1. It aims to provide up to 300 units of free electricity per month via rooftop solar.\n2. It targets 1 crore households across India.\nWhich statement(s) is/are correct?","पीएम सूर्य घर: मुफ्त बिजली योजना के संबंध में निम्नलिखित कथनों पर विचार करें:\n1. इसका उद्देश्य रूफटॉप सोलर से प्रति माह 300 यूनिट तक मुफ्त बिजली देना है।\n2. इसका लक्ष्य भारत के 1 करोड़ घरों को कवर करना है।\nकौन-सा/से कथन सही है/हैं?",["Only 1","Only 2","Both 1 and 2","Neither 1 nor 2"],2,"Both statements are correct: PM Surya Ghar targets 1 crore households with up to 300 units free monthly solar power."],["Polity (Hard)","Hard","Consider the following statements regarding the Money Bill (Article 110):\n1. It can be introduced only in the Lok Sabha with the President's prior recommendation.\n2. Rajya Sabha can amend or reject a Money Bill.\nWhich is/are correct?","धन विधेयक (अनुच्छेद 110) के संबंध में निम्नलिखित कथनों पर विचार करें:\n1. इसे राष्ट्रपति की पूर्व सिफारिश से केवल लोकसभा में पेश किया जा सकता है।\n2. राज्यसभा धन विधेयक में संशोधन या उसे अस्वीकार कर सकती है।\nकौन-सा/से सही है/हैं?",["Only 1","Only 2","Both 1 and 2","Neither 1 nor 2"],0,"Only 1 is correct. Rajya Sabha CANNOT amend or reject a Money Bill; it must return it within 14 days."],["Polity (Hard)","Hard","Assertion (A): The Preamble of the Indian Constitution is part of the Constitution.\nReason (R): In the Kesavananda Bharati Case (1973), the Supreme Court held that the Preamble can be amended without altering the Basic Structure.","अभिकथन (A): प्रस्तावना भारतीय संविधान का हिस्सा है।\nकारण (R): केशवानंद भारती वाद (1973) में सुप्रीम कोर्ट ने माना कि मूल ढाँचे को बदले बिना प्रस्तावना में संशोधन किया जा सकता है।",["Both A and R are true, and R explains A","Both A and R are true, but R does not explain A","A is true, R is false","A is false, R is true"],0,"In Kesavananda Bharati (1973), SC overruled Berubari (1960) and held Preamble is part of the Constitution and amendable under Art 368 subject to Basic Structure."],["History (Hard)","Hard","Arrange the following events of the Indian National Movement in chronological order:\n1. Chauri Chaura Incident  2. Gandhi-Irwin Pact  3. Simon Commission Arrival  4. Poona Pact","भारतीय राष्ट्रीय आंदोलन की निम्नलिखित घटनाओं को कालानुक्रमिक क्रम में व्यवस्थित करें:\n1. चौरी-चौरा कांड  2. गांधी-इरविन समझौता  3. साइमन कमीशन का आगमन  4. पूना पैक्ट",["1 → 3 → 2 → 4","1 → 2 → 3 → 4","3 → 1 → 2 → 4","1 → 3 → 4 → 2"],0,"Chauri Chaura (Feb 1922) → Simon Commission (Feb 1928) → Gandhi-Irwin Pact (Mar 1931) → Poona Pact (Sep 1932)."],["Geography (Hard)","Hard","Which of the following pairs of Rivers and their Tributaries is INCORRECTLY matched?","नदियों और उनकी सहायक नदियों (Tributaries) का निम्नलिखित में से कौन-सा युग्म गलत सुमेलित है?",["Godavari — Indravati & Pranhita","Krishna — Tungabhadra & Bhima","Ganga — Son & Gandak","Kaveri — Chambal & Betwa"],3,"Chambal and Betwa are tributaries of the Yamuna, NOT the Kaveri (Kaveri tributaries: Kabini, Bhavani, Hemavati)."],["Economics (Hard)","Hard","When the RBI INCREASES the Cash Reserve Ratio (CRR), what is its direct effect on the economy?","जब RBI नकद आरक्षित अनुपात (CRR) बढ़ाता है, तो अर्थव्यवस्था पर इसका सीधा प्रभाव क्या होता है?",["Money supply increases & inflation rises","Banks have less money to lend, reducing money supply & controlling inflation","Repo rate automatically drops to zero","Fiscal deficit immediately becomes zero"],1,"Higher CRR locks more bank deposits with RBI, reducing bank lending capacity and curbing liquidity/inflation."],["Science (Hard)","Hard","Consider the following pairs of Vitamins & Deficiency Diseases:\n1. Vitamin B1 (Thiamine) — Beriberi\n2. Vitamin B12 (Cobalamin) — Pernicious Anaemia\n3. Vitamin D (Calciferol) — Rickets\nHow many pairs are correctly matched?","विटामिन और उनकी कमी से होने वाले रोगों के युग्मों पर विचार करें:\n1. विटामिन B1 — बेरीबेरी\n2. विटामिन B12 — पर्निशियस एनीमिया\n3. विटामिन D — रिकेट्स\nकितने युग्म सही सुमेलित हैं?",["Only 1 pair","Only 2 pairs","All 3 pairs","None"],2,"All 3 pairs are 100% correctly matched (B1→Beriberi, B12→Pernicious Anaemia, D→Rickets)."],["Science (Hard)","Hard","Why does a diamond sparkle much more brilliantly than glass of the same cut?","समान कटाई वाले काँच की तुलना में हीरा (Diamond) कहीं अधिक क्यों चमकता है?",["Low refractive index and large critical angle","High refractive index (~2.42) and very small critical angle (~24.4°) causing repeated Total Internal Reflection","Presence of fluorescent carbon isotopes","High thermal conductivity only"],1,"Diamond's high refractive index (2.42) yields a tiny critical angle (24.4°), trapping light via multiple Total Internal Reflections (TIR)."],["Polity (Moderate)","Moderate","Which Writ literally means 'We Command' and is issued by a higher court to a public official asking them to perform their official duty?","किस रिट (Writ) का शाब्दिक अर्थ 'हम आदेश देते हैं' है और इसे लोक अधिकारी को अपना कर्तव्य निभाने के लिए जारी किया जाता है?",["Habeas Corpus","Mandamus","Quo Warranto","Certiorari"],1,"Mandamus ('We Command') directs a public authority to perform a mandatory public duty; Habeas Corpus means 'to have the body of'."],["History (Moderate)","Moderate","Match the Newspaper with its Founder: 'Kesari' (Marathi) and 'Mahratta' (English) were started by whom?","समाचार पत्र 'केसरी' (मराठी) और 'मराठा' (अंग्रेजी) की शुरुआत किसने की थी?",["Gopal Krishna Gokhale","Bal Gangadhar Tilak","Dadabhai Naoroji","Annie Besant"],1,"Lokmanya Bal Gangadhar Tilak founded Kesari (Marathi) and Mahratta (English) in 1881."],["Geography (Moderate)","Moderate","The 'Ten Degree Channel' separates which two island groups of India?","'टेन डिग्री चैनल' (Ten Degree Channel) भारत के किन दो द्वीप समूहों को अलग करता है?",["Lakshadweep and Minicoy","Andaman and Nicobar Islands","India and Sri Lanka","Minicoy and Maldives"],1,"The 10° Channel separates Little Andaman from Car Nicobar (Andaman and Nicobar Islands)."],["Economics (Moderate)","Moderate","What is the primary difference between GDP and GNP?","GDP और GNP के बीच मुख्य अंतर क्या है?",["Indirect Taxes minus Subsidies","Net Factor Income from Abroad (NFIA)","Depreciation of Capital","Inflation adjustment"],1,"GNP = GDP + Net Factor Income from Abroad (NFIA)."],["Static GK (Moderate)","Moderate","Which of the following UNESCO World Heritage Sites in India is a 'Mixed Site' (both Cultural & Natural)?","भारत का निम्नलिखित में से कौन-सा यूनेस्को विश्व धरोहर स्थल एक 'मिश्रित स्थल' (सांस्कृतिक और प्राकृतिक दोनों) है?",["Kaziranga National Park","Khangchendzonga National Park (Sikkim)","Sundarbans National Park","Western Ghats"],1,"Khangchendzonga National Park (Sikkim) is India's only UNESCO Mixed World Heritage Site."]];
+      const prevGkFn = window.buildBuiltinDailyGk25;
+
+      function seededRng(seedStr) {
+        let h = 2166136261 >>> 0;
+        for (let i = 0; i < seedStr.length; i++) {
+          h ^= seedStr.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return function() {
+          h += 0x6D2B79F5;
+          let t = Math.imul(h ^ (h >>> 15), 1 | h);
+          t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function pickDet(arr, count, seedStr) {
+        const rng = seededRng(seedStr);
+        const copy = arr.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(rng() * (i + 1));
+          const t = copy[i]; copy[i] = copy[j]; copy[j] = t;
+        }
+        return copy.slice(0, Math.min(count, copy.length));
+      }
+
+      // Override buildBuiltinDailyGk25: exact 9 Easy + 11 Moderate + 5 Hard (with 6 Latest Current Affairs Qs!)
+      window.buildBuiltinDailyGk25 = function(dateKey) {
+        const base = typeof prevGkFn === 'function' ? prevGkFn(dateKey) : [];
+        const caPool = EXTRA_GS_CA.filter(x => x[0] === 'Current Affairs');
+        const hardPool = EXTRA_GS_CA.filter(x => x[1] === 'Hard');
+        const modExtra = EXTRA_GS_CA.filter(x => x[1] === 'Moderate' && x[0] !== 'Current Affairs');
+
+        const toObj = (row, idx) => {
+          const ansText = row[4][row[5]] || row[4][0];
+          return {
+            id: 'm_ca_gs_' + dateKey + '_' + idx,
+            word: 'GK/GS • ' + row[0],
+            meaningHi: row[0],
+            category: `${row[0]} • ${row[1]}`,
+            subject: 'gk',
+            exam: `Daily SSC ${dateKey} • ${row[1]}`,
+            year: dateKey,
+            cbtPrompt: row[2],
+            promptHi: row[3],
+            options: row[4],
+            answer: ansText,
+            cbtAnswer: ansText,
+            exp: row[6]
+          };
+        };
+
+        const pickedCa = pickDet(caPool, 6, 'CA_' + dateKey).map((r, i) => toObj(r, 'ca' + i));
+        const pickedHard = pickDet(hardPool, 5, 'GSHARD_' + dateKey).map((r, i) => toObj(r, 'hd' + i));
+        const pickedModExtra = pickDet(modExtra, 4, 'GSMOD_' + dateKey).map((r, i) => toObj(r, 'md' + i));
+
+        // Fill remaining 10 from base GS bank (9 Easy + 1 Moderate)
+        const baseClean = base.slice(0, 10).map((q, i) => {
+          const lv = i < 9 ? 'Easy' : 'Moderate';
+          const baseCat = String(q.category || 'GK/GS').replace(/\s*•\s*(Easy|Moderate|Hard)$/i, '');
+          return Object.assign({}, q, {
+            category: `${baseCat} • ${lv}`,
+            exam: `Daily SSC ${dateKey} • ${lv}`
+          });
+        });
+
+        // Interleave Easy, Moderate, Hard + Current Affairs cleanly (25 Qs total)
+        return [...baseClean.slice(0, 5), ...pickedCa.slice(0, 3), ...pickedModExtra.slice(0, 2), ...pickedHard.slice(0, 2), ...baseClean.slice(5, 10), ...pickedCa.slice(3, 6), ...pickedModExtra.slice(2, 4), ...pickedHard.slice(2, 5)].slice(0, 25);
+      };
+
+      // ------------------------------------------------------------------
+      // Strict 9:00 AM IST – 6:00 PM IST Live Window + Auto-End at 6:00 PM IST!
+      // ------------------------------------------------------------------
+      function getIstNow() {
+        const now = new Date();
+        const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+        return new Date(utcMs + 5.5 * 3600000);
+      }
+
+      function isDailyLiveWindowOpen(ist) {
+        const h = ist.getHours();
+        return h >= 9 && h < 18; // Strictly 9:00:00 AM to 5:59:59 PM IST
+      }
+
+      function fmtHms(sec) {
+        const s = Math.max(0, Math.floor(sec));
+        const hh = String(Math.floor(s / 3600)).padStart(2, '0');
+        const mm = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+        const ss = String(s % 60).padStart(2, '0');
+        return `${hh}:${mm}:${ss}`;
+      }
+
+      function enforceLiveWindow() {
+        const ist = getIstNow();
+        const h = ist.getHours();
+        const y = ist.getFullYear();
+        const m = String(ist.getMonth() + 1).padStart(2, '0');
+        const d = String(ist.getDate()).padStart(2, '0');
+        const todayKey = `${y}-${m}-${d}`;
+
+        const badge = document.getElementById('dai-status-badge');
+        const cd = document.getElementById('dai-countdown');
+        const btn = document.getElementById('dai-start-btn');
+        const msg = document.getElementById('dai-sync-msg');
+
+        if (h < 9) {
+          // Before 9:00 AM IST -> LOCKED!
+          const openAt = new Date(ist.getTime());
+          openAt.setHours(9, 0, 0, 0);
+          const diff = (openAt.getTime() - ist.getTime()) / 1000;
+          if (badge) {
+            badge.textContent = `🔒 OPENS AT 9:00 AM IST • ${todayKey}`;
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase';
+          }
+          if (cd) cd.textContent = `Starts at 9:00 AM IST in ${fmtHms(diff)}`;
+          if (btn) {
+            btn.disabled = true;
+            btn.textContent = '🔒 Test Starts at 9:00 AM IST';
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+          }
+          if (msg) msg.textContent = '⏰ Daily Full SSC Test roz subah 9:00 AM se shaam 6:00 PM IST tak live rehta hai.';
+        } else if (h >= 18) {
+          // At/After 6:00 PM IST -> AUTOMATICALLY ENDED!
+          const nextOpen = new Date(ist.getTime());
+          nextOpen.setDate(nextOpen.getDate() + 1);
+          nextOpen.setHours(9, 0, 0, 0);
+          const diff = (nextOpen.getTime() - ist.getTime()) / 1000;
+          if (badge) {
+            badge.textContent = `🔴 ENDED AT 6:00 PM IST • ${todayKey}`;
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black uppercase';
+          }
+          if (cd) cd.textContent = `Next Test Tomorrow 9:00 AM: ${fmtHms(diff)}`;
+          if (btn) {
+            btn.disabled = true;
+            btn.textContent = '🔴 Today\'s Test Ended (6:00 PM IST)';
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+          }
+          if (msg) msg.textContent = '⏰ Aaj ka Daily Test shaam 6:00 PM IST par automatically end ho gaya — kal subah 9:00 AM naya paper aayega!';
+
+          // If student is STILL inside the Daily Full SSC Test at 6:00 PM IST -> AUTO-SUBMIT IMMEDIATELY!
+          if (typeof cbt !== 'undefined' && cbt && cbt.active && cbt.sectional && cbt.sectional.active) {
+            if (typeof showToast === 'function') {
+              showToast('⏰ 6:00 PM IST ho gaya! Daily Full SSC Test automatically submit & PDFs → Maths me save ho raha hai!');
+            }
+            if (typeof finishCbtTest === 'function') finishCbtTest();
+          }
+        } else {
+          // 9:00 AM – 5:59:59 PM IST -> LIVE NOW!
+          const closeAt = new Date(ist.getTime());
+          closeAt.setHours(18, 0, 0, 0);
+          const diff = (closeAt.getTime() - ist.getTime()) / 1000;
+          if (badge) {
+            badge.textContent = `🟢 LIVE NOW (9 AM–6 PM) • ${todayKey}`;
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[10px] font-black uppercase';
+          }
+          if (cd) cd.textContent = `Auto-Ends at 6:00 PM IST: ${fmtHms(diff)}`;
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "🚀 Start Today's 100-Q Full SSC Test";
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+          }
+          if (msg) msg.textContent = '✅ 100-Q Full SSC Mock LIVE (Easy–Mod–Hard + Latest Current Affairs + SVG Figures)!';
+        }
+      }
+
+      // Guard click in capture phase so it can NEVER be started outside 9:00 AM – 6:00 PM IST!
+      document.getElementById('dai-start-btn')?.addEventListener('click', (e) => {
+        const ist = getIstNow();
+        if (!isDailyLiveWindowOpen(ist)) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (typeof showToast === 'function') {
+            showToast(ist.getHours() < 9
+              ? '🔒 Daily Full SSC Test subah 9:00 AM IST par start hoga!'
+              : '🔴 Aaj ka Daily Test shaam 6:00 PM IST par end ho gaya — kal subah 9:00 AM aayega!');
+          }
+        }
+      }, true);
+
+      enforceLiveWindow();
+      setInterval(enforceLiveWindow, 1000);
     })();
   </script>
 
