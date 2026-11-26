@@ -5323,6 +5323,9 @@
       const isMathsQ = String(q.id || '').startsWith('m_');
       const isCustomTestQ = String(q.id || '').startsWith('tm_q_');
       document.getElementById('cbt-q-instruction').textContent =
+        (String(q.id||'').includes('_reas_')) ? 'Analyze & select the correct option (तर्कशक्ति प्रश्न हल करें):' :
+        (String(q.id||'').includes('_gk_') || String(q.id||'').includes('_gs_')) ? 'Select the correct option (सामान्य अध्ययन / Current Affairs):' :
+        (String(q.id||'').startsWith('m_eng_')) ? 'Read carefully & select the most appropriate option (SSC English):' :
         isMathsQ ? 'Solve & select the correct option (गणित प्रश्न हल करें):' :
         isCustomTestQ ? 'Solve & select the correct option (सही उत्तर चुनें):' :
         q.category === 'Synonym' ? 'Select the most appropriate SYNONYM:' :
@@ -12009,7 +12012,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900/95 to-cyan-950/60 border border-emerald-400/40 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v141</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v143</span>
                 <h4 class="text-sm font-black text-white mt-1">Instant Student Test Maker (Free Auto-OCR)</h4>
                 <p class="text-[11px] text-slate-300">Bina kisi API key ke Photo ya PDF upload karein, Subject &amp; Chapter likhein — auto-scan hokar seedha Students ke Test Panel me live ho jayega!</p>
               </div>
@@ -17897,6 +17900,9 @@ const mState = {
       }
 
       function buildEnglish25(dateKey) {
+        if (typeof window.buildCompleteSscEnglish25 === 'function') {
+          return window.buildCompleteSscEnglish25(dateKey);
+        }
         if (typeof getAllWords !== 'function') return [];
         const allW = getAllWords().filter(w => w && w.options && w.options.length >= 4 && (w.answer || w.cbtAnswer));
         return pickDeterministic(allW, 25, 'ENG_' + dateKey);
@@ -19158,6 +19164,609 @@ const mState = {
 
       enforceLiveWindow();
       setInterval(enforceLiveWindow, 1000);
+    })();
+  </script>
+
+
+  <!-- ================= v142: HARD SSC PAPER ENGINE (HEAVY NON-VERBAL SVG + STATEMENT REASONING + FULL GRAMMAR/CLOZE ENGLISH) ================= -->
+  <script>
+    (function initV142HardSscPaper() {
+      const HARD_STMT_REAS = [["Syllogism (3-Stmt)","Hard","Statements:\n1. All laptops are monitors.\n2. Some monitors are keyboards.\n3. No keyboard is a mouse.\nConclusions:\nI. Some monitors are not mice.\nII. Some laptops are keyboards.\nIII. No laptop is a mouse.","कथन:\n1. सभी लैपटॉप मॉनिटर हैं।\n2. कुछ मॉनिटर कीबोर्ड हैं।\n3. कोई कीबोर्ड माउस नहीं है।\nनिष्कर्ष:\nI. कुछ मॉनिटर माउस नहीं हैं।\nII. कुछ लैपटॉप कीबोर्ड हैं।\nIII. कोई लैपटॉप माउस नहीं है।",["Only Conclusion I follows","Only Conclusions I and II follow","Only Conclusions II and III follow","All Conclusions follow"],0,"Monitors overlapping Keyboards cannot be Mice ⇒ Conclusion I definitely follows. II & III are only possibilities, not definite."],["Syllogism (Either-Or)","Hard","Statements:\n1. Some rivers are oceans.\n2. No ocean is a desert.\nConclusions:\nI. Some rivers are deserts.\nII. No river is a desert.","कथन:\n1. कुछ नदियाँ महासागर हैं।\n2. कोई महासागर रेगिस्तान नहीं है।\nनिष्कर्ष:\nI. कुछ नदियाँ रेगिस्तान हैं।\nII. कोई नदी रेगिस्तान नहीं है।",["Only I follows","Only II follows","Either I or II follows","Neither I nor II follows"],2,"Complementary pair (Some + No) with identical subjects/predicates where both are individually uncertain ⇒ Either I or II follows."],["Statement & Assumption","Hard","Statement: 'Use XYZ Electric Scooters to save 70% on daily commute and reduce city air pollution' — An advertisement.\nAssumptions:\nI. Commuters are concerned about high fuel costs and pollution.\nII. All petrol vehicles will be banned next month.","कथन: 'दैनिक यात्रा पर 70% बचाने और शहर का वायु प्रदूषण कम करने के लिए XYZ इलेक्ट्रिक स्कूटर का उपयोग करें' — एक विज्ञापन।\nधारणाएँ:\nI. यात्री ईंधन की उच्च लागत और प्रदूषण को लेकर चिंतित हैं।\nII. अगले महीने सभी पेट्रोल वाहनों पर प्रतिबंध लग जाएगा।",["Only Assumption I is implicit","Only Assumption II is implicit","Both I and II are implicit","Neither I nor II is implicit"],0,"Advertisements target existing concerns (cost & pollution ⇒ I is implicit). A total ban next month (II) is extreme and unstated."],["Statement & Conclusion","Hard","Statement: Only candidates who score above 85% in the written exam and clear the skill test are shortlisted for the final interview.\nConclusions:\nI. Ravi scored 92% in the written exam, so he will definitely be shortlisted.\nII. Meera was shortlisted, so she must have cleared the skill test.","कथन: केवल वे उम्मीदवार जो लिखित परीक्षा में 85% से अधिक अंक प्राप्त करते हैं और कौशल परीक्षा पास करते हैं, अंतिम साक्षात्कार के लिए चुने जाते हैं।\nनिष्कर्ष:\nI. रवि ने लिखित परीक्षा में 92% अंक प्राप्त किए, इसलिए उसका चयन निश्चित है।\nII. मीरा का चयन हुआ, इसलिए उसने कौशल परीक्षा अवश्य पास की होगी।",["Only Conclusion I follows","Only Conclusion II follows","Both I and II follow","Neither I nor II follows"],1,"Ravi may not have cleared the skill test (I fails). Since skill test is mandatory for shortlisting, Meera must have cleared it (II follows)."],["Statement & Course of Action","Hard","Statement: Heavy monsoon rains have flooded low-lying areas of the city, causing severe traffic jams and waterborne disease risk.\nCourses of Action:\nI. Municipal authorities should immediately deploy dewatering pumps and medical camps.\nII. All residents should permanently leave the city.","कथन: भारी मानसूनी बारिश से शहर के निचले इलाकों में जलभराव हो गया है, जिससे ट्रैफिक जाम और जलजनित रोगों का खतरा बढ़ गया है।\nकार्यवाहियाँ:\nI. नगर निगम को तुरंत जल-निकासी पंप और मेडिकल कैंप तैनात करने चाहिए।\nII. सभी निवासियों को स्थायी रूप से शहर छोड़ देना चाहिए।",["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],0,"Course I is practical and directly addresses the emergency; Course II is impractical and extreme."],["Coded Inequality","Hard","Statements: P > Q ≥ R = S; T < R ≤ U\nConclusions:\nI. P > T\nII. U ≥ S","कथन: P > Q ≥ R = S; T < R ≤ U\nनिष्कर्ष:\nI. P > T\nII. U ≥ S",["Only I is true","Only II is true","Both I and II are true","Neither I nor II is true"],2,"Chain: P > Q ≥ R > T ⇒ P > T (I True). Also U ≥ R = S ⇒ U ≥ S (II True). Both follow!"],["Coded Blood Relation","Hard","If 'A + B' means A is the father of B, 'A - B' means A is the sister of B, 'A × B' means A is the brother of B, and 'A ÷ B' means A is the mother of B; then in 'K + L - M × N ÷ P', how is K related to P?","यदि 'A + B' का अर्थ A, B का पिता है; 'A - B' का अर्थ A, B की बहन है; 'A × B' का अर्थ A, B का भाई है; और 'A ÷ B' का अर्थ A, B की माँ है; तो 'K + L - M × N ÷ P' में K, P से कैसे संबंधित है?",["Father (पिता)","Maternal Grandfather (नाना)","Paternal Grandfather (दादा)","Uncle (मामा)"],1,"L, M, N are siblings (children of K), and N is the mother of P ⇒ K is the Maternal Grandfather (नाना) of P."],["Circular Seating (Hard)","Hard","Six friends A, B, C, D, E, F sit around a circular table facing the centre. B is second to the right of A. C is an immediate neighbour of both B and D. E is opposite to B. Who sits immediately to the left of A?","छह मित्र A, B, C, D, E, F केंद्र की ओर मुख करके एक वृत्ताकार मेज के चारों ओर बैठे हैं। B, A के दाएँ से दूसरे स्थान पर है। C, B और D दोनों का निकटतम पड़ोसी है। E, B के विपरीत है। A के ठीक बाएँ कौन बैठा है?",["D","E","F","C"],1,"Facing centre (anticlockwise = right): 1=A, 2=F, 3=B (2nd right of A), 4=C (between B & D), 5=D, 6=E (opposite B at pos 3). Immediate left of A(1) is pos 6 = E."],["Assertion & Reason","Hard","Assertion (A): Digital payments via UPI have grown exponentially in semi-urban India.\nReason (R): Smartphone penetration, affordable 4G/5G data, and zero merchant fees encouraged small vendors to adopt QR codes.","अभिकथन (A): अर्ध-शहरी भारत में UPI के माध्यम से डिजिटल भुगतान तेजी से बढ़ा है।\nकारण (R): स्मार्टफोन की पहुँच, सस्ते 4G/5G डेटा और शून्य मर्चेंट शुल्क ने छोटे दुकानदारों को QR कोड अपनाने के लिए प्रेरित किया।",["Both A and R are true, and R is the correct explanation of A","Both A and R are true, but R is NOT the correct explanation of A","A is true, but R is false","A is false, but R is true"],0,"Both statements are factually true and R directly explains the cause behind A."],["Coded Inequality (Hard)","Hard","Statements: M ≥ N > O = P; Q ≤ O < R\nConclusions:\nI. M > Q\nII. R > P","कथन: M ≥ N > O = P; Q ≤ O < R\nनिष्कर्ष:\nI. M > Q\nII. R > P",["Only I follows","Only II follows","Both I and II follow","Neither follows"],2,"M ≥ N > O ≥ Q ⇒ M > Q (I True). Also R > O = P ⇒ R > P (II True). Both follow."]];
+      const ENG_GRAMMAR = [["Error Spotting","Hard","Identify the segment that contains a grammatical error:\n'No sooner had the chief guest arrived / than the audience / had stood up to welcome him / with thunderous applause.'",["No sooner had the chief guest arrived","than the audience","had stood up to welcome him","with thunderous applause."],2,"With 'No sooner had + V3 ... than', the second clause must be in Simple Past ('stood up'), NOT Past Perfect ('had stood up')."],["Error Spotting","Hard","Identify the segment with a grammatical error:\n'Neither the project manager / nor his senior engineers / was willing to compromise / on the safety protocol.'",["Neither the project manager","nor his senior engineers","was willing to compromise","on the safety protocol."],2,"Rule of Proximity: with 'Neither... nor', the verb agrees with the nearer subject ('senior engineers' — plural) ⇒ 'were willing'."],["Error Spotting","Hard","Identify the grammatical error:\n'Scarcely had the train / departed from the platform / than the passengers / realised their luggage was missing.'",["Scarcely had the train","departed from the platform","than the passengers","realised their luggage was missing."],2,"'Hardly / Scarcely' is ALWAYS followed by 'when / before', NEVER 'than' ⇒ 'when the passengers'."],["Error Spotting","Moderate","Identify the grammatical error:\n'One of the most brilliant scientists / who has contributed to quantum physics / is delivering the keynote / today.'",["One of the most brilliant scientists","who has contributed to quantum physics","is delivering the keynote","today."],1,"Relative pronoun 'who' refers to its plural antecedent 'scientists' ⇒ 'who have contributed' (while main verb 'is delivering' agrees with 'One')."],["Error Spotting","Hard","Identify the grammatical error:\n'Had he been informed / about the revised schedule earlier, / he would certainly / attend the conference.'",["Had he been informed","about the revised schedule earlier,","he would certainly","attend the conference."],3,"Type-3 Conditional ('Had + S + V3') requires 'would have + V3' in the main clause ⇒ 'would certainly have attended'."],["Error Spotting","Moderate","Identify the grammatical error:\n'The committee comprises of / twelve distinguished members / from various academic / institutions.'",["The committee comprises of","twelve distinguished members","from various academic","institutions."],0,"'Comprise' in active voice NEVER takes 'of' (use 'comprises' or 'consists of')."],["Sentence Improvement","Hard","Select the most appropriate option to substitute the underlined segment:\n'It is high time that the administration **takes** decisive steps against illegal encroachments.'",["take","took","has taken","No substitution required"],1,"'It is high time / It is time + Subject' ALWAYS takes Simple Past (V2) ⇒ 'took'."],["Sentence Improvement","Hard","Substitute the underlined segment:\n'The diplomat denied **to have disclosed** any classified information during the summit.'",["having disclosed","to disclose","disclose","No substitution required"],0,"The verb 'deny' is followed by a Gerund (V-ing / having + V3), NOT an infinitive ⇒ 'denied having disclosed'."],["Sentence Improvement","Moderate","Substitute the underlined segment:\n'Walking along the riverbank, **a rare migratory bird caught my eye**.'",["I spotted a rare migratory bird","a rare migratory bird was spotted","my eye was caught by a bird","No substitution required"],0,"Fix Dangling Participle: 'Walking along the riverbank' must modify 'I', NOT the bird ⇒ 'I spotted a rare migratory bird'."],["Sentence Improvement","Hard","Substitute the underlined segment:\n'He is senior **than me by five years** in the civil services.'",["to me by five years","from me by five years","than I by five years","No substitution required"],0,"Latin comparatives (senior, junior, superior, inferior, prior) ALWAYS take 'to', never 'than' ⇒ 'senior to me by five years'."],["Active / Passive Voice","Hard","Select the correct PASSIVE form:\n'Who taught you how to solve differential equations?'",["By whom were you taught how to solve differential equations?","By whom was you taught how to solve differential equations?","Who were you taught how to solve differential equations by him?","By whom had you been taught how to solve differential equations?"],0,"'Who + V2 (Simple Past)' converts to 'By whom + were + you + V3 (taught)'."],["Active / Passive Voice","Hard","Select the correct PASSIVE form:\n'They must have completed the audit before the board meeting.'",["The audit must have been completed by them before the board meeting.","The audit must be completed by them before the board meeting.","The audit had to be completed before the board meeting.","The audit must have completed by them before the board meeting."],0,"Modal Perfect Passive: 'must have + V3' → 'must have been + V3'."],["Active / Passive Voice","Moderate","Select the correct ACTIVE form:\n'Let the confidential documents not be left unattended.'",["Do not leave the confidential documents unattended.","You must not be leaving the confidential documents unattended.","Never let the confidential documents left unattended.","Please did not leave the confidential documents unattended."],0,"Negative Imperative Passive 'Let + Obj + not be + V3' converts back to 'Do not + V1 + Obj'."],["Active / Passive Voice","Hard","Select the correct PASSIVE form:\n'People believe that the ancient manuscript contains hidden maps.'",["It is believed that the ancient manuscript contains hidden maps.","It was believed that the ancient manuscript contained hidden maps.","The ancient manuscript is believing to contain hidden maps.","Hidden maps are believed to be containing by the manuscript."],0,"Reporting verb 'People believe that...' converts cleanly to impersonal passive 'It is believed that...'."],["Direct / Indirect Narration","Hard","Convert into INDIRECT speech:\nThe officer said to the cadet, 'Why did you not report to the barracks yesterday?'",["The officer asked the cadet why he had not reported to the barracks the previous day.","The officer asked the cadet why did he not report to the barracks yesterday.","The officer told the cadet why he has not reported the previous day.","The officer enquired the cadet that why he had not reported the day before."],0,"Interrogative Simple Past ('did not report') → Past Perfect ('had not reported'), assertive word order (no 'that'), 'yesterday' → 'the previous day'."],["Direct / Indirect Narration","Hard","Convert into INDIRECT speech:\nShe exclaimed, 'Alas! We have lost the final match despite playing brilliantly.'",["She exclaimed with sorrow that they had lost the final match despite playing brilliantly.","She exclaimed with joy that they lost the final match despite playing brilliantly.","She said sadly that we have lost the final match despite playing brilliantly.","She exclaimed that alas they had lost the final match."],0,"'Alas!' → 'exclaimed with sorrow that'; 'We have lost' (Present Perfect) → 'they had lost' (Past Perfect)."],["Direct / Indirect Narration","Moderate","Convert into INDIRECT speech:\nThe teacher said, 'The Earth revolves around the Sun in an elliptical orbit.'",["The teacher said that the Earth revolves around the Sun in an elliptical orbit.","The teacher said that the Earth revolved around the Sun in an elliptical orbit.","The teacher told that the Earth is revolving around the Sun.","The teacher asked if the Earth revolves around the Sun."],0,"Universal scientific truths DO NOT change tense in indirect speech ⇒ 'revolves' stays 'revolves'."],["Direct / Indirect Narration","Hard","Convert into DIRECT speech:\nHe requested his colleague to lend him the reference manual for a day.",["He said to his colleague, 'Please lend me the reference manual for a day.'","He ordered his colleague, 'Lend him the reference manual for a day.'","He said to his colleague, 'Could you lent me the reference manual for a day?'","He told his colleague, 'You must lend me the reference manual.'"],0,"'Requested + to V1' maps back to polite imperative 'Please + V1' with pronoun 'him' → 'me'."],["Para-Jumble (PQRS)","Hard","Rearrange the sentences (P, Q, R, S) to form a coherent paragraph:\nP. Consequently, coastal aquifers face severe saltwater intrusion.\nQ. Rapid urbanisation has led to excessive extraction of groundwater.\nR. Sustainable rainwater harvesting is therefore indispensable for water security.\nS. This unchecked depletion steadily lowers the underground water table.",["Q - S - P - R","P - Q - S - R","Q - P - S - R","S - Q - P - R"],0,"Cause (Q: excessive extraction) → Immediate effect (S: lowers water table) → Consequence (P: saltwater intrusion) → Solution (R: rainwater harvesting)."],["Para-Jumble (PQRS)","Hard","Rearrange the sentences (P, Q, R, S) into a meaningful paragraph:\nP. However, without proper ethical guardrails, algorithmic bias can amplify inequality.\nQ. Artificial intelligence is transforming healthcare diagnostics and financial inclusion.\nR. Policymakers must therefore balance rapid innovation with transparent accountability.\nS. Automated systems can now detect retinal diseases faster than human specialists.",["Q - S - P - R","S - Q - R - P","Q - P - S - R","P - S - Q - R"],0,"General intro (Q) → Specific positive example (S) → Contrast 'However' (P) → Conclusion 'therefore' (R)."],["Para-Jumble (PQRS)","Moderate","Rearrange (P, Q, R, S):\nP. These microplastics eventually enter the human food chain through seafood.\nQ. Millions of tonnes of plastic waste are dumped into oceans annually.\nR. Over decades, sunlight and waves break them down into microscopic fragments.\nS. Strict single-use plastic bans are essential to halt this ecological crisis.",["Q - R - P - S","Q - P - R - S","R - Q - P - S","P - Q - R - S"],0,"Intro (Q: dumped waste) → Breakdown (R: microscopic fragments) → 'These microplastics' link (P) → Solution (S)."]];
+      const ENG_CLOZE = [{"title":"Cloze Passage — India's Digital Public Infrastructure","passage":"India's Digital Public Infrastructure (DPI) has emerged as a global __[1]__ for inclusive governance. By combining open-source identity, instant payments, and paperless consent layers, it has __[2]__ millions of unbanked citizens into the formal economy. Unlike proprietary platforms that __[3]__ user data in silos, DPI promotes interoperability and fair competition. Nevertheless, sustaining public trust demands __[4]__ cybersecurity audits and robust privacy legislation so that innovation never __[5]__ fundamental rights.","blanks":[["benchmark","obstacle","remnant","fatigue",0,"'Global benchmark' means an exemplary standard admired worldwide."],["integrated","alienated","deterred","obstructed",0,"'Integrated into the formal economy' fits the positive inclusion context."],["hoard","liberate","scatter","dissolve",0,"Proprietary platforms 'hoard' (accumulate secretly) user data in closed silos."],["stringent","negligent","trivial","haphazard",0,"'Stringent cybersecurity audits' = strict and thorough audits."],["compromises","fortifies","elevates","validates",0,"'Never compromises fundamental rights' = never weakens or endangers rights."]]},{"title":"Cloze Passage — Climate Resilience & Urban Heat","passage":"As global temperatures climb, densely concrete metropolises experience an acute 'urban heat island' __[1]__. Impervious asphalt surfaces absorb solar radiation throughout the day and __[2]__ it slowly after sunset, depriving residents of nocturnal relief. Urban planners increasingly __[3]__ 'sponge cities' lined with native tree canopies, permeable pavements, and restored wetlands. While such green retrofits require substantial upfront __[4]__, they drastically curb cooling energy demand and __[5]__ vulnerable communities against lethal heatwaves.","blanks":[["phenomenon","illusion","apology","verdict",0,"'Urban heat island phenomenon' is the exact scientific collocation."],["radiate","freeze","conceal","abolish",0,"Asphalt absorbs heat and 'radiates' (emits) it slowly at night."],["advocate","condemn","forbid","neglect",0,"Planners 'advocate' (publicly support/recommend) sponge cities."],["capital","apathy","friction","hearsay",0,"'Substantial upfront capital' = significant initial financial investment."],["insulate","expose","provoke","abandon",0,"'Insulate vulnerable communities against heatwaves' = shield/protect them."]]}];
+
+      function seededRng(seedStr) {
+        let h = 2166136261 >>> 0;
+        for (let i = 0; i < seedStr.length; i++) {
+          h ^= seedStr.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return function() {
+          h += 0x6D2B79F5;
+          let t = Math.imul(h ^ (h >>> 15), 1 | h);
+          t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function shuffleDet(arr, rng) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(rng() * (i + 1));
+          const t = a[i]; a[i] = a[j]; a[j] = t;
+        }
+        return a;
+      }
+
+      function wrapSvg(svgInner, cap) {
+        return `<div class="mb-3 p-2.5 rounded-xl bg-white border border-indigo-200 flex flex-col items-center justify-center shadow-xs overflow-x-auto">${svgInner}${cap ? `<div class="text-[10px] font-bold text-slate-500 mt-1">${cap}</div>` : ''}</div>`;
+      }
+
+      // 8 HARD NON-VERBAL VISUAL SVG FIGURES (High SSC Weightage!)
+      function buildHardVisualFigures8(dateKey) {
+        const rng = seededRng('HARD_FIG8_' + dateKey);
+        const randInt = (lo, hi) => lo + Math.floor(rng() * (hi - lo + 1));
+        const figs = [];
+
+        // 1. Hard Multi-Level Counting Triangles (4-6 base parts × 2-3 horizontal levels!)
+        const cols = randInt(4, 6);
+        const rows = randInt(2, 3);
+        const triTotal = Math.round((cols * (cols + 1) / 2) * rows);
+        let tLines = '';
+        for (let c = 1; c < cols; c++) {
+          const x = 25 + (210 * c) / cols;
+          tLines += `<line x1="130" y1="12" x2="${x.toFixed(1)}" y2="118" stroke="#0f172a" stroke-width="1.8"/>`;
+        }
+        for (let r = 1; r < rows; r++) {
+          const frac = r / rows;
+          const y = 12 + 106 * frac;
+          const xl = 130 - 105 * frac;
+          const xr = 130 + 105 * frac;
+          tLines += `<line x1="${xl.toFixed(1)}" y1="${y.toFixed(1)}" x2="${xr.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#2563eb" stroke-width="2"/>`;
+        }
+        const triSvg = `<svg viewBox="0 0 260 130" width="245" height="122" xmlns="http://www.w3.org/2000/svg"><polygon points="130,12 25,118 235,118" fill="#f8fafc" stroke="#0f172a" stroke-width="2.4"/>${tLines}</svg>`;
+        const tOpts = shuffleDet([triTotal, triTotal - cols, triTotal + cols, triTotal + rows * 2].map(String), rng);
+        figs.push({ topic: 'Counting Triangles', level: 'Hard', chartHtml: wrapSvg(triSvg, 'Non-Verbal Figure: Multi-Level Triangles'), qEn: 'Find the EXACT total number of triangles in the given figure.', qHi: 'दी गई आकृति में त्रिभुजों (Triangles) की सटीक कुल संख्या ज्ञात कीजिए।', options: tOpts, ans: tOpts.indexOf(String(triTotal)), exp: `Base parts n = ${cols} ⇒ n(n+1)/2 = ${cols*(cols+1)/2}. Horizontal sections = ${rows} ⇒ Total = ${cols*(cols+1)/2} × ${rows} = ${triTotal}.` });
+
+        // 2. Hard Counting Squares in m × n Grid SVG
+        const m = randInt(3, 4), n = randInt(4, 5);
+        let sqTotal = 0;
+        for (let k = 0; k < Math.min(m, n); k++) sqTotal += (m - k) * (n - k);
+        const cw = 36, ch = 26, ox = (260 - n * cw) / 2, oy = (125 - m * ch) / 2;
+        let gLines = `<rect x="${ox}" y="${oy}" width="${n*cw}" height="${m*ch}" fill="#f8fafc" stroke="#0f172a" stroke-width="2.2"/>`;
+        for (let i = 1; i < n; i++) gLines += `<line x1="${ox + i*cw}" y1="${oy}" x2="${ox + i*cw}" y2="${oy + m*ch}" stroke="#1e293b" stroke-width="1.6"/>`;
+        for (let j = 1; j < m; j++) gLines += `<line x1="${ox}" y1="${oy + j*ch}" x2="${ox + n*cw}" y2="${oy + j*ch}" stroke="#1e293b" stroke-width="1.6"/>`;
+        const sqSvg = `<svg viewBox="0 0 260 125" width="245" height="118" xmlns="http://www.w3.org/2000/svg">${gLines}</svg>`;
+        const sqOpts = shuffleDet([sqTotal, sqTotal - 2, sqTotal + 3, m * n + 4].map(String), rng);
+        figs.push({ topic: 'Counting Squares', level: 'Hard', chartHtml: wrapSvg(sqSvg, `Non-Verbal Figure: ${m}×${n} Grid`), qEn: `How many total squares (of all sizes) are present in the ${m} × ${n} grid shown above?`, qHi: `ऊपर दिखाए गए ${m} × ${n} ग्रिड में (सभी आकारों के) कुल कितने वर्ग (Squares) हैं?`, options: sqOpts, ans: sqOpts.indexOf(String(sqTotal)), exp: `Formula for ${m}×${n} grid: Σ(m−k)(n−k) = ${Array.from({length:Math.min(m,n)},(_,k)=>`(${m-k}×${n-k})`).join(' + ')} = ${sqTotal}.` });
+
+        // 3. Open Cube Net Folding SVG (Hard)
+        const sym = shuffleDet(['@', '#', '$', '%', '&', '*'], rng);
+        // Cross net: top=sym[0], center=sym[1], bottom=sym[2], far-bottom=sym[3], left=sym[4], right=sym[5]
+        // Opposite pairs: (sym[0] <-> sym[2]), (sym[1] <-> sym[3]), (sym[4] <-> sym[5])
+        const netSvg = `<svg viewBox="0 0 260 132" width="245" height="125" xmlns="http://www.w3.org/2000/svg">
+          <g stroke="#0f172a" stroke-width="2" font-size="16" font-weight="900" text-anchor="middle">
+            <rect x="114" y="4" width="30" height="30" fill="#e0e7ff"/><text x="129" y="25" stroke="none" fill="#1e1b4b">${sym[0]}</text>
+            <rect x="84" y="34" width="30" height="30" fill="#fef3c7"/><text x="99" y="55" stroke="none" fill="#92400e">${sym[4]}</text>
+            <rect x="114" y="34" width="30" height="30" fill="#dcfce7"/><text x="129" y="55" stroke="none" fill="#14532d">${sym[1]}</text>
+            <rect x="144" y="34" width="30" height="30" fill="#fef3c7"/><text x="159" y="55" stroke="none" fill="#92400e">${sym[5]}</text>
+            <rect x="114" y="64" width="30" height="30" fill="#e0e7ff"/><text x="129" y="85" stroke="none" fill="#1e1b4b">${sym[2]}</text>
+            <rect x="114" y="94" width="30" height="30" fill="#dcfce7"/><text x="129" y="115" stroke="none" fill="#14532d">${sym[3]}</text>
+          </g>
+        </svg>`;
+        const nOpts = shuffleDet([sym[3], sym[0], sym[2], sym[5]], rng);
+        figs.push({ topic: 'Open Dice / Cube Net', level: 'Hard', chartHtml: wrapSvg(netSvg, 'Non-Verbal Figure: Unfolded Cube Net'), qEn: `When the unfolded cube sheet shown above is folded into a closed cube, which symbol will appear on the face OPPOSITE to '${sym[1]}'?`, qHi: `जब ऊपर दिखाए गए खुले घन (Open Dice) को मोड़कर बंद घन बनाया जाता है, तो '${sym[1]}' के विपरीत फलक पर कौन-सा चिह्न होगा?`, options: nOpts, ans: nOpts.indexOf(sym[3]), exp: `Alternate faces in a straight line are opposite: (${sym[0]} ↔ ${sym[2]}), (${sym[1]} ↔ ${sym[3]}), and (${sym[4]} ↔ ${sym[5]}).` });
+
+        // 4. Two-Position 3D Dice Clockwise Rotation Rule (Hard)
+        const df = shuffleDet([1, 2, 3, 4, 5, 6], rng);
+        const cF = df[0], a1 = df[1], a2 = df[2], b1 = df[3], b2 = df[4], rem = df[5];
+        // Dice 1: top=cF, left=a1, right=a2 (CW from cF: a2 -> a1)
+        // Dice 2: left=cF, top=b1, right=b2 (CW from cF: b1 -> b2) => a2 opp b1, a1 opp b2, cF opp rem!
+        const cube = (x, t, l, r) => `<g transform="translate(${x},10)"><polygon points="50,5 95,28 50,52 5,28" fill="#e0e7ff" stroke="#1e293b" stroke-width="2"/><polygon points="5,28 50,52 50,98 5,74" fill="#f1f5f9" stroke="#1e293b" stroke-width="2"/><polygon points="95,28 50,52 50,98 95,74" fill="#cbd5e1" stroke="#1e293b" stroke-width="2"/><text x="50" y="34" text-anchor="middle" font-size="18" font-weight="900" fill="#1e1b4b">${t}</text><text x="27" y="69" text-anchor="middle" font-size="18" font-weight="900" fill="#0f172a">${l}</text><text x="73" y="69" text-anchor="middle" font-size="18" font-weight="900" fill="#0f172a">${r}</text></g>`;
+        const dSvg = `<svg viewBox="0 0 260 120" width="245" height="114" xmlns="http://www.w3.org/2000/svg">${cube(15, cF, a1, a2)}${cube(145, b1, cF, b2)}</svg>`;
+        const dOpts = shuffleDet([b1, b2, a1, rem].map(String), rng);
+        figs.push({ topic: '3D Dice Rotation', level: 'Hard', chartHtml: wrapSvg(dSvg, 'Non-Verbal Figure: 3D Dice (Different Positions)'), qEn: `Two positions of the same dice are shown above. Find the number opposite to '${a2}'.`, qHi: `ऊपर एक ही पासे की दो स्थितियाँ दी गई हैं। '${a2}' के विपरीत कौन-सी संख्या होगी?`, options: dOpts, ans: dOpts.indexOf(String(b1)), exp: `Clockwise from common face '${cF}': Dice 1 = (${cF} → ${a2} → ${a1}); Dice 2 = (${cF} → ${b1} → ${b2}) ⇒ '${a2}' is opposite '${b1}'.` });
+
+        // 5. Hard 3-Shape Geometric Venn Diagram (Triangle + Circle + Rectangle)
+        const v1 = randInt(6, 12), v2 = randInt(5, 11), v3 = randInt(3, 8), v4 = randInt(4, 9), v5 = randInt(7, 14), v6 = randInt(5, 10);
+        const vAns = v2 + v3;
+        const vSvg = `<svg viewBox="0 0 260 145" width="250" height="140" xmlns="http://www.w3.org/2000/svg">
+          <rect x="28" y="26" width="132" height="82" fill="#3b82f6" fill-opacity="0.14" stroke="#2563eb" stroke-width="2"/>
+          <circle cx="165" cy="72" r="46" fill="#10b981" fill-opacity="0.14" stroke="#059669" stroke-width="2"/>
+          <polygon points="128,16 62,126 196,126" fill="#f59e0b" fill-opacity="0.14" stroke="#d97706" stroke-width="2"/>
+          <text x="30" y="20" font-size="9.5" font-weight="800" fill="#1d4ed8">Rect = Graduates</text>
+          <text x="160" y="20" font-size="9.5" font-weight="800" fill="#047857">Circle = Urban</text>
+          <text x="95" y="140" font-size="9.5" font-weight="800" fill="#b45309">Triangle = Employed</text>
+          <text x="58" y="68" font-size="13" font-weight="800" fill="#0f172a">${v1}</text>
+          <text x="136" y="55" font-size="13" font-weight="800" fill="#0f172a">${v2}</text>
+          <text x="136" y="88" font-size="13" font-weight="800" fill="#0f172a">${v3}</text>
+          <text x="98" y="96" font-size="13" font-weight="800" fill="#0f172a">${v4}</text>
+          <text x="190" y="72" font-size="13" font-weight="800" fill="#0f172a">${v5}</text>
+          <text x="155" y="116" font-size="13" font-weight="800" fill="#0f172a">${v6}</text>
+        </svg>`;
+        const vOpts = shuffleDet([vAns, v2, v3, v2 + v3 + v4].map(String), rng);
+        figs.push({ topic: 'Geometric Venn Diagram', level: 'Hard', chartHtml: wrapSvg(vSvg, 'Non-Verbal Figure: 3-Shape Venn Diagram'), qEn: 'In the figure above, how many Graduates are Urban (whether Employed or not)?', qHi: 'उपरोक्त आकृति में कुल कितने स्नातक (Graduates) शहरी (Urban) हैं (चाहे वे नियोजित हों या नहीं)?', options: vOpts, ans: vOpts.indexOf(String(vAns)), exp: `Overlap of Rectangle (Graduates) and Circle (Urban) contains two regions: ${v2} (unemployed) + ${v3} (employed) = ${vAns}.` });
+
+        // 6. Dual-Element Figure Rotation Series (Hard SSC CGL Pattern!)
+        // Arrow rotates 90° CW; Red Dot moves 1 corner ANTICLOCKWISE each step!
+        const aStart = randInt(0, 3);
+        const dotPos = [[10,10], [42,10], [42,42], [10,42]]; // TL, TR, BR, BL (index -1 = ACW!)
+        const dotNames = ['Top-Left', 'Top-Right', 'Bottom-Right', 'Bottom-Left'];
+        const dirNames = ['Up (↑)', 'Right (→)', 'Down (↓)', 'Left (←)'];
+        const dStart = randInt(0, 3);
+        const drawDual = (x, step, lbl) => {
+          const ang = ((aStart + step) % 4) * 90;
+          const dp = dotPos[(dStart - step + 8) % 4];
+          return `<g transform="translate(${x},10)">
+            <rect x="0" y="0" width="52" height="52" rx="6" fill="#f8fafc" stroke="#1e293b" stroke-width="2"/>
+            <circle cx="${dp[0]}" cy="${dp[1]}" r="4.5" fill="#e11d48"/>
+            <g transform="translate(26,26) rotate(${ang})">
+              <line x1="0" y1="12" x2="0" y2="-10" stroke="#2563eb" stroke-width="2.8" stroke-linecap="round"/>
+              <polygon points="0,-14 -5,-6 5,-6" fill="#2563eb"/>
+            </g>
+            <text x="26" y="66" text-anchor="middle" font-size="10" font-weight="800" fill="#475569">${lbl}</text>
+          </g>`;
+        };
+        const rotSvg = `<svg viewBox="0 0 260 86" width="250" height="84" xmlns="http://www.w3.org/2000/svg">${drawDual(8,0,'Fig 1')}${drawDual(72,1,'Fig 2')}${drawDual(136,2,'Fig 3')}<g transform="translate(200,10)"><rect x="0" y="0" width="52" height="52" rx="6" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" stroke-dasharray="4,3"/><text x="26" y="34" text-anchor="middle" font-size="22" font-weight="900" fill="#4f46e5">?</text><text x="26" y="66" text-anchor="middle" font-size="10" font-weight="800" fill="#4f46e5">Fig 4</text></g></svg>`;
+        const f4Arrow = dirNames[(aStart + 3) % 4];
+        const f4Dot = dotNames[(dStart - 3 + 8) % 4];
+        const rAns = `Arrow ${f4Arrow} & Dot at ${f4Dot}`;
+        const rOpts = shuffleDet([
+          rAns,
+          `Arrow ${dirNames[(aStart + 2) % 4]} & Dot at ${f4Dot}`,
+          `Arrow ${f4Arrow} & Dot at ${dotNames[(dStart + 3) % 4]}`,
+          `Arrow ${dirNames[(aStart + 1) % 4]} & Dot at ${dotNames[(dStart - 2 + 8) % 4]}`
+        ], rng);
+        figs.push({ topic: 'Dual Figure Series', level: 'Hard', chartHtml: wrapSvg(rotSvg, 'Non-Verbal Figure: Dual-Element Rotation Series'), qEn: 'Observe BOTH the blue arrow and the red dot across Fig 1, 2, 3. What will be their exact positions in Fig 4?', qHi: 'चित्र 1, 2 और 3 में नीले तीर और लाल बिंदु दोनों के पैटर्न को देखें। चित्र 4 में उनकी सटीक स्थिति क्या होगी?', options: rOpts, ans: rOpts.indexOf(rAns), exp: `Blue arrow rotates 90° Clockwise each step (⇒ ${f4Arrow}); Red dot shifts 1 corner Anticlockwise each step (⇒ ${f4Dot}).` });
+
+        // 7. Paper Folding & Triple Punching SVG (Hard)
+        const pCnt = randInt(2, 4);
+        const totalHoles = pCnt * 4;
+        const pSvg = `<svg viewBox="0 0 260 98" width="250" height="94" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="18" width="54" height="54" fill="#eff6ff" stroke="#1e293b" stroke-width="2"/><line x1="37" y1="18" x2="37" y2="72" stroke="#2563eb" stroke-dasharray="4,3"/>
+          <text x="76" y="50" font-size="14" font-weight="900" fill="#64748b">→</text>
+          <rect x="96" y="18" width="54" height="54" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="3,3"/><rect x="123" y="18" width="27" height="54" fill="#dbeafe" stroke="#1e293b" stroke-width="2"/><line x1="123" y1="45" x2="150" y2="45" stroke="#2563eb" stroke-dasharray="4,3"/>
+          <text x="162" y="50" font-size="14" font-weight="900" fill="#64748b">→</text>
+          <rect x="184" y="18" width="54" height="54" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="3,3"/><rect x="196" y="22" width="38" height="38" fill="#bfdbfe" stroke="#1e293b" stroke-width="2"/>
+          <circle cx="206" cy="34" r="3.5" fill="#e11d48"/><circle cx="222" cy="34" r="3.5" fill="#e11d48"/>${pCnt>=3?'<circle cx="214" cy="49" r="3.5" fill="#e11d48"/>':''}${pCnt>=4?'<circle cx="226" cy="52" r="3.5" fill="#e11d48"/>':''}
+          <text x="130" y="90" text-anchor="middle" font-size="10" font-weight="800" fill="#475569">Fold Half → Fold Quarter → ${pCnt} Interior Punches</text>
+        </svg>`;
+        const pOpts = shuffleDet([totalHoles, totalHoles - 4, totalHoles + 4, totalHoles * 2].map(x => `${x} holes`), rng);
+        figs.push({ topic: 'Paper Folding & Cutting', level: 'Hard', chartHtml: wrapSvg(pSvg, 'Non-Verbal Figure: Paper Folding'), qEn: `A square paper is folded twice into 4 layers and ${pCnt} interior holes are punched as shown. How many total holes appear when completely unfolded?`, qHi: `एक वर्गाकार कागज को दो बार मोड़कर 4 परतें बनाई जाती हैं और ${pCnt} अंदरूनी छेद किए जाते हैं। पूरा खोलने पर कुल कितने छेद होंगे?`, options: pOpts, ans: pOpts.indexOf(`${totalHoles} holes`), exp: `2 folds = 4 symmetric layers ⇒ ${pCnt} × 4 = ${totalHoles} holes.` });
+
+        // 8. Mirror / Water Image Alphanumeric SVG (Moderate)
+        const codes = ['Q 7 R 4 K 2', 'P 9 G 3 N 5', 'B 6 T 8 J 4', 'F 5 D 2 L 9'];
+        const cwStr = codes[randInt(0, codes.length - 1)];
+        const revStr = cwStr.split(' ').reverse().join(' ');
+        const mSvg = `<svg viewBox="0 0 260 88" width="250" height="84" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="16" width="182" height="52" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+          <text x="101" y="50" text-anchor="middle" font-size="20" font-weight="900" letter-spacing="2" fill="#0f172a">${cwStr}</text>
+          <line x1="212" y1="8" x2="212" y2="80" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="5,4"/>
+          <text x="220" y="16" font-size="11" font-weight="900" fill="#e11d48">M</text><text x="220" y="78" font-size="11" font-weight="900" fill="#e11d48">N</text>
+        </svg>`;
+        const mAns = `${revStr} (laterally reversed)`;
+        const mOpts = shuffleDet([mAns, `${cwStr} (laterally reversed)`, `${revStr} (upside-down water image)`, `${cwStr.slice(0,5)} ... (unchanged)`], rng);
+        figs.push({ topic: 'Mirror Image', level: 'Moderate', chartHtml: wrapSvg(mSvg, 'Non-Verbal Figure: Vertical Mirror MN'), qEn: 'Select the correct mirror image when a vertical mirror is placed along line MN on the right.', qHi: 'दाईं ओर रेखा MN पर ऊर्ध्वाधर दर्पण रखने पर सही दर्पण प्रतिबिंब चुनें।', options: mOpts, ans: mOpts.indexOf(mAns), exp: `Vertical mirror reverses order from right-to-left ('${revStr}') and laterally inverts each character.` });
+
+        return figs;
+      }
+
+      // 10 HARD VERBAL & ANALYTICAL REASONING GENERATORS (NO EASY AB/CD/EF!)
+      function buildHardAlgoReasoning10(dateKey) {
+        const rng = seededRng('HARD_ALGO10_' + dateKey);
+        const randInt = (lo, hi) => lo + Math.floor(rng() * (hi - lo + 1));
+        const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const items = [];
+
+        function numOpts(ans, gap) {
+          const s = new Set([ans]);
+          for (const d of [gap, -gap, gap*2, -gap*2, 1, -1, 4, -4, 7, -7]) {
+            if (s.size >= 4) break;
+            if (ans + d > 0) s.add(ans + d);
+          }
+          const a = shuffleDet(Array.from(s).slice(0, 4), rng).map(String);
+          return { opts: a, ans: a.indexOf(String(ans)) };
+        }
+
+        // 3 HARD Number Series (Double-Difference & n³+n & Alternating)
+        for (let k = 0; k < 3; k++) {
+          if (k === 0) {
+            // Cubic pattern: n³ + n (or n³ - n)
+            const st = randInt(2, 5);
+            const sign = rng() > 0.5 ? 1 : -1;
+            const seq = [0,1,2,3,4].map(i => Math.pow(st + i, 3) + sign * (st + i));
+            const ansV = Math.pow(st + 5, 3) + sign * (st + 5);
+            const { opts, ans } = numOpts(ansV, 6);
+            items.push({ topic: 'Hard Number Series', level: 'Hard', qEn: `Find the missing number in the series: ${seq.join(', ')}, ?`, qHi: `दी गई श्रृंखला में लुप्त संख्या ज्ञात कीजिए: ${seq.join(', ')}, ?`, options: opts, ans, exp: `Pattern: n³ ${sign>0?'+':'-'} n for n = ${st}, ${st+1}, ..., ${st+5} ⇒ ${st+5}³ ${sign>0?'+':'-'} ${st+5} = ${ansV}.` });
+          } else if (k === 1) {
+            // ×2 + odd/prime step: ×2+1, ×2+3, ×2+5, ×2+7
+            let cur = randInt(3, 8);
+            const seq = [cur];
+            for (let i = 0; i < 4; i++) { cur = cur * 2 + (2 * i + 1); seq.push(cur); }
+            const ansV = cur * 2 + 9;
+            const { opts, ans } = numOpts(ansV, 4);
+            items.push({ topic: 'Hard Number Series', level: 'Hard', qEn: `Select the number that replaces (?): ${seq.join(', ')}, ?`, qHi: `प्रश्नवाचक चिह्न (?) के स्थान पर आने वाली संख्या चुनें: ${seq.join(', ')}, ?`, options: opts, ans, exp: `Pattern: ×2+1, ×2+3, ×2+5, ×2+7, ×2+9 ⇒ ${cur} × 2 + 9 = ${ansV}.` });
+          } else {
+            // Double-difference with increasing step (+3, +7, +13, +21, +31 => diffs +4,+6,+8,+10)
+            let cur = randInt(11, 29);
+            let d1 = randInt(3, 6);
+            const seq = [cur];
+            for (let i = 0; i < 4; i++) { cur += d1; seq.push(cur); d1 += (2 * i + 4); }
+            const ansV = cur + d1;
+            const { opts, ans } = numOpts(ansV, 5);
+            items.push({ topic: 'Double-Diff Series', level: 'Hard', qEn: `Find the next term in the series: ${seq.join(', ')}, ?`, qHi: `श्रृंखला का अगला पद ज्ञात कीजिए: ${seq.join(', ')}, ?`, options: opts, ans, exp: `Double difference increases by +4, +6, +8, +10 ⇒ next diff = +${d1} ⇒ ${cur} + ${d1} = ${ansV}.` });
+          }
+        }
+
+        // 2 HARD Multi-Shift Letter-Cluster Series (+3, -2, +4!)
+        for (let k = 0; k < 2; k++) {
+          const s1 = randInt(0, 8), s2 = randInt(14, 24), s3 = randInt(1, 7);
+          const d1 = randInt(2, 4), d2 = -randInt(2, 3), d3 = randInt(3, 5);
+          const mk = (step) => ALPHA[(s1 + step*d1 + 52) % 26] + ALPHA[(s2 + step*d2 + 52) % 26] + ALPHA[(s3 + step*d3 + 52) % 26];
+          const seq = [mk(0), mk(1), mk(2), mk(3)];
+          const ansStr = mk(4);
+          const o1 = ALPHA[(s1 + 4*d1 + 1 + 52)%26] + ansStr.slice(1);
+          const o2 = ansStr[0] + ALPHA[(s2 + 4*d2 - 1 + 52)%26] + ansStr[2];
+          const o3 = ansStr.slice(0,2) + ALPHA[(s3 + 4*d3 + 2 + 52)%26];
+          const opts = shuffleDet([ansStr, o1, o2, o3], rng);
+          items.push({ topic: 'Hard Letter Cluster', level: 'Hard', qEn: `Find the next letter-cluster in the series: ${seq.join(', ')}, ?`, qHi: `श्रृंखला में अगला अक्षर-समूह ज्ञात कीजिए: ${seq.join(', ')}, ?`, options: opts, ans: opts.indexOf(ansStr), exp: `Independent shifts: 1st letter (+${d1}), 2nd letter (${d2}), 3rd letter (+${d3}) ⇒ ${ansStr}.` });
+        }
+
+        // 2 HARD Number Set Analogy (a, a²+k, a³+k) — Classic SSC Eduquity Killer!
+        for (let k = 0; k < 2; k++) {
+          const a = randInt(4, 7), b = randInt(5, 8), cAdd = randInt(2, 6);
+          const sA = `(${a}, ${a*a + cAdd}, ${a*a*a + cAdd})`;
+          const ansSet = `(${b}, ${b*b + cAdd}, ${b*b*b + cAdd})`;
+          const w1 = `(${b}, ${b*b + cAdd + 2}, ${b*b*b + cAdd})`;
+          const w2 = `(${b}, ${b*b - cAdd}, ${b*b*b + cAdd})`;
+          const w3 = `(${b}, ${b*b + cAdd}, ${b*b*b - cAdd})`;
+          const opts = shuffleDet([ansSet, w1, w2, w3], rng);
+          items.push({ topic: 'Number Set Analogy', level: 'Hard', qEn: `Select the set in which the numbers are related in the SAME way as the given set: ${sA}`, qHi: `उस समुच्चय का चयन करें जिसमें संख्याएँ उसी प्रकार संबंधित हैं जैसे दिए गए समुच्चय में हैं: ${sA}`, options: opts, ans: opts.indexOf(ansSet), exp: `Rule: (n, n² + ${cAdd}, n³ + ${cAdd}) ⇒ for n = ${b}: (${b}, ${b*b+cAdd}, ${b*b*b+cAdd}).` });
+        }
+
+        // 2 HARD Word-Number Coding (Sum of Reverse Alphabet Positions!)
+        const cWords = ['CROWN', 'TIGER', 'PLANT', 'SMART', 'LOGIC', 'BRAIN'];
+        for (let k = 0; k < 2; k++) {
+          const w1 = cWords[(k * 2 + randInt(0, 1)) % cWords.length];
+          const w2 = cWords[(k * 2 + 3 + randInt(0, 1)) % cWords.length];
+          const revSum = (w) => w.split('').reduce((acc, ch) => acc + (27 - (ALPHA.indexOf(ch) + 1)), 0);
+          const v1 = revSum(w1), v2 = revSum(w2);
+          const { opts, ans } = numOpts(v2, 3);
+          items.push({ topic: 'Reverse Coding', level: 'Hard', qEn: `In a certain code language, '${w1}' is coded as '${v1}'. How will '${w2}' be coded in that language?`, qHi: `एक निश्चित कूट भाषा में '${w1}' को '${v1}' लिखा जाता है। उसी भाषा में '${w2}' को क्या लिखा जाएगा?`, options: opts, ans, exp: `Sum of REVERSE alphabet positions (A=26, B=25, ..., Z=1): ${w1} = ${v1} ⇒ ${w2} = ${v2}.` });
+        }
+
+        // 1 HARD Sign-Interchange Mathematical Operation
+        const x = randInt(16, 36), y = randInt(4, 9), z = randInt(3, 7), w = randInt(6, 15);
+        // True equation: x + y × z - w = res  -> presented with '+' and '×' swapped: x × y + z - w = res
+        const targetVal = x + y * z - w;
+        const optsS = shuffleDet(['+ and ×', '+ and -', '× and -', '÷ and +'], rng);
+        items.push({ topic: 'Sign Interchange', level: 'Hard', qEn: `Which two signs should be interchanged to make the following equation mathematically correct?
+${x} × ${y} + ${z} - ${w} = ${targetVal}`, qHi: `निम्नलिखित समीकरण को सही बनाने के लिए किन दो चिह्नों को आपस में बदलना चाहिए?
+${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('+ and ×'), exp: `Swapping '+' and '×' gives: ${x} + ${y} × ${z} - ${w} = ${x} + ${y*z} - ${w} = ${targetVal}.` });
+
+        return items;
+      }
+
+      // OVERRIDE Section 1: 25 HARD SSC Reasoning Questions (8 Non-Verbal SVG Figures + 7 Statement-Based + 10 Hard Analytical!)
+      window.buildBuiltinDailyReasoning25 = function(dateKey) {
+        const rng = seededRng('COMB_REAS25_' + dateKey);
+        const figs8 = buildHardVisualFigures8(dateKey);
+        const stmts7 = shuffleDet(HARD_STMT_REAS, rng).slice(0, 7).map(r => ({
+          topic: r[0], level: r[1], chartHtml: '', qEn: r[2], qHi: r[3], options: r[4], ans: r[5], exp: r[6]
+        }));
+        const algo10 = buildHardAlgoReasoning10(dateKey);
+
+        // Interleave cleanly: 8 Visual SVG + 7 Statement-Based + 10 Hard Analytical = 25 Qs!
+        const ordered = [
+          algo10[0], figs8[0], stmts7[0], algo10[1], figs8[1],
+          stmts7[1], algo10[2], figs8[2], stmts7[2], algo10[3],
+          figs8[3], stmts7[3], algo10[4], figs8[4], stmts7[4],
+          algo10[5], figs8[5], stmts7[5], algo10[6], figs8[6],
+          stmts7[6], algo10[7], figs8[7], algo10[8], algo10[9]
+        ].slice(0, 25);
+
+        return ordered.map((it, idx) => {
+          const ansText = it.options[it.ans] || it.options[0];
+          return {
+            id: 'm_fig_reas_' + dateKey + '_' + idx,
+            word: 'Reasoning • Q.' + (idx + 1),
+            meaningHi: 'SSC Reasoning',
+            category: `Reasoning: ${it.topic} • ${it.level}`,
+            subject: 'reas',
+            exam: `SSC Eduquity ${dateKey} • ${it.level}`,
+            year: dateKey,
+            chartHtml: it.chartHtml || '',
+            cbtPrompt: it.qEn,
+            promptHi: it.qHi,
+            options: it.options,
+            answer: ansText,
+            cbtAnswer: ansText,
+            exp: it.exp
+          };
+        });
+      };
+
+      // FULL 25-QUESTION SSC ENGLISH PAPER (5 Cloze Test + 4 Error + 3 Improvement + 3 Voice + 3 Narration + 2 PQRS + 5 Hard Vocab)
+      window.buildCompleteSscEnglish25 = function(dateKey) {
+        const rng = seededRng('FULL_ENG25_' + dateKey);
+
+        // 1. Pick 1 Full Cloze Passage (5 linked blanks!)
+        const cloze = ENG_CLOZE[Math.floor(rng() * ENG_CLOZE.length)];
+        const cloze5 = cloze.blanks.map((b, bi) => {
+          const opts = b.slice(0, 4);
+          const ansText = opts[b[4]];
+          const pBox = `<div class="mb-3 p-3 rounded-xl bg-amber-50/90 border border-amber-300 text-slate-900 text-xs sm:text-sm leading-relaxed font-medium"><div class="text-[10px] font-black uppercase text-amber-800 mb-1">📖 ${cloze.title} — Fill Blank [${bi + 1}]</div>${cloze.passage.replace('__[' + (bi + 1) + ']__', '<span class="px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 font-black">___[' + (bi + 1) + ']___</span>')}</div>`;
+          return {
+            id: 'm_eng_cloze_' + dateKey + '_' + bi,
+            word: 'Cloze Test • Blank ' + (bi + 1),
+            meaningHi: 'Cloze Passage',
+            category: 'English: Cloze Test • Hard',
+            subject: 'english',
+            exam: `SSC Eduquity ${dateKey} • Hard`,
+            year: dateKey,
+            chartHtml: pBox,
+            cbtPrompt: `Select the most appropriate option to fill in blank [${bi + 1}] in the passage above.`,
+            promptHi: '',
+            options: opts,
+            answer: ansText,
+            cbtAnswer: ansText,
+            exp: `Blank [${bi + 1}]: '${ansText}' — ${b[5]}`
+          };
+        });
+
+        // 2. Grammar Mix (4 Error + 3 Imp + 3 Voice + 3 Narration + 2 PQRS = 15 Qs!)
+        const byCat = (c) => shuffleDet(ENG_GRAMMAR.filter(g => g[0] === c), rng);
+        const gram15Raw = [
+          ...byCat('Error Spotting').slice(0, 4),
+          ...byCat('Sentence Improvement').slice(0, 3),
+          ...byCat('Active / Passive Voice').slice(0, 3),
+          ...byCat('Direct / Indirect Narration').slice(0, 3),
+          ...byCat('Para-Jumble (PQRS)').slice(0, 2)
+        ];
+        const gram15 = gram15Raw.map((g, idx) => {
+          const ansText = g[3][g[4]];
+          return {
+            id: 'm_eng_gram_' + dateKey + '_' + idx,
+            word: g[0] + ' • Q.' + (idx + 1),
+            meaningHi: g[0],
+            category: `English: ${g[0]} • ${g[1]}`,
+            subject: 'english',
+            exam: `SSC Eduquity ${dateKey} • ${g[1]}`,
+            year: dateKey,
+            chartHtml: '',
+            cbtPrompt: g[2],
+            promptHi: '',
+            options: g[3],
+            answer: ansText,
+            cbtAnswer: ansText,
+            exp: g[5]
+          };
+        });
+
+        // 3. 5 High-Yield Vocab Qs from existing BlackBook / CGL 2026 Bank (1 Syn, 1 Ant, 1 Idiom, 1 OWS, 1 Spelling)
+        let vocab5 = [];
+        if (typeof getAllWords === 'function') {
+          const allW = getAllWords().filter(w => w && w.options && w.options.length >= 4 && (w.answer || w.cbtAnswer));
+          ['Synonym', 'Antonym', 'Idiom', 'One Word', 'Spelling'].forEach(cat => {
+            const sub = allW.filter(w => w.category === cat);
+            if (sub.length) {
+              const pick = sub[Math.floor(rng() * sub.length)];
+              vocab5.push(pick);
+            }
+          });
+          if (vocab5.length < 5) {
+            vocab5 = vocab5.concat(shuffleDet(allW, rng).slice(0, 5 - vocab5.length));
+          }
+        }
+
+        return [...gram15, ...vocab5, ...cloze5].slice(0, 25);
+      };
+    })();
+  </script>
+
+
+  <!-- ================= v143: EXACT SSC CGL SYLLABUS ALIGNMENT (ALL 3 IMAGES: REASONING + ENGLISH RC/ARTICLES + GK/COMPUTER WEIGHTAGE) ================= -->
+  <script>
+    (function initV143ExactSyllabusHard() {
+      const SYL_REAS = [["Address & Date Matching","Hard","Compare the original address below with the 4 options and identify the EXACT match (watch spelling, pin & date carefully):\nOriginal: Dr. Rajeshwar Kulkarni, 408-B, Shivaji Nagar, Pune - 411005 (DOB: 19-08-1987)","नीचे दिए गए मूल पते की 4 विकल्पों से तुलना करें और बिल्कुल सटीक मिलान (Exact Match) चुनें:\nOriginal: Dr. Rajeshwar Kulkarni, 408-B, Shivaji Nagar, Pune - 411005 (DOB: 19-08-1987)",["Dr. Rajeshwar Kulkarni, 408-B, Shivaji Nagar, Pune - 411005 (DOB: 19-08-1987)","Dr. Rajeshwer Kulkarni, 408-B, Shivaji Nagar, Pune - 411005 (DOB: 19-08-1987)","Dr. Rajeshwar Kulkarni, 408-B, Shivaji Nagar, Pune - 411050 (DOB: 19-08-1987)","Dr. Rajeshwar Kulkarni, 408-B, Shivaji Nagar, Pune - 411005 (DOB: 19-08-1978)"],0,"Option B has 'Rajeshwer', Option C has PIN '411050', Option D has year '1978'. Only Option A matches 100%."],["Emotional & Social Intelligence","Hard","You are leading a government tax-audit team. One day before the final deadline, a junior officer admits making a calculation error that affects 3 files and looks panicked. What is the most emotionally intelligent response?","आप एक सरकारी टैक्स-ऑडिट टीम के प्रमुख हैं। अंतिम समय-सीमा से एक दिन पहले एक कनिष्ठ अधिकारी घबराते हुए स्वीकार करता है कि उससे 3 फाइलों में गणना की त्रुटि हो गई है। सबसे भावनात्मक रूप से बुद्धिमान प्रतिक्रिया क्या होगी?",["Publicly reprimand them so others never repeat the mistake","Stay calm, acknowledge their honesty in reporting early, and reassign resources to verify and correct the 3 files before the deadline","Hide the error in the report to avoid embarrassment","Immediately recommend their suspension without checking the impact"],1,"Emotional & Social Intelligence prioritizes psychological safety, constructive problem-solving, and integrity over panic or cover-ups."],["Critical Thinking","Hard","A city installed 200 AI speed cameras on Highway-X. Over the next 6 months, speeding fines dropped by 45%, yet fatal night accidents remained unchanged. Which inference is MOST strongly supported?","एक शहर ने हाईवे-X पर 200 AI स्पीड कैमरे लगाए। अगले 6 महीनों में ओवरस्पीडिंग चालान 45% कम हुए, लेकिन रात में घातक दुर्घटनाएँ अपरिवर्तित रहीं। कौन-सा निष्कर्ष सबसे प्रबल है?",["AI speed cameras are completely useless","Factors other than daytime speeding (such as poor night lighting, drunk driving, or heavy-vehicle blind spots) likely drive fatal night accidents","Drivers stopped driving at night completely","Fines should be removed immediately"],1,"Since speeding declined without reducing night fatalities, non-speeding night-specific factors must be investigated."],["Word Building & Indexing","Hard","From the letters of the word 'ADMINISTRATION', which of the following words CANNOT be formed (using each letter at most as many times as it appears)?","'ADMINISTRATION' शब्द के अक्षरों का उपयोग करके निम्नलिखित में से कौन-सा शब्द नहीं बनाया जा सकता?",["TRADITION","MINISTER","STATION","RATION"],1,"'MINISTER' requires the letter 'E', which does NOT exist in 'ADMINISTRATION'."],["Semantic Classification","Hard","Three of the following four words share a specific semantic relationship and form a group. Select the ODD one out:\nOligarchy, Autocracy, Plutocracy, Philanthropy","निम्नलिखित चार शब्दों में से तीन एक विशिष्ट शब्दार्थ संबंध से समूह बनाते हैं। विषम (Odd) चुनें:\nOligarchy, Autocracy, Plutocracy, Philanthropy",["Oligarchy","Autocracy","Plutocracy","Philanthropy"],3,"Oligarchy, Autocracy, and Plutocracy are all systems of political rule/governance (-cracy), whereas Philanthropy means charitable giving."],["Date & City Matching","Hard","Match the exact record:\nRef: #SSC-2026/LKO-094 | Lucknow | 27-Feb-2026 | Shift-III","सटीक रिकॉर्ड का मिलान करें:\nRef: #SSC-2026/LKO-094 | Lucknow | 27-Feb-2026 | Shift-III",["#SSC-2026/LKO-049 | Lucknow | 27-Feb-2026 | Shift-III","#SSC-2026/LKO-094 | Lukcnow | 27-Feb-2026 | Shift-III","#SSC-2026/LKO-094 | Lucknow | 27-Feb-2026 | Shift-III","#SSC-2026/LKO-094 | Lucknow | 27-Feb-2026 | Shift-II"],2,"Option A swaps 094→049, Option B misspells 'Lukcnow', Option D has Shift-II. Only Option C is exact."]];
+      const SYL_COMP = [["Computer","Moderate","Which shortcut key in MS Word is used to apply or remove 'Justify' alignment to a selected paragraph?","MS Word में चयनित पैराग्राफ को 'Justify' (दोनों तरफ से बराबर) अलाइन करने के लिए किस शॉर्टकट कुंजी का उपयोग किया जाता है?",["Ctrl + E","Ctrl + J","Ctrl + R","Ctrl + L"],1,"Ctrl + J = Justify, Ctrl + E = Center, Ctrl + L = Left, Ctrl + R = Right alignment."],["Computer","Hard","Which layer of the OSI (Open Systems Interconnection) model is responsible for IP addressing and logical routing of packets?","OSI मॉडल की कौन-सी परत (Layer) IP एड्रेसिंग और पैकेट्स की लॉजिकल राउटिंग के लिए जिम्मेदार है?",["Data Link Layer (Layer 2)","Network Layer (Layer 3)","Transport Layer (Layer 4)","Session Layer (Layer 5)"],1,"Network Layer (Layer 3) handles IP addressing and routing (routers operate at Layer 3; TCP/UDP at Layer 4)."],["Computer","Hard","In MS Excel, what does the formula `=VLOOKUP(A2, B1:D10, 3, FALSE)` return?","MS Excel में `=VLOOKUP(A2, B1:D10, 3, FALSE)` फॉर्मूला क्या रिटर्न करता है?",["Approximate match from Column B","Exact match of A2 in Column B, returning the corresponding value from Column D (3rd column)","Sum of 3 columns in B1:D10","Average of Column D"],1,"FALSE forces an exact match in the leftmost column (B) and returns the value from the 3rd column (D) of the range B1:D10."],["Computer","Moderate","What is a 'Phishing' attack in Cyber Security?","साइबर सुरक्षा (Cyber Security) में 'फ़िशिंग' (Phishing) हमला क्या होता है?",["Overloading a server with fake traffic","Deceptive emails/links disguised as trusted entities to steal passwords or banking credentials","Encrypting files for ransom","Installing a hardware firewall"],1,"Phishing uses fraudulent emails/websites masquerading as legitimate organizations to steal sensitive credentials."],["Computer","Hard","Which type of memory is fastest and sits directly between the CPU and Main Memory (RAM) to reduce access latency?","कौन-सी मेमोरी सबसे तेज़ होती है और एक्सेस लेटेंसी कम करने के लिए सीधे CPU और मुख्य मेमोरी (RAM) के बीच स्थित होती है?",["HDD","Cache Memory (SRAM)","ROM","Virtual Memory"],1,"Cache Memory (built with SRAM) is far faster than DRAM/RAM and bridges the CPU-RAM speed gap."],["Computer","Moderate","What is the full form of 'HTTPS' and which default port does it use?","'HTTPS' का पूर्ण रूप क्या है और यह किस डिफ़ॉल्ट पोर्ट का उपयोग करता है?",["HyperText Transfer Protocol Secure — Port 443","HyperText Transfer Protocol Secure — Port 80","High Transfer Text Protocol System — Port 21","Hyperlink Transport Protocol Standard — Port 25"],0,"HTTPS = HyperText Transfer Protocol Secure; default port = 443 (HTTP uses 80, FTP uses 21, SMTP uses 25)."]];
+      const ENG_RC = {"title":"Reading Comprehension — Monetary Policy & Supply-Side Shocks","passage":"Central banks traditionally raise policy interest rates to cool aggregate demand whenever consumer inflation breaches target bands. Yet supply-side shocks—such as erratic monsoons disrupting perishable food harvests or maritime bottlenecks inflating crude oil freight—pose a far thornier dilemma. Tightening credit cannot immediately grow tomatoes or unclog shipping lanes; instead, overly aggressive rate hikes risk choking private capital expenditure and slowing employment growth. Consequently, modern macroeconomic frameworks emphasize calibrated coordination: monetary authorities anchor long-term inflation expectations while fiscal agencies deploy buffer stocks, cold-chain logistics, and targeted tariff adjustments to ease supply bottlenecks.","qs":[["What is the CENTRAL theme of the passage?",["Interest rate hikes always eliminate food inflation instantly","Supply-side inflation requires coordinated monetary and fiscal responses rather than rate hikes alone","Central banks should stop tracking inflation expectations","Maritime trade is irrelevant to domestic prices"],1,"The passage argues that supply shocks cannot be solved by rate hikes alone and require monetary + fiscal coordination."],["According to the passage, what is the primary risk of overly aggressive interest rate hikes during a supply shock?",["Rapid expansion of cold-chain logistics","Choking private capital expenditure and slowing employment growth","Immediate drop in monsoon rainfall","Increase in maritime bottlenecks"],1,"Line 3 explicitly states: 'overly aggressive rate hikes risk choking private capital expenditure and slowing employment growth.'"],["Which of the following is mentioned as a FISCAL agency tool to ease supply bottlenecks?",["Raising policy repo rates","Deploying buffer stocks and cold-chain logistics","Increasing private borrowing costs","Eliminating maritime shipping lanes"],1,"The final sentence lists 'buffer stocks, cold-chain logistics, and targeted tariff adjustments' as fiscal measures."],["In the context of the passage, the word 'calibrated' most nearly means:",["Reckless and sudden","Carefully measured and adjusted","Completely abandoned","Legally prohibited"],1,"'Calibrated coordination' means carefully measured, balanced, and precise coordination."],["What is the TONE of the author in this passage?",["Sarcastic and dismissive","Analytical and balanced","Overly emotional and alarmist","Humorous and casual"],1,"The author weighs pros/cons objectively using economic terminology ⇒ Analytical and balanced."]]};
+      const ENG_ART_ANA = [["Articles (Hard)","Hard","Select the correct sequence of articles:\n'___ Ganga is ___ sacred river, yet ___ pollution in its industrial stretches remains ___ urgent challenge.'",["The, a, the, an","A, the, a, an","The, a, no article, a","No article, a, the, an"],0,"'The Ganga' (river name), 'a sacred river' (indefinite), 'the pollution in its industrial stretches' (specific), 'an urgent challenge' (vowel sound)."],["Word Analogy (Hard)","Hard","Select the pair that expresses the SAME relationship as:\nEPHEMERAL : PERMANENCE",["VERBOSE : BREVITY","LUCID : CLARITY","FRUGAL : ECONOMY","CANDID : HONESTY"],0,"Ephemeral (short-lived) is the antonym/lack of Permanence; Verbose (wordy) is the antonym/lack of Brevity (conciseness)."]];
+
+      const prevReas25 = window.buildBuiltinDailyReasoning25;
+      const prevGk25 = window.buildBuiltinDailyGk25;
+      const prevEng25 = window.buildCompleteSscEnglish25;
+
+      function seededRng(seedStr) {
+        let h = 2166136261 >>> 0;
+        for (let i = 0; i < seedStr.length; i++) {
+          h ^= seedStr.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return function() {
+          h += 0x6D2B79F5;
+          let t = Math.imul(h ^ (h >>> 15), 1 | h);
+          t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function shuffleDet(arr, rng) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(rng() * (i + 1));
+          const t = a[i]; a[i] = a[j]; a[j] = t;
+        }
+        return a;
+      }
+
+      // Figural Classification (Odd Figure Out SVG — from SSC CGL Reasoning Syllabus!)
+      function buildFiguralClassificationSvg(dateKey) {
+        const rng = seededRng('FIG_CLASS_' + dateKey);
+        // 4 SVG boxes: 3 have symmetric polygon + matching inner dot count = sides, 1 breaks the rule!
+        const oddIdx = Math.floor(rng() * 4);
+        const specs = [
+          { lbl: 'A', sides: 3, dots: 3 },
+          { lbl: 'B', sides: 4, dots: 4 },
+          { lbl: 'C', sides: 5, dots: 5 },
+          { lbl: 'D', sides: 6, dots: 6 }
+        ];
+        specs[oddIdx].dots = specs[oddIdx].sides - 2; // Odd figure has wrong dot count!
+
+        const drawPoly = (cx, cy, r, n) => {
+          const pts = [];
+          for (let i = 0; i < n; i++) {
+            const ang = -Math.PI / 2 + (2 * Math.PI * i) / n;
+            pts.push(`${(cx + r * Math.cos(ang)).toFixed(1)},${(cy + r * Math.sin(ang)).toFixed(1)}`);
+          }
+          return `<polygon points="${pts.join(' ')}" fill="#eff6ff" stroke="#1e293b" stroke-width="2"/>`;
+        };
+        const drawDots = (cx, cy, cnt) => {
+          let s = '';
+          for (let i = 0; i < cnt; i++) {
+            const ang = (2 * Math.PI * i) / cnt;
+            const dx = cx + (cnt > 1 ? 7 : 0) * Math.cos(ang);
+            const dy = cy + (cnt > 1 ? 7 : 0) * Math.sin(ang);
+            s += `<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="2.2" fill="#e11d48"/>`;
+          }
+          return s;
+        };
+
+        let boxes = '';
+        specs.forEach((sp, i) => {
+          const x = 6 + i * 63;
+          boxes += `<g transform="translate(${x},8)">
+            <rect x="0" y="0" width="56" height="62" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+            ${drawPoly(28, 30, 19, sp.sides)}
+            ${drawDots(28, 30, sp.dots)}
+            <text x="28" y="76" text-anchor="middle" font-size="11" font-weight="900" fill="#0f172a">Fig ${sp.lbl}</text>
+          </g>`;
+        });
+
+        const svg = `<div class="mb-3 p-2.5 rounded-xl bg-white border border-indigo-200 flex flex-col items-center justify-center shadow-xs overflow-x-auto"><svg viewBox="0 0 260 92" width="250" height="90" xmlns="http://www.w3.org/2000/svg">${boxes}</svg><div class="text-[10px] font-bold text-slate-500 mt-1">Non-Verbal Figure: Figural Classification (Odd One Out)</div></div>`;
+        const opts = ['Fig A', 'Fig B', 'Fig C', 'Fig D'];
+        return {
+          id: 'm_fig_reas_fclass_' + dateKey,
+          word: 'Reasoning • Figural Classification',
+          meaningHi: 'Figural Classification',
+          category: 'Reasoning: Figural Classification • Hard',
+          subject: 'reas',
+          exam: `SSC Syllabus ${dateKey} • Hard`,
+          year: dateKey,
+          chartHtml: svg,
+          cbtPrompt: 'Three of the four figures (A, B, C, D) follow a strict geometric rule between polygon sides and inner red dots. Identify the ODD figure out.',
+          promptHi: 'चार आकृतियों (A, B, C, D) में से तीन बहुभुज की भुजाओं और अंदरूनी लाल बिंदुओं के बीच एक नियम का पालन करती हैं। विषम (Odd) आकृति चुनें।',
+          options: opts,
+          answer: opts[oddIdx],
+          cbtAnswer: opts[oddIdx],
+          exp: `In three figures, Number of inner red dots = Number of polygon sides. In Fig ${specs[oddIdx].lbl}, a ${specs[oddIdx].sides}-sided polygon has only ${specs[oddIdx].dots} dots ⇒ Fig ${specs[oddIdx].lbl} is the odd one out.`
+        };
+      }
+
+      // 1. Upgrade Section 1 Reasoning (25 Qs): 9 Non-Verbal SVG + Syllabus Topics (Address/Date Matching, Emotional/Social/Critical Thinking, Word Building) + Statement + Hard Analytical!
+      if (typeof prevReas25 === 'function') {
+        window.buildBuiltinDailyReasoning25 = function(dateKey) {
+          const base25 = prevReas25(dateKey);
+          const rng = seededRng('SYL_REAS_MIX_' + dateKey);
+          const fClass = buildFiguralClassificationSvg(dateKey);
+          const extra3 = shuffleDet(SYL_REAS, rng).slice(0, 3).map((r, i) => ({
+            id: 'm_bi_reas_syl_' + dateKey + '_' + i,
+            word: 'Reasoning • ' + r[0],
+            meaningHi: r[0],
+            category: `Reasoning: ${r[0]} • ${r[1]}`,
+            subject: 'reas',
+            exam: `SSC Syllabus ${dateKey} • ${r[1]}`,
+            year: dateKey,
+            chartHtml: '',
+            cbtPrompt: r[2],
+            promptHi: r[3],
+            options: r[4],
+            answer: r[4][r[5]],
+            cbtAnswer: r[4][r[5]],
+            exp: r[6]
+          }));
+          // Replace last 4 items of base25 with Figural Classification SVG (9th SVG!) + 3 Official Syllabus Hard Qs
+          return [...base25.slice(0, 21), fClass, ...extra3].slice(0, 25);
+        };
+      }
+
+      // 2. Upgrade Section 2 GK/GS (25 Qs): Include Computer Awareness (2 Qs) per Image 3 Syllabus + Exact Weightage!
+      if (typeof prevGk25 === 'function') {
+        window.buildBuiltinDailyGk25 = function(dateKey) {
+          const base25 = prevGk25(dateKey);
+          const rng = seededRng('SYL_COMP_' + dateKey);
+          const comp2 = shuffleDet(SYL_COMP, rng).slice(0, 2).map((c, i) => ({
+            id: 'm_ca_gs_comp_' + dateKey + '_' + i,
+            word: 'Computer • Q.' + (i + 1),
+            meaningHi: 'Computer Awareness',
+            category: `GK/GS: Computer • ${c[1]}`,
+            subject: 'gk',
+            exam: `SSC Syllabus ${dateKey} • ${c[1]}`,
+            year: dateKey,
+            chartHtml: '',
+            cbtPrompt: c[2],
+            promptHi: c[3],
+            options: c[4],
+            answer: c[4][c[5]],
+            cbtAnswer: c[4][c[5]],
+            exp: c[6]
+          }));
+          return [...base25.slice(0, 23), ...comp2].slice(0, 25);
+        };
+      }
+
+      // 3. Upgrade Section 4 English (25 Qs): Alternate / Mix Full Reading Comprehension Passage (5 Qs) + Cloze Passage + Articles + Word Analogy + Grammar/Error/Voice/Narration/PQRS/Vocab!
+      if (typeof prevEng25 === 'function') {
+        window.buildCompleteSscEnglish25 = function(dateKey) {
+          const base25 = prevEng25(dateKey);
+          const rng = seededRng('SYL_ENG_' + dateKey);
+          const artAna2 = ENG_ART_ANA.map((g, i) => ({
+            id: 'm_eng_art_' + dateKey + '_' + i,
+            word: g[0],
+            meaningHi: g[0],
+            category: `English: ${g[0]} • ${g[1]}`,
+            subject: 'english',
+            exam: `SSC Syllabus ${dateKey} • ${g[1]}`,
+            year: dateKey,
+            chartHtml: '',
+            cbtPrompt: g[2],
+            promptHi: '',
+            options: g[3],
+            answer: g[3][g[4]],
+            cbtAnswer: g[3][g[4]],
+            exp: g[5]
+          }));
+
+          // On odd days show Full Reading Comprehension Passage (5 Qs); on even days show Full Cloze Passage (5 Qs) — BOTH from official SSC CGL English Syllabus!
+          const dayNum = parseInt(String(dateKey).slice(-2), 10) || 1;
+          let passage5 = base25.slice(20, 25); // default Cloze 5
+          if (dayNum % 2 === 0) {
+            passage5 = ENG_RC.qs.map((q, qi) => {
+              const ansText = q[1][q[2]];
+              const pBox = `<div class="mb-3 p-3 rounded-xl bg-sky-50 border border-sky-300 text-slate-900 text-xs sm:text-sm leading-relaxed font-medium"><div class="text-[10px] font-black uppercase text-sky-800 mb-1">📖 ${ENG_RC.title} (Q.${qi + 1}/5)</div>${ENG_RC.passage}</div>`;
+              return {
+                id: 'm_eng_rc_' + dateKey + '_' + qi,
+                word: 'Reading Comp • Q.' + (qi + 1),
+                meaningHi: 'Reading Comprehension',
+                category: 'English: Reading Comprehension • Hard',
+                subject: 'english',
+                exam: `SSC Syllabus ${dateKey} • Hard`,
+                year: dateKey,
+                chartHtml: pBox,
+                cbtPrompt: q[0],
+                promptHi: '',
+                options: q[1],
+                answer: ansText,
+                cbtAnswer: ansText,
+                exp: q[3]
+              };
+            });
+          }
+
+          // Replace 2 grammar slots with Articles + Word Analogy, and attach 5-Q RC or Cloze Passage!
+          return [...base25.slice(0, 13), ...artAna2, ...base25.slice(15, 20), ...passage5].slice(0, 25);
+        };
+      }
     })();
   </script>
 
