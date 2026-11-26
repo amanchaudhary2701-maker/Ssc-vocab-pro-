@@ -807,6 +807,225 @@
     }
   </style>
 
+
+  <style id="v146-testranking-oled-theme">
+    /* ===== V146: SELECTIONWAY / TEST RANKING OLED DARK-VIOLET DESIGN SYSTEM ===== */
+    body:not(.light-mode):not(.kgs-light) {
+      background: #000000 !important;
+      background-image: radial-gradient(ellipse 110% 340px at 50% 0%, rgba(88, 72, 214, 0.28) 0%, rgba(16, 15, 34, 0.35) 45%, #000000 78%) !important;
+      background-attachment: fixed !important;
+      color: #f8fafc !important;
+    }
+    body:not(.light-mode):not(.kgs-light) header.sticky {
+      background: rgba(8, 8, 16, 0.88) !important;
+      backdrop-filter: blur(18px) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    body:not(.light-mode):not(.kgs-light) .glass-card {
+      background: #0e0f14 !important;
+      border: 1px solid rgba(255, 255, 255, 0.10) !important;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45) !important;
+    }
+    body:not(.light-mode):not(.kgs-light) nav.fixed {
+      background: rgba(7, 8, 12, 0.96) !important;
+      border-top: 1px solid rgba(255, 255, 255, 0.09) !important;
+    }
+
+    /* Signature Test Ranking Components */
+    .tr-surface {
+      background: #0e0f14;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-radius: 18px;
+    }
+    .tr-surface-hover {
+      transition: transform 0.15s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .tr-surface-hover:hover {
+      border-color: rgba(124, 107, 242, 0.55);
+      background: #13141c;
+    }
+    .tr-surface-hover:active {
+      transform: scale(0.985);
+    }
+    .tr-mode-pill {
+      background: #0b0c12;
+      border: 1px solid rgba(124, 107, 242, 0.45);
+      border-radius: 9999px;
+      padding: 4px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+    .tr-mode-btn {
+      border-radius: 9999px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.2s ease;
+      color: #cbd5e1;
+    }
+    .tr-mode-btn.active {
+      background: linear-gradient(90deg, #7c6bf2 0%, #6d5df6 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 18px rgba(124, 107, 242, 0.42);
+    }
+    .tr-subtab {
+      position: relative;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.18s ease;
+    }
+    .tr-subtab.active {
+      color: #a598ff;
+      font-weight: 800;
+    }
+    .tr-subtab.active::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 0;
+      height: 2.5px;
+      border-radius: 9999px;
+      background: #7c6bf2;
+    }
+    .tr-start-btn {
+      background: linear-gradient(135deg, #7c6bf2 0%, #6c5ce7 100%);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 12.5px;
+      padding: 9px 16px;
+      border-radius: 12px;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(124, 107, 242, 0.35);
+      transition: filter 0.15s ease, transform 0.12s ease;
+    }
+    .tr-start-btn:hover { filter: brightness(1.1); }
+    .tr-start-btn:active { transform: scale(0.96); }
+
+    .tr-filter-pill {
+      padding: 7px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #12131a;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: #cbd5e1;
+      white-space: nowrap;
+      transition: all 0.16s ease;
+    }
+    .tr-filter-pill.active {
+      background: rgba(124, 107, 242, 0.18);
+      border-color: #7c6bf2;
+      color: #c4baff;
+      font-weight: 800;
+    }
+    .tr-seg-pill {
+      background: #0d0e13;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 9999px;
+      padding: 4px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+    .tr-seg-btn {
+      border-radius: 9999px;
+      padding: 9px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #94a3b8;
+      transition: all 0.18s ease;
+    }
+    .tr-seg-btn.active {
+      background: #231f42;
+      color: #b4a7ff;
+      font-weight: 800;
+    }
+    .tr-target-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 9999px;
+      border: 1.8px solid rgba(255, 255, 255, 0.25);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: all 0.18s ease;
+      flex-shrink: 0;
+    }
+    .tr-target-check.done {
+      background: #7c6bf2;
+      border-color: #7c6bf2;
+      color: #ffffff;
+    }
+    .tr-emblem {
+      width: 52px;
+      height: 52px;
+      border-radius: 9999px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.18);
+    }
+    .tr-emblem-lg {
+      width: 72px;
+      height: 72px;
+      border-radius: 9999px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(124, 107, 242, 0.25);
+      border: 3px solid rgba(124, 107, 242, 0.65);
+    }
+    .tr-practice-card {
+      background: #0e0f14;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 16px;
+      padding: 14px 8px 12px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.15s ease, border-color 0.18s ease;
+    }
+    .tr-practice-card:hover {
+      border-color: rgba(124, 107, 242, 0.55);
+      transform: translateY(-2px);
+    }
+    .tr-purchased-bar {
+      background: rgba(22, 163, 74, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.55);
+      color: #22c55e;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 13.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+
 </head>
 <body class="text-slate-100 antialiased selection:bg-cyan-400/30 selection:text-cyan-100">
   <!-- ==================== STAGE 1: 3D ANIMATED SPLASH SCREEN ==================== -->
@@ -1188,6 +1407,288 @@
       <!-- ================= VIEW 1: 3D VOCAB STUDIO ================= -->
       <!-- ==================== VIEW 0: KGS-STYLE EDTECH HOME DASHBOARD ==================== -->
       <section id="view-home" class="view-section space-y-4 sm:space-y-5">
+        <!-- ==================== V146 TEST RANKING / SELECTIONWAY OLED HUB ==================== -->
+        <div id="tr-shell" class="space-y-4">
+          <!-- Top User Strip + Dual Mode Switcher (Visible on Home & Test Series main tabs) -->
+          <div id="tr-top-chrome" class="space-y-3.5">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 p-0.5 shrink-0 shadow-lg shadow-violet-500/20">
+                  <div class="w-full h-full rounded-full bg-white flex items-center justify-center text-indigo-700 font-black text-lg" id="tr-user-avatar">👤</div>
+                </div>
+                <div class="min-w-0">
+                  <div id="tr-user-name" class="text-base sm:text-lg font-extrabold text-white truncate">Aman</div>
+                  <div class="text-[11px] text-slate-400 font-semibold">SSC CGL • CHSL • CPO • GS 8,149 PYQ</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <button type="button" id="tr-quick-pyq-btn" class="px-2.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/45 text-emerald-300 text-[11px] font-extrabold hover:bg-emerald-500/25 transition">PYQ Hub</button>
+                <button type="button" id="tr-notif-btn" class="relative w-9 h-9 rounded-full bg-[#12131a] border border-white/15 flex items-center justify-center text-white text-xs font-extrabold hover:border-violet-400 transition" title="Today's Live Test Alert">
+                  <span>🔔</span>
+                  <span class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-rose-500 text-[9px] font-black text-white flex items-center justify-center">1</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dual Mode Switcher Pill (Vocab Pro <-> Test Ranking) -->
+            <div class="tr-mode-pill" role="tablist" aria-label="App Mode Switcher">
+              <button type="button" id="tr-mode-vocab" class="tr-mode-btn">
+                <span class="text-cyan-400">📘</span>
+                <span>Vocab Pro</span>
+              </button>
+              <button type="button" id="tr-mode-ranking" class="tr-mode-btn active">
+                <span>🎯</span>
+                <span>Test Ranking</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ==================== TEST RANKING MODE ROOT ==================== -->
+          <div id="tr-ranking-root" class="space-y-4">
+            <!-- Sub-Tab Strip: Home | Live Test | Free Test | Test Series -->
+            <div id="tr-subtabs-bar" class="flex items-center justify-between border-b border-white/10 overflow-x-auto no-scrollbar -mx-1 px-1">
+              <button type="button" data-tr-tab="home" class="tr-subtab active"><span>🎯</span> Home</button>
+              <button type="button" data-tr-tab="live" class="tr-subtab"><span>📡</span> Live Test</button>
+              <button type="button" data-tr-tab="free" class="tr-subtab"><span>🎁</span> Free Test</button>
+              <button type="button" data-tr-tab="series" class="tr-subtab"><span>📋</span> Test Series</button>
+            </div>
+
+            <!-- ===== SCREEN 1: TEST RANKING HOME ===== -->
+            <div id="tr-screen-home" class="space-y-5">
+              <!-- Hero Promo Carousel -->
+              <div class="space-y-2.5">
+                <div id="tr-hero-slide-0" class="rounded-2xl overflow-hidden border border-white/15 bg-gradient-to-br from-[#0e1b4d] via-[#17286d] to-[#0a1026] p-4 sm:p-5 relative shadow-2xl">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-2 max-w-md">
+                      <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black tracking-wider uppercase animate-pulse">
+                        <span>● LIVE</span> UPCOMING FREE LIVE MOCK TESTS
+                      </div>
+                      <h2 class="text-lg sm:text-2xl font-black text-white leading-tight">SSC CGL, CHSL &amp; CPO 2026<br/><span class="text-amber-300">All-India Hard CBT Series</span></h2>
+                      <p class="text-[11px] sm:text-xs text-blue-100/90 font-medium">100 Qs • 200 Marks (+2 / -0.50) • Statement Reasoning, Hard GS &amp; Full English Passage/Cloze</p>
+                      <div class="flex flex-wrap items-center gap-2 pt-1">
+                        <button type="button" id="tr-hero-live-cta" class="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-lg transition">⚡ Start Live Mock</button>
+                        <button type="button" id="tr-hero-series-cta" class="px-3.5 py-2 rounded-xl bg-white/10 border border-white/25 text-white font-bold text-xs hover:bg-white/20 transition">📋 All Test Series</button>
+                      </div>
+                    </div>
+                    <div class="bg-slate-950/75 border border-cyan-400/30 rounded-xl p-3 text-[11px] space-y-1.5 shrink-0 min-w-[205px]">
+                      <div class="text-center font-black text-cyan-300 uppercase tracking-wider text-[10px] border-b border-white/10 pb-1">SSC 2025-26 PYQ VAULT</div>
+                      <div class="flex justify-between gap-3 text-slate-200"><span>🌍 GS PYQ (20 Subj)</span><span class="font-extrabold text-amber-300">8,149 Qs</span></div>
+                      <div class="flex justify-between gap-3 text-slate-200"><span>📐 Pinnacle Maths</span><span class="font-extrabold text-emerald-300">5,382 Qs</span></div>
+                      <div class="flex justify-between gap-3 text-slate-200"><span>📘 BlackBook Vocab</span><span class="font-extrabold text-cyan-300">9,588+</span></div>
+                      <div class="flex justify-between gap-3 text-slate-200"><span>🧠 Hard Reasoning</span><span class="font-extrabold text-violet-300">Syllabus</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="tr-hero-slide-1" class="hidden rounded-2xl overflow-hidden border border-violet-400/30 bg-gradient-to-br from-[#1f1247] via-[#2b1763] to-[#0c0a1d] p-4 sm:p-5 shadow-2xl">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-2">
+                      <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-200 text-[10px] font-black uppercase">NEWLY ADDED • 86 CHAPTERS</div>
+                      <h2 class="text-lg sm:text-2xl font-black text-white leading-tight">Complete 2025 GS PYQ Bank<br/><span class="text-violet-300">Subject &amp; Chapter-Wise Sets</span></h2>
+                      <p class="text-[11px] sm:text-xs text-violet-100/90">History, Polity, Geography, Economics, Science, Computer &amp; Current Affairs — har question ke Hindi Solution + One-Liners ke saath.</p>
+                      <button type="button" id="tr-hero-gs-cta" class="px-4 py-2 rounded-xl bg-[#7c6bf2] hover:brightness-110 text-white font-black text-xs shadow-lg transition">🌍 Open GS PYQ Sets</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-center gap-1.5">
+                  <button type="button" data-tr-slide="0" class="tr-dot w-6 h-1.5 rounded-full bg-[#7c6bf2] transition-all" aria-label="Slide 1"></button>
+                  <button type="button" data-tr-slide="1" class="tr-dot w-2 h-1.5 rounded-full bg-slate-700 transition-all" aria-label="Slide 2"></button>
+                </div>
+              </div>
+
+              <!-- TODAY'S TARGET Card -->
+              <div class="tr-surface p-4 space-y-3">
+                <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-white/10">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-2xl">🎯</span>
+                    <span class="text-sm sm:text-base font-black tracking-wide text-white uppercase">TODAY'S TARGET</span>
+                  </div>
+                  <span id="tr-target-pill" class="px-3 py-1 rounded-full bg-[#1d1a36] border border-violet-500/30 text-[#b4a7ff] text-[11px] font-extrabold">0/2 Tasks Completed</span>
+                </div>
+                <div class="divide-y divide-white/10">
+                  <div class="flex items-center justify-between gap-3 py-2.5">
+                    <button type="button" id="tr-task-quiz-open" class="flex items-center gap-3 text-left flex-1 group">
+                      <span class="w-8 h-8 rounded-lg bg-violet-500/15 border border-violet-400/30 flex items-center justify-center text-base">📝</span>
+                      <div>
+                        <div class="text-sm font-bold text-white group-hover:text-violet-300 transition">Daily Quiz</div>
+                        <div class="text-[11px] text-slate-400">25 Qs Mixed Hard SSC Practice</div>
+                      </div>
+                    </button>
+                    <button type="button" data-tr-task="quiz" class="tr-target-check" aria-label="Mark Daily Quiz Complete"></button>
+                  </div>
+                  <div class="flex items-center justify-between gap-3 pt-2.5">
+                    <button type="button" id="tr-task-ca-open" class="flex items-center gap-3 text-left flex-1 group">
+                      <span class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-base">📰</span>
+                      <div>
+                        <div class="text-sm font-bold text-white group-hover:text-amber-300 transition">Read Current Affairs &amp; GS PYQ</div>
+                        <div class="text-[11px] text-slate-400">397 Current Affairs + 20 GS Subjects</div>
+                      </div>
+                    </button>
+                    <button type="button" data-tr-task="ca" class="tr-target-check" aria-label="Mark Current Affairs Complete"></button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- START PRACTICE (3-Card Grid) -->
+              <div class="space-y-3">
+                <div class="flex items-center gap-2">
+                  <span class="text-lg">🎯</span>
+                  <h3 class="text-sm sm:text-base font-black tracking-wide text-white uppercase">START PRACTICE</h3>
+                </div>
+                <div class="grid grid-cols-3 gap-2.5 sm:gap-3.5">
+                  <button type="button" id="tr-prac-live" class="tr-practice-card">
+                    <div class="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500/20 to-indigo-500/20 border border-white/10 flex items-center justify-center text-2xl">
+                      <span>⏱️</span>
+                      <span class="absolute -top-1.5 -right-2 px-1.5 py-0.5 rounded bg-rose-600 text-[8px] font-black text-white tracking-wider">● LIVE</span>
+                    </div>
+                    <span class="text-xs sm:text-sm font-extrabold text-white">Live Test</span>
+                  </button>
+                  <button type="button" id="tr-prac-free" class="tr-practice-card">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500/20 to-amber-500/20 border border-white/10 flex items-center justify-center text-2xl">
+                      <span>💡</span>
+                    </div>
+                    <span class="text-xs sm:text-sm font-extrabold text-white">Free Test</span>
+                  </button>
+                  <button type="button" id="tr-prac-series" class="tr-practice-card">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 border border-white/10 flex items-center justify-center text-2xl">
+                      <span>📋</span>
+                    </div>
+                    <span class="text-xs sm:text-sm font-extrabold text-white">Test Series</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Topper's Guidance / Super Pro Banner -->
+              <div class="rounded-2xl p-4 bg-[#151424] border border-violet-500/25 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-12 h-12 rounded-2xl bg-violet-500/20 border border-violet-400/30 flex items-center justify-center text-2xl shrink-0">🎓</div>
+                  <div class="min-w-0">
+                    <div class="text-sm sm:text-base font-extrabold text-white truncate">Topper's Guidance &amp; Pro</div>
+                    <div class="text-[11px] sm:text-xs text-slate-400 leading-snug">Full 100-Q Hard Mocks, 13,500+ PYQs &amp; Live AIR Rank</div>
+                  </div>
+                </div>
+                <button type="button" id="tr-explore-pro-btn" class="tr-start-btn shrink-0">Explore Pass</button>
+              </div>
+
+              <!-- QUICK ACCESS -->
+              <div class="space-y-3">
+                <div class="flex items-center gap-2">
+                  <span class="text-lg">⏰</span>
+                  <h3 class="text-sm sm:text-base font-black tracking-wide text-white uppercase">QUICK ACCESS</h3>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <button type="button" id="tr-qa-gs" class="tr-surface tr-surface-hover p-3.5 text-left flex items-center gap-3">
+                    <span class="text-xl">🌍</span>
+                    <div class="min-w-0"><div class="text-xs font-extrabold text-white truncate">GS PYQ Bank</div><div class="text-[10px] text-amber-300 font-bold">8,149 Qs • 20 Subj</div></div>
+                  </button>
+                  <button type="button" id="tr-qa-maths" class="tr-surface tr-surface-hover p-3.5 text-left flex items-center gap-3">
+                    <span class="text-xl">📐</span>
+                    <div class="min-w-0"><div class="text-xs font-extrabold text-white truncate">Maths PYQ</div><div class="text-[10px] text-emerald-300 font-bold">5,382 Qs • 27 Ch</div></div>
+                  </button>
+                  <button type="button" id="tr-qa-vocab" class="tr-surface tr-surface-hover p-3.5 text-left flex items-center gap-3">
+                    <span class="text-xl">📘</span>
+                    <div class="min-w-0"><div class="text-xs font-extrabold text-white truncate">BlackBook Vocab</div><div class="text-[10px] text-cyan-300 font-bold">9,588+ Words</div></div>
+                  </button>
+                  <button type="button" id="tr-qa-pdfs" class="tr-surface tr-surface-hover p-3.5 text-left flex items-center gap-3">
+                    <span class="text-xl">📄</span>
+                    <div class="min-w-0"><div class="text-xs font-extrabold text-white truncate">PDF Notes</div><div class="text-[10px] text-violet-300 font-bold">Subject-Wise</div></div>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ===== SCREEN 1B: LIVE TEST TAB ===== -->
+            <div id="tr-screen-live" class="hidden space-y-4">
+              <div class="tr-surface p-4 sm:p-5 border-rose-500/35 space-y-3">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="px-2.5 py-1 rounded-full bg-rose-500/20 border border-rose-400/50 text-rose-300 text-[11px] font-black">● LIVE ALL-INDIA MOCK</span>
+                  <span class="text-[11px] font-bold text-slate-400">+2 / -0.50 Marking</span>
+                </div>
+                <h3 class="text-base sm:text-xl font-black text-white">Daily All-India 100-Q Hard SSC Live Test</h3>
+                <p class="text-xs text-slate-400">Sectional Eduquity Pattern: Reasoning (Statement + Non-Verbal) • Hard GS (No Exam Tag) • Maths • English (Grammar, Cloze, Passage, Vocab).</p>
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-300 pt-1">
+                  <span>🕒 60 Min</span><span>❓ 100 Ques</span><span>✓ 200 Marks</span>
+                </div>
+                <button type="button" id="tr-live-start-main" class="tr-start-btn w-full py-3 text-sm">⚡ Start Live Test Now</button>
+              </div>
+              <div id="tr-live-list" class="space-y-2.5"></div>
+            </div>
+
+            <!-- ===== SCREEN 1C: FREE TEST TAB ===== -->
+            <div id="tr-screen-free" class="hidden space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-base font-black text-white">Free Practice &amp; PYQ Mini Mocks</h3>
+                  <p class="text-xs text-slate-400">Sabhi students ke liye 100% Free timed CBT sets</p>
+                </div>
+              </div>
+              <div id="tr-free-list" class="space-y-2.5"></div>
+            </div>
+
+            <!-- ===== SCREEN 2: TEST SERIES EXAM CATEGORY GRID ===== -->
+            <div id="tr-screen-series" class="hidden space-y-4">
+              <div id="tr-cat-grid" class="grid grid-cols-2 gap-3"></div>
+              <button type="button" id="tr-purchased-status-btn" class="tr-purchased-bar">
+                <span>✓</span>
+                <span id="tr-purchased-status-text">Active • All SSC, Maths &amp; GS PYQ Series Ready</span>
+              </button>
+            </div>
+
+            <!-- ===== SCREEN 3: EXAM DRILL-DOWN (CHOOSE EXAM SERIES) ===== -->
+            <div id="tr-screen-exam" class="hidden space-y-4">
+              <div class="flex items-center gap-3">
+                <button type="button" id="tr-back-to-series" class="w-9 h-9 rounded-full bg-[#12131a] border border-white/10 flex items-center justify-center text-white text-lg hover:border-violet-400 transition" aria-label="Back to Test Series">←</button>
+                <h2 class="text-lg font-extrabold text-white">Test Series</h2>
+              </div>
+              <div class="space-y-2.5 pt-1">
+                <div id="tr-exam-emblem" class="tr-emblem-lg text-3xl">🏛️</div>
+                <div class="flex items-center gap-2.5">
+                  <h3 id="tr-exam-title" class="text-xl font-black text-white">SSC</h3>
+                  <span class="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-extrabold">Unlocked</span>
+                </div>
+                <p id="tr-exam-sub" class="text-sm text-slate-400">Choose the Exams you will be preparing for</p>
+              </div>
+              <div id="tr-exam-series-list" class="space-y-3"></div>
+            </div>
+
+            <!-- ===== SCREEN 4: SERIES DETAIL (MOCK vs PYQ | FULL vs SECTIONAL | START NOW CARDS) ===== -->
+            <div id="tr-screen-detail" class="hidden space-y-4">
+              <div class="flex items-center gap-3">
+                <button type="button" id="tr-back-to-exam" class="w-9 h-9 rounded-full bg-[#12131a] border border-white/10 flex items-center justify-center text-white text-lg hover:border-violet-400 transition" aria-label="Back to Exams">←</button>
+                <h2 id="tr-detail-title" class="text-base sm:text-lg font-extrabold text-white truncate">SSC CGL Tier-1 Mock Test Series</h2>
+              </div>
+
+              <!-- Mock Tests vs Previous Year Pill -->
+              <div class="tr-seg-pill">
+                <button type="button" id="tr-seg-mock" class="tr-seg-btn">Mock Tests (15)</button>
+                <button type="button" id="tr-seg-pyq" class="tr-seg-btn active">Previous Year (120+)</button>
+              </div>
+
+              <!-- Full Tests vs Sectional Tests Underline Tabs -->
+              <div class="grid grid-cols-2 border-b border-white/10">
+                <button type="button" id="tr-type-full" class="tr-subtab justify-center active"><span>📋</span> <span id="tr-type-full-lbl">Full Tests</span></button>
+                <button type="button" id="tr-type-sec" class="tr-subtab justify-center"><span>⊞</span> <span id="tr-type-sec-lbl">Sectional Tests</span></button>
+              </div>
+
+              <!-- Year / Subject Filter Pills -->
+              <div id="tr-detail-filters" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+
+              <!-- Test Cards Stack -->
+              <div id="tr-detail-list" class="space-y-3"></div>
+              <div id="tr-detail-pager" class="flex flex-wrap items-center justify-center gap-2 pt-1"></div>
+            </div>
+
+            <!-- Bottom Back-to-Vocab-Pro Strip (matches SelectionWay bottom bar) -->
+            <button type="button" id="tr-bottom-back-vocab" class="w-full py-2.5 px-4 rounded-xl bg-[#0b0c10] border border-white/10 flex items-center justify-center gap-2 text-xs font-extrabold text-slate-300 hover:border-cyan-400/50 transition">
+              <span class="text-slate-400">‹‹‹ Back to</span>
+              <span class="text-cyan-400">📘 SSC Vocab 3D Pro</span>
+            </button>
+          </div>
+
+          <!-- ==================== CLASSIC VOCAB PRO HOME (PRESERVED 100%) ==================== -->
+          <div id="tr-vocab-classic-wrap" class="hidden space-y-4 sm:space-y-5">
+
         <!-- TESTBOOK-STYLE EXAM CATEGORY BAR -->
         <div class="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-0.5" id="tb-exam-bar">
           <div class="flex items-center gap-1.5 shrink-0">
@@ -1527,7 +2028,10 @@
         </div>
         <p class="text-[10px] text-slate-400">SSC Vocab 3D Pro (Aman Kumar) • 📧 amanchaudhary2701@gmail.com • 📞 +91 9151345504</p>
       </div>
-    </section>
+    
+          </div><!-- /#tr-vocab-classic-wrap -->
+        </div><!-- /#tr-shell -->
+</section>
 
       <!-- ==================== DEDICATED MULTI-PAGE COURSE VIEW (Chapter Sets + Large-Font Reader + Swipe Mode) ==================== -->
       <!-- ==================== VIEW: SUBJECT HUB (REAS | ENGLISH | GS | STATIC GK | MATHS) ==================== -->
@@ -21438,6 +21942,688 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
           ['pro-mistake-modal', 'pro-focus-modal', 'pro-analytics-modal', 'pro-security-modal', 'pro-cmd-modal'].forEach(closeModal);
         }
       });
+    })();
+  </script>
+
+
+  <!-- ==================== V146 TEST RANKING OLED UI CONTROLLER ==================== -->
+  <script>
+    (function initV146TestRankingUI() {
+      const trState = {
+        mode: 'ranking',      // 'ranking' | 'vocab'
+        tab: 'home',          // 'home' | 'live' | 'free' | 'series'
+        screen: 'main',       // 'main' | 'exam' | 'detail'
+        catId: 'ssc',
+        seriesId: 'cgl_t1',
+        seg: 'pyq',           // 'mock' | 'pyq'
+        testType: 'sec',      // 'full' | 'sec'
+        filter: 'all',
+        page: 1,
+        perPage: 15,
+        slide: 0
+      };
+
+      // Sync user name from existing profile greeting
+      function syncUserName() {
+        const g = document.getElementById('kgs-greet-name');
+        const el = document.getElementById('tr-user-name');
+        if (g && el) {
+          const raw = (g.textContent || '').replace(/Namaste,?/i, '').replace(/👋/g, '').trim();
+          if (raw && raw !== 'SSC Aspirant') el.textContent = raw;
+        }
+      }
+      setTimeout(syncUserName, 600);
+      setTimeout(syncUserName, 2200);
+
+      // Today's Target persistence (resets daily)
+      const todayKey = 'tr_target_' + new Date().toISOString().slice(0, 10);
+      let targetState = { quiz: false, ca: false };
+      try {
+        const saved = JSON.parse(localStorage.getItem(todayKey) || 'null');
+        if (saved) targetState = saved;
+      } catch (e) {}
+
+      function renderTargets() {
+        const doneCnt = (targetState.quiz ? 1 : 0) + (targetState.ca ? 1 : 0);
+        const pill = document.getElementById('tr-target-pill');
+        if (pill) pill.textContent = `${doneCnt}/2 Tasks Completed`;
+        document.querySelectorAll('[data-tr-task]').forEach(btn => {
+          const k = btn.getAttribute('data-tr-task');
+          const d = !!targetState[k];
+          btn.classList.toggle('done', d);
+          btn.textContent = d ? '✓' : '';
+        });
+      }
+      function toggleTarget(k, forceTrue) {
+        targetState[k] = forceTrue ? true : !targetState[k];
+        try { localStorage.setItem(todayKey, JSON.stringify(targetState)); } catch (e) {}
+        renderTargets();
+      }
+      renderTargets();
+
+      // Mode switcher: Vocab Pro <-> Test Ranking
+      function setAppMode(mode) {
+        trState.mode = mode;
+        const rRoot = document.getElementById('tr-ranking-root');
+        const vWrap = document.getElementById('tr-vocab-classic-wrap');
+        const bVocab = document.getElementById('tr-mode-vocab');
+        const bRank = document.getElementById('tr-mode-ranking');
+        if (rRoot) rRoot.classList.toggle('hidden', mode !== 'ranking');
+        if (vWrap) vWrap.classList.toggle('hidden', mode !== 'vocab');
+        if (bVocab) bVocab.classList.toggle('active', mode === 'vocab');
+        if (bRank) bRank.classList.toggle('active', mode === 'ranking');
+      }
+
+      document.getElementById('tr-mode-vocab')?.addEventListener('click', () => setAppMode('vocab'));
+      document.getElementById('tr-mode-ranking')?.addEventListener('click', () => setAppMode('ranking'));
+      document.getElementById('tr-bottom-back-vocab')?.addEventListener('click', () => {
+        setAppMode('vocab');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // Helper: lazy load GS PYQ data from v145 payload if not yet loaded
+      async function ensureGsData() {
+        if (window._GS_PYQ_DATA) return window._GS_PYQ_DATA;
+        const el = document.getElementById('gs-pyq-gz-b64');
+        if (!el || typeof DecompressionStream === 'undefined') return null;
+        const bin = atob(el.textContent.trim());
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        const ds = new DecompressionStream('gzip');
+        const text = await new Response(new Blob([bytes]).stream().pipeThrough(ds)).text();
+        window._GS_PYQ_DATA = JSON.parse(text);
+        return window._GS_PYQ_DATA;
+      }
+
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      // Exam Categories (Screenshot 2)
+      const EXAM_CATS = [
+        { id: 'ssc', name: 'SSC', icon: '🏛️', badgeBg: 'bg-amber-50', ring: 'text-amber-700', sub: 'CGL, CHSL, CPO, MTS, Phase XIII & Steno' },
+        { id: 'gs_pyq', name: 'GS PYQ Bank', icon: '🌍', badgeBg: 'bg-sky-50', ring: 'text-sky-700', sub: '20 Subjects • 86 Chapters • 8,149 Hindi PYQs' },
+        { id: 'maths_pyq', name: 'Maths PYQ', icon: '📐', badgeBg: 'bg-emerald-50', ring: 'text-emerald-700', sub: 'Pinnacle 6800+ • 27 Chapters • 5,382 PYQs' },
+        { id: 'dp', name: 'DP', icon: '🛡️', badgeBg: 'bg-blue-50', ring: 'text-blue-700', sub: 'Delhi Police Constable, HC & AWO/TPO 2025' },
+        { id: 'railways', name: 'Railways', icon: '🚆', badgeBg: 'bg-rose-50', ring: 'text-rose-700', sub: 'RRB NTPC, Group D & ALP GS + Maths' },
+        { id: 'english', name: 'English Vocab', icon: '📘', badgeBg: 'bg-cyan-50', ring: 'text-cyan-700', sub: 'BlackBook 9,588+ • Grammar & Comprehension' },
+        { id: 'up_exams', name: 'UP Exams', icon: '⭐', badgeBg: 'bg-orange-50', ring: 'text-orange-700', sub: 'UP Police, UPSSSC PET & RO/ARO GS + Quant' },
+        { id: 'defence', name: 'Defence & IB', icon: '🎖️', badgeBg: 'bg-yellow-50', ring: 'text-yellow-700', sub: 'IB ACIO, CDS, AFCAT Hard GS & English' }
+      ];
+
+      // Series Catalog per Category (Screenshot 3)
+      const SERIES_BY_CAT = {
+        ssc: [
+          { id: 'cgl_t1', title: 'SSC CGL Tier-1 Mock Test Series', examFilter: 'SSC CGL 2025', total: 145, free: 145 },
+          { id: 'cgl_t2', title: 'SSC CGL Tier-2 Mock Test Series', examFilter: 'SSC CGL 2025', total: 64, free: 64 },
+          { id: 'chsl_t1', title: 'SSC CHSL Tier-1 Mock Test Series', examFilter: 'SSC CHSL 2025', total: 132, free: 132 },
+          { id: 'cpo_t1', title: 'SSC CPO Tier-1 Mock Test Series', examFilter: 'SSC CPO 2025', total: 88, free: 88 },
+          { id: 'mts_t1', title: 'SSC MTS & Havaldar Mock Test Series', examFilter: 'SSC MTS 2025', total: 118, free: 118 },
+          { id: 'phase13', title: 'SSC Selection Post (Phase XIII) Series', examFilter: 'SSC Phase XIII', total: 96, free: 96 },
+          { id: 'steno', title: 'SSC Stenographer Mock Test Series', examFilter: 'SSC Steno 2025', total: 54, free: 54 }
+        ],
+        dp: [
+          { id: 'dp_const', title: 'Delhi Police Constable PYQ & Mock Series', examFilter: 'DP Constable', total: 92, free: 92 },
+          { id: 'dp_hc', title: 'Delhi Police HC & AWO/TPO Test Series', examFilter: 'DP HC / AWO TPO', total: 68, free: 68 }
+        ],
+        railways: [
+          { id: 'rrb_ntpc', title: 'RRB NTPC CBT-1 & CBT-2 GS + Maths Series', examFilter: 'ALL', total: 110, free: 110 },
+          { id: 'rrb_grpd', title: 'RRB Group D Science & GS PYQ Series', examFilter: 'ALL', total: 85, free: 85 }
+        ],
+        english: [
+          { id: 'bb_syn', title: 'BlackBook Synonyms & Antonyms Series', examFilter: 'VOCAB', total: 90, free: 90 },
+          { id: 'bb_ows', title: 'BlackBook OWS & Idioms Master Series', examFilter: 'VOCAB', total: 85, free: 85 },
+          { id: 'eng_full', title: 'SSC English Full Paper (Grammar + Cloze)', examFilter: 'VOCAB', total: 40, free: 40 }
+        ],
+        up_exams: [
+          { id: 'upp_const', title: 'UP Police Constable GS + Maths + Reasoning', examFilter: 'ALL', total: 75, free: 75 },
+          { id: 'upsssc_pet', title: 'UPSSSC PET Complete GS & Static GK Series', examFilter: 'ALL', total: 60, free: 60 }
+        ],
+        defence: [
+          { id: 'ib_acio', title: 'IB ACIO Tier-1 Hard GS & Quant Series', examFilter: 'ALL', total: 55, free: 55 },
+          { id: 'cds_gs', title: 'CDS / NDA / AFCAT Hard GS PYQ Series', examFilter: 'ALL', total: 65, free: 65 }
+        ]
+      };
+
+      // Switch screens inside Test Ranking Hub
+      function showScreen(modeName, tabName) {
+        const topChrome = document.getElementById('tr-top-chrome');
+        const subBar = document.getElementById('tr-subtabs-bar');
+        const screens = ['home', 'live', 'free', 'series', 'exam', 'detail'];
+        screens.forEach(s => {
+          document.getElementById('tr-screen-' + s)?.classList.add('hidden');
+        });
+
+        if (modeName === 'main') {
+          trState.screen = 'main';
+          trState.tab = tabName || trState.tab;
+          if (topChrome) topChrome.classList.remove('hidden');
+          if (subBar) subBar.classList.remove('hidden');
+          document.getElementById('tr-screen-' + trState.tab)?.classList.remove('hidden');
+          document.querySelectorAll('#tr-subtabs-bar [data-tr-tab]').forEach(b => {
+            b.classList.toggle('active', b.getAttribute('data-tr-tab') === trState.tab);
+          });
+          if (trState.tab === 'series') renderCatGrid();
+          if (trState.tab === 'live') renderLiveTab();
+          if (trState.tab === 'free') renderFreeTab();
+        } else if (modeName === 'exam') {
+          trState.screen = 'exam';
+          if (topChrome) topChrome.classList.add('hidden');
+          if (subBar) subBar.classList.add('hidden');
+          document.getElementById('tr-screen-exam')?.classList.remove('hidden');
+          renderExamScreen();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (modeName === 'detail') {
+          trState.screen = 'detail';
+          if (topChrome) topChrome.classList.add('hidden');
+          if (subBar) subBar.classList.add('hidden');
+          document.getElementById('tr-screen-detail')?.classList.remove('hidden');
+          renderDetailScreen();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+
+      // Render Screen 2: Category Grid
+      function renderCatGrid() {
+        const grid = document.getElementById('tr-cat-grid');
+        if (!grid) return;
+        grid.innerHTML = EXAM_CATS.map(c => `
+          <button type="button" data-tr-cat="${c.id}" class="tr-surface tr-surface-hover p-3.5 sm:p-4 flex items-center justify-between gap-2 text-left">
+            <span class="text-sm sm:text-base font-extrabold text-white leading-tight">${esc(c.name)}</span>
+            <div class="tr-emblem ${c.badgeBg} text-2xl">${c.icon}</div>
+          </button>
+        `).join('');
+      }
+
+      // Render Screen 3: Exam Drill-Down
+      async function renderExamScreen() {
+        const cat = EXAM_CATS.find(x => x.id === trState.catId) || EXAM_CATS[0];
+        const emb = document.getElementById('tr-exam-emblem');
+        const tit = document.getElementById('tr-exam-title');
+        const sub = document.getElementById('tr-exam-sub');
+        const list = document.getElementById('tr-exam-series-list');
+        if (emb) emb.textContent = cat.icon;
+        if (tit) tit.textContent = cat.name;
+        if (sub) sub.textContent = cat.sub || 'Choose the Exams you will be preparing for';
+        if (!list) return;
+
+        let rows = [];
+        if (cat.id === 'gs_pyq') {
+          list.innerHTML = '<div class="tr-surface p-5 text-center text-xs text-slate-400">Loading 20 GS Subjects (8,149 PYQs)...</div>';
+          const gs = await ensureGsData();
+          if (gs) {
+            const counts = new Array(gs.subjects.length).fill(0);
+            for (let i = 0; i < gs.items.length; i++) counts[gs.items[i][1]]++;
+            rows = gs.subjects.map((s, idx) => ({
+              id: 'gs_subj_' + idx,
+              title: `${s.icon} ${s.name} (${s.hi})`,
+              meta: `${counts[idx]} PYQs | ${s.chapters.length} Chapters • ${Math.ceil(counts[idx]/25)} Sets`
+            }));
+          }
+        } else if (cat.id === 'maths_pyq' && typeof PINNACLE_MATHS_DATA !== 'undefined') {
+          const counts = new Array(PINNACLE_MATHS_DATA.chapters.length).fill(0);
+          for (let i = 0; i < PINNACLE_MATHS_DATA.questions.length; i++) counts[PINNACLE_MATHS_DATA.questions[i][1]]++;
+          rows = PINNACLE_MATHS_DATA.chapters.map((ch, idx) => ({
+            id: 'math_ch_' + idx,
+            title: `📐 ${ch}`,
+            meta: `${counts[idx]} PYQs | ${Math.ceil(counts[idx]/25)} Free Sets`
+          }));
+        } else {
+          const sList = SERIES_BY_CAT[cat.id] || SERIES_BY_CAT.ssc;
+          rows = sList.map(s => ({
+            id: s.id,
+            title: s.title,
+            meta: `${s.total} Total Tests | ${s.free} Free Tests`
+          }));
+        }
+
+        list.innerHTML = rows.map(r => `
+          <button type="button" data-tr-series="${esc(r.id)}" data-tr-series-title="${esc(r.title)}" class="tr-surface tr-surface-hover w-full p-4 flex items-center justify-between gap-3 text-left">
+            <div class="min-w-0 space-y-1">
+              <div class="text-sm sm:text-base font-extrabold text-white truncate">${esc(r.title)}</div>
+              <div class="text-xs font-semibold text-slate-400">
+                ${esc(r.meta.split('|')[0])}<span class="text-slate-600 mx-1">|</span><span class="text-emerald-400 font-bold">${esc(r.meta.split('|')[1] || 'Free Tests')}</span>
+              </div>
+            </div>
+            <span class="text-slate-400 text-xl font-bold shrink-0">›</span>
+          </button>
+        `).join('');
+      }
+
+      // Launch real CBT test from any Test Ranking card
+      async function launchTestCard(card) {
+        if (card.kind === 'live100') {
+          document.getElementById('ailt-start-btn-home')?.click();
+          return;
+        }
+        if (card.kind === 'gs_set') {
+          const gs = await ensureGsData();
+          if (!gs || typeof startCbtTest !== 'function') return;
+          const pool = card.items.map(it => {
+            const subj = gs.subjects[it[1]];
+            const chName = subj.chapters[it[2]] || subj.name;
+            const opts = [it[6], it[7], it[8], it[9]];
+            const ansText = opts[it[10]] || opts[0];
+            return {
+              id: 'tr_gs_' + it[0],
+              word: subj.name + ' • Q.' + it[0],
+              meaningHi: chName,
+              category: subj.name + ' — ' + chName,
+              subject: 'gk',
+              exam: it[4] || gs.exams[it[3]] || 'SSC 2025',
+              year: '2025',
+              cbtPrompt: it[5],
+              promptHi: '',
+              options: opts,
+              answer: ansText,
+              cbtAnswer: ansText,
+              exp: (it[11] ? it[11] + ' | ' : '') + `${subj.name} (${chName})`
+            };
+          });
+          if (typeof switchView === 'function') switchView('test');
+          window._cbtLangMode = 'hi';
+          startCbtTest(pool, card.title, pool.length, Math.max(5, Math.round(pool.length * 0.5)) * 60);
+          return;
+        }
+        if (card.kind === 'maths_set' && typeof PINNACLE_MATHS_DATA !== 'undefined' && typeof startCbtTest === 'function') {
+          const pool = card.items.map(it => {
+            const chName = PINNACLE_MATHS_DATA.chapters[it[1]];
+            const exName = PINNACLE_MATHS_DATA.exams[it[2]];
+            const opts = [it[5], it[6], it[7], it[8]];
+            const ansText = opts[it[9]] || opts[0];
+            return {
+              id: 'm_pin_' + it[1] + '_' + it[0],
+              word: chName + ' • Q.' + it[0],
+              meaningHi: 'Maths (' + chName + ')',
+              category: chName,
+              subject: 'maths',
+              exam: it[3] || exName,
+              year: '2025',
+              cbtPrompt: it[4],
+              options: opts,
+              answer: ansText,
+              cbtAnswer: ansText,
+              exp: 'Chapter: ' + chName + ' | Correct: (' + ['A','B','C','D'][it[9]] + ') ' + ansText
+            };
+          });
+          if (typeof switchView === 'function') switchView('test');
+          window._cbtLangMode = 'both';
+          startCbtTest(pool, card.title, pool.length, 900);
+          return;
+        }
+        if (card.kind === 'vocab_set' && typeof startCbtTest === 'function') {
+          if (typeof switchView === 'function') switchView('test');
+          startCbtTest(null, card.title, 25, 720);
+          return;
+        }
+      }
+
+      // Render Screen 4: Series Detail (Screenshot 4)
+      async function renderDetailScreen() {
+        const titleEl = document.getElementById('tr-detail-title');
+        const filtersEl = document.getElementById('tr-detail-filters');
+        const listEl = document.getElementById('tr-detail-list');
+        const pagerEl = document.getElementById('tr-detail-pager');
+        if (!listEl) return;
+        if (titleEl) titleEl.textContent = trState.seriesTitle || 'SSC Mock Test Series';
+
+        // Update toggles
+        document.getElementById('tr-seg-mock')?.classList.toggle('active', trState.seg === 'mock');
+        document.getElementById('tr-seg-pyq')?.classList.toggle('active', trState.seg === 'pyq');
+        document.getElementById('tr-type-full')?.classList.toggle('active', trState.testType === 'full');
+        document.getElementById('tr-type-sec')?.classList.toggle('active', trState.testType === 'sec');
+
+        listEl.innerHTML = '<div class="tr-surface p-5 text-center text-xs text-slate-400">Loading Test Sets...</div>';
+        const gs = await ensureGsData();
+
+        let cards = [];
+        let filterPills = [{ id: 'all', label: 'All' }];
+
+        // Case 1: Specific GS Subject drill-down
+        if (trState.seriesId.startsWith('gs_subj_') && gs) {
+          const sidx = parseInt(trState.seriesId.replace('gs_subj_', ''), 10);
+          const subj = gs.subjects[sidx];
+          const sItems = gs.items.filter(it => it[1] === sidx);
+          filterPills = [{ id: 'all', label: `All (${sItems.length})` }];
+          subj.chapters.forEach((ch, ci) => {
+            const cnt = sItems.filter(it => it[2] === ci).length;
+            if (cnt > 0) filterPills.push({ id: 'ch_' + ci, label: `${ch.split('(')[0].trim()} (${cnt})` });
+          });
+
+          const byChap = new Map();
+          sItems.forEach(it => {
+            if (trState.filter !== 'all' && trState.filter !== 'ch_' + it[2]) return;
+            if (!byChap.has(it[2])) byChap.set(it[2], []);
+            byChap.get(it[2]).push(it);
+          });
+          byChap.forEach((arr, ci) => {
+            const chName = subj.chapters[ci];
+            const nSets = Math.ceil(arr.length / 25);
+            for (let k = 0; k < nSets; k++) {
+              const sl = arr.slice(k * 25, (k + 1) * 25);
+              cards.push({
+                kind: 'gs_set',
+                title: `${chName} — Set ${k + 1}`,
+                mins: Math.max(5, Math.round(sl.length * 0.5)),
+                qs: sl.length,
+                marks: sl.length * 2,
+                items: sl
+              });
+            }
+          });
+        }
+        // Case 2: Specific Maths Chapter drill-down
+        else if (trState.seriesId.startsWith('math_ch_') && typeof PINNACLE_MATHS_DATA !== 'undefined') {
+          const cidx = parseInt(trState.seriesId.replace('math_ch_', ''), 10);
+          const chName = PINNACLE_MATHS_DATA.chapters[cidx];
+          const mItems = PINNACLE_MATHS_DATA.questions.filter(it => it[1] === cidx);
+          const nSets = Math.ceil(mItems.length / 25);
+          for (let k = 0; k < nSets; k++) {
+            const sl = mItems.slice(k * 25, (k + 1) * 25);
+            cards.push({
+              kind: 'maths_set',
+              title: `${chName} — Set ${k + 1}`,
+              mins: 15,
+              qs: sl.length,
+              marks: sl.length * 2,
+              items: sl
+            });
+          }
+        }
+        // Case 3: Exam Series (SSC CGL / CHSL / CPO / MTS / DP / Railways / etc.)
+        else {
+          filterPills = [
+            { id: 'all', label: 'All' },
+            { id: 'gs', label: 'GS PYQ (25Q)' },
+            { id: 'maths', label: 'Maths PYQ (25Q)' },
+            { id: 'english', label: 'English (25Q)' }
+          ];
+
+          if (trState.testType === 'full' || trState.seg === 'mock') {
+            const baseName = (trState.seriesTitle || 'SSC Mock').replace(/Mock Test Series|Series/gi, '').trim();
+            for (let i = 1; i <= 15; i++) {
+              cards.push({
+                kind: 'live100',
+                title: `${baseName} — ${trState.seg === 'mock' ? 'Hard Mock Test' : '2025-26 Shift'} ${String(i).padStart(2, '0')}`,
+                mins: 60,
+                qs: 100,
+                marks: 200
+              });
+            }
+          }
+
+          if (trState.testType === 'sec') {
+            // Find matching exam filter from SERIES_BY_CAT
+            let exFilter = 'ALL';
+            Object.values(SERIES_BY_CAT).flat().forEach(s => {
+              if (s.id === trState.seriesId) exFilter = s.examFilter;
+            });
+
+            if ((trState.filter === 'all' || trState.filter === 'gs') && gs) {
+              const exIdx = gs.exams.indexOf(exFilter);
+              const pool = exIdx >= 0 ? gs.items.filter(it => it[3] === exIdx) : gs.items;
+              const nSets = Math.min(40, Math.ceil(pool.length / 25));
+              for (let k = 0; k < nSets; k++) {
+                const sl = pool.slice(k * 25, (k + 1) * 25);
+                const firstSubj = gs.subjects[sl[0][1]]?.name || 'GS';
+                cards.push({
+                  kind: 'gs_set',
+                  title: `${exFilter !== 'ALL' && exFilter !== 'VOCAB' ? exFilter : 'SSC GS'} PYQ — ${firstSubj} Set ${k + 1}`,
+                  mins: 12,
+                  qs: sl.length,
+                  marks: sl.length * 2,
+                  items: sl
+                });
+              }
+            }
+            if ((trState.filter === 'all' || trState.filter === 'maths') && typeof PINNACLE_MATHS_DATA !== 'undefined') {
+              const qs = PINNACLE_MATHS_DATA.questions;
+              for (let k = 0; k < 20; k++) {
+                const sl = qs.slice(k * 25, (k + 1) * 25);
+                if (!sl.length) break;
+                const ch = PINNACLE_MATHS_DATA.chapters[sl[0][1]] || 'Maths';
+                cards.push({
+                  kind: 'maths_set',
+                  title: `Quant PYQ — ${ch} Set ${k + 1}`,
+                  mins: 15,
+                  qs: sl.length,
+                  marks: sl.length * 2,
+                  items: sl
+                });
+              }
+            }
+            if (trState.filter === 'all' || trState.filter === 'english') {
+              for (let k = 1; k <= 8; k++) {
+                cards.push({
+                  kind: 'vocab_set',
+                  title: `English BlackBook & Grammar — Sectional Set ${k}`,
+                  mins: 12,
+                  qs: 25,
+                  marks: 50
+                });
+              }
+            }
+          }
+        }
+
+        // Render filter pills
+        if (filtersEl) {
+          filtersEl.innerHTML = filterPills.map(fp => `
+            <button type="button" data-tr-filter="${esc(fp.id)}" class="tr-filter-pill ${trState.filter === fp.id ? 'active' : ''}">${esc(fp.label)}</button>
+          `).join('');
+        }
+
+        // Update counts on tabs
+        const mBtn = document.getElementById('tr-seg-mock');
+        const pBtn = document.getElementById('tr-seg-pyq');
+        if (mBtn) mBtn.textContent = `Mock Tests (15)`;
+        if (pBtn) pBtn.textContent = `Previous Year (${cards.length})`;
+
+        // Paginate cards
+        const totalPages = Math.max(1, Math.ceil(cards.length / trState.perPage));
+        if (trState.page > totalPages) trState.page = 1;
+        const start = (trState.page - 1) * trState.perPage;
+        const slice = cards.slice(start, start + trState.perPage);
+        window._TR_DETAIL_CARDS = slice;
+
+        listEl.innerHTML = slice.map((c, idx) => `
+          <div class="tr-surface tr-surface-hover p-4 flex items-center justify-between gap-3">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="text-violet-400 text-lg pt-0.5 shrink-0">📋</div>
+              <div class="min-w-0 space-y-1.5">
+                <div class="text-sm font-extrabold text-white leading-snug">${esc(c.title)}</div>
+                <div class="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-slate-400">
+                  <span>🕒 ${c.mins} Min</span>
+                  <span>❓ ${c.qs} Ques</span>
+                  <span>✓ ${c.marks} Marks</span>
+                </div>
+              </div>
+            </div>
+            <button type="button" data-tr-launch="${idx}" class="tr-start-btn shrink-0">Start Now</button>
+          </div>
+        `).join('');
+
+        if (pagerEl) {
+          if (totalPages <= 1) {
+            pagerEl.innerHTML = '';
+          } else {
+            let pHtml = '';
+            for (let p = 1; p <= Math.min(totalPages, 8); p++) {
+              pHtml += `<button type="button" data-tr-pg="${p}" class="px-3 py-1.5 rounded-lg text-xs font-bold border ${p === trState.page ? 'bg-[#7c6bf2] text-white border-violet-400' : 'bg-[#12131a] text-slate-300 border-white/10'}">${p}</button>`;
+            }
+            pagerEl.innerHTML = pHtml;
+          }
+        }
+      }
+
+      // Render Live & Free tabs
+      function renderLiveTab() {
+        const el = document.getElementById('tr-live-list');
+        if (!el) return;
+        const items = [
+          { title: 'SSC CGL Tier-1 Full Live Mock (Hard Eduquity)', mins: 60, qs: 100, marks: 200 },
+          { title: 'SSC CHSL 2026 Tier-1 Live Mock 08', mins: 60, qs: 100, marks: 200 },
+          { title: 'SSC CPO Tier-1 Practice Mock Day 1', mins: 60, qs: 100, marks: 200 }
+        ];
+        el.innerHTML = items.map(it => `
+          <div class="tr-surface tr-surface-hover p-4 flex items-center justify-between gap-3">
+            <div class="space-y-1">
+              <div class="text-sm font-extrabold text-white">${esc(it.title)}</div>
+              <div class="flex items-center gap-3 text-[11px] text-slate-400 font-semibold"><span>🕒 ${it.mins} Min</span><span>❓ ${it.qs} Ques</span><span>✓ ${it.marks} Marks</span></div>
+            </div>
+            <button type="button" class="tr-start-btn tr-live-go shrink-0">Start Now</button>
+          </div>
+        `).join('');
+        el.querySelectorAll('.tr-live-go').forEach(b => b.addEventListener('click', () => document.getElementById('ailt-start-btn-home')?.click()));
+      }
+
+      async function renderFreeTab() {
+        const el = document.getElementById('tr-free-list');
+        if (!el) return;
+        const gs = await ensureGsData();
+        const freeCards = [];
+        if (gs) {
+          [0, 3, 4, 6, 16, 19].forEach(sidx => {
+            const s = gs.subjects[sidx];
+            const items = gs.items.filter(it => it[1] === sidx).slice(0, 25);
+            if (items.length) {
+              freeCards.push({ kind: 'gs_set', title: `${s.icon} ${s.name} PYQ — Free Mini Test`, mins: 12, qs: items.length, marks: items.length * 2, items });
+            }
+          });
+        }
+        window._TR_FREE_CARDS = freeCards;
+        el.innerHTML = freeCards.map((c, idx) => `
+          <div class="tr-surface tr-surface-hover p-4 flex items-center justify-between gap-3">
+            <div class="space-y-1">
+              <div class="text-sm font-extrabold text-white">${esc(c.title)}</div>
+              <div class="flex items-center gap-3 text-[11px] text-slate-400 font-semibold"><span>🕒 ${c.mins} Min</span><span>❓ ${c.qs} Ques</span><span>✓ ${c.marks} Marks</span></div>
+            </div>
+            <button type="button" data-tr-free-go="${idx}" class="tr-start-btn shrink-0">Start Now</button>
+          </div>
+        `).join('');
+      }
+
+      // Wire all click handlers
+      document.querySelectorAll('#tr-subtabs-bar [data-tr-tab]').forEach(btn => {
+        btn.addEventListener('click', () => showScreen('main', btn.getAttribute('data-tr-tab')));
+      });
+
+      document.querySelectorAll('[data-tr-slide]').forEach(dot => {
+        dot.addEventListener('click', () => {
+          const idx = parseInt(dot.getAttribute('data-tr-slide'), 10);
+          trState.slide = idx;
+          document.getElementById('tr-hero-slide-0')?.classList.toggle('hidden', idx !== 0);
+          document.getElementById('tr-hero-slide-1')?.classList.toggle('hidden', idx !== 1);
+          document.querySelectorAll('.tr-dot').forEach((d, i) => {
+            d.className = i === idx ? 'tr-dot w-6 h-1.5 rounded-full bg-[#7c6bf2] transition-all' : 'tr-dot w-2 h-1.5 rounded-full bg-slate-700 transition-all';
+          });
+        });
+      });
+
+      document.querySelectorAll('[data-tr-task]').forEach(btn => {
+        btn.addEventListener('click', () => toggleTarget(btn.getAttribute('data-tr-task')));
+      });
+
+      document.getElementById('tr-task-quiz-open')?.addEventListener('click', () => {
+        toggleTarget('quiz', true);
+        if (typeof switchView === 'function') switchView('challenge');
+      });
+      document.getElementById('tr-task-ca-open')?.addEventListener('click', () => {
+        toggleTarget('ca', true);
+        if (typeof switchView === 'function') switchView('pyq');
+        if (typeof window.switchPyqSubject === 'function') window.switchPyqSubject('gk');
+      });
+
+      document.getElementById('tr-prac-live')?.addEventListener('click', () => showScreen('main', 'live'));
+      document.getElementById('tr-prac-free')?.addEventListener('click', () => showScreen('main', 'free'));
+      document.getElementById('tr-prac-series')?.addEventListener('click', () => showScreen('main', 'series'));
+      document.getElementById('tr-hero-live-cta')?.addEventListener('click', () => document.getElementById('ailt-start-btn-home')?.click());
+      document.getElementById('tr-live-start-main')?.addEventListener('click', () => document.getElementById('ailt-start-btn-home')?.click());
+      document.getElementById('tr-hero-series-cta')?.addEventListener('click', () => showScreen('main', 'series'));
+      document.getElementById('tr-hero-gs-cta')?.addEventListener('click', () => {
+        if (typeof switchView === 'function') switchView('pyq');
+        if (typeof window.switchPyqSubject === 'function') window.switchPyqSubject('gk');
+      });
+      document.getElementById('tr-explore-pro-btn')?.addEventListener('click', () => document.getElementById('kgs-home-pass-btn')?.click());
+      document.getElementById('tr-purchased-status-btn')?.addEventListener('click', () => document.getElementById('kgs-home-pass-btn')?.click());
+      document.getElementById('tr-notif-btn')?.addEventListener('click', () => showScreen('main', 'live'));
+      document.getElementById('tr-quick-pyq-btn')?.addEventListener('click', () => {
+        if (typeof switchView === 'function') switchView('pyq');
+        if (typeof window.switchPyqSubject === 'function') window.switchPyqSubject('gk');
+      });
+
+      // Quick Access Tiles
+      document.getElementById('tr-qa-gs')?.addEventListener('click', () => {
+        if (typeof switchView === 'function') switchView('pyq');
+        if (typeof window.switchPyqSubject === 'function') window.switchPyqSubject('gk');
+      });
+      document.getElementById('tr-qa-maths')?.addEventListener('click', () => {
+        if (typeof switchView === 'function') switchView('pyq');
+        if (typeof window.switchPyqSubject === 'function') window.switchPyqSubject('maths');
+      });
+      document.getElementById('tr-qa-vocab')?.addEventListener('click', () => setAppMode('vocab'));
+      document.getElementById('tr-qa-pdfs')?.addEventListener('click', () => {
+        if (typeof switchView === 'function') switchView('pdfs');
+      });
+
+      // Category Grid -> Exam Screen
+      document.getElementById('tr-cat-grid')?.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-tr-cat]');
+        if (!b) return;
+        trState.catId = b.getAttribute('data-tr-cat');
+        showScreen('exam');
+      });
+      document.getElementById('tr-back-to-series')?.addEventListener('click', () => showScreen('main', 'series'));
+
+      // Exam Screen -> Detail Screen
+      document.getElementById('tr-exam-series-list')?.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-tr-series]');
+        if (!b) return;
+        trState.seriesId = b.getAttribute('data-tr-series');
+        trState.seriesTitle = b.getAttribute('data-tr-series-title');
+        trState.filter = 'all';
+        trState.page = 1;
+        trState.seg = 'pyq';
+        trState.testType = 'sec';
+        showScreen('detail');
+      });
+      document.getElementById('tr-back-to-exam')?.addEventListener('click', () => showScreen('exam'));
+
+      // Detail Screen Controls
+      document.getElementById('tr-seg-mock')?.addEventListener('click', () => { trState.seg = 'mock'; trState.testType = 'full'; trState.page = 1; renderDetailScreen(); });
+      document.getElementById('tr-seg-pyq')?.addEventListener('click', () => { trState.seg = 'pyq'; trState.page = 1; renderDetailScreen(); });
+      document.getElementById('tr-type-full')?.addEventListener('click', () => { trState.testType = 'full'; trState.page = 1; renderDetailScreen(); });
+      document.getElementById('tr-type-sec')?.addEventListener('click', () => { trState.testType = 'sec'; trState.page = 1; renderDetailScreen(); });
+      document.getElementById('tr-detail-filters')?.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-tr-filter]');
+        if (!b) return;
+        trState.filter = b.getAttribute('data-tr-filter');
+        trState.page = 1;
+        renderDetailScreen();
+      });
+      document.getElementById('tr-detail-list')?.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-tr-launch]');
+        if (!b || !window._TR_DETAIL_CARDS) return;
+        const card = window._TR_DETAIL_CARDS[parseInt(b.getAttribute('data-tr-launch'), 10)];
+        if (card) launchTestCard(card);
+      });
+      document.getElementById('tr-detail-pager')?.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-tr-pg]');
+        if (!b) return;
+        trState.page = parseInt(b.getAttribute('data-tr-pg'), 10);
+        renderDetailScreen();
+      });
+      document.getElementById('tr-free-list')?.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-tr-free-go]');
+        if (!b || !window._TR_FREE_CARDS) return;
+        const card = window._TR_FREE_CARDS[parseInt(b.getAttribute('data-tr-free-go'), 10)];
+        if (card) launchTestCard(card);
+      });
+
+      // Initialize Test Ranking Mode by default
+      setAppMode('ranking');
+      showScreen('main', 'home');
     })();
   </script>
 
