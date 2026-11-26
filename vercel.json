@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/daily-ssc-test",
+      "schedule": "30 3 * * *"
+    }
+  ]
+}
