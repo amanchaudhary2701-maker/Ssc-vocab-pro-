@@ -741,6 +741,72 @@
       -webkit-overflow-scrolling: touch !important;
     }
   </style>
+
+  <style id="v146-pro-styles">
+    :root {
+      --pro-accent: #22d3ee;
+      --pro-accent-2: #6366f1;
+      --pro-glow: rgba(34, 211, 238, 0.22);
+    }
+    html[data-pro-theme="emerald"] {
+      --pro-accent: #34d399;
+      --pro-accent-2: #06b6d4;
+      --pro-glow: rgba(52, 211, 153, 0.24);
+    }
+    html[data-pro-theme="gold"] {
+      --pro-accent: #fbbf24;
+      --pro-accent-2: #f97316;
+      --pro-glow: rgba(251, 191, 36, 0.24);
+    }
+    html[data-pro-density="compact"] .glass-card {
+      padding: 0.75rem !important;
+    }
+    .pro-cmd-tile {
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .pro-cmd-tile:hover {
+      transform: translateY(-2px);
+      border-color: var(--pro-accent) !important;
+      box-shadow: 0 10px 26px -10px var(--pro-glow);
+    }
+    .pro-cmd-tile:active {
+      transform: scale(0.97);
+    }
+    .pro-ring-accent {
+      border-color: var(--pro-accent) !important;
+      box-shadow: 0 0 0 1px var(--pro-glow), 0 8px 24px -10px var(--pro-glow);
+    }
+    #pro-toast-stack {
+      position: fixed;
+      bottom: 5.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      width: min(92vw, 390px);
+      pointer-events: none;
+    }
+    .pro-toast {
+      pointer-events: auto;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      animation: proToastIn 0.22s ease-out;
+    }
+    @keyframes proToastIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    /* Active Exam Anti-Copy Guard (applied only while live CBT exam is active & guard ON) */
+    body.pro-exam-shield #view-test {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+  </style>
+
 </head>
 <body class="text-slate-100 antialiased selection:bg-cyan-400/30 selection:text-cyan-100">
   <!-- ==================== STAGE 1: 3D ANIMATED SPLASH SCREEN ==================== -->
@@ -1062,6 +1128,7 @@
           <button id="auth-open-btn" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500/30 to-cyan-500/30 border border-cyan-400/50 text-white text-xs font-extrabold hover:brightness-115 transition flex items-center gap-1.5 shadow whitespace-nowrap shrink-0" title="Student Login / Profile">
             <span class="text-sm leading-none" id="auth-btn-icon">👤</span><span id="auth-btn-label">Login</span>
           </button>
+          <button id="pro-quickjump-btn" type="button" class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 border border-indigo-400/45 text-xs font-extrabold text-indigo-200 hover:border-cyan-300 transition flex items-center gap-1 whitespace-nowrap shrink-0" title="Smart Quick Jump (Ctrl+K)">⚡ <span class="hidden md:inline">Jump</span></button>
           <button id="about-open-btn" type="button" class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 border border-cyan-400/45 text-xs font-extrabold text-cyan-200 hover:border-cyan-300 transition flex items-center gap-1 whitespace-nowrap shrink-0" title="Account Menu, About, Support &amp; Settings">☰ <span class="hidden sm:inline">Menu</span></button>
         </div>
       </div>
@@ -1143,7 +1210,7 @@
             <div class="min-w-0 space-y-0.5">
               <span class="inline-block px-2.5 py-0.5 rounded-full bg-cyan-400/20 border border-cyan-300/50 text-cyan-300 text-[10px] font-black tracking-wider uppercase">⚡ SSC Testbook-Style Prep Hub</span>
               <h2 id="kgs-greet-name" class="text-xl sm:text-2xl font-black text-white truncate">Namaste, SSC Aspirant 👋</h2>
-              <p id="kgs-greet-meta" class="text-xs sm:text-sm text-blue-100 font-semibold">Target: SSC CGL • 9,291+ Words &amp; 467 PYQs</p>
+              <p id="kgs-greet-meta" class="text-xs sm:text-sm text-blue-100 font-semibold">Target: SSC CGL • 9,500+ Vocab • 5,382 Maths &amp; 8,149 GS PYQs</p>
             </div>
           </div>
           <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0">
@@ -1158,6 +1225,58 @@
               </div>
             </div>
             <button type="button" id="kgs-home-pass-btn" class="btn-3d-push px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 border-amber-700 text-slate-950 font-black text-xs shadow-lg">👑 Super Pro</button>
+          </div>
+        </div>
+
+                <!-- ⚡ PRO STUDY COMMAND CENTER (v146: Systematic, Clean & Secure) -->
+        <div id="pro-command-center" class="glass-card rounded-2xl p-3 sm:p-4 border border-cyan-400/30 pro-ring-accent space-y-3">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-200 text-[10px] font-black uppercase tracking-wider">⚡ PRO SUITE v146</span>
+              <span id="pro-rank-pill" class="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-200 text-[10px] font-extrabold">🎖️ Lvl 1 • Aspirant (0 XP)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span id="pro-focus-mini-pill" class="hidden px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-[10px] font-black">⏱️ 25:00</span>
+              <button type="button" id="pro-open-cmd-inline" class="px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-[11px] font-bold text-cyan-200 transition">🔍 Quick Jump</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <button type="button" id="pro-tile-mistakes" class="pro-cmd-tile text-left p-3 rounded-xl bg-slate-900/85 border border-rose-400/30 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-base">🧠</span>
+                <span id="pro-mistake-badge" class="px-1.5 py-0.5 rounded-full bg-rose-500/25 text-rose-200 text-[10px] font-black">0 Saved</span>
+              </div>
+              <div class="text-xs font-extrabold text-white">Mistake Vault</div>
+              <div class="text-[10px] text-slate-400">Auto-saved • 1-Tap Re-Test</div>
+            </button>
+
+            <button type="button" id="pro-tile-focus" class="pro-cmd-tile text-left p-3 rounded-xl bg-slate-900/85 border border-emerald-400/30 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-base">⏱️</span>
+                <span id="pro-focus-badge" class="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 text-[10px] font-black">25m Ready</span>
+              </div>
+              <div class="text-xs font-extrabold text-white">Focus Timer</div>
+              <div class="text-[10px] text-slate-400">Pomodoro • Study Log</div>
+            </button>
+
+            <button type="button" id="pro-tile-analytics" class="pro-cmd-tile text-left p-3 rounded-xl bg-slate-900/85 border border-indigo-400/30 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-base">📊</span>
+                <span id="pro-acc-badge" class="px-1.5 py-0.5 rounded-full bg-indigo-500/25 text-indigo-200 text-[10px] font-black">Live Stats</span>
+              </div>
+              <div class="text-xs font-extrabold text-white">Pro Analytics</div>
+              <div class="text-[10px] text-slate-400">Subject Accuracy &amp; XP</div>
+            </button>
+
+            <button type="button" id="pro-tile-security" class="pro-cmd-tile text-left p-3 rounded-xl bg-slate-900/85 border border-amber-400/30 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-base">🛡️</span>
+                <span id="pro-sec-badge" class="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-200 text-[10px] font-black">Protected</span>
+              </div>
+              <div class="text-xs font-extrabold text-white">Security &amp; Vault</div>
+              <div class="text-[10px] text-slate-400">Exam Guard • Backup • UI</div>
+            </button>
           </div>
         </div>
 
@@ -12079,7 +12198,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900/95 to-cyan-950/60 border border-emerald-400/40 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v145</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v146</span>
                 <h4 class="text-sm font-black text-white mt-1">Instant Student Test Maker (Free Auto-OCR)</h4>
                 <p class="text-[11px] text-slate-300">Bina kisi API key ke Photo ya PDF upload karein, Subject &amp; Chapter likhein — auto-scan hokar seedha Students ke Test Panel me live ho jayega!</p>
               </div>
@@ -20486,6 +20605,838 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
         btn.addEventListener('click', () => {
           loadGsPyqData().then(() => renderGsPyqAll()).catch(err => console.error('GS PYQ load error:', err));
         });
+      });
+    })();
+  </script>
+
+
+  <!-- ==================== V146 PRO SUITE MODALS & TOAST STACK ==================== -->
+  <div id="pro-toast-stack" aria-live="polite"></div>
+
+  <!-- MODAL 1: SMART MISTAKE VAULT -->
+  <div id="pro-mistake-modal" class="fixed inset-0 z-[95] hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-card w-full max-w-2xl max-h-[88vh] rounded-3xl border border-rose-400/40 shadow-2xl flex flex-col overflow-hidden">
+      <div class="p-4 border-b border-white/10 flex items-center justify-between gap-2 bg-gradient-to-r from-rose-950/70 to-slate-900/90">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">🧠 Smart Mistake Notebook</h3>
+          <p class="text-[11px] text-slate-300">Har CBT test ke galat questions auto-save hote hain — sahi solve karte hi auto-clear!</p>
+        </div>
+        <button type="button" data-pro-close="pro-mistake-modal" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-black">✕</button>
+      </div>
+      <div class="p-3 sm:p-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-2 bg-slate-950/60">
+        <div id="pro-mistake-filters" class="flex flex-wrap gap-1.5">
+          <button type="button" data-mk-subj="all" class="px-2.5 py-1 rounded-lg bg-rose-500 text-white text-[11px] font-extrabold">All</button>
+          <button type="button" data-mk-subj="gk" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-[11px] font-bold">🌍 GS/GK</button>
+          <button type="button" data-mk-subj="maths" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-[11px] font-bold">📐 Maths</button>
+          <button type="button" data-mk-subj="english" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-[11px] font-bold">📘 English</button>
+          <button type="button" data-mk-subj="reasoning" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-[11px] font-bold">🧠 Reasoning</button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" id="pro-mistake-retest-btn" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 text-white text-xs font-extrabold shadow hover:brightness-110 transition">⚡ Re-Test Mistakes</button>
+          <button type="button" id="pro-mistake-clear-btn" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700">🗑️ Clear</button>
+        </div>
+      </div>
+      <div id="pro-mistake-list" class="p-4 overflow-y-auto space-y-3 flex-1"></div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: SSC FOCUS POMODORO TIMER -->
+  <div id="pro-focus-modal" class="fixed inset-0 z-[95] hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-card w-full max-w-md rounded-3xl border border-emerald-400/40 shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-emerald-950/70 to-slate-900/90">
+        <div>
+          <h3 class="text-base font-black text-white">⏱️ SSC Deep Focus Timer</h3>
+          <p class="text-[11px] text-slate-300">Distraction-free study sprints • Auto study minutes log</p>
+        </div>
+        <button type="button" data-pro-close="pro-focus-modal" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-black">✕</button>
+      </div>
+      <div class="p-5 space-y-4 text-center">
+        <div class="flex items-center justify-center gap-2">
+          <button type="button" data-pomo-min="15" class="pomo-preset px-3 py-1.5 rounded-xl bg-slate-800 text-slate-200 text-xs font-bold border border-slate-700">15m Sprint</button>
+          <button type="button" data-pomo-min="25" class="pomo-preset px-3 py-1.5 rounded-xl bg-emerald-400 text-slate-950 text-xs font-extrabold border border-emerald-300">25m Pomodoro</button>
+          <button type="button" data-pomo-min="50" class="pomo-preset px-3 py-1.5 rounded-xl bg-slate-800 text-slate-200 text-xs font-bold border border-slate-700">50m Deep</button>
+        </div>
+        <div class="py-4 rounded-2xl bg-slate-950/80 border border-emerald-400/25">
+          <div id="pro-pomo-display" class="text-5xl font-black tracking-wider text-emerald-300 font-mono">25:00</div>
+          <div id="pro-pomo-status" class="text-xs text-slate-400 font-semibold mt-1">Ready for focused SSC preparation</div>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <button type="button" id="pro-pomo-toggle" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black text-sm shadow">▶ Start Focus</button>
+          <button type="button" id="pro-pomo-reset" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm border border-slate-700">↺ Reset</button>
+        </div>
+        <div class="flex items-center justify-between text-xs px-3 py-2 rounded-xl bg-slate-900/90 border border-white/10">
+          <span class="text-slate-400">Today's Focused Study:</span>
+          <span id="pro-pomo-today" class="font-extrabold text-emerald-300">0 min</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: PRO ANALYTICS & XP RANK -->
+  <div id="pro-analytics-modal" class="fixed inset-0 z-[95] hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-card w-full max-w-2xl max-h-[88vh] rounded-3xl border border-indigo-400/40 shadow-2xl flex flex-col overflow-hidden">
+      <div class="p-4 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-indigo-950/75 to-slate-900/90">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-white">📊 Pro Performance Analytics</h3>
+          <p class="text-[11px] text-slate-300">Aapke real tests, accuracy aur subject-wise progress ka live breakdown</p>
+        </div>
+        <button type="button" data-pro-close="pro-analytics-modal" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-black">✕</button>
+      </div>
+      <div id="pro-analytics-body" class="p-4 overflow-y-auto space-y-4 flex-1"></div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: SECURITY, THEME & BACKUP VAULT -->
+  <div id="pro-security-modal" class="fixed inset-0 z-[95] hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-card w-full max-w-lg max-h-[88vh] rounded-3xl border border-amber-400/40 shadow-2xl flex flex-col overflow-hidden">
+      <div class="p-4 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-amber-950/70 to-slate-900/90">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-white">🛡️ Security, Theme &amp; Data Vault</h3>
+          <p class="text-[11px] text-slate-300">Exam anti-cheat guard, admin lock, clean UI themes aur verified backup</p>
+        </div>
+        <button type="button" data-pro-close="pro-security-modal" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-black">✕</button>
+      </div>
+      <div class="p-4 overflow-y-auto space-y-4 flex-1 text-xs">
+        <!-- Security Controls -->
+        <div class="p-3.5 rounded-2xl bg-slate-950/75 border border-amber-400/25 space-y-3">
+          <div class="text-[11px] font-black uppercase tracking-wider text-amber-300">🔒 App &amp; Exam Security</div>
+          <label class="flex items-center justify-between gap-3 cursor-pointer">
+            <div>
+              <div class="font-extrabold text-white">Exam Focus &amp; Anti-Cheat Guard</div>
+              <div class="text-[11px] text-slate-400">Active CBT test me tab-switch detect karta hai &amp; text copy block karta hai</div>
+            </div>
+            <input type="checkbox" id="pro-guard-toggle" class="w-4 h-4 accent-amber-400" checked />
+          </label>
+          <div class="flex items-center justify-between gap-3 pt-1 border-t border-white/10">
+            <div>
+              <div class="font-extrabold text-white">Admin Session Auto-Lock (15 min)</div>
+              <div class="text-[11px] text-slate-400">Inactivity par Admin access auto-lock; turant lock karne ke liye button dabayein</div>
+            </div>
+            <button type="button" id="pro-lock-admin-btn" class="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/40 text-rose-200 font-extrabold shrink-0">🔒 Lock Now</button>
+          </div>
+        </div>
+
+        <!-- Clean UI & Theme -->
+        <div class="p-3.5 rounded-2xl bg-slate-950/75 border border-cyan-400/25 space-y-3">
+          <div class="text-[11px] font-black uppercase tracking-wider text-cyan-300">🎨 Pro Accent Theme &amp; Layout</div>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" data-pro-theme-pick="cyan" class="pro-theme-btn py-2 rounded-xl bg-cyan-500/20 border border-cyan-400 text-cyan-200 font-extrabold">💎 Royal Cyan</button>
+            <button type="button" data-pro-theme-pick="emerald" class="pro-theme-btn py-2 rounded-xl bg-emerald-500/15 border border-slate-700 text-emerald-200 font-bold">🌿 Emerald</button>
+            <button type="button" data-pro-theme-pick="gold" class="pro-theme-btn py-2 rounded-xl bg-amber-500/15 border border-slate-700 text-amber-200 font-bold">👑 Gold Pro</button>
+          </div>
+          <label class="flex items-center justify-between gap-3 cursor-pointer pt-1 border-t border-white/10">
+            <div>
+              <div class="font-extrabold text-white">Clean Compact Card Density</div>
+              <div class="text-[11px] text-slate-400">Ek screen par zyada questions aur sets clean tareeke se dikhenge</div>
+            </div>
+            <input type="checkbox" id="pro-density-toggle" class="w-4 h-4 accent-cyan-400" />
+          </label>
+        </div>
+
+        <!-- Checksum-Verified Backup & Restore -->
+        <div class="p-3.5 rounded-2xl bg-slate-950/75 border border-emerald-400/25 space-y-2.5">
+          <div class="text-[11px] font-black uppercase tracking-wider text-emerald-300">💾 Verified Progress Backup &amp; Restore</div>
+          <p class="text-[11px] text-slate-400">Apna Mistake Vault, GS/Maths completed sets, XP &amp; Analytics integrity-checked file me save ya restore karein.</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="pro-export-backup-btn" class="py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 font-extrabold">⬇ Export Backup</button>
+            <label class="py-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/40 text-indigo-200 font-extrabold text-center cursor-pointer">
+              ⬆ Restore File
+              <input type="file" id="pro-import-backup-input" accept=".json" class="hidden" />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: UNIVERSAL QUICK JUMP PALETTE -->
+  <div id="pro-cmd-modal" class="fixed inset-0 z-[96] hidden bg-slate-950/80 backdrop-blur-md flex items-start justify-center pt-16 p-3">
+    <div class="glass-card w-full max-w-xl rounded-3xl border border-cyan-400/45 shadow-2xl overflow-hidden">
+      <div class="p-3.5 border-b border-white/10 flex items-center gap-2 bg-slate-900/95">
+        <span class="text-base">⚡</span>
+        <input id="pro-cmd-input" type="search" placeholder="Type subject or tool (e.g. Polity, History, Maths, Mistakes, Timer, Live Test)..." class="w-full bg-transparent text-sm text-white placeholder-slate-400 focus:outline-none" />
+        <button type="button" data-pro-close="pro-cmd-modal" class="px-2 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold">ESC</button>
+      </div>
+      <div id="pro-cmd-results" class="max-h-[60vh] overflow-y-auto p-2.5 space-y-1.5"></div>
+    </div>
+  </div>
+
+  <script>
+    (function initV146ProSuite() {
+      // ---------- 1. Security & Safe Storage Helpers ----------
+      function safeParse(str, fallback) {
+        try {
+          if (!str) return fallback;
+          const obj = JSON.parse(str);
+          if (obj && typeof obj === 'object') {
+            delete obj.__proto__;
+            delete obj.constructor;
+            delete obj.prototype;
+          }
+          return obj;
+        } catch (e) { return fallback; }
+      }
+      function safeGet(key, fallback) {
+        try { return safeParse(localStorage.getItem(key), fallback); } catch (e) { return fallback; }
+      }
+      function safeSet(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+      }
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+      window._secSanitize = esc;
+
+      // Clean Toast System
+      function proToast(msg, type) {
+        const stack = document.getElementById('pro-toast-stack');
+        if (!stack) return;
+        const colors = {
+          success: 'bg-emerald-950/95 border-emerald-400/60 text-emerald-100',
+          warn: 'bg-amber-950/95 border-amber-400/60 text-amber-100',
+          danger: 'bg-rose-950/95 border-rose-400/60 text-rose-100',
+          info: 'bg-slate-900/95 border-cyan-400/60 text-cyan-100'
+        };
+        const div = document.createElement('div');
+        div.className = `pro-toast px-3.5 py-2.5 rounded-2xl border shadow-2xl text-xs font-bold flex items-center justify-between gap-2 ${colors[type || 'info']}`;
+        div.innerHTML = `<span>${esc(msg)}</span>`;
+        stack.appendChild(div);
+        setTimeout(() => {
+          div.style.opacity = '0';
+          div.style.transform = 'translateY(6px)';
+          div.style.transition = 'all 0.2s ease';
+          setTimeout(() => div.remove(), 220);
+        }, 3200);
+      }
+      window.proToast = proToast;
+
+      // ---------- 2. Preferences (Theme, Density, Exam Guard) ----------
+      const prefs = safeGet('ssc_pro_prefs_v1', { theme: 'cyan', density: 'comfortable', examGuard: true });
+      function applyPrefs() {
+        document.documentElement.setAttribute('data-pro-theme', prefs.theme || 'cyan');
+        document.documentElement.setAttribute('data-pro-density', prefs.density || 'comfortable');
+        const gEl = document.getElementById('pro-guard-toggle');
+        if (gEl) gEl.checked = prefs.examGuard !== false;
+        const dEl = document.getElementById('pro-density-toggle');
+        if (dEl) dEl.checked = prefs.density === 'compact';
+        document.querySelectorAll('.pro-theme-btn').forEach(b => {
+          const act = b.getAttribute('data-pro-theme-pick') === (prefs.theme || 'cyan');
+          b.classList.toggle('ring-2', act);
+          b.classList.toggle('ring-white', act);
+        });
+        const secBadge = document.getElementById('pro-sec-badge');
+        if (secBadge) secBadge.textContent = prefs.examGuard !== false ? 'Guard ON ✓' : 'Guard OFF';
+      }
+      applyPrefs();
+
+      // ---------- 3. Mistake Vault & Live Analytics State ----------
+      let mistakes = safeGet('ssc_mistake_vault_v1', []);
+      if (!Array.isArray(mistakes)) mistakes = [];
+      let analytics = safeGet('ssc_pro_analytics_v1', {
+        xp: 0, tests: 0, totalQ: 0, correct: 0, wrong: 0, focusMinsToday: 0, focusDate: '',
+        bySubject: {
+          gk: { c: 0, w: 0 },
+          maths: { c: 0, w: 0 },
+          english: { c: 0, w: 0 },
+          reasoning: { c: 0, w: 0 }
+        },
+        recent: []
+      });
+
+      function todayIso() { return new Date().toISOString().slice(0, 10); }
+      if (analytics.focusDate !== todayIso()) {
+        analytics.focusDate = todayIso();
+        analytics.focusMinsToday = 0;
+        safeSet('ssc_pro_analytics_v1', analytics);
+      }
+
+      function getRankInfo(xp) {
+        if (xp >= 2500) return { lvl: 6, title: 'AIR-1 Legend', icon: '👑' };
+        if (xp >= 1400) return { lvl: 5, title: 'CGL Inspector Pro', icon: '⭐' };
+        if (xp >= 750)  return { lvl: 4, title: 'Tier-2 Warrior', icon: '🔥' };
+        if (xp >= 350)  return { lvl: 3, title: 'PYQ Master', icon: '⚡' };
+        if (xp >= 120)  return { lvl: 2, title: 'Focused Scholar', icon: '🎯' };
+        return { lvl: 1, title: 'SSC Aspirant', icon: '🎖️' };
+      }
+
+      function refreshProBadges() {
+        const mb = document.getElementById('pro-mistake-badge');
+        if (mb) mb.textContent = `${mistakes.length} Saved`;
+        const rk = getRankInfo(analytics.xp || 0);
+        const rp = document.getElementById('pro-rank-pill');
+        if (rp) rp.textContent = `${rk.icon} Lvl ${rk.lvl} • ${rk.title} (${analytics.xp || 0} XP)`;
+        const ab = document.getElementById('pro-acc-badge');
+        const att = (analytics.correct || 0) + (analytics.wrong || 0);
+        if (ab) ab.textContent = att > 0 ? `${Math.round((analytics.correct / att) * 100)}% Acc` : 'Live Stats';
+        const pt = document.getElementById('pro-pomo-today');
+        if (pt) pt.textContent = `${analytics.focusMinsToday || 0} min`;
+      }
+      refreshProBadges();
+
+      // Hook finishCbtTest cleanly to auto-capture mistakes + update real analytics
+      let _tabSwitches = 0;
+      const origFinish = window.finishCbtTest;
+      if (typeof origFinish === 'function') {
+        window.finishCbtTest = function() {
+          try {
+            if (typeof cbt !== 'undefined' && cbt && Array.isArray(cbt.questions) && cbt.questions.length) {
+              let cCnt = 0, wCnt = 0, newMistakes = 0, clearedMistakes = 0;
+              const byId = new Map(mistakes.map(m => [m.id, m]));
+              cbt.questions.forEach(q => {
+                const ans = cbt.answers ? cbt.answers[q.id] : undefined;
+                const expAns = q.cbtAnswer || q.answer;
+                const subjRaw = String(q.subject || '').toLowerCase();
+                const subj = subjRaw.includes('math') ? 'maths'
+                  : (subjRaw.includes('gk') || subjRaw.includes('gs')) ? 'gk'
+                  : subjRaw.includes('reas') ? 'reasoning' : 'english';
+                if (!analytics.bySubject[subj]) analytics.bySubject[subj] = { c: 0, w: 0 };
+
+                if (ans !== undefined) {
+                  const ok = (typeof isSameAns === 'function') ? isSameAns(ans, expAns) : (String(ans).trim() === String(expAns).trim());
+                  if (ok) {
+                    cCnt++;
+                    analytics.bySubject[subj].c++;
+                    if (byId.has(q.id)) { byId.delete(q.id); clearedMistakes++; }
+                  } else {
+                    wCnt++;
+                    analytics.bySubject[subj].w++;
+                    byId.set(q.id, {
+                      id: q.id,
+                      subj,
+                      category: q.category || 'SSC PYQ',
+                      exam: q.exam || 'SSC',
+                      prompt: q.cbtPrompt || q.word || '',
+                      promptHi: q.promptHi || '',
+                      options: Array.isArray(q.options) ? q.options.slice(0, 4) : [expAns],
+                      answer: expAns || '',
+                      userAns: ans || '',
+                      exp: q.exp || '',
+                      ts: Date.now()
+                    });
+                    newMistakes++;
+                  }
+                }
+              });
+              mistakes = Array.from(byId.values()).slice(-250);
+              safeSet('ssc_mistake_vault_v1', mistakes);
+
+              const gainedXp = (cCnt * 5) + 10;
+              analytics.xp = (analytics.xp || 0) + gainedXp;
+              analytics.tests = (analytics.tests || 0) + 1;
+              analytics.totalQ = (analytics.totalQ || 0) + cbt.questions.length;
+              analytics.correct = (analytics.correct || 0) + cCnt;
+              analytics.wrong = (analytics.wrong || 0) + wCnt;
+              analytics.recent = analytics.recent || [];
+              analytics.recent.unshift({
+                label: cbt.label || 'CBT Test',
+                c: cCnt, w: wCnt, total: cbt.questions.length,
+                switches: _tabSwitches,
+                ts: Date.now()
+              });
+              analytics.recent = analytics.recent.slice(0, 15);
+              safeSet('ssc_pro_analytics_v1', analytics);
+              refreshProBadges();
+
+              if (newMistakes > 0) proToast(`+${gainedXp} XP • ${newMistakes} mistake(s) Mistake Vault me save ho gayi!`, 'info');
+              else if (clearedMistakes > 0) proToast(`+${gainedXp} XP • ${clearedMistakes} mistake(s) mastered & cleared!`, 'success');
+              else proToast(`+${gainedXp} XP earned!`, 'success');
+            }
+          } catch (e) { console.warn('v146 analytics hook:', e); }
+          _tabSwitches = 0;
+          document.body.classList.remove('pro-exam-shield');
+          return origFinish.apply(this, arguments);
+        };
+      }
+
+      // Hook startCbtTest to activate Exam Shield when Guard is ON
+      const origStart = window.startCbtTest;
+      if (typeof origStart === 'function') {
+        window.startCbtTest = function() {
+          _tabSwitches = 0;
+          if (prefs.examGuard !== false) document.body.classList.add('pro-exam-shield');
+          return origStart.apply(this, arguments);
+        };
+      }
+
+      // Anti-cheat tab switch monitor (only active during live CBT test)
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && prefs.examGuard !== false && typeof cbt !== 'undefined' && cbt && cbt.active && !cbt.paused) {
+          _tabSwitches++;
+        } else if (!document.hidden && _tabSwitches > 0 && prefs.examGuard !== false && typeof cbt !== 'undefined' && cbt && cbt.active && !cbt.paused) {
+          proToast(`🛡️ Exam Guard: Tab switch detected (${_tabSwitches}x) during live test!`, 'warn');
+        }
+      });
+
+      // ---------- 4. Mistake Vault Modal UI ----------
+      let mkFilter = 'all';
+      function renderMistakeList() {
+        const box = document.getElementById('pro-mistake-list');
+        if (!box) return;
+        const list = mistakes.filter(m => mkFilter === 'all' || m.subj === mkFilter).slice().reverse();
+        if (!list.length) {
+          box.innerHTML = `<div class="p-8 text-center space-y-2 text-slate-400 text-xs">
+            <div class="text-3xl">✨</div>
+            <div class="font-extrabold text-white text-sm">Koi Pending Mistake Nahi Hai!</div>
+            <p>Jab bhi aap koi CBT test (GS, Maths, English ya Reasoning) denge, galat questions yahan auto-save ho jayenge.</p>
+          </div>`;
+          return;
+        }
+        box.innerHTML = list.map(m => `
+          <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-white/10 space-y-2 text-xs">
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-200 text-[10px] font-extrabold uppercase">${esc(m.subj)} • ${esc(m.category)}</span>
+              <button type="button" data-mk-del="${esc(m.id)}" class="text-[11px] text-slate-400 hover:text-emerald-300 font-bold">✓ Mastered</button>
+            </div>
+            <div class="font-bold text-white leading-relaxed whitespace-pre-line">${esc(m.prompt)}</div>
+            <div class="flex flex-wrap gap-2 text-[11px]">
+              <span class="px-2 py-0.5 rounded-lg bg-rose-500/15 border border-rose-400/30 text-rose-200">✗ Your Ans: ${esc(m.userAns)}</span>
+              <span class="px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-400/30 text-emerald-200 font-bold">✓ Correct: ${esc(m.answer)}</span>
+            </div>
+            ${m.exp ? `<div class="p-2 rounded-xl bg-amber-950/30 border border-amber-400/20 text-[11px] text-amber-100/90 whitespace-pre-line">💡 ${esc(m.exp)}</div>` : ''}
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('pro-mistake-filters')?.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-mk-subj]');
+        if (!b) return;
+        mkFilter = b.getAttribute('data-mk-subj');
+        document.querySelectorAll('#pro-mistake-filters button').forEach(btn => {
+          const act = btn.getAttribute('data-mk-subj') === mkFilter;
+          btn.className = act ? 'px-2.5 py-1 rounded-lg bg-rose-500 text-white text-[11px] font-extrabold' : 'px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-[11px] font-bold';
+        });
+        renderMistakeList();
+      });
+
+      document.getElementById('pro-mistake-list')?.addEventListener('click', (e) => {
+        const del = e.target.closest('button[data-mk-del]');
+        if (!del) return;
+        const id = del.getAttribute('data-mk-del');
+        mistakes = mistakes.filter(m => String(m.id) !== String(id));
+        safeSet('ssc_mistake_vault_v1', mistakes);
+        refreshProBadges();
+        renderMistakeList();
+        proToast('Marked as mastered!', 'success');
+      });
+
+      document.getElementById('pro-mistake-retest-btn')?.addEventListener('click', () => {
+        const list = mistakes.filter(m => mkFilter === 'all' || m.subj === mkFilter);
+        if (!list.length) { proToast('Re-test ke liye koi mistake saved nahi hai.', 'warn'); return; }
+        const pool = list.slice(0, 25).map(m => ({
+          id: m.id,
+          word: m.category,
+          meaningHi: m.category,
+          category: m.category,
+          subject: m.subj,
+          exam: m.exam || 'Mistake Re-Test',
+          year: '2025',
+          cbtPrompt: m.prompt,
+          promptHi: m.promptHi || '',
+          options: (m.options && m.options.length >= 2) ? m.options : [m.answer, m.userAns || 'Option B', 'Option C', 'Option D'],
+          answer: m.answer,
+          cbtAnswer: m.answer,
+          exp: m.exp || ''
+        }));
+        closeModal('pro-mistake-modal');
+        if (typeof switchView === 'function') switchView('test');
+        if (typeof startCbtTest === 'function') {
+          startCbtTest(pool, `🧠 Mistake Re-Test (${pool.length} Qs)`, pool.length, Math.max(300, pool.length * 36));
+        }
+      });
+
+      document.getElementById('pro-mistake-clear-btn')?.addEventListener('click', () => {
+        if (!mistakes.length) return;
+        mistakes = [];
+        safeSet('ssc_mistake_vault_v1', mistakes);
+        refreshProBadges();
+        renderMistakeList();
+        proToast('Mistake Vault cleared.', 'info');
+      });
+
+      // ---------- 5. Focus Pomodoro Timer ----------
+      let pomoTotalSec = 25 * 60;
+      let pomoRemSec = 25 * 60;
+      let pomoTimer = null;
+
+      function fmtMMSS(sec) {
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+      }
+      function playChime() {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(660, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.25);
+          gain.gain.setValueAtTime(0.12, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(); osc.stop(ctx.currentTime + 0.6);
+        } catch (e) {}
+      }
+      function updatePomoUI() {
+        const disp = document.getElementById('pro-pomo-display');
+        const mini = document.getElementById('pro-focus-mini-pill');
+        const badge = document.getElementById('pro-focus-badge');
+        const tgl = document.getElementById('pro-pomo-toggle');
+        const txt = fmtMMSS(pomoRemSec);
+        if (disp) disp.textContent = txt;
+        if (mini) {
+          mini.textContent = `⏱️ ${txt}`;
+          mini.classList.toggle('hidden', !pomoTimer);
+        }
+        if (badge) badge.textContent = pomoTimer ? `${txt} Live` : `${Math.round(pomoTotalSec/60)}m Ready`;
+        if (tgl) tgl.textContent = pomoTimer ? '⏸ Pause Focus' : '▶ Start Focus';
+      }
+
+      document.querySelectorAll('.pomo-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (pomoTimer) { clearInterval(pomoTimer); pomoTimer = null; }
+          const m = parseInt(btn.getAttribute('data-pomo-min'), 10) || 25;
+          pomoTotalSec = m * 60;
+          pomoRemSec = pomoTotalSec;
+          document.querySelectorAll('.pomo-preset').forEach(b => {
+            const act = b === btn;
+            b.className = act
+              ? 'pomo-preset px-3 py-1.5 rounded-xl bg-emerald-400 text-slate-950 text-xs font-extrabold border border-emerald-300'
+              : 'pomo-preset px-3 py-1.5 rounded-xl bg-slate-800 text-slate-200 text-xs font-bold border border-slate-700';
+          });
+          updatePomoUI();
+        });
+      });
+
+      document.getElementById('pro-pomo-toggle')?.addEventListener('click', () => {
+        const st = document.getElementById('pro-pomo-status');
+        if (pomoTimer) {
+          clearInterval(pomoTimer);
+          pomoTimer = null;
+          if (st) st.textContent = 'Paused — jab ready hon resume karein';
+        } else {
+          if (pomoRemSec <= 0) pomoRemSec = pomoTotalSec;
+          if (st) st.textContent = 'Deep Focus active — phone distractions band rakhein!';
+          pomoTimer = setInterval(() => {
+            pomoRemSec--;
+            if (pomoRemSec <= 0) {
+              clearInterval(pomoTimer);
+              pomoTimer = null;
+              const mins = Math.round(pomoTotalSec / 60);
+              analytics.focusMinsToday = (analytics.focusMinsToday || 0) + mins;
+              analytics.xp = (analytics.xp || 0) + mins;
+              safeSet('ssc_pro_analytics_v1', analytics);
+              refreshProBadges();
+              playChime();
+              if (st) st.textContent = `🎉 ${mins} min Focus Sprint complete! (+${mins} XP)`;
+              proToast(`🎉 ${mins} min Focus Sprint complete! +${mins} XP`, 'success');
+            }
+            updatePomoUI();
+          }, 1000);
+        }
+        updatePomoUI();
+      });
+
+      document.getElementById('pro-pomo-reset')?.addEventListener('click', () => {
+        if (pomoTimer) { clearInterval(pomoTimer); pomoTimer = null; }
+        pomoRemSec = pomoTotalSec;
+        const st = document.getElementById('pro-pomo-status');
+        if (st) st.textContent = 'Ready for focused SSC preparation';
+        updatePomoUI();
+      });
+
+      // ---------- 6. Pro Analytics Modal ----------
+      function renderAnalyticsModal() {
+        const body = document.getElementById('pro-analytics-body');
+        if (!body) return;
+        const rk = getRankInfo(analytics.xp || 0);
+        const att = (analytics.correct || 0) + (analytics.wrong || 0);
+        const acc = att > 0 ? Math.round((analytics.correct / att) * 100) : 0;
+        const gsDone = Object.keys(safeGet('ssc_gspyq_done_v1', {})).length;
+        const subjectsMeta = [
+          { k: 'gk', label: '🌍 General Studies (GS)', color: 'bg-amber-400' },
+          { k: 'maths', label: '📐 Maths (Quant)', color: 'bg-emerald-400' },
+          { k: 'english', label: '📘 English & Vocab', color: 'bg-cyan-400' },
+          { k: 'reasoning', label: '🧠 Reasoning', color: 'bg-purple-400' }
+        ];
+        const barsHtml = subjectsMeta.map(s => {
+          const st = (analytics.bySubject && analytics.bySubject[s.k]) || { c: 0, w: 0 };
+          const tot = st.c + st.w;
+          const p = tot > 0 ? Math.round((st.c / tot) * 100) : 0;
+          return `
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-200">${s.label}</span>
+                <span class="font-extrabold text-slate-300">${tot > 0 ? `${p}% (${st.c}/${tot})` : 'No attempts yet'}</span>
+              </div>
+              <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
+                <div class="h-full ${s.color} rounded-full transition-all" style="width:${p}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const recentHtml = (analytics.recent && analytics.recent.length)
+          ? analytics.recent.slice(0, 6).map(r => {
+              const dt = new Date(r.ts).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+              const sc = ((r.c * 2) - (r.w * 0.5)).toFixed(1);
+              return `<div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-900/80 border border-white/5 text-xs">
+                <div class="truncate">
+                  <div class="font-bold text-white truncate">${esc(r.label)}</div>
+                  <div class="text-[10px] text-slate-400">${dt} • ✓ ${r.c} • ✗ ${r.w}${r.switches ? ` • 🛡️ ${r.switches} switch` : ''}</div>
+                </div>
+                <span class="px-2 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-200 font-black shrink-0">${sc} pts</span>
+              </div>`;
+            }).join('')
+          : `<div class="text-xs text-slate-400 text-center py-3">Abhi tak koi CBT test record nahi hua hai — koi bhi PYQ ya Live Test start karein!</div>`;
+
+        body.innerHTML = `
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+            <div class="p-3 rounded-2xl bg-slate-900/90 border border-amber-400/25">
+              <div class="text-lg font-black text-amber-300">${analytics.xp || 0}</div>
+              <div class="text-[10px] font-bold text-slate-400">${rk.icon} ${rk.title}</div>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-900/90 border border-emerald-400/25">
+              <div class="text-lg font-black text-emerald-300">${acc}%</div>
+              <div class="text-[10px] font-bold text-slate-400">Overall Accuracy</div>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-900/90 border border-cyan-400/25">
+              <div class="text-lg font-black text-cyan-300">${analytics.tests || 0}</div>
+              <div class="text-[10px] font-bold text-slate-400">CBT Tests Done</div>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-900/90 border border-indigo-400/25">
+              <div class="text-lg font-black text-indigo-300">${gsDone}</div>
+              <div class="text-[10px] font-bold text-slate-400">GS PYQ Sets Done</div>
+            </div>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-slate-950/75 border border-white/10 space-y-3">
+            <div class="text-[11px] font-black uppercase tracking-wider text-cyan-300">Subject-Wise Accuracy</div>
+            ${barsHtml}
+          </div>
+          <div class="p-3.5 rounded-2xl bg-slate-950/75 border border-white/10 space-y-2">
+            <div class="text-[11px] font-black uppercase tracking-wider text-indigo-300">Recent CBT Sessions</div>
+            ${recentHtml}
+          </div>
+        `;
+      }
+
+      // ---------- 7. Security, Admin Auto-Lock & Checksum Backup ----------
+      let _adminLastActivity = Date.now();
+      ['click', 'keydown', 'touchstart'].forEach(ev => {
+        document.addEventListener(ev, () => { _adminLastActivity = Date.now(); }, { passive: true });
+      });
+      setInterval(() => {
+        if (Date.now() - _adminLastActivity > 15 * 60 * 1000) {
+          try {
+            if (localStorage.getItem('ssc_admin_unlocked') === 'true' || sessionStorage.getItem('ssc_admin_unlocked') === 'true') {
+              localStorage.removeItem('ssc_admin_unlocked');
+              sessionStorage.removeItem('ssc_admin_unlocked');
+              proToast('🔒 Admin session auto-locked after 15 min inactivity.', 'warn');
+            }
+          } catch (e) {}
+        }
+      }, 60000);
+
+      document.getElementById('pro-lock-admin-btn')?.addEventListener('click', () => {
+        try {
+          localStorage.removeItem('ssc_admin_unlocked');
+          sessionStorage.removeItem('ssc_admin_unlocked');
+        } catch (e) {}
+        const adm = document.getElementById('admin-modal');
+        if (adm) adm.classList.add('hidden');
+        proToast('🔒 Admin session locked securely!', 'success');
+      });
+
+      document.getElementById('pro-guard-toggle')?.addEventListener('change', (e) => {
+        prefs.examGuard = !!e.target.checked;
+        safeSet('ssc_pro_prefs_v1', prefs);
+        applyPrefs();
+        proToast(prefs.examGuard ? '🛡️ Exam Focus Guard ON' : 'Exam Focus Guard OFF', 'info');
+      });
+
+      document.getElementById('pro-density-toggle')?.addEventListener('change', (e) => {
+        prefs.density = e.target.checked ? 'compact' : 'comfortable';
+        safeSet('ssc_pro_prefs_v1', prefs);
+        applyPrefs();
+      });
+
+      document.querySelectorAll('.pro-theme-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          prefs.theme = btn.getAttribute('data-pro-theme-pick');
+          safeSet('ssc_pro_prefs_v1', prefs);
+          applyPrefs();
+          proToast(`🎨 Theme switched to ${prefs.theme.toUpperCase()}`, 'success');
+        });
+      });
+
+      function simpleHash(str) {
+        let h = 2166136261;
+        for (let i = 0; i < str.length; i++) {
+          h ^= str.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return (h >>> 0).toString(16).padStart(8, '0');
+      }
+
+      document.getElementById('pro-export-backup-btn')?.addEventListener('click', () => {
+        const payload = {
+          app: 'SSC_VOCAB_3D_PRO',
+          version: 'v146',
+          exportedAt: new Date().toISOString(),
+          mistakes: safeGet('ssc_mistake_vault_v1', []),
+          analytics: safeGet('ssc_pro_analytics_v1', {}),
+          gsDone: safeGet('ssc_gspyq_done_v1', {}),
+          prefs: safeGet('ssc_pro_prefs_v1', {})
+        };
+        const raw = JSON.stringify(payload);
+        const envelope = { checksum: simpleHash(raw), payload };
+        const blob = new Blob([JSON.stringify(envelope, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ssc_vocab_pro_backup_${todayIso()}.json`;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        proToast('✅ Verified progress backup downloaded!', 'success');
+      });
+
+      document.getElementById('pro-import-backup-input')?.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const env = safeParse(reader.result, null);
+          if (!env || !env.payload || !env.checksum) {
+            proToast('❌ Invalid backup file format.', 'danger'); return;
+          }
+          const calc = simpleHash(JSON.stringify(env.payload));
+          if (calc !== env.checksum) {
+            proToast('❌ Backup integrity checksum failed (file tampered/corrupt).', 'danger'); return;
+          }
+          if (Array.isArray(env.payload.mistakes)) { mistakes = env.payload.mistakes; safeSet('ssc_mistake_vault_v1', mistakes); }
+          if (env.payload.analytics) { analytics = env.payload.analytics; safeSet('ssc_pro_analytics_v1', analytics); }
+          if (env.payload.gsDone) safeSet('ssc_gspyq_done_v1', env.payload.gsDone);
+          if (env.payload.prefs) { Object.assign(prefs, env.payload.prefs); safeSet('ssc_pro_prefs_v1', prefs); applyPrefs(); }
+          refreshProBadges();
+          proToast('✅ Progress & Mistake Vault restored securely!', 'success');
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+
+      // ---------- 8. Universal Quick-Jump Palette ----------
+      const GS_QUICK_SUBJS = [
+        ['Ancient History', '🏛️', 0], ['Medieval History', '🏰', 1], ['Modern History', '🇮🇳', 2],
+        ['Indian Polity', '⚖️', 3], ['Indian Geography', '🗺️', 4], ['World Geography', '🌍', 5],
+        ['Economics', '💰', 6], ['Arts & Culture', '🎭', 7], ['Sports', '🏆', 8],
+        ['Books & Authors', '📚', 9], ['Science & Tech', '🚀', 10], ['Physics', '⚛️', 11],
+        ['Chemistry', '🧪', 12], ['Biology', '🧬', 13], ['Environment', '🌿', 14],
+        ['Awards & Honors', '🏅', 15], ['Computer', '💻', 16], ['Static GK', '📌', 17],
+        ['Govt Schemes', '🏛️', 18], ['Current Affairs', '📰', 19]
+      ];
+
+      function buildCmdItems() {
+        const items = [
+          { icon: '🧠', title: 'Mistake Vault (Re-Test Wrong Qs)', sub: `${mistakes.length} saved mistakes`, run: () => openModal('pro-mistake-modal', renderMistakeList) },
+          { icon: '⏱️', title: 'SSC Deep Focus Pomodoro Timer', sub: '15m / 25m / 50m study timer', run: () => openModal('pro-focus-modal', updatePomoUI) },
+          { icon: '📊', title: 'Pro Performance Analytics & XP', sub: 'Subject accuracy & recent tests', run: () => openModal('pro-analytics-modal', renderAnalyticsModal) },
+          { icon: '🛡️', title: 'Security, Theme & Verified Backup', sub: 'Exam Guard, Admin Lock, Themes', run: () => openModal('pro-security-modal', applyPrefs) },
+          { icon: '📐', title: 'Pinnacle Maths PYQ Hub (5,382 Qs)', sub: '27 Chapters • Online CBT Sets', run: () => { if (typeof switchView === 'function') switchView('pyq'); if (typeof switchPyqSubject === 'function') switchPyqSubject('maths'); } },
+          { icon: '🌍', title: 'GS / GK PYQ Hub (8,149 Qs)', sub: '20 Subjects • 86 Chapters • Hindi Solutions', run: () => { if (typeof switchView === 'function') switchView('pyq'); if (typeof switchPyqSubject === 'function') switchPyqSubject('gk'); } },
+          { icon: '📘', title: 'English Vocab PYQ Hub', sub: 'BlackBook + CGL 2026 PYQs', run: () => { if (typeof switchView === 'function') switchView('pyq'); if (typeof switchPyqSubject === 'function') switchPyqSubject('english'); } },
+          { icon: '🔴', title: 'Daily Live 100-Q CBT Mock Test', sub: 'Eduquity Pattern • Full Paper', run: () => { if (typeof switchView === 'function') switchView('test'); } }
+        ];
+        GS_QUICK_SUBJS.forEach(([name, icon, sidx]) => {
+          items.push({
+            icon,
+            title: `GS PYQ → ${name}`,
+            sub: 'Chapter-wise sets + Hindi solutions',
+            run: () => {
+              if (typeof switchView === 'function') switchView('pyq');
+              if (typeof switchPyqSubject === 'function') switchPyqSubject('gk');
+              setTimeout(() => {
+                const btn = document.querySelector(`#gspyq-subject-pills button[data-gs-subj="${sidx}"]`);
+                if (btn) btn.click();
+              }, 260);
+            }
+          });
+        });
+        return items;
+      }
+
+      let _cmdCache = [];
+      function renderCmdResults(q) {
+        const box = document.getElementById('pro-cmd-results');
+        if (!box) return;
+        const ql = (q || '').trim().toLowerCase();
+        _cmdCache = buildCmdItems().filter(it => !ql || (it.title + ' ' + it.sub).toLowerCase().includes(ql));
+        if (!_cmdCache.length) {
+          box.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">Koi matching subject ya tool nahi mila.</div>`;
+          return;
+        }
+        box.innerHTML = _cmdCache.map((it, idx) => `
+          <button type="button" data-cmd-idx="${idx}" class="w-full text-left px-3 py-2.5 rounded-xl bg-slate-900/80 hover:bg-cyan-500/20 border border-white/5 hover:border-cyan-400/40 flex items-center gap-3 transition">
+            <span class="text-lg shrink-0">${it.icon}</span>
+            <div class="min-w-0">
+              <div class="text-xs font-extrabold text-white truncate">${esc(it.title)}</div>
+              <div class="text-[10px] text-slate-400 truncate">${esc(it.sub)}</div>
+            </div>
+          </button>
+        `).join('');
+      }
+
+      document.getElementById('pro-cmd-input')?.addEventListener('input', (e) => renderCmdResults(e.target.value));
+      document.getElementById('pro-cmd-results')?.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-cmd-idx]');
+        if (!b) return;
+        const it = _cmdCache[parseInt(b.getAttribute('data-cmd-idx'), 10)];
+        closeModal('pro-cmd-modal');
+        if (it && it.run) it.run();
+      });
+
+      // ---------- 9. Modal Open/Close Wiring ----------
+      function openModal(id, onOpen) {
+        const m = document.getElementById(id);
+        if (!m) return;
+        m.classList.remove('hidden');
+        if (typeof onOpen === 'function') onOpen();
+      }
+      function closeModal(id) {
+        document.getElementById(id)?.classList.add('hidden');
+      }
+
+      document.querySelectorAll('[data-pro-close]').forEach(btn => {
+        btn.addEventListener('click', () => closeModal(btn.getAttribute('data-pro-close')));
+      });
+      ['pro-mistake-modal', 'pro-focus-modal', 'pro-analytics-modal', 'pro-security-modal', 'pro-cmd-modal'].forEach(id => {
+        document.getElementById(id)?.addEventListener('click', (e) => {
+          if (e.target && e.target.id === id) closeModal(id);
+        });
+      });
+
+      document.getElementById('pro-tile-mistakes')?.addEventListener('click', () => openModal('pro-mistake-modal', renderMistakeList));
+      document.getElementById('pro-tile-focus')?.addEventListener('click', () => openModal('pro-focus-modal', updatePomoUI));
+      document.getElementById('pro-tile-analytics')?.addEventListener('click', () => openModal('pro-analytics-modal', renderAnalyticsModal));
+      document.getElementById('pro-tile-security')?.addEventListener('click', () => openModal('pro-security-modal', applyPrefs));
+
+      const openCmd = () => {
+        openModal('pro-cmd-modal', () => {
+          const inp = document.getElementById('pro-cmd-input');
+          if (inp) { inp.value = ''; renderCmdResults(''); setTimeout(() => inp.focus(), 40); }
+        });
+      };
+      document.getElementById('pro-quickjump-btn')?.addEventListener('click', openCmd);
+      document.getElementById('pro-open-cmd-inline')?.addEventListener('click', openCmd);
+
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          openCmd();
+        } else if (e.key === 'Escape') {
+          ['pro-mistake-modal', 'pro-focus-modal', 'pro-analytics-modal', 'pro-security-modal', 'pro-cmd-modal'].forEach(closeModal);
+        }
       });
     })();
   </script>
