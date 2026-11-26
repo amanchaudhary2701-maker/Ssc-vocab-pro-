@@ -12710,7 +12710,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900/95 to-cyan-950/60 border border-emerald-400/40 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v147</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v148</span>
                 <h4 class="text-sm font-black text-white mt-1">Instant Student Test Maker (Free Auto-OCR)</h4>
                 <p class="text-[11px] text-slate-300">Bina kisi API key ke Photo ya PDF upload karein, Subject &amp; Chapter likhein — auto-scan hokar seedha Students ke Test Panel me live ho jayega!</p>
               </div>
@@ -22796,6 +22796,848 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       }
 
       window.openTrEmbeddedTab = openEmbeddedInTestRanking;
+    })();
+  </script>
+
+
+  <!-- ==================== V148: UNIFY ALL PYQ & TEST DATA INTO TEST RANKING CATEGORIES ==================== -->
+  <script>
+    (function initV148UnifiedTestRanking() {
+      const catGrid = document.getElementById('tr-cat-grid');
+      const examList = document.getElementById('tr-exam-series-list');
+      const detailList = document.getElementById('tr-detail-list');
+      const hostPyq = document.getElementById('tr-screen-pyq');
+      const hostTest = document.getElementById('tr-screen-test');
+      if (!catGrid || !examList || !detailList) return;
+
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      async function ensureGsData() {
+        if (window._GS_PYQ_DATA) return window._GS_PYQ_DATA;
+        const el = document.getElementById('gs-pyq-gz-b64');
+        if (!el || typeof DecompressionStream === 'undefined') return null;
+        const bin = atob(el.textContent.trim());
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        const ds = new DecompressionStream('gzip');
+        const text = await new Response(new Blob([bytes]).stream().pipeThrough(ds)).text();
+        window._GS_PYQ_DATA = JSON.parse(text);
+        return window._GS_PYQ_DATA;
+      }
+
+      function safeGetAllWords() {
+        try {
+          return typeof getAllWords === 'function' ? (getAllWords() || []) : [];
+        } catch (e) { return []; }
+      }
+
+      // Unified 10 Categories merging ALL Test & PYQ datasets into Test Ranking's exact OLED UI
+      const UNIFIED_CATS = [
+        { id: 'ssc',       name: 'SSC',                 icon: '🏛️', badgeBg: 'bg-amber-50',   sub: 'Full 100-Q Live Mocks + CGL, CHSL, CPO, MTS, Phase XIII & Steno', group: 'both' },
+        { id: 'gs_pyq',    name: 'GS PYQ Bank',         icon: '🌍', badgeBg: 'bg-sky-50',     sub: '20 Subjects • 86 Chapters • 8,149 Hindi PYQs + Hard Mixed GK',    group: 'pyq'  },
+        { id: 'maths_pyq', name: 'Maths PYQ & Sets',    icon: '📐', badgeBg: 'bg-emerald-50', sub: 'Pinnacle 6800+ • 27 Chapters • 216 Mixed Sets • 5,382 PYQs',      group: 'both' },
+        { id: 'english',   name: 'English Vocab & PYQ', icon: '📘', badgeBg: 'bg-cyan-50',    sub: 'BlackBook 9,588+ • 467 CGL 2026 PYQs • Hard Grammar & Cloze',     group: 'both' },
+        { id: 'reasoning', name: 'Reasoning (Hard)',    icon: '🧠', badgeBg: 'bg-purple-50',  sub: '22 Syllabus Chapters • Statement-Based & Non-Verbal SVG Figures', group: 'both' },
+        { id: 'dp',        name: 'DP (Delhi Police)',   icon: '🛡️', badgeBg: 'bg-blue-50',    sub: 'DP Constable, HC & AWO/TPO GS, Computer (600 Qs) & Quant PYQs',   group: 'both' },
+        { id: 'railways',  name: 'Railways',            icon: '🚆', badgeBg: 'bg-rose-50',    sub: 'RRB NTPC, Group D & ALP Science, GS, Maths & Reasoning',          group: 'both' },
+        { id: 'up_exams',  name: 'UP Exams',            icon: '⭐', badgeBg: 'bg-orange-50',  sub: 'UP Police, UPSSSC PET & RO/ARO GS + Quant + Reasoning',           group: 'both' },
+        { id: 'defence',   name: 'Defence & IB',        icon: '🎖️', badgeBg: 'bg-yellow-50',  sub: 'IB ACIO, CDS, AFCAT Hard Statement GS, English & Maths',          group: 'both' },
+        { id: 'live_custom', name: 'Daily Live & Custom', icon: '⚡', badgeBg: 'bg-violet-50', sub: 'All-India 100-Q Eduquity Mock • Photo/PDF & Admin Tests',         group: 'mock' }
+      ];
+
+      const U_SERIES = {
+        ssc: [
+          { id: 'ssc_daily100', title: '⚡ All-India Daily 100-Q Live SSC Mock (Eduquity)', meta: '100 Qs • 200 Marks | 4 Sections (Reas + GK + Maths + Eng)', examFilter: 'ALL' },
+          { id: 'cgl_t1',  title: 'SSC CGL Tier-1 Complete Series (PYQ + Mock)', meta: 'GS + Maths + 467 CGL English | Full & Sectional', examFilter: 'SSC CGL 2025' },
+          { id: 'cgl_t2',  title: 'SSC CGL Tier-2 Hard Series',                  meta: 'Hard Maths + English + GS | Full & Sectional',     examFilter: 'SSC CGL 2025' },
+          { id: 'chsl_t1', title: 'SSC CHSL Tier-1 Complete Series (PYQ + Mock)',meta: 'GS + Maths + English + Reas | Free Tests',         examFilter: 'SSC CHSL 2025' },
+          { id: 'cpo_t1',  title: 'SSC CPO Tier-1 Complete Series',              meta: 'GS + Maths + English + Reas | Free Tests',         examFilter: 'SSC CPO 2025' },
+          { id: 'mts_t1',  title: 'SSC MTS & Havaldar Complete Series',          meta: 'GS + Maths + English + Reas | Free Tests',         examFilter: 'SSC MTS 2025' },
+          { id: 'phase13', title: 'SSC Selection Post (Phase XIII) Series',      meta: 'GS + Maths PYQs | Free Tests',                     examFilter: 'SSC Phase XIII' },
+          { id: 'steno',   title: 'SSC Stenographer Series',                     meta: 'GS + English + Reasoning | Free Tests',            examFilter: 'SSC Steno 2025' }
+        ],
+        dp: [
+          { id: 'dp_const', title: 'Delhi Police Constable PYQ & Mock Series',   meta: 'Real DP Constable GS + Computer + Maths | Free',   examFilter: 'DP Constable' },
+          { id: 'dp_hc',    title: 'Delhi Police HC & AWO/TPO Series',           meta: 'Real DP HC / AWO TPO GS + Science + Comp | Free',  examFilter: 'DP HC / AWO TPO' },
+          { id: 'dp_comp',  title: '💻 Delhi Police Computer Special (600 PYQs)',meta: '600 Computer PYQs | 24 Sets (25 Qs each)',         examFilter: 'COMPUTER' }
+        ],
+        railways: [
+          { id: 'rrb_ntpc', title: 'RRB NTPC CBT-1 & CBT-2 (GS + Maths + Reas)', meta: 'Hard GS + Pinnacle Maths + Reasoning | Free',      examFilter: 'ALL' },
+          { id: 'rrb_grpd', title: 'RRB Group D Science & GS PYQ Series',        meta: 'Physics + Chemistry + Biology + GS | Free',        examFilter: 'SCIENCE' }
+        ],
+        up_exams: [
+          { id: 'upp_const',  title: 'UP Police Constable (GS + Maths + Reas)',  meta: 'Hindi GS PYQ + Maths + Hard Reasoning | Free',     examFilter: 'ALL' },
+          { id: 'upsssc_pet', title: 'UPSSSC PET Complete GS & Static GK',       meta: 'History + Polity + Geo + Econ + Static | Free',    examFilter: 'ALL' }
+        ],
+        defence: [
+          { id: 'ib_acio', title: 'IB ACIO Tier-1 Hard GS, English & Quant',     meta: 'UPSC/SSC Hard Mixed GS + English + Maths | Free',  examFilter: 'HARD_GK' },
+          { id: 'cds_gs',  title: 'CDS / NDA / AFCAT Hard GS & English Series',  meta: 'Multi-Statement Hard GS + Vocab/Grammar | Free',   examFilter: 'HARD_GK' }
+        ],
+        live_custom: [
+          { id: 'live_today_100', title: '📡 Today All-India 100-Q Live Mock (Eduquity)', meta: '100 Qs • 200 Marks | +2 / -0.50 Live Rank', examFilter: 'LIVE100' },
+          { id: 'hard_gk_sets',   title: '🔥 Hard Mixed GS Sets (UPSC + SSC + Railway)',  meta: 'Multi-Statement Hard GK • No Exam Name | 10 Sets', examFilter: 'HARD_GK' },
+          { id: 'hard_eng_sets',  title: '📘 Hard English Full Paper (Grammar + Cloze)',  meta: 'Narration + Error + Cloze + Vocab | 12 Sets',      examFilter: 'HARD_ENG' },
+          { id: 'hard_reas_sets', title: '🧠 Hard Reasoning Paper (Statement + Figures)', meta: 'Non-Verbal SVG + Syllogism + Coding | 12 Sets',    examFilter: 'HARD_REAS' },
+          { id: 'open_pdf_maker', title: '📸 Photo / PDF → Instant Live CBT Test Maker',  meta: 'Apni Photo ya PDF se turant CBT Test banayein',    examFilter: 'PDF_MAKER' }
+        ]
+      };
+
+      const uState = {
+        catId: 'ssc',
+        seriesId: '',
+        seriesTitle: '',
+        seg: 'pyq',        // 'mock' | 'pyq'
+        testType: 'sec',   // 'full' | 'sec'
+        filter: 'all',
+        page: 1,
+        perPage: 15,
+        lastMainTab: 'series'
+      };
+
+      const ALL_TR_SCREENS = [
+        'tr-screen-home', 'tr-screen-live', 'tr-screen-free', 'tr-screen-series',
+        'tr-screen-pyq', 'tr-screen-test', 'tr-screen-exam', 'tr-screen-detail'
+      ];
+
+      function hideClassicViews() {
+        document.getElementById('view-pyq')?.classList.add('hidden');
+        document.getElementById('view-test')?.classList.add('hidden');
+      }
+
+      function showUnifiedScreen(screenName, activeTab) {
+        const topChrome = document.getElementById('tr-top-chrome');
+        const subBar = document.getElementById('tr-subtabs-bar');
+        const rRoot = document.getElementById('tr-ranking-root');
+        const vWrap = document.getElementById('tr-vocab-classic-wrap');
+        if (rRoot) rRoot.classList.remove('hidden');
+        if (vWrap) vWrap.classList.add('hidden');
+        document.getElementById('tr-mode-vocab')?.classList.remove('active');
+        document.getElementById('tr-mode-ranking')?.classList.add('active');
+        hideClassicViews();
+
+        ALL_TR_SCREENS.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+
+        if (screenName === 'cat_hub') {
+          uState.lastMainTab = activeTab || 'series';
+          if (topChrome) topChrome.classList.remove('hidden');
+          if (subBar) subBar.classList.remove('hidden');
+          document.getElementById('tr-screen-series')?.classList.remove('hidden');
+          document.querySelectorAll('#tr-subtabs-bar [data-tr-tab]').forEach(b => {
+            b.classList.toggle('active', b.getAttribute('data-tr-tab') === uState.lastMainTab);
+          });
+          renderUnifiedCatGrid(uState.lastMainTab);
+        } else if (screenName === 'exam') {
+          if (topChrome) topChrome.classList.add('hidden');
+          if (subBar) subBar.classList.add('hidden');
+          document.getElementById('tr-screen-exam')?.classList.remove('hidden');
+          renderUnifiedExamScreen();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (screenName === 'detail') {
+          if (topChrome) topChrome.classList.add('hidden');
+          if (subBar) subBar.classList.add('hidden');
+          document.getElementById('tr-screen-detail')?.classList.remove('hidden');
+          renderUnifiedDetailScreen();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+
+      function renderUnifiedCatGrid(tabMode) {
+        const mode = tabMode || 'series';
+        const headerBadge = document.querySelector('#tr-screen-series .bg-emerald-500\/10, #tr-screen-series [class*="emerald"]');
+        let cats = UNIFIED_CATS;
+        let headingTxt = 'All SSC, GS, Maths, English & Reasoning Ready';
+        if (mode === 'pyq') {
+          // Put PYQ-heavy categories right at the top
+          cats = [
+            UNIFIED_CATS[1], // GS PYQ Bank
+            UNIFIED_CATS[2], // Maths PYQ & Sets
+            UNIFIED_CATS[3], // English Vocab & PYQ
+            UNIFIED_CATS[4], // Reasoning (Hard)
+            UNIFIED_CATS[0], // SSC
+            UNIFIED_CATS[5], // DP
+            UNIFIED_CATS[6], // Railways
+            UNIFIED_CATS[7], // UP Exams
+            UNIFIED_CATS[8]  // Defence & IB
+          ];
+          headingTxt = '🏛️ All PYQs Unified • GS (8,149) + Maths (5,382) + English (10,055) + Reas';
+        } else if (mode === 'test') {
+          cats = [
+            UNIFIED_CATS[9], // Daily Live & Custom
+            UNIFIED_CATS[0], // SSC
+            UNIFIED_CATS[2], // Maths PYQ & Sets (216 Mixed!)
+            UNIFIED_CATS[4], // Reasoning (Hard)
+            UNIFIED_CATS[3], // English Vocab & PYQ
+            UNIFIED_CATS[1], // GS PYQ Bank
+            UNIFIED_CATS[5], // DP
+            UNIFIED_CATS[6], // Railways
+            UNIFIED_CATS[7], // UP Exams
+            UNIFIED_CATS[8]  // Defence & IB
+          ];
+          headingTxt = '📝 All Mock Tests Unified • 100-Q Live + 216 Maths Mixed + Hard Reas/Eng/GS';
+        }
+
+        catGrid.innerHTML = cats.map(c => `
+          <button type="button" data-u-cat="${c.id}" class="tr-surface tr-surface-hover p-3.5 sm:p-4 flex items-center justify-between gap-2 text-left">
+            <div class="min-w-0 pr-1">
+              <div class="text-sm sm:text-base font-extrabold text-white leading-tight">${esc(c.name)}</div>
+              <div class="text-[10px] text-slate-400 font-semibold truncate mt-0.5">${esc(c.sub.split('•')[0].trim())}</div>
+            </div>
+            <div class="tr-emblem ${c.badgeBg} text-2xl shrink-0">${c.icon}</div>
+          </button>
+        `).join('');
+
+        if (headerBadge && headerBadge.textContent && headerBadge.textContent.includes('Active')) {
+          headerBadge.textContent = '✓ ' + headingTxt;
+        }
+      }
+
+      async function renderUnifiedExamScreen() {
+        const cat = UNIFIED_CATS.find(x => x.id === uState.catId) || UNIFIED_CATS[0];
+        const emb = document.getElementById('tr-exam-emblem');
+        const tit = document.getElementById('tr-exam-title');
+        const sub = document.getElementById('tr-exam-sub');
+        if (emb) emb.textContent = cat.icon;
+        if (tit) tit.textContent = cat.name;
+        if (sub) sub.textContent = cat.sub;
+
+        let rows = [];
+
+        if (cat.id === 'gs_pyq') {
+          examList.innerHTML = '<div class="tr-surface p-5 text-center text-xs text-slate-400">Loading 20 GS Subjects (8,149 PYQs)...</div>';
+          const gs = await ensureGsData();
+          rows.push({
+            id: 'hard_gk_sets',
+            title: '🔥 Hard Mixed GS Sets (Multi-Statement • UPSC/SSC/Railway Level)',
+            meta: '250+ Hard Qs | 10 Mixed Sets (25 Qs each)'
+          });
+          if (gs) {
+            const counts = new Array(gs.subjects.length).fill(0);
+            for (let i = 0; i < gs.items.length; i++) counts[gs.items[i][1]]++;
+            gs.subjects.forEach((s, idx) => {
+              rows.push({
+                id: 'gs_subj_' + idx,
+                title: `${s.icon} ${s.name} (${s.hi})`,
+                meta: `${counts[idx]} PYQs | ${s.chapters.length} Chapters • ${Math.ceil(counts[idx]/25)} Sets`
+              });
+            });
+          }
+        }
+        else if (cat.id === 'maths_pyq' && typeof PINNACLE_MATHS_DATA !== 'undefined') {
+          const totalM = PINNACLE_MATHS_DATA.questions.length;
+          rows.push({
+            id: 'math_mixed_all',
+            title: '🔀 Pinnacle 6800+ Mixed All 27 Chapters (Set-Wise)',
+            meta: `${totalM.toLocaleString()} PYQs | ${Math.ceil(totalM/25)} Mixed Sets (25 Qs / 15m)`
+          });
+          // Exam-wise Maths rows
+          if (Array.isArray(PINNACLE_MATHS_DATA.exams)) {
+            PINNACLE_MATHS_DATA.exams.forEach((ex, exi) => {
+              const cnt = PINNACLE_MATHS_DATA.questions.filter(q => q[2] === exi).length;
+              if (cnt > 0) {
+                rows.push({
+                  id: 'math_exam_' + exi,
+                  title: `🏛️ Maths Exam-Wise: ${ex}`,
+                  meta: `${cnt} PYQs | ${Math.ceil(cnt/25)} Exam Sets (25 Qs)`
+                });
+              }
+            });
+          }
+          // All 27 Chapter-wise rows
+          const counts = new Array(PINNACLE_MATHS_DATA.chapters.length).fill(0);
+          for (let i = 0; i < PINNACLE_MATHS_DATA.questions.length; i++) counts[PINNACLE_MATHS_DATA.questions[i][1]]++;
+          PINNACLE_MATHS_DATA.chapters.forEach((ch, idx) => {
+            rows.push({
+              id: 'math_ch_' + idx,
+              title: `📐 ${ch}`,
+              meta: `${counts[idx]} PYQs | ${Math.ceil(counts[idx]/25)} Chapter Sets`
+            });
+          });
+        }
+        else if (cat.id === 'english') {
+          const allW = safeGetAllWords();
+          const cgl26 = allW.filter(w => w.exam === 'SSC CGL 2026 T1');
+          rows.push({
+            id: 'hard_eng_sets',
+            title: '🔥 SSC Hard English Full Paper (Grammar + Narration + Error + Cloze)',
+            meta: 'Complete SSC Syllabus | 12 Full Sets (25 Qs each)'
+          });
+          rows.push({
+            id: 'eng_cgl26_all',
+            title: '👑 SSC CGL 2026 Tier-1 Real PYQs (53 Shifts • Topic-Wise)',
+            meta: `${cgl26.length || 467} Real PYQs | ${Math.ceil((cgl26.length || 467)/25)} Sets (25 Qs)`
+          });
+          const bbCats = [
+            ['Synonym', '📘 BlackBook Synonyms Master PYQ'],
+            ['Antonym', '📙 BlackBook Antonyms Master PYQ'],
+            ['One Word', '📗 BlackBook One Word Substitution (OWS)'],
+            ['Idiom', '📕 BlackBook Idioms & Phrases PYQ'],
+            ['Spelling', '✍️ BlackBook Misspelt Words / Spellings'],
+            ['Homonym', '🔀 BlackBook Homonyms & Confusing Words'],
+            ['Phrasal', '⚡ BlackBook Phrasal Verbs'],
+            ['Foreign', '🌐 BlackBook Foreign Words & Expressions']
+          ];
+          bbCats.forEach(([ck, label]) => {
+            const cnt = allW.filter(w => (w.category || '').toLowerCase().includes(ck.toLowerCase())).length;
+            if (cnt > 0) {
+              rows.push({
+                id: 'eng_bb_' + ck,
+                title: label,
+                meta: `${cnt.toLocaleString()} Words | ${Math.ceil(cnt/25)} Practice Sets (25 Qs)`
+              });
+            }
+          });
+        }
+        else if (cat.id === 'reasoning') {
+          const reasTopics = [
+            ['reas_all', '🧠 SSC Hard Reasoning Full Syllabus (25 Qs Mixed)', 'Statement + Non-Verbal SVG + Coding | 15 Sets'],
+            ['reas_stmt', '📜 Statement-Conclusion, Syllogism & Critical Thinking', 'Hard Statement-Based Reasoning | 8 Sets'],
+            ['reas_nonverbal', '🔷 Non-Verbal Reasoning (Mirror, Water, Cube, Paper Fold, Series)', 'High-Weightage SVG Visual Figures | 8 Sets'],
+            ['reas_coding', '🔐 Coding-Decoding, Number Series & Analogy', 'Hard Pattern & Odd One Out | 8 Sets'],
+            ['reas_blood', '🧭 Blood Relation, Direction, Seating & Order-Ranking', 'Complex Puzzle & Spatial Orientation | 8 Sets']
+          ];
+          reasTopics.forEach(([rid, rtitle, rmeta]) => {
+            rows.push({ id: rid, title: rtitle, meta: rmeta });
+          });
+        }
+        else {
+          rows = (U_SERIES[cat.id] || U_SERIES.ssc).slice();
+        }
+
+        examList.innerHTML = rows.map(r => {
+          const parts = (r.meta || 'Free Tests').split('|');
+          return `
+            <button type="button" data-u-series="${esc(r.id)}" data-u-title="${esc(r.title)}" class="tr-surface tr-surface-hover w-full p-4 flex items-center justify-between gap-3 text-left">
+              <div class="min-w-0 space-y-1">
+                <div class="text-sm sm:text-base font-extrabold text-white truncate">${esc(r.title)}</div>
+                <div class="text-xs font-semibold text-slate-400">
+                  ${esc(parts[0].trim())}<span class="text-slate-600 mx-1.5">|</span><span class="text-emerald-400 font-bold">${esc((parts[1] || 'Free Tests').trim())}</span>
+                </div>
+              </div>
+              <span class="text-slate-400 text-xl font-bold shrink-0">›</span>
+            </button>
+          `;
+        }).join('');
+      }
+
+      function buildVocabPoolFromSlice(words, label) {
+        const allW = safeGetAllWords();
+        return words.map((w, idx) => {
+          const corr = w.meaningHi || w.meaning || w.synonym || w.answer || 'Correct';
+          const distractors = [];
+          for (let tries = 0; tries < 40 && distractors.length < 3; tries++) {
+            const pick = allW[Math.floor(Math.random() * allW.length)];
+            const txt = pick && (pick.meaningHi || pick.meaning);
+            if (txt && txt !== corr && !distractors.includes(txt)) distractors.push(txt);
+          }
+          while (distractors.length < 3) distractors.push('Option ' + (distractors.length + 2));
+          const opts = [corr, ...distractors].sort(() => Math.random() - 0.5);
+          return {
+            id: 'tr_v_' + (w.id || idx),
+            word: w.word || ('Word ' + (idx + 1)),
+            meaningHi: w.meaningHi || '',
+            category: w.category || label,
+            subject: 'english',
+            exam: w.exam || 'BlackBook SSC',
+            year: w.year || '2026',
+            cbtPrompt: w.cbtPrompt || `Choose the correct meaning / option for: "${w.word}"${w.category ? ' (' + w.category + ')' : ''}`,
+            promptHi: w.meaning ? `English clue: ${w.meaning}` : '',
+            options: w.options && w.options.length === 4 ? w.options : opts,
+            answer: w.cbtAnswer || w.answer || corr,
+            cbtAnswer: w.cbtAnswer || w.answer || corr,
+            exp: `${w.word}: ${w.meaning || ''} ${w.meaningHi ? '(' + w.meaningHi + ')' : ''}${w.trick ? ' | Trick: ' + w.trick : ''}`
+          };
+        });
+      }
+
+      async function launchUnifiedCard(card) {
+        if (!card) return;
+        if (card.kind === 'live100') {
+          document.getElementById('ailt-start-btn-home')?.click();
+          return;
+        }
+        if (card.kind === 'pdf_maker') {
+          if (typeof switchView === 'function') switchView('test');
+          setTimeout(() => {
+            document.getElementById('test-other-pdf-btn')?.click();
+          }, 120);
+          return;
+        }
+        if (typeof startCbtTest !== 'function') return;
+
+        if (card.kind === 'gs_set') {
+          const gs = await ensureGsData();
+          if (!gs) return;
+          const pool = card.items.map(it => {
+            const subj = gs.subjects[it[1]];
+            const chName = subj.chapters[it[2]] || subj.name;
+            const opts = [it[6], it[7], it[8], it[9]];
+            const ansText = opts[it[10]] || opts[0];
+            return {
+              id: 'tr_gs_' + it[0],
+              word: subj.name + ' • Q.' + it[0],
+              meaningHi: chName,
+              category: subj.name + ' — ' + chName,
+              subject: 'gk',
+              exam: it[4] || gs.exams[it[3]] || 'SSC 2025',
+              year: '2025',
+              cbtPrompt: it[5],
+              promptHi: '',
+              options: opts,
+              answer: ansText,
+              cbtAnswer: ansText,
+              exp: (it[11] ? it[11] + ' | ' : '') + `${subj.name} (${chName})`
+            };
+          });
+          if (typeof switchView === 'function') switchView('test');
+          window._cbtLangMode = 'hi';
+          startCbtTest(pool, card.title, pool.length, Math.max(5, Math.round(pool.length * 0.5)) * 60);
+          return;
+        }
+
+        if (card.kind === 'maths_set' && typeof PINNACLE_MATHS_DATA !== 'undefined') {
+          const pool = card.items.map(it => {
+            const chName = PINNACLE_MATHS_DATA.chapters[it[1]];
+            const exName = PINNACLE_MATHS_DATA.exams[it[2]];
+            const opts = [it[5], it[6], it[7], it[8]];
+            const ansText = opts[it[9]] || opts[0];
+            return {
+              id: 'm_pin_' + it[1] + '_' + it[0],
+              word: chName + ' • Q.' + it[0],
+              meaningHi: 'Maths (' + chName + ')',
+              category: chName,
+              subject: 'maths',
+              exam: it[3] || exName,
+              year: '2025',
+              cbtPrompt: it[4],
+              options: opts,
+              answer: ansText,
+              cbtAnswer: ansText,
+              exp: 'Chapter: ' + chName + ' | Correct: (' + ['A','B','C','D'][it[9]] + ') ' + ansText
+            };
+          });
+          if (typeof switchView === 'function') switchView('test');
+          window._cbtLangMode = 'both';
+          startCbtTest(pool, card.title, pool.length, 900);
+          return;
+        }
+
+        if (card.kind === 'vocab_slice') {
+          const pool = buildVocabPoolFromSlice(card.items, card.title);
+          if (typeof switchView === 'function') switchView('test');
+          window._cbtLangMode = 'both';
+          startCbtTest(pool, card.title, pool.length, Math.max(8, Math.round(pool.length * 0.5)) * 60);
+          return;
+        }
+
+        if (card.kind === 'hard_reas' && typeof window.buildBuiltinDailyReasoning25 === 'function') {
+          const pool = window.buildBuiltinDailyReasoning25('Set-' + (card.seed || 1), (card.seed || 1) * 7919);
+          if (typeof switchView === 'function') switchView('test');
+          window._cbtLangMode = 'both';
+          startCbtTest(pool, card.title, pool.length, 900);
+          return;
+        }
+
+        if (card.kind === 'hard_eng' && typeof window.buildCompleteSscEnglish25 === 'function') {
+          const pool = window.buildCompleteSscEnglish25('Set-' + (card.seed || 1), (card.seed || 1) * 6271);
+          if (typeof switchView === 'function') switchView('test');
+          window._cbtLangMode = 'en';
+          startCbtTest(pool, card.title, pool.length, 720);
+          return;
+        }
+
+        if (card.kind === 'hard_gk' && typeof window.buildBuiltinDailyGk25 === 'function') {
+          const pool = window.buildBuiltinDailyGk25('Set-' + (card.seed || 1), (card.seed || 1) * 5381);
+          if (typeof switchView === 'function') switchView('test');
+          window._cbtLangMode = 'both';
+          startCbtTest(pool, card.title, pool.length, 720);
+          return;
+        }
+      }
+
+      async function renderUnifiedDetailScreen() {
+        const titleEl = document.getElementById('tr-detail-title');
+        const filtersEl = document.getElementById('tr-detail-filters');
+        const pagerEl = document.getElementById('tr-detail-pager');
+        if (titleEl) titleEl.textContent = uState.seriesTitle || 'Test Series';
+
+        document.getElementById('tr-seg-mock')?.classList.toggle('active', uState.seg === 'mock');
+        document.getElementById('tr-seg-pyq')?.classList.toggle('active', uState.seg === 'pyq');
+        document.getElementById('tr-type-full')?.classList.toggle('active', uState.testType === 'full');
+        document.getElementById('tr-type-sec')?.classList.toggle('active', uState.testType === 'sec');
+
+        detailList.innerHTML = '<div class="tr-surface p-5 text-center text-xs text-slate-400">Loading Unified Sets...</div>';
+        const gs = await ensureGsData();
+
+        let cards = [];
+        let filterPills = [{ id: 'all', label: 'All' }];
+        const sid = uState.seriesId;
+
+        if (sid === 'open_pdf_maker') {
+          cards.push({ kind: 'pdf_maker', title: '📸 Open Photo / PDF → Live CBT Test Maker', mins: 15, qs: 25, marks: 50 });
+        }
+        else if (sid === 'live_today_100' || sid === 'ssc_daily100') {
+          for (let i = 1; i <= 10; i++) {
+            cards.push({
+              kind: 'live100',
+              title: i === 1 ? '📡 Today All-India 100-Q Live SSC Mock (Eduquity Pattern)' : `SSC Full 100-Q Eduquity Mock Test ${String(i).padStart(2, '0')}`,
+              mins: 60, qs: 100, marks: 200
+            });
+          }
+        }
+        else if (sid === 'hard_gk_sets') {
+          for (let i = 1; i <= 10; i++) {
+            cards.push({ kind: 'hard_gk', seed: i, title: `🔥 Hard Mixed GS Set ${String(i).padStart(2, '0')} (Multi-Statement • Bilingual)`, mins: 12, qs: 25, marks: 50 });
+          }
+        }
+        else if (sid === 'hard_eng_sets') {
+          for (let i = 1; i <= 12; i++) {
+            cards.push({ kind: 'hard_eng', seed: i, title: `📘 Hard SSC English Paper Set ${String(i).padStart(2, '0')} (Grammar + Cloze + Error)`, mins: 12, qs: 25, marks: 50 });
+          }
+        }
+        else if (sid === 'hard_reas_sets' || sid.startsWith('reas_')) {
+          const lblMap = {
+            reas_all: 'Hard Full Syllabus Reasoning',
+            reas_stmt: 'Statement, Syllogism & Critical Reasoning',
+            reas_nonverbal: 'Non-Verbal SVG Figures Reasoning',
+            reas_coding: 'Coding-Decoding, Series & Analogy',
+            reas_blood: 'Blood Relation, Direction & Puzzles',
+            hard_reas_sets: 'Hard Reasoning Paper'
+          };
+          const baseLbl = lblMap[sid] || 'Hard Reasoning';
+          const n = sid === 'reas_all' ? 15 : 8;
+          for (let i = 1; i <= n; i++) {
+            cards.push({ kind: 'hard_reas', seed: (sid.length * 10) + i, title: `🧠 ${baseLbl} — Set ${String(i).padStart(2, '0')}`, mins: 15, qs: 25, marks: 50 });
+          }
+        }
+        else if (sid.startsWith('gs_subj_') && gs) {
+          const sidx = parseInt(sid.replace('gs_subj_', ''), 10);
+          const subj = gs.subjects[sidx];
+          const sItems = gs.items.filter(it => it[1] === sidx);
+          filterPills = [{ id: 'all', label: `All (${sItems.length})` }];
+          subj.chapters.forEach((ch, ci) => {
+            const cnt = sItems.filter(it => it[2] === ci).length;
+            if (cnt > 0) filterPills.push({ id: 'ch_' + ci, label: `${ch.split('(')[0].trim()} (${cnt})` });
+          });
+          const byChap = new Map();
+          sItems.forEach(it => {
+            if (uState.filter !== 'all' && uState.filter !== 'ch_' + it[2]) return;
+            if (!byChap.has(it[2])) byChap.set(it[2], []);
+            byChap.get(it[2]).push(it);
+          });
+          byChap.forEach((arr, ci) => {
+            const chName = subj.chapters[ci];
+            const nSets = Math.ceil(arr.length / 25);
+            for (let k = 0; k < nSets; k++) {
+              const sl = arr.slice(k * 25, (k + 1) * 25);
+              cards.push({ kind: 'gs_set', title: `${chName} — Set ${k + 1}`, mins: Math.max(5, Math.round(sl.length * 0.5)), qs: sl.length, marks: sl.length * 2, items: sl });
+            }
+          });
+        }
+        else if (sid === 'dp_comp' && gs) {
+          const compIdx = gs.subjects.findIndex(s => s.id === 'computer');
+          if (compIdx >= 0) {
+            const cItems = gs.items.filter(it => it[1] === compIdx);
+            const nSets = Math.ceil(cItems.length / 25);
+            for (let k = 0; k < nSets; k++) {
+              const sl = cItems.slice(k * 25, (k + 1) * 25);
+              cards.push({ kind: 'gs_set', title: `💻 Computer PYQ — Set ${k + 1}`, mins: 12, qs: sl.length, marks: sl.length * 2, items: sl });
+            }
+          }
+        }
+        else if (sid === 'math_mixed_all' && typeof PINNACLE_MATHS_DATA !== 'undefined') {
+          const qs = PINNACLE_MATHS_DATA.questions;
+          const nSets = Math.ceil(qs.length / 25);
+          for (let k = 0; k < nSets; k++) {
+            const sl = [];
+            for (let j = 0; j < 25; j++) {
+              const idx = (k + j * nSets) % qs.length;
+              sl.push(qs[idx]);
+            }
+            cards.push({ kind: 'maths_set', title: `🔀 Pinnacle Maths Mixed Set ${String(k + 1).padStart(3, '0')} (All 27 Ch)`, mins: 15, qs: sl.length, marks: sl.length * 2, items: sl });
+          }
+        }
+        else if (sid.startsWith('math_exam_') && typeof PINNACLE_MATHS_DATA !== 'undefined') {
+          const exi = parseInt(sid.replace('math_exam_', ''), 10);
+          const exName = PINNACLE_MATHS_DATA.exams[exi] || 'SSC Maths';
+          const mItems = PINNACLE_MATHS_DATA.questions.filter(it => it[2] === exi);
+          const nSets = Math.ceil(mItems.length / 25);
+          for (let k = 0; k < nSets; k++) {
+            const sl = mItems.slice(k * 25, (k + 1) * 25);
+            cards.push({ kind: 'maths_set', title: `${exName} Maths PYQ — Set ${k + 1}`, mins: 15, qs: sl.length, marks: sl.length * 2, items: sl });
+          }
+        }
+        else if (sid.startsWith('math_ch_') && typeof PINNACLE_MATHS_DATA !== 'undefined') {
+          const cidx = parseInt(sid.replace('math_ch_', ''), 10);
+          const chName = PINNACLE_MATHS_DATA.chapters[cidx];
+          const mItems = PINNACLE_MATHS_DATA.questions.filter(it => it[1] === cidx);
+          const nSets = Math.ceil(mItems.length / 25);
+          for (let k = 0; k < nSets; k++) {
+            const sl = mItems.slice(k * 25, (k + 1) * 25);
+            cards.push({ kind: 'maths_set', title: `${chName} — Set ${k + 1}`, mins: 15, qs: sl.length, marks: sl.length * 2, items: sl });
+          }
+        }
+        else if (sid === 'eng_cgl26_all') {
+          const allW = safeGetAllWords().filter(w => w.exam === 'SSC CGL 2026 T1');
+          const topics = ['All', 'Spelling', 'Idiom', 'Antonym', 'One Word', 'Homonym', 'Synonym', 'Collocation', 'Phrasal Verb'];
+          filterPills = topics.map(t => ({ id: t, label: t === 'All' ? `All (${allW.length})` : t }));
+          const subW = (uState.filter === 'all' || uState.filter === 'All') ? allW : allW.filter(w => (w.category || '').toLowerCase().includes(uState.filter.toLowerCase()));
+          const nSets = Math.ceil(subW.length / 25);
+          for (let k = 0; k < nSets; k++) {
+            const sl = subW.slice(k * 25, (k + 1) * 25);
+            cards.push({ kind: 'vocab_slice', title: `👑 CGL 2026 Tier-1 English PYQ — Set ${k + 1}`, mins: 12, qs: sl.length, marks: sl.length * 2, items: sl });
+          }
+        }
+        else if (sid.startsWith('eng_bb_')) {
+          const catKey = sid.replace('eng_bb_', '');
+          const subW = safeGetAllWords().filter(w => (w.category || '').toLowerCase().includes(catKey.toLowerCase()));
+          const nSets = Math.ceil(subW.length / 25);
+          for (let k = 0; k < nSets; k++) {
+            const sl = subW.slice(k * 25, (k + 1) * 25);
+            cards.push({ kind: 'vocab_slice', title: `📘 BlackBook ${catKey} — Set ${k + 1}`, mins: 12, qs: sl.length, marks: sl.length * 2, items: sl });
+          }
+        }
+        else {
+          // Exam Series (SSC CGL / CHSL / CPO / MTS / DP / Railways / UP / Defence)
+          filterPills = [
+            { id: 'all', label: 'All' },
+            { id: 'gs', label: 'GS PYQ (25Q)' },
+            { id: 'maths', label: 'Maths PYQ (25Q)' },
+            { id: 'reas', label: 'Reasoning (25Q)' },
+            { id: 'eng', label: 'English (25Q)' }
+          ];
+          let exFilter = 'ALL';
+          Object.values(U_SERIES).flat().forEach(s => { if (s.id === sid) exFilter = s.examFilter; });
+
+          if (uState.testType === 'full' || uState.seg === 'mock') {
+            const baseName = (uState.seriesTitle || 'SSC Mock').replace(/Complete Series|Series|\(PYQ \+ Mock\)/gi, '').trim();
+            for (let i = 1; i <= 10; i++) {
+              cards.push({ kind: 'live100', title: `${baseName} — Full 100-Q Mock ${String(i).padStart(2, '0')}`, mins: 60, qs: 100, marks: 200 });
+            }
+          }
+          if (uState.testType === 'sec') {
+            if ((uState.filter === 'all' || uState.filter === 'gs') && gs) {
+              let pool = gs.items;
+              if (exFilter === 'SCIENCE') {
+                const sciIds = new Set(['physics', 'chemistry', 'biology', 'science_tech']);
+                const sciIdx = new Set(gs.subjects.map((s, i) => sciIds.has(s.id) ? i : -1).filter(i => i >= 0));
+                pool = gs.items.filter(it => sciIdx.has(it[1]));
+              } else if (exFilter !== 'ALL' && exFilter !== 'HARD_GK') {
+                const exIdx = gs.exams.indexOf(exFilter);
+                if (exIdx >= 0) pool = gs.items.filter(it => it[3] === exIdx);
+              }
+              const nSets = Math.min(30, Math.ceil(pool.length / 25));
+              for (let k = 0; k < nSets; k++) {
+                const sl = pool.slice(k * 25, (k + 1) * 25);
+                const sName = gs.subjects[sl[0][1]]?.name || 'GS';
+                cards.push({ kind: 'gs_set', title: `🌍 ${exFilter === 'ALL' || exFilter === 'HARD_GK' ? 'GS' : exFilter} PYQ — ${sName} Set ${k + 1}`, mins: 12, qs: sl.length, marks: sl.length * 2, items: sl });
+              }
+            }
+            if ((uState.filter === 'all' || uState.filter === 'maths') && typeof PINNACLE_MATHS_DATA !== 'undefined') {
+              const qs = PINNACLE_MATHS_DATA.questions;
+              for (let k = 0; k < 15; k++) {
+                const sl = qs.slice(k * 25, (k + 1) * 25);
+                if (!sl.length) break;
+                const ch = PINNACLE_MATHS_DATA.chapters[sl[0][1]] || 'Maths';
+                cards.push({ kind: 'maths_set', title: `📐 Maths PYQ — ${ch} Set ${k + 1}`, mins: 15, qs: sl.length, marks: sl.length * 2, items: sl });
+              }
+            }
+            if (uState.filter === 'all' || uState.filter === 'reas') {
+              for (let k = 1; k <= 6; k++) {
+                cards.push({ kind: 'hard_reas', seed: k + 30, title: `🧠 Hard Reasoning Sectional Set ${k}`, mins: 15, qs: 25, marks: 50 });
+              }
+            }
+            if (uState.filter === 'all' || uState.filter === 'eng') {
+              for (let k = 1; k <= 6; k++) {
+                cards.push({ kind: 'hard_eng', seed: k + 20, title: `📘 Hard English (Grammar + Cloze + Vocab) Set ${k}`, mins: 12, qs: 25, marks: 50 });
+              }
+            }
+          }
+        }
+
+        if (filtersEl) {
+          filtersEl.innerHTML = filterPills.map(fp => `
+            <button type="button" data-u-filter="${esc(fp.id)}" class="tr-filter-pill ${uState.filter === fp.id ? 'active' : ''}">${esc(fp.label)}</button>
+          `).join('');
+        }
+
+        const mBtn = document.getElementById('tr-seg-mock');
+        const pBtn = document.getElementById('tr-seg-pyq');
+        if (mBtn) mBtn.textContent = `Mock Tests`;
+        if (pBtn) pBtn.textContent = `PYQ & Sets (${cards.length})`;
+
+        const totalPages = Math.max(1, Math.ceil(cards.length / uState.perPage));
+        if (uState.page > totalPages) uState.page = 1;
+        const start = (uState.page - 1) * uState.perPage;
+        const slice = cards.slice(start, start + uState.perPage);
+        window._U_DETAIL_CARDS = slice;
+
+        detailList.innerHTML = slice.map((c, idx) => `
+          <div class="tr-surface tr-surface-hover p-4 flex items-center justify-between gap-3">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="text-violet-400 text-lg pt-0.5 shrink-0">📋</div>
+              <div class="min-w-0 space-y-1.5">
+                <div class="text-sm font-extrabold text-white leading-snug">${esc(c.title)}</div>
+                <div class="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-slate-400">
+                  <span>🕒 ${c.mins} Min</span>
+                  <span>❓ ${c.qs} Ques</span>
+                  <span>✓ ${c.marks} Marks</span>
+                </div>
+              </div>
+            </div>
+            <button type="button" data-u-launch="${idx}" class="tr-start-btn shrink-0">Start Now</button>
+          </div>
+        `).join('');
+
+        if (pagerEl) {
+          if (totalPages <= 1) {
+            pagerEl.innerHTML = '';
+          } else {
+            const pBtns = [];
+            pBtns.push(`<button type="button" data-u-pg="${uState.page - 1}" ${uState.page <= 1 ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg text-xs font-bold border ${uState.page <= 1 ? 'bg-slate-900/40 text-slate-600 border-white/5' : 'bg-[#12131a] text-slate-200 border-white/10'}">‹ Prev</button>`);
+            const sP = Math.max(1, uState.page - 2);
+            const eP = Math.min(totalPages, uState.page + 2);
+            for (let p = sP; p <= eP; p++) {
+              pBtns.push(`<button type="button" data-u-pg="${p}" class="px-3 py-1.5 rounded-lg text-xs font-bold border ${p === uState.page ? 'bg-[#7c6bf2] text-white border-violet-400' : 'bg-[#12131a] text-slate-300 border-white/10'}">${p}</button>`);
+            }
+            pBtns.push(`<button type="button" data-u-pg="${uState.page + 1}" ${uState.page >= totalPages ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg text-xs font-bold border ${uState.page >= totalPages ? 'bg-slate-900/40 text-slate-600 border-white/5' : 'bg-[#12131a] text-slate-200 border-white/10'}">Next ›</button>`);
+            pagerEl.innerHTML = pBtns.join('');
+          }
+        }
+      }
+
+      // Intercept clicks in capture phase so v148 unified handlers take clean ownership
+      catGrid.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-u-cat]');
+        if (!b) return;
+        e.stopImmediatePropagation();
+        uState.catId = b.getAttribute('data-u-cat');
+        showUnifiedScreen('exam');
+      }, true);
+
+      examList.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-u-series]');
+        if (!b) return;
+        e.stopImmediatePropagation();
+        uState.seriesId = b.getAttribute('data-u-series');
+        uState.seriesTitle = b.getAttribute('data-u-title') || 'Test Series';
+        uState.filter = 'all';
+        uState.page = 1;
+        uState.seg = (uState.lastMainTab === 'test') ? 'mock' : 'pyq';
+        uState.testType = (uState.seriesId === 'live_today_100' || uState.seriesId === 'ssc_daily100') ? 'full' : 'sec';
+        showUnifiedScreen('detail');
+      }, true);
+
+      detailList.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-u-launch]');
+        if (!b || !window._U_DETAIL_CARDS) return;
+        e.stopImmediatePropagation();
+        const card = window._U_DETAIL_CARDS[parseInt(b.getAttribute('data-u-launch'), 10)];
+        launchUnifiedCard(card);
+      }, true);
+
+      document.getElementById('tr-detail-filters')?.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-u-filter]');
+        if (!b) return;
+        e.stopImmediatePropagation();
+        uState.filter = b.getAttribute('data-u-filter');
+        uState.page = 1;
+        renderUnifiedDetailScreen();
+      }, true);
+
+      document.getElementById('tr-detail-pager')?.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-u-pg]');
+        if (!b || b.disabled) return;
+        e.stopImmediatePropagation();
+        uState.page = parseInt(b.getAttribute('data-u-pg'), 10) || 1;
+        renderUnifiedDetailScreen();
+        detailList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, true);
+
+      document.getElementById('tr-seg-mock')?.addEventListener('click', (e) => {
+        e.stopImmediatePropagation();
+        uState.seg = 'mock'; uState.page = 1;
+        renderUnifiedDetailScreen();
+      }, true);
+      document.getElementById('tr-seg-pyq')?.addEventListener('click', (e) => {
+        e.stopImmediatePropagation();
+        uState.seg = 'pyq'; uState.page = 1;
+        renderUnifiedDetailScreen();
+      }, true);
+      document.getElementById('tr-type-full')?.addEventListener('click', (e) => {
+        e.stopImmediatePropagation();
+        uState.testType = 'full'; uState.page = 1;
+        renderUnifiedDetailScreen();
+      }, true);
+      document.getElementById('tr-type-sec')?.addEventListener('click', (e) => {
+        e.stopImmediatePropagation();
+        uState.testType = 'sec'; uState.page = 1;
+        renderUnifiedDetailScreen();
+      }, true);
+
+      document.getElementById('tr-back-to-series')?.addEventListener('click', (e) => {
+        e.stopImmediatePropagation();
+        showUnifiedScreen('cat_hub', uState.lastMainTab || 'series');
+      }, true);
+      document.getElementById('tr-back-to-exam')?.addEventListener('click', (e) => {
+        e.stopImmediatePropagation();
+        showUnifiedScreen('exam');
+      }, true);
+
+      // Route #tr-subtabs-bar clicks for series / pyq / test right into Unified Test Ranking Category Hub!
+      document.getElementById('tr-subtabs-bar')?.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-tr-tab]');
+        if (!b) return;
+        const tab = b.getAttribute('data-tr-tab');
+        if (tab === 'series' || tab === 'pyq' || tab === 'test') {
+          e.stopImmediatePropagation();
+          showUnifiedScreen('cat_hub', tab);
+        }
+      }, true);
+
+      // Also route bottom nav PYQ & Test buttons straight into Unified Test Ranking Categories (unless an active CBT test is running!)
+      const prevSwitchView = window.switchView;
+      if (typeof prevSwitchView === 'function') {
+        window.switchView = function(target) {
+          const activeCbt = document.getElementById('test-active-panel') && !document.getElementById('test-active-panel').classList.contains('hidden');
+          const resCbt = document.getElementById('test-result-panel') && !document.getElementById('test-result-panel').classList.contains('hidden');
+          // When startCbtTest calls switchView('test'), let #view-test open for the live CBT screen!
+          if (target === 'test' && (activeCbt || resCbt || window._uLaunchingCbt)) {
+            return prevSwitchView(target);
+          }
+          if (target === 'pyq' || target === 'test') {
+            prevSwitchView('home');
+            showUnifiedScreen('cat_hub', target);
+            document.querySelectorAll('[data-nav]').forEach(btn => {
+              const m = btn.getAttribute('data-nav') === target;
+              btn.classList.toggle('active', m);
+              btn.classList.toggle('text-cyan-300', m);
+            });
+            return;
+          }
+          return prevSwitchView(target);
+        };
+      }
+
+      // Wrap startCbtTest so switchView('test') always shows the real CBT test engine
+      const prevStartCbt = window.startCbtTest;
+      if (typeof prevStartCbt === 'function') {
+        window.startCbtTest = function() {
+          window._uLaunchingCbt = true;
+          try {
+            if (typeof prevSwitchView === 'function') prevSwitchView('test');
+            document.getElementById('view-test')?.classList.remove('hidden');
+            return prevStartCbt.apply(this, arguments);
+          } finally {
+            setTimeout(() => { window._uLaunchingCbt = false; }, 400);
+          }
+        };
+      }
+
+      // Initial render of unified category grid
+      renderUnifiedCatGrid('series');
     })();
   </script>
 
