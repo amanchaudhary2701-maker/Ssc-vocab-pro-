@@ -11960,7 +11960,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900/95 to-cyan-950/60 border border-emerald-400/40 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v134</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v135</span>
                 <h4 class="text-sm font-black text-white mt-1">Instant Student Test Maker (Free Auto-OCR)</h4>
                 <p class="text-[11px] text-slate-300">Bina kisi API key ke Photo ya PDF upload karein, Subject &amp; Chapter likhein — auto-scan hokar seedha Students ke Test Panel me live ho jayega!</p>
               </div>
@@ -17795,7 +17795,7 @@ const mState = {
           } catch (e) {}
         }
 
-        if (msgEl) msgEl.textContent = 'ℹ️ AI server key setup pending — Maths (25) + English (25) PYQ Daily Mock ready!';
+        if (msgEl) msgEl.textContent = '✅ Full 100-Q Daily SSC Mock Ready (25 Reas + 25 GK + 25 Maths + 25 Eng • Bilingual)!';
         return null;
       }
 
@@ -17863,8 +17863,12 @@ const mState = {
         const aiData = await loadAiDailySections(false);
         const maths25 = buildMaths25(dateKey);
         const eng25 = buildEnglish25(dateKey);
-        const reas25 = aiData ? mapAiItems(aiData.reasoning, 'Reasoning', 'reas', dateKey) : [];
-        const gk25 = aiData ? mapAiItems(aiData.gk, 'GK / GS', 'gk', dateKey) : [];
+        const reas25 = (aiData && Array.isArray(aiData.reasoning) && aiData.reasoning.length >= 20)
+          ? mapAiItems(aiData.reasoning, 'Reasoning', 'reas', dateKey)
+          : (typeof window.buildBuiltinDailyReasoning25 === 'function' ? window.buildBuiltinDailyReasoning25(dateKey) : []);
+        const gk25 = (aiData && Array.isArray(aiData.gk) && aiData.gk.length >= 20)
+          ? mapAiItems(aiData.gk, 'GK / GS', 'gk', dateKey)
+          : (typeof window.buildBuiltinDailyGk25 === 'function' ? window.buildBuiltinDailyGk25(dateKey) : []);
 
         const fullPool = [...reas25, ...gk25, ...maths25, ...eng25];
         if (btn) { btn.disabled = false; btn.textContent = "🚀 Start Today's 100-Q Full SSC Test"; }
@@ -17956,6 +17960,262 @@ const mState = {
           btn.textContent = '🤖 1-Tap Push Auto-AI Files (vercel.json + api/daily-ssc-test.js)';
         }
       });
+    })();
+  </script>
+
+
+  <!-- ================= v135: BUILT-IN BILINGUAL SSC REASONING + GK/GS DAILY 100-Q ENGINE ================= -->
+  <script>
+    (function initBuiltinReasoningAndGk() {
+      const BUILTIN_GK = [["Polity","Which Article of the Indian Constitution abolishes Untouchability?","भारतीय संविधान का कौन-सा अनुच्छेद अस्पृश्यता (Untouchability) का अंत करता है?",["Article 15","Article 17","Article 18","Article 21"],1,"Article 17 abolishes untouchability and forbids its practice in any form."],["Polity","Who is known as the Father of the Indian Constitution?","भारतीय संविधान के जनक (Father of Indian Constitution) के रूप में किसे जाना जाता है?",["Mahatma Gandhi","Jawaharlal Nehru","Dr. B. R. Ambedkar","Dr. Rajendra Prasad"],2,"Dr. B. R. Ambedkar was the Chairman of the Drafting Committee."],["Polity","Which Constitutional Amendment lowered the voting age in India from 21 to 18 years?","किस संविधान संशोधन ने भारत में मतदान की आयु 21 से घटाकर 18 वर्ष कर दी?",["42nd Amendment","44th Amendment","61st Amendment","73rd Amendment"],2,"The 61st Constitutional Amendment Act, 1988 reduced the voting age to 18."],["Polity","The concept of Fundamental Duties in the Indian Constitution was borrowed from which country?","भारतीय संविधान में मौलिक कर्तव्यों (Fundamental Duties) की अवधारणा किस देश से ली गई है?",["USA","USSR (Russia)","UK","Ireland"],1,"Fundamental Duties (Article 51A) were borrowed from the USSR on the Swaran Singh Committee's recommendation."],["Polity","What is the minimum age required to become the President of India?","भारत का राष्ट्रपति बनने के लिए न्यूनतम आयु कितनी होनी चाहिए?",["25 years","30 years","35 years","40 years"],2,"Under Article 58, a candidate for President must have completed 35 years of age."],["Polity","Which Schedule of the Indian Constitution contains the Anti-Defection Law?","भारतीय संविधान की किस अनुसूची में दल-बदल विरोधी कानून (Anti-Defection Law) है?",["8th Schedule","9th Schedule","10th Schedule","11th Schedule"],2,"The 10th Schedule was added by the 52nd Amendment Act, 1985."],["Polity","Money Bill is defined under which Article of the Indian Constitution?","धन विधेयक (Money Bill) भारतीय संविधान के किस अनुच्छेद में परिभाषित है?",["Article 108","Article 110","Article 112","Article 123"],1,"Article 110 defines a Money Bill; the Speaker of Lok Sabha certifies it."],["Polity","Who administers the oath of office to the President of India?","भारत के राष्ट्रपति को पद की शपथ कौन दिलाता है?",["Prime Minister","Vice President","Chief Justice of India","Speaker of Lok Sabha"],2,"Under Article 60, the Chief Justice of India administers the oath to the President."],["Polity","Which Article deals with the Election Commission of India?","भारत के निर्वाचन आयोग (Election Commission) से संबंधित अनुच्छेद कौन-सा है?",["Article 280","Article 315","Article 324","Article 352"],2,"Article 324 establishes the Election Commission of India."],["Polity","Panchayati Raj was given constitutional status by which Amendment?","पंचायती राज को किस संविधान संशोधन द्वारा संवैधानिक दर्जा दिया गया?",["71st Amendment","73rd Amendment","74th Amendment","86th Amendment"],1,"The 73rd Amendment Act, 1992 added Part IX and the 11th Schedule."],["Polity","Which Article is called the 'Heart and Soul of the Indian Constitution' by Dr. Ambedkar?","डॉ. अम्बेडकर ने किस अनुच्छेद को 'भारतीय संविधान का हृदय और आत्मा' कहा?",["Article 14","Article 19","Article 21","Article 32"],3,"Article 32 provides the Right to Constitutional Remedies."],["Polity","The Finance Commission of India is constituted every 5 years under which Article?","भारत का वित्त आयोग (Finance Commission) हर 5 वर्ष में किस अनुच्छेद के तहत गठित होता है?",["Article 265","Article 280","Article 300A","Article 360"],1,"Article 280 provides for the Finance Commission."],["History","In which year did the Battle of Plassey take place?","प्लासी का युद्ध (Battle of Plassey) किस वर्ष हुआ था?",["1757","1761","1764","1773"],0,"The Battle of Plassey was fought on 23 June 1757 between Robert Clive and Siraj-ud-Daulah."],["History","Who founded the Arya Samaj in 1875?","1875 में आर्य समाज की स्थापना किसने की थी?",["Raja Ram Mohan Roy","Swami Vivekananda","Swami Dayananda Saraswati","Ishwar Chandra Vidyasagar"],2,"Swami Dayananda Saraswati founded Arya Samaj in Bombay in 1875."],["History","The Harappan site 'Lothal' is located in which modern Indian state?","हड़प्पा स्थल 'लोथल' (Lothal) भारत के किस आधुनिक राज्य में स्थित है?",["Rajasthan","Gujarat","Punjab","Haryana"],1,"Lothal is located in Gujarat and was famous for its ancient dockyard."],["History","Who was the first Governor-General of independent India?","स्वतंत्र भारत के पहले गवर्नर-जनरल कौन थे?",["C. Rajagopalachari","Lord Mountbatten","Warren Hastings","Lord Canning"],1,"Lord Mountbatten was the first Governor-General of independent India (C. Rajagopalachari was the first Indian)."],["History","In which session of the Indian National Congress was 'Purna Swaraj' declared?","भारतीय राष्ट्रीय कांग्रेस के किस अधिवेशन में 'पूर्ण स्वराज' की घोषणा की गई थी?",["Calcutta 1928","Lahore 1929","Karachi 1931","Lucknow 1916"],1,"At the Lahore Session (Dec 1929), presided over by Jawaharlal Nehru, Purna Swaraj was declared."],["History","Who built the Brihadeeswarar Temple at Thanjavur?","तंजावुर में बृहदीश्वर मंदिर (Brihadeeswarar Temple) का निर्माण किसने करवाया था?",["Rajaraja Chola I","Rajendra Chola I","Krishnadevaraya","Narasimhavarman I"],0,"Rajaraja Chola I built the Brihadeeswarar Temple around 1010 CE."],["History","The Quit India Movement was launched in which year?","भारत छोड़ो आंदोलन (Quit India Movement) किस वर्ष शुरू किया गया था?",["1930","1940","1942","1945"],2,"Mahatma Gandhi launched the Quit India Movement on 8 August 1942."],["History","Who wrote the ancient Sanskrit play 'Abhijnanasakuntalam'?","प्राचीन संस्कृत नाटक 'अभिज्ञानशाकुंतलम्' किसने लिखा था?",["Banabhatta","Kalidasa","Vishakhadatta","Bhasa"],1,"Kalidasa, the great Sanskrit poet in Chandragupta II's court, wrote Abhijnanasakuntalam."],["History","Which Mughal emperor introduced the Mansabdari system?","किस मुगल सम्राट ने मनसबदारी प्रणाली (Mansabdari system) की शुरुआत की?",["Babur","Humayun","Akbar","Shah Jahan"],2,"Akbar introduced the Mansabdari system to organize civil and military administration."],["History","The Third Battle of Panipat (1761) was fought between Ahmad Shah Abdali and whom?","पानीपत का तीसरा युद्ध (1761) अहमद शाह अब्दाली और किसके बीच लड़ा गया था?",["Mughals","Marathas","Rajputs","Sikhs"],1,"The Third Battle of Panipat was fought on 14 January 1761 between the Marathas and Ahmad Shah Abdali."],["History","Who founded the Forward Bloc in 1939?","1939 में फॉरवर्ड ब्लॉक (Forward Bloc) की स्थापना किसने की थी?",["Bhagat Singh","Subhas Chandra Bose","Lala Lajpat Rai","Bal Gangadhar Tilak"],1,"Netaji Subhas Chandra Bose founded the All India Forward Bloc in 1939."],["History","Which Buddhist Council was held during the reign of Emperor Ashoka?","सम्राट अशोक के शासनकाल में कौन-सी बौद्ध संगीति आयोजित हुई थी?",["First","Second","Third","Fourth"],2,"The Third Buddhist Council was held at Pataliputra under Ashoka's patronage."],["Geography","Which is the longest river flowing entirely within India?","पूरी तरह से भारत के भीतर बहने वाली सबसे लंबी नदी कौन-सी है?",["Ganga","Godavari","Yamuna","Narmada"],0,"The Ganga (approx. 2,525 km) is the longest river of India; Godavari is the longest peninsular river."],["Geography","Which Indian state has the longest coastline?","भारत के किस राज्य की तटरेखा (coastline) सबसे लंबी है?",["Maharashtra","Andhra Pradesh","Gujarat","Tamil Nadu"],2,"Gujarat has the longest coastline in India (~1,600 km)."],["Geography","The Tropic of Cancer passes through how many Indian states?","कर्क रेखा (Tropic of Cancer) भारत के कितने राज्यों से होकर गुजरती है?",["6","7","8","9"],2,"Tropic of Cancer passes through 8 states: Gujarat, Rajasthan, MP, Chhattisgarh, Jharkhand, West Bengal, Tripura, Mizoram."],["Geography","Where is the Chilika Lake (India's largest brackish water lagoon) located?","चिल्का झील (भारत की सबसे बड़ी खारे पानी की लैगून झील) कहाँ स्थित है?",["Andhra Pradesh","Odisha","Kerala","West Bengal"],1,"Chilika Lake is located in Odisha."],["Geography","Which pass connects Srinagar to Leh?","कौन-सा दर्रा श्रीनगर को लेह से जोड़ता है?",["Nathu La","Zoji La","Rohtang Pass","Shipki La"],1,"Zoji La Pass in Ladakh connects Srinagar and Leh."],["Geography","Which is the highest peak in the Western Ghats (Peninsular India)?","पश्चिमी घाट (प्रायद्वीपीय भारत) की सबसे ऊँची चोटी कौन-सी है?",["Doda Betta","Anamudi","Mahendragiri","Guru Shikhar"],1,"Anamudi (2,695 m) in Kerala is the highest peak of the Western Ghats."],["Geography","Black soil (Regur soil) is most suitable for the cultivation of which crop?","काली मिट्टी (रेगुर मिट्टी) किस फसल की खेती के लिए सबसे उपयुक्त है?",["Wheat","Cotton","Tea","Jute"],1,"Black (Regur) soil retains moisture well and is ideal for Cotton."],["Geography","Which planet is known as the 'Morning Star' and 'Evening Star'?","किस ग्रह को 'भोर का तारा' और 'सांझ का तारा' कहा जाता है?",["Mercury","Venus","Mars","Jupiter"],1,"Venus is the brightest planet in the night sky, called Morning/Evening Star."],["Geography","Kaziranga National Park, famous for the One-Horned Rhinoceros, is in which state?","एक सींग वाले गैंडे के लिए प्रसिद्ध काजीरंगा राष्ट्रीय उद्यान किस राज्य में है?",["Assam","West Bengal","Madhya Pradesh","Uttarakhand"],0,"Kaziranga National Park is a UNESCO World Heritage Site in Assam."],["Geography","Which river is known as the 'Dakshin Ganga' (Ganga of the South)?","किस नदी को 'दक्षिण गंगा' कहा जाता है?",["Krishna","Kaveri","Godavari","Mahanadi"],2,"Godavari is the largest peninsular river and is called Dakshin Ganga."],["Economics","In which year was the Reserve Bank of India (RBI) established?","भारतीय रिज़र्व बैंक (RBI) की स्थापना किस वर्ष हुई थी?",["1930","1935","1947","1949"],1,"RBI was established on 1 April 1935 under the RBI Act, 1934 (nationalized in 1949)."],["Economics","Who is the ex-officio Chairman of NITI Aayog?","नीति आयोग (NITI Aayog) का पदेन अध्यक्ष कौन होता है?",["President","Finance Minister","Prime Minister","RBI Governor"],2,"The Prime Minister of India is the ex-officio Chairman of NITI Aayog."],["Economics","GST (Goods and Services Tax) was implemented in India on which date?","भारत में GST (वस्तु एवं सेवा कर) किस तिथि को लागू किया गया था?",["1 April 2017","1 July 2017","1 January 2018","8 November 2016"],1,"GST was implemented across India on 1 July 2017 via the 101st Amendment."],["Economics","Which Five-Year Plan was based on the Mahalanobis Model?","कौन-सी पंचवर्षीय योजना महालनोबिस मॉडल (Mahalanobis Model) पर आधारित थी?",["First Plan","Second Plan","Third Plan","Fifth Plan"],1,"The Second Five-Year Plan (1956–61) focused on rapid industrialization using the P.C. Mahalanobis model."],["Economics","What does 'Repo Rate' mean in Indian banking?","भारतीय बैंकिंग में 'रेपो रेट' (Repo Rate) का क्या अर्थ है?",["Rate at which RBI lends to commercial banks","Rate at which banks lend to customers","Rate at which RBI borrows from banks","Cash reserve ratio"],0,"Repo Rate is the rate at which the RBI lends short-term funds to commercial banks."],["Economics","SEBI regulates which market in India?","SEBI भारत में किस बाज़ार को नियंत्रित (regulate) करता है?",["Insurance Market","Capital / Stock Market","Telecom Sector","Agriculture"],1,"Securities and Exchange Board of India (SEBI) regulates the securities and stock market."],["Physics","What is the SI unit of Electric Current?","विद्युत धारा (Electric Current) का SI मात्रक क्या है?",["Volt","Ohm","Ampere","Watt"],2,"Ampere (A) is the SI unit of electric current."],["Physics","Which mirror is used as a rear-view mirror in vehicles?","वाहनों में रियर-व्यू (पीछे देखने के) दर्पण के रूप में किस दर्पण का उपयोग होता है?",["Plane Mirror","Concave Mirror","Convex Mirror","Cylindrical Mirror"],2,"A Convex mirror provides a wider field of view and forms an erect, diminished image."],["Physics","Sound waves CANNOT travel through which of the following?","ध्वनि तरंगें (Sound waves) निम्नलिखित में से किसमें गमन नहीं कर सकतीं?",["Solids","Liquids","Gases","Vacuum"],3,"Sound is a mechanical wave and requires a medium; it cannot travel through a vacuum."],["Physics","What is the SI unit of Frequency?","आवृत्ति (Frequency) का SI मात्रक क्या है?",["Decibel","Hertz","Joule","Newton"],1,"Frequency is measured in Hertz (Hz), equal to cycles per second."],["Physics","Which phenomenon is responsible for the blue color of the sky?","आकाश के नीले रंग के लिए कौन-सी प्रकाशीय घटना उत्तरदायी है?",["Reflection","Refraction","Scattering of light","Dispersion"],2,"Rayleigh scattering of shorter blue wavelengths of sunlight makes the sky appear blue."],["Physics","1 Horsepower (HP) is approximately equal to how many Watts?","1 हॉर्सपावर (HP) लगभग कितने वॉट (Watts) के बराबर होता है?",["546 W","746 W","846 W","1000 W"],1,"1 mechanical horsepower = 746 Watts."],["Chemistry","What is the chemical name of Baking Soda?","बेकिंग सोडा (Baking Soda) का रासायनिक नाम क्या है?",["Sodium Carbonate","Sodium Bicarbonate","Calcium Carbonate","Sodium Hydroxide"],1,"Baking Soda is Sodium Bicarbonate (NaHCO₃)."],["Chemistry","Which gas is primarily known as 'Laughing Gas'?","किस गैस को मुख्य रूप से 'लाफिंग गैस' (हँसाने वाली गैस) कहा जाता है?",["Nitric Oxide","Nitrous Oxide","Carbon Monoxide","Methane"],1,"Nitrous Oxide (N₂O) is called Laughing Gas."],["Chemistry","What is the pH value of pure water at 25°C?","25°C पर शुद्ध जल (Pure Water) का pH मान कितना होता है?",["5","6","7","8"],2,"Pure water is neutral with a pH of 7."],["Chemistry","Which metal is liquid at room temperature?","कौन-सी धातु कमरे के तापमान पर द्रव (liquid) अवस्था में रहती है?",["Sodium","Mercury","Lead","Aluminium"],1,"Mercury (Hg) is the only metal that is liquid at standard room temperature."],["Chemistry","Brass is an alloy of which two metals?","पीतल (Brass) किन दो धातुओं की मिश्र धातु (alloy) है?",["Copper and Tin","Copper and Zinc","Iron and Carbon","Lead and Tin"],1,"Brass is an alloy of Copper (Cu) and Zinc (Zn)."],["Chemistry","Which acid is present in Vinegar?","सिरके (Vinegar) में कौन-सा अम्ल (acid) पाया जाता है?",["Citric Acid","Acetic Acid","Lactic Acid","Tartaric Acid"],1,"Vinegar contains Acetic Acid (CH₃COOH)."],["Biology","Which organelle is known as the 'Powerhouse of the Cell'?","किस कोशिकांग को 'कोशिका का पावरहाउस' (Powerhouse of the Cell) कहा जाता है?",["Ribosome","Mitochondria","Nucleus","Lysosome"],1,"Mitochondria generate ATP energy through cellular respiration."],["Biology","Deficiency of Vitamin C causes which disease?","विटामिन C की कमी से कौन-सा रोग होता है?",["Rickets","Scurvy","Beriberi","Night Blindness"],1,"Vitamin C (Ascorbic acid) deficiency causes Scurvy."],["Biology","Which blood group is known as the 'Universal Donor'?","किस रक्त समूह को 'सर्वदाता' (Universal Donor) कहा जाता है?",["AB+","O-","A+","B-"],1,"O negative (O-) lacks A, B, and Rh antigens, making it the universal RBC donor."],["Biology","How many chambers are present in a normal human heart?","सामान्य मानव हृदय (Human Heart) में कितने कक्ष (chambers) होते हैं?",["2","3","4","5"],2,"The human heart has 4 chambers: two atria and two ventricles."],["Biology","Which vitamin is essential for blood clotting?","रक्त का थक्का (blood clotting) जमने के लिए कौन-सा विटामिन आवश्यक है?",["Vitamin A","Vitamin B12","Vitamin D","Vitamin K"],3,"Vitamin K is essential for synthesizing clotting factors."],["Biology","Photosynthesis in plants takes place mainly in which organelle?","पौधों में प्रकाश संश्लेषण (Photosynthesis) मुख्य रूप से किस कोशिकांग में होता है?",["Chloroplast","Mitochondria","Vacuole","Golgi Body"],0,"Chloroplasts contain chlorophyll, which absorbs sunlight for photosynthesis."],["Biology","Which is the largest gland in the human body?","मानव शरीर की सबसे बड़ी ग्रंथि (largest gland) कौन-सी है?",["Pancreas","Thyroid","Liver","Pituitary"],2,"The Liver is the largest gland in the human body."],["Static GK","Bharatanatyam is the classical dance form of which Indian state?","भरतनाट्यम भारत के किस राज्य का शास्त्रीय नृत्य है?",["Kerala","Tamil Nadu","Odisha","Andhra Pradesh"],1,"Bharatanatyam originated in Tamil Nadu."],["Static GK","Kathakali and Mohiniyattam are classical dances of which state?","कथकली और मोहिनीअट्टम किस राज्य के शास्त्रीय नृत्य हैं?",["Karnataka","Tamil Nadu","Kerala","Assam"],2,"Both Kathakali and Mohiniyattam belong to Kerala."],["Static GK","Where is the headquarters of ISRO located?","ISRO (इसरो) का मुख्यालय कहाँ स्थित है?",["Hyderabad","Bengaluru","Thiruvananthapuram","Sriharikota"],1,"ISRO is headquartered in Bengaluru, Karnataka."],["Static GK","Hornbill Festival is celebrated annually in which Indian state?","हॉर्नबिल महोत्सव (Hornbill Festival) प्रतिवर्ष किस राज्य में मनाया जाता है?",["Manipur","Nagaland","Mizoram","Meghalaya"],1,"The Hornbill Festival is held every December in Nagaland."],["Static GK","Who was the first Indian woman to win an Olympic medal?","ओलंपिक पदक जीतने वाली पहली भारतीय महिला कौन थीं?",["P. V. Sindhu","Saina Nehwal","Karnam Malleswari","Mary Kom"],2,"Karnam Malleswari won Bronze in Weightlifting at the 2000 Sydney Olympics."],["Static GK","The 'Arjuna Award' is given for excellence in which field?","'अर्जुन पुरस्कार' किस क्षेत्र में उत्कृष्टता के लिए दिया जाता है?",["Literature","Sports","Cinema","Science"],1,"The Arjuna Award honors outstanding achievement in Sports."],["Static GK","Which city is known as the 'Silicon Valley of India'?","किस शहर को 'भारत की सिलिकॉन वैली' कहा जाता है?",["Pune","Hyderabad","Bengaluru","Chennai"],2,"Bengaluru is widely known as the Silicon Valley of India."],["Static GK","National Science Day in India is celebrated on 28 February to mark whose discovery?","भारत में राष्ट्रीय विज्ञान दिवस (28 फरवरी) किसकी खोज की याद में मनाया जाता है?",["Homi Bhabha","C. V. Raman","A. P. J. Abdul Kalam","S. Chandrasekhar"],1,"28 Feb marks the discovery of the Raman Effect by Sir C. V. Raman in 1928."],["Static GK","Kuchipudi is the classical dance form of which state?","कुचिपुड़ी किस राज्य का शास्त्रीय नृत्य है?",["Tamil Nadu","Andhra Pradesh","Odisha","Manipur"],1,"Kuchipudi originated in Andhra Pradesh."],["Static GK","Which musical instrument is Pandit Ravi Shankar famous for playing?","पंडित रविशंकर किस वाद्य यंत्र को बजाने के लिए प्रसिद्ध हैं?",["Tabla","Sitar","Flute","Santoor"],1,"Pandit Ravi Shankar was a world-renowned Sitar maestro."],["Static GK","Ustad Bismillah Khan was associated with which musical instrument?","उस्ताद बिस्मिल्लाह खान किस वाद्य यंत्र से जुड़े थे?",["Shehnai","Sarod","Tabla","Violin"],0,"Bharat Ratna Ustad Bismillah Khan was a legendary Shehnai maestro."],["Static GK","The Ajanta and Ellora Caves are located in which state?","अजंता और एलोरा की गुफाएँ किस राज्य में स्थित हैं?",["Madhya Pradesh","Maharashtra","Karnataka","Gujarat"],1,"Ajanta and Ellora Caves are UNESCO sites in Aurangabad (Chhatrapati Sambhajinagar), Maharashtra."],["Static GK","Who is the author of the book 'Discovery of India'?","'डिस्कवरी ऑफ इंडिया' (भारत एक खोज) पुस्तक के लेखक कौन हैं?",["Mahatma Gandhi","Jawaharlal Nehru","Rabindranath Tagore","Sardar Patel"],1,"Jawaharlal Nehru wrote 'The Discovery of India' while imprisoned in Ahmednagar Fort."],["Static GK","In which year did India win its first Cricket World Cup?","भारत ने अपना पहला क्रिकेट विश्व कप किस वर्ष जीता था?",["1975","1979","1983","1987"],2,"India won its first Cricket World Cup in 1983 under Kapil Dev's captaincy."],["Static GK","Which is the national aquatic animal of India?","भारत का राष्ट्रीय जलीय जीव (National Aquatic Animal) कौन-सा है?",["Blue Whale","Ganges River Dolphin","Olive Ridley Turtle","Dugong"],1,"The Ganges River Dolphin was declared India's National Aquatic Animal in 2009."],["Static GK","Sattriya is the classical dance form of which Indian state?","सत्त्रिया (Sattriya) भारत के किस राज्य का शास्त्रीय नृत्य है?",["Assam","Manipur","Tripura","Sikkim"],0,"Sattriya originated in the Vaishnava monasteries (Sattras) of Assam."]];
+      const BUILTIN_REAS = [["Analogy","Doctor : Hospital :: Teacher : ?","डॉक्टर : अस्पताल :: शिक्षक : ?",["Court (न्यायालय)","School (विद्यालय)","Factory (कारखाना)","Studio (स्टूडियो)"],1,"A Doctor works in a Hospital; similarly, a Teacher works in a School."],["Analogy","Thermometer : Temperature :: Barometer : ?","थर्मामीटर : तापमान :: बैरोमीटर : ?",["Humidity (आर्द्रता)","Atmospheric Pressure (वायुमंडलीय दाब)","Wind Speed (हवा की गति)","Earthquake (भूकंप)"],1,"Thermometer measures Temperature; Barometer measures Atmospheric Pressure."],["Analogy","Eye : Myopia :: Teeth : ?","आँख : मायोपिया (निकट दृष्टिदोष) :: दाँत : ?",["Pyorrhoea (पायरिया)","Cataract (मोतियाबिंद)","Eczema (एक्जिमा)","Trachoma (ट्रेकोमा)"],0,"Myopia is a disease of the Eye; Pyorrhoea is a disease of the Teeth/Gums."],["Analogy","Author : Book :: Sculptor : ?","लेखक : पुस्तक :: मूर्तिकार : ?",["Canvas (कैनवास)","Statue (मूर्ति)","Poem (कविता)","Building (इमारत)"],1,"An Author creates a Book; a Sculptor creates a Statue."],["Analogy","India : New Delhi :: Japan : ?","भारत : नई दिल्ली :: जापान : ?",["Beijing (बीजिंग)","Seoul (सियोल)","Tokyo (टोक्यो)","Bangkok (बैंकॉक)"],2,"Capital of India is New Delhi; Capital of Japan is Tokyo."],["Odd One Out","Select the odd word from the given alternatives: Square, Circle, Triangle, Cube.","दिए गए विकल्पों में से विषम (Odd) चुनें: वर्ग (Square), वृत्त (Circle), त्रिभुज (Triangle), घन (Cube)।",["Square (वर्ग)","Circle (वृत्त)","Triangle (त्रिभुज)","Cube (घन)"],3,"Square, Circle, and Triangle are 2D shapes, whereas Cube is a 3D solid."],["Odd One Out","Select the odd one out: Iron, Copper, Mercury, Aluminium.","दिए गए विकल्पों में से विषम चुनें: लोहा, ताँबा, पारा (Mercury), एल्युमिनियम।",["Iron (लोहा)","Copper (ताँबा)","Mercury (पारा)","Aluminium (एल्युमिनियम)"],2,"Mercury is liquid at room temperature, while the other three are solid metals."],["Odd One Out","Find the odd number pair: (3, 9), (5, 25), (7, 49), (8, 56).","विषम संख्या युग्म चुनें: (3, 9), (5, 25), (7, 49), (8, 56)।",["(3, 9)","(5, 25)","(7, 49)","(8, 56)"],3,"First three follow (n, n²), whereas 8² = 64 ≠ 56."],["Blood Relation","Pointing to a photograph, a man said, 'He is the only son of my father's father.' How is the person in the photograph related to the man?","एक तस्वीर की ओर इशारा करते हुए एक आदमी ने कहा, 'वह मेरे पिता के पिता का इकलौता बेटा है।' तस्वीर वाला व्यक्ति उस आदमी से कैसे संबंधित है?",["Brother (भाई)","Uncle (चाचा)","Father (पिता)","Grandfather (दादा)"],2,"Father's father's only son is the man's own Father."],["Blood Relation","A is the sister of B. B is the brother of C. C is the son of D. How is D related to A?","A, B की बहन है। B, C का भाई है। C, D का पुत्र है। D, A से किस प्रकार संबंधित है?",["Mother or Father (माता या पिता)","Aunt (चाची)","Brother (भाई)","Sister (बहन)"],0,"A, B, and C are siblings and C is D's child, so D is A's Mother or Father."],["Blood Relation","Introducing a girl, Ramesh said, 'Her mother is the only daughter of my mother-in-law.' How is Ramesh related to that girl?","एक लड़की का परिचय कराते हुए रमेश ने कहा, 'उसकी माँ मेरी सास की इकलौती बेटी है।' रमेश उस लड़की से कैसे संबंधित है?",["Uncle (चाचा)","Father (पिता)","Brother (भाई)","Husband (पति)"],1,"Only daughter of Ramesh's mother-in-law is Ramesh's wife; hence Ramesh is the girl's Father."],["Syllogism","Statements: All pens are pencils. All pencils are erasers.\nConclusions: I. All pens are erasers. II. Some erasers are pens.","कथन: सभी पेन पेंसिल हैं। सभी पेंसिल रबर हैं।\nनिष्कर्ष: I. सभी पेन रबर हैं। II. कुछ रबर पेन हैं।",["Only I follows (केवल I)","Only II follows (केवल II)","Both I and II follow (दोनों I और II)","Neither I nor II (न तो I, न II)"],2,"Pens ⊂ Pencils ⊂ Erasers ⇒ All pens are erasers (I) and Some erasers are pens (II). Both follow."],["Syllogism","Statements: Some cats are dogs. No dog is a lion.\nConclusions: I. Some cats are not lions. II. All lions are cats.","कथन: कुछ बिल्लियाँ कुत्ते हैं। कोई कुत्ता शेर नहीं है।\nनिष्कर्ष: I. कुछ बिल्लियाँ शेर नहीं हैं। II. सभी शेर बिल्लियाँ हैं।",["Only I follows (केवल I)","Only II follows (केवल II)","Both I and II follow (दोनों)","Neither follows (कोई नहीं)"],0,"The cats that are dogs cannot be lions, so I definitely follows; II does not follow."],["Syllogism","Statements: All apples are fruits. Some fruits are sweet.\nConclusions: I. All apples are sweet. II. Some fruits are apples.","कथन: सभी सेब फल हैं। कुछ फल मीठे हैं।\nनिष्कर्ष: I. सभी सेब मीठे हैं। II. कुछ फल सेब हैं।",["Only I follows (केवल I)","Only II follows (केवल II)","Both follow (दोनों)","Neither follows (कोई नहीं)"],1,"All apples are fruits ⇒ Some fruits are apples (II follows). No direct link between apples and sweet."],["Direction","Ravi walks 6 km North, then turns right and walks 8 km. What is the shortest distance from his starting point?","रवि 6 किमी उत्तर की ओर चलता है, फिर दाएँ मुड़कर 8 किमी चलता है। प्रारंभिक बिंदु से उसकी न्यूनतम दूरी क्या है?",["10 km","12 km","14 km","8 km"],0,"By Pythagoras theorem: √(6² + 8²) = √(36 + 64) = √100 = 10 km."],["Direction","A person faces East, turns 90° clockwise, then turns 180° anticlockwise. Which direction is he facing now?","एक व्यक्ति पूर्व की ओर मुख किए हुए है, 90° दक्षिणावर्त मुड़ता है, फिर 180° वामावर्त मुड़ता है। अब उसका मुख किस दिशा में है?",["North (उत्तर)","South (दक्षिण)","West (पश्चिम)","East (पूर्व)"],0,"East + 90° CW = South; South + 180° ACW = North."],["Direction","If South-East becomes North, and North-East becomes West, what will West become?","यदि दक्षिण-पूर्व उत्तर बन जाए और उत्तर-पूर्व पश्चिम बन जाए, तो पश्चिम क्या बन जाएगा?",["North-East (उत्तर-पूर्व)","South-East (दक्षिण-पूर्व)","South-West (दक्षिण-पश्चिम)","North-West (उत्तर-पश्चिम)"],1,"Each direction rotates 135° anticlockwise ⇒ West becomes South-East."],["Order & Ranking","In a row of 40 students, Rohan is 15th from the left end. What is his rank from the right end?","40 छात्रों की एक पंक्ति में रोहन बाएँ छोर से 15वें स्थान पर है। दाएँ छोर से उसका स्थान क्या है?",["25th","26th","24th","27th"],1,"Rank from right = Total - Left + 1 = 40 - 15 + 1 = 26th."],["Order & Ranking","In a class, Priya ranks 11th from the top and 28th from the bottom. How many students are in the class?","एक कक्षा में प्रिया ऊपर से 11वें और नीचे से 28वें स्थान पर है। कक्षा में कुल कितने छात्र हैं?",["37","38","39","40"],1,"Total students = 11 + 28 - 1 = 38."],["Dice","In a standard dice, the sum of numbers on opposite faces is always 7. Which number is opposite to 2?","एक मानक पासे (Standard Dice) में विपरीत फलकों का योग हमेशा 7 होता है। 2 के विपरीत कौन-सी संख्या होगी?",["3","4","5","6"],2,"In a standard dice, opposite of 2 is 7 - 2 = 5."],["Calendar","If 15 August of a year is a Tuesday, what day of the week will 15 September of the same year be?","यदि किसी वर्ष 15 अगस्त को मंगलवार है, तो उसी वर्ष 15 सितंबर को सप्ताह का कौन-सा दिन होगा?",["Thursday (गुरुवार)","Friday (शुक्रवार)","Saturday (शनिवार)","Wednesday (बुधवार)"],1,"August has 31 days ⇒ 31 ≡ 3 (mod 7) ⇒ Tuesday + 3 days = Friday."],["Clock","What is the angle between the hour hand and the minute hand of a clock at 3:30?","3:30 बजे घड़ी की घंटे की सुई और मिनट की सुई के बीच का कोण कितना होता है?",["75°","80°","85°","90°"],0,"Angle = |30H - 5.5M| = |30(3) - 5.5(30)| = |90 - 165| = 75°."],["Venn Diagram","Which Venn diagram relationship best represents: 'Dogs, Pets, Cats'?","कौन-सा वेन आरेख संबंध 'कुत्ते, पालतू जानवर, बिल्लियाँ' को सर्वोत्तम रूप से दर्शाता है?",["Three disjoint circles","One circle inside another inside third","Middle circle intersecting two separate circles","All three overlapping equally"],2,"Dogs and Cats are separate, and some of both are Pets ⇒ Pets circle intersects both Dogs and Cats."],["Dictionary Order","Arrange in English dictionary order: 1. Tiger, 2. Table, 3. Train, 4. Temple.","अंग्रेजी शब्दकोश क्रम में व्यवस्थित करें: 1. Tiger, 2. Table, 3. Train, 4. Temple।",["2, 4, 1, 3","2, 1, 4, 3","4, 2, 1, 3","2, 4, 3, 1"],0,"Table (2) → Temple (4) → Tiger (1) → Train (3)."],["Counting Figures","How many triangles are there in a square with both its diagonals drawn?","एक वर्ग (Square) जिसके दोनों विकर्ण खींचे गए हों, में कुल कितने त्रिभुज होते हैं?",["4","6","8","10"],2,"4 small triangles + 4 larger triangles formed by combining adjacent pairs = 8 triangles."]];
+
+      function seededRng(seedStr) {
+        let h = 2166136261 >>> 0;
+        for (let i = 0; i < seedStr.length; i++) {
+          h ^= seedStr.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return function() {
+          h += 0x6D2B79F5;
+          let t = Math.imul(h ^ (h >>> 15), 1 | h);
+          t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function pickDet(arr, count, seedStr) {
+        const rng = seededRng(seedStr);
+        const copy = arr.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(rng() * (i + 1));
+          const tmp = copy[i]; copy[i] = copy[j]; copy[j] = tmp;
+        }
+        return copy.slice(0, Math.min(count, copy.length));
+      }
+
+      // Generate 15 fresh, 100% mathematically verified Bilingual SSC Reasoning questions per date!
+      // (Number Series, Letter Series, Coding-Decoding, Number Analogy, Mathematical Operations)
+      function generateAlgoReasoning(dateKey, count) {
+        const rng = seededRng('ALGO_REAS_' + dateKey);
+        const randInt = (lo, hi) => lo + Math.floor(rng() * (hi - lo + 1));
+        const items = [];
+        const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const WORDS = ['DELHI', 'INDIA', 'SMART', 'TRAIN', 'CLOCK', 'BRAIN', 'LOGIC', 'STUDY', 'POWER', 'LIGHT', 'WATER', 'PLANT', 'CROWN', 'TIGER', 'PEACE'];
+
+        function makeOpts(correctNum, step) {
+          const s = new Set([correctNum]);
+          const deltas = [step, -step, step * 2, -step * 2, step + 1, -(step + 1), 3, -3, 5, -5];
+          for (let d of deltas) {
+            if (s.size >= 4) break;
+            if (correctNum + d > 0) s.add(correctNum + d);
+          }
+          const arr = Array.from(s).slice(0, 4);
+          // shuffle deterministically
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(rng() * (i + 1));
+            const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+          }
+          return { opts: arr.map(String), ans: arr.indexOf(correctNum) };
+        }
+
+        // 4 Number Series (increasing diff / ×2+k / squares+k)
+        for (let k = 0; k < 4; k++) {
+          if (k % 2 === 0) {
+            const a0 = randInt(3, 18);
+            const d0 = randInt(2, 6);
+            const inc = randInt(2, 4);
+            const seq = [a0];
+            let d = d0;
+            for (let i = 0; i < 4; i++) { seq.push(seq[seq.length - 1] + d); d += inc; }
+            const ansVal = seq[seq.length - 1] + d;
+            const { opts, ans } = makeOpts(ansVal, inc);
+            items.push({
+              topic: 'Number Series',
+              qEn: `Find the next number in the series: ${seq.join(', ')}, ?`,
+              qHi: `श्रृंखला में अगली संख्या ज्ञात कीजिए: ${seq.join(', ')}, ?`,
+              options: opts, ans,
+              exp: `Differences increase by +${inc} each step ⇒ next diff = +${d} ⇒ ${seq[seq.length - 1]} + ${d} = ${ansVal}.`
+            });
+          } else {
+            const a0 = randInt(2, 6);
+            const add = randInt(1, 5);
+            const seq = [a0];
+            for (let i = 0; i < 4; i++) seq.push(seq[seq.length - 1] * 2 + add);
+            const ansVal = seq[seq.length - 1] * 2 + add;
+            const { opts, ans } = makeOpts(ansVal, 2);
+            items.push({
+              topic: 'Number Series',
+              qEn: `Find the missing term in the series: ${seq.join(', ')}, ?`,
+              qHi: `दी गई श्रृंखला में लुप्त पद ज्ञात कीजिए: ${seq.join(', ')}, ?`,
+              options: opts, ans,
+              exp: `Pattern: (×2 + ${add}) ⇒ ${seq[seq.length - 1]} × 2 + ${add} = ${ansVal}.`
+            });
+          }
+        }
+
+        // 3 Coding-Decoding (Caesar shift +k)
+        for (let k = 0; k < 3; k++) {
+          const shift = randInt(2, 5);
+          const w1 = WORDS[(k * 3 + randInt(0, 4)) % WORDS.length];
+          const w2 = WORDS[(k * 3 + 7 + randInt(0, 4)) % WORDS.length];
+          const enc = (w, sh) => w.split('').map(ch => ALPHA[(ALPHA.indexOf(ch) + sh) % 26]).join('');
+          const c1 = enc(w1, shift);
+          const c2 = enc(w2, shift);
+          const optsRaw = [c2, enc(w2, shift + 1), enc(w2, shift - 1), enc(w2, shift + 2)];
+          for (let i = optsRaw.length - 1; i > 0; i--) {
+            const j = Math.floor(rng() * (i + 1));
+            const t = optsRaw[i]; optsRaw[i] = optsRaw[j]; optsRaw[j] = t;
+          }
+          items.push({
+            topic: 'Coding-Decoding',
+            qEn: `In a certain code language, '${w1}' is written as '${c1}'. How will '${w2}' be written in that code?`,
+            qHi: `एक निश्चित कूट भाषा में '${w1}' को '${c1}' लिखा जाता है। उसी कूट भाषा में '${w2}' को कैसे लिखा जाएगा?`,
+            options: optsRaw,
+            ans: optsRaw.indexOf(c2),
+            exp: `Each letter is shifted forward by +${shift} positions in the alphabet ⇒ ${w2} → ${c2}.`
+          });
+        }
+
+        // 3 Number Analogy (n : n² + c)
+        for (let k = 0; k < 3; k++) {
+          const n1 = randInt(5, 11);
+          const n2 = n1 + randInt(2, 5);
+          const c = randInt(2, 9);
+          const v1 = n1 * n1 + c;
+          const v2 = n2 * n2 + c;
+          const { opts, ans } = makeOpts(v2, 3);
+          items.push({
+            topic: 'Number Analogy',
+            qEn: `Select the related number: ${n1} : ${v1} :: ${n2} : ?`,
+            qHi: `संबंधित संख्या चुनिए: ${n1} : ${v1} :: ${n2} : ?`,
+            options: opts, ans,
+            exp: `Pattern: n : (n² + ${c}) ⇒ ${n2}² + ${c} = ${n2 * n2} + ${c} = ${v2}.`
+          });
+        }
+
+        // 3 Mathematical Operations (Symbol substitution)
+        for (let k = 0; k < 3; k++) {
+          const a = randInt(12, 30);
+          const b = randInt(4, 9);
+          const c = randInt(2, 6);
+          const d = randInt(3, 12);
+          // '+' means '×', '-' means '+', '×' means '-'
+          // Expression: a - b + c × d  => a + (b * c) - d
+          const ansVal = a + b * c - d;
+          const { opts, ans } = makeOpts(ansVal, 4);
+          items.push({
+            topic: 'Mathematical Operations',
+            qEn: `If '+' means '×', '-' means '+', and '×' means '-', then find the value of: ${a} - ${b} + ${c} × ${d}`,
+            qHi: `यदि '+' का अर्थ '×', '-' का अर्थ '+' और '×' का अर्थ '-' है, तो ${a} - ${b} + ${c} × ${d} का मान ज्ञात कीजिए:`,
+            options: opts, ans,
+            exp: `After changing signs: ${a} + ${b} × ${c} - ${d} = ${a} + ${b * c} - ${d} = ${ansVal}.`
+          });
+        }
+
+        // 2 Letter Series
+        for (let k = 0; k < 2; k++) {
+          const st = randInt(0, 6);
+          const step = randInt(2, 4);
+          const seq = [];
+          for (let i = 0; i < 4; i++) {
+            const c1 = ALPHA[(st + i * step) % 26];
+            const c2 = ALPHA[(st + 1 + i * step) % 26];
+            seq.push(c1 + c2);
+          }
+          const ansStr = ALPHA[(st + 4 * step) % 26] + ALPHA[(st + 1 + 4 * step) % 26];
+          const o1 = ALPHA[(st + 4 * step + 1) % 26] + ALPHA[(st + 2 + 4 * step) % 26];
+          const o2 = ALPHA[(st + 4 * step + 2) % 26] + ALPHA[(st + 3 + 4 * step) % 26];
+          const o3 = ALPHA[(st + 4 * step + 25) % 26] + ALPHA[(st + 4 * step) % 26];
+          const opts = [ansStr, o1, o2, o3];
+          for (let i = opts.length - 1; i > 0; i--) {
+            const j = Math.floor(rng() * (i + 1));
+            const t = opts[i]; opts[i] = opts[j]; opts[j] = t;
+          }
+          items.push({
+            topic: 'Letter Series',
+            qEn: `Find the next letter-cluster in the series: ${seq.join(', ')}, ?`,
+            qHi: `श्रृंखला में अगला अक्षर-समूह ज्ञात कीजिए: ${seq.join(', ')}, ?`,
+            options: opts,
+            ans: opts.indexOf(ansStr),
+            exp: `Each letter advances by +${step} positions ⇒ next cluster is ${ansStr}.`
+          });
+        }
+
+        return items.slice(0, count);
+      }
+
+      function toCbtObj(item, subjLabel, prefix, dateKey, idx) {
+        const ansText = item.options[item.ans] || item.options[0];
+        return {
+          id: 'm_bi_' + prefix + '_' + dateKey + '_' + idx,
+          word: subjLabel + ' • Q.' + (idx + 1),
+          meaningHi: subjLabel,
+          category: subjLabel + ': ' + item.topic,
+          subject: prefix,
+          exam: 'Daily SSC ' + dateKey,
+          year: dateKey,
+          cbtPrompt: item.qEn,
+          promptHi: item.qHi,
+          options: item.options,
+          answer: ansText,
+          cbtAnswer: ansText,
+          exp: item.exp
+        };
+      }
+
+      window.buildBuiltinDailyReasoning25 = function(dateKey) {
+        const algo15 = generateAlgoReasoning(dateKey, 15);
+        const curated10 = pickDet(BUILTIN_REAS, 10, 'CUR_REAS_' + dateKey).map(r => ({
+          topic: r[0], qEn: r[1], qHi: r[2], options: r[3], ans: r[4], exp: r[5]
+        }));
+        const combined = [...algo15, ...curated10];
+        return combined.map((it, idx) => toCbtObj(it, 'Reasoning', 'reas', dateKey, idx));
+      };
+
+      window.buildBuiltinDailyGk25 = function(dateKey) {
+        const picked = pickDet(BUILTIN_GK, 25, 'CUR_GK_' + dateKey).map(g => ({
+          topic: g[0], qEn: g[1], qHi: g[2], options: g[3], ans: g[4], exp: g[5]
+        }));
+        return picked.map((it, idx) => toCbtObj(it, 'GK / GS', 'gk', dateKey, idx));
+      };
+
+      // Also add instant 25-Q Bilingual CBT Test buttons inside PYQ -> Reasoning and PYQ -> GK/GS pages!
+      const reasBannerBtn = document.querySelector('#pyq-subj-reasoning [data-pyq-jump]');
+      if (reasBannerBtn && !document.getElementById('pyq-reas-start-cbt')) {
+        const b = document.createElement('button');
+        b.id = 'pyq-reas-start-cbt';
+        b.type = 'button';
+        b.className = 'px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-400 to-fuchsia-400 hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm shrink-0 transition shadow';
+        b.textContent = '⚡ Start 25-Q Reasoning CBT (15m • Bilingual)';
+        b.addEventListener('click', () => {
+          if (typeof startCbtTest !== 'function') return;
+          const pool = window.buildBuiltinDailyReasoning25(new Date().toISOString().slice(0, 10) + '_' + Math.floor(Math.random() * 999));
+          window._cbtLangMode = 'both';
+          const testNav = document.querySelector('[data-nav="test"]');
+          if (testNav) testNav.click();
+          setTimeout(() => startCbtTest(pool, '🧠 SSC Reasoning Bilingual Mock (25 Qs • 15m)', 25, 900), 120);
+        });
+        reasBannerBtn.parentElement.insertBefore(b, reasBannerBtn);
+      }
+
+      const gkBannerBtn = document.querySelector('#pyq-subj-gk [data-pyq-jump]');
+      if (gkBannerBtn && !document.getElementById('pyq-gk-start-cbt')) {
+        const b = document.createElement('button');
+        b.id = 'pyq-gk-start-cbt';
+        b.type = 'button';
+        b.className = 'px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm shrink-0 transition shadow';
+        b.textContent = '⚡ Start 25-Q GK/GS CBT (15m • Bilingual)';
+        b.addEventListener('click', () => {
+          if (typeof startCbtTest !== 'function') return;
+          const pool = window.buildBuiltinDailyGk25(new Date().toISOString().slice(0, 10) + '_' + Math.floor(Math.random() * 999));
+          window._cbtLangMode = 'both';
+          const testNav = document.querySelector('[data-nav="test"]');
+          if (testNav) testNav.click();
+          setTimeout(() => startCbtTest(pool, '🌍 SSC GK/GS Bilingual Mock (25 Qs • 15m)', 25, 900), 120);
+        });
+        gkBannerBtn.parentElement.insertBefore(b, gkBannerBtn);
+      }
     })();
   </script>
 
