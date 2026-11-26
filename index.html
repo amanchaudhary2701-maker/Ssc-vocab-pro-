@@ -1446,11 +1446,13 @@
           <!-- ==================== TEST RANKING MODE ROOT ==================== -->
           <div id="tr-ranking-root" class="space-y-4">
             <!-- Sub-Tab Strip: Home | Live Test | Free Test | Test Series -->
-            <div id="tr-subtabs-bar" class="flex items-center justify-between border-b border-white/10 overflow-x-auto no-scrollbar -mx-1 px-1">
+            <div id="tr-subtabs-bar" class="flex items-center justify-between gap-1 border-b border-white/10 overflow-x-auto no-scrollbar -mx-1 px-1">
               <button type="button" data-tr-tab="home" class="tr-subtab active"><span>🎯</span> Home</button>
               <button type="button" data-tr-tab="live" class="tr-subtab"><span>📡</span> Live Test</button>
               <button type="button" data-tr-tab="free" class="tr-subtab"><span>🎁</span> Free Test</button>
               <button type="button" data-tr-tab="series" class="tr-subtab"><span>📋</span> Test Series</button>
+              <button type="button" data-tr-tab="pyq" class="tr-subtab"><span>🏛️</span> PYQ</button>
+              <button type="button" data-tr-tab="test" class="tr-subtab"><span>📝</span> Mock Test</button>
             </div>
 
             <!-- ===== SCREEN 1: TEST RANKING HOME ===== -->
@@ -1634,6 +1636,12 @@
                 <span id="tr-purchased-status-text">Active • All SSC, Maths &amp; GS PYQ Series Ready</span>
               </button>
             </div>
+
+            <!-- ===== EMBEDDED PYQ PAGE INSIDE TEST RANKING (v147) ===== -->
+            <div id="tr-screen-pyq" class="hidden space-y-4"></div>
+
+            <!-- ===== EMBEDDED LIVE MOCK TEST PAGE INSIDE TEST RANKING (v147) ===== -->
+            <div id="tr-screen-test" class="hidden space-y-4"></div>
 
             <!-- ===== SCREEN 3: EXAM DRILL-DOWN (CHOOSE EXAM SERIES) ===== -->
             <div id="tr-screen-exam" class="hidden space-y-4">
@@ -12702,7 +12710,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900/95 to-cyan-950/60 border border-emerald-400/40 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v146</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v147</span>
                 <h4 class="text-sm font-black text-white mt-1">Instant Student Test Maker (Free Auto-OCR)</h4>
                 <p class="text-[11px] text-slate-300">Bina kisi API key ke Photo ya PDF upload karein, Subject &amp; Chapter likhein — auto-scan hokar seedha Students ke Test Panel me live ho jayega!</p>
               </div>
@@ -22624,6 +22632,170 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       // Initialize Test Ranking Mode by default
       setAppMode('ranking');
       showScreen('main', 'home');
+    })();
+  </script>
+
+
+  <!-- ==================== V147: EMBED PYQ & TEST PAGES DIRECTLY INSIDE TEST RANKING ==================== -->
+  <script>
+    (function initV147TestRankingEmbeddedPyqAndTest() {
+      const viewPyq = document.getElementById('view-pyq');
+      const viewTest = document.getElementById('view-test');
+      const hostPyq = document.getElementById('tr-screen-pyq');
+      const hostTest = document.getElementById('tr-screen-test');
+      if (!viewPyq || !viewTest || !hostPyq || !hostTest) return;
+
+      const origPyqParent = viewPyq.parentNode;
+      const origPyqNext = viewPyq.nextSibling;
+      const origTestParent = viewTest.parentNode;
+      const origTestNext = viewTest.nextSibling;
+
+      const ALL_TR_SCREENS = [
+        'tr-screen-home', 'tr-screen-live', 'tr-screen-free', 'tr-screen-series',
+        'tr-screen-pyq', 'tr-screen-test', 'tr-screen-exam', 'tr-screen-detail'
+      ];
+
+      function restoreView(el, origParent, origNext) {
+        if (!el || !origParent) return;
+        if (el.parentNode !== origParent) {
+          if (origNext && origNext.parentNode === origParent) {
+            origParent.insertBefore(el, origNext);
+          } else {
+            origParent.appendChild(el);
+          }
+        }
+        el.classList.add('hidden');
+      }
+
+      function restoreAllEmbedded() {
+        restoreView(viewPyq, origPyqParent, origPyqNext);
+        restoreView(viewTest, origTestParent, origTestNext);
+        hostPyq.classList.add('hidden');
+        hostTest.classList.add('hidden');
+      }
+
+      function setNavHighlight(targetNav) {
+        document.querySelectorAll('[data-nav]').forEach(btn => {
+          const isMatch = btn.getAttribute('data-nav') === targetNav;
+          btn.classList.toggle('active', isMatch);
+          btn.classList.toggle('text-cyan-300', isMatch);
+        });
+      }
+
+      function ensureRankingModeVisible() {
+        const rRoot = document.getElementById('tr-ranking-root');
+        const vWrap = document.getElementById('tr-vocab-classic-wrap');
+        const bVocab = document.getElementById('tr-mode-vocab');
+        const bRank = document.getElementById('tr-mode-ranking');
+        const topChrome = document.getElementById('tr-top-chrome');
+        const subBar = document.getElementById('tr-subtabs-bar');
+        if (rRoot) rRoot.classList.remove('hidden');
+        if (vWrap) vWrap.classList.add('hidden');
+        if (bVocab) bVocab.classList.remove('active');
+        if (bRank) bRank.classList.add('active');
+        if (topChrome) topChrome.classList.remove('hidden');
+        if (subBar) subBar.classList.remove('hidden');
+      }
+
+      function openEmbeddedInTestRanking(which) {
+        ensureRankingModeVisible();
+        ALL_TR_SCREENS.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+
+        document.querySelectorAll('#tr-subtabs-bar [data-tr-tab]').forEach(b => {
+          const act = b.getAttribute('data-tr-tab') === which;
+          b.classList.toggle('active', act);
+          if (act) {
+            try { b.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); } catch (e) {}
+          }
+        });
+
+        if (which === 'pyq') {
+          restoreView(viewTest, origTestParent, origTestNext);
+          if (viewPyq.parentNode !== hostPyq) hostPyq.appendChild(viewPyq);
+          viewPyq.classList.remove('hidden');
+          hostPyq.classList.remove('hidden');
+          if (typeof window.switchPyqSubject === 'function') {
+            window.switchPyqSubject(window._lastTrPyqSubj || 'gk');
+          } else if (typeof renderPyqView === 'function') {
+            renderPyqView();
+          }
+          setNavHighlight('pyq');
+        } else if (which === 'test') {
+          restoreView(viewPyq, origPyqParent, origPyqNext);
+          if (viewTest.parentNode !== hostTest) hostTest.appendChild(viewTest);
+          viewTest.classList.remove('hidden');
+          hostTest.classList.remove('hidden');
+          setNavHighlight('test');
+        }
+      }
+
+      // Track last chosen PYQ subject so returning to PYQ tab keeps user's subject
+      const origSwitchPyq = window.switchPyqSubject;
+      if (typeof origSwitchPyq === 'function') {
+        window.switchPyqSubject = function(subj) {
+          window._lastTrPyqSubj = subj;
+          return origSwitchPyq(subj);
+        };
+      }
+
+      // Intercept clicks on #tr-subtabs-bar
+      document.getElementById('tr-subtabs-bar')?.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-tr-tab]');
+        if (!b) return;
+        const tab = b.getAttribute('data-tr-tab');
+        if (tab === 'pyq' || tab === 'test') {
+          e.stopImmediatePropagation();
+          openEmbeddedInTestRanking(tab);
+        } else {
+          restoreAllEmbedded();
+          setNavHighlight('home');
+        }
+      }, true);
+
+      // Restore embedded views if user switches to Vocab Pro mode or Exam/Detail screens
+      ['tr-mode-vocab', 'tr-bottom-back-vocab'].forEach(id => {
+        document.getElementById(id)?.addEventListener('click', () => {
+          restoreAllEmbedded();
+        }, true);
+      });
+      document.getElementById('tr-cat-grid')?.addEventListener('click', () => {
+        restoreAllEmbedded();
+      }, true);
+
+      // Wrap global switchView so PYQ & Test ALWAYS open right inside Test Ranking!
+      const origSwitchView = window.switchView;
+      if (typeof origSwitchView === 'function') {
+        window.switchView = function(viewName) {
+          if (viewName === 'pyq' || viewName === 'test') {
+            // Ensure #view-home is active first (without hiding embedded views permanently)
+            restoreAllEmbedded();
+            origSwitchView('home');
+            openEmbeddedInTestRanking(viewName);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+          }
+          // Leaving PYQ/Test for another view (Home, Subject, PDFs, etc.)
+          restoreAllEmbedded();
+          const res = origSwitchView(viewName);
+          if (viewName === 'home') {
+            // If user clicked Home, make sure a valid Test Ranking tab is visible
+            const anyVisible = ['tr-screen-home', 'tr-screen-live', 'tr-screen-free', 'tr-screen-series', 'tr-screen-exam', 'tr-screen-detail']
+              .some(id => {
+                const el = document.getElementById(id);
+                return el && !el.classList.contains('hidden');
+              });
+            if (!anyVisible) {
+              document.getElementById('tr-screen-home')?.classList.remove('hidden');
+              document.querySelectorAll('#tr-subtabs-bar [data-tr-tab]').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-tr-tab') === 'home');
+              });
+            }
+          }
+          return res;
+        };
+      }
+
+      window.openTrEmbeddedTab = openEmbeddedInTestRanking;
     })();
   </script>
 
