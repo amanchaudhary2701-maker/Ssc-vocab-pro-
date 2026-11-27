@@ -122,7 +122,7 @@ export default async function handler(req, res) {
       ),
       generateSectionWithGemini(
         apiKey,
-        'General Awareness (GK / GS + Latest 6-Month Current Affairs)',
+        'General Awareness (Hard Mixed Multi-Statement, Match-Pairs, Conceptual GS + Latest Current Affairs — NEVER mention any exam name like UPSC, SSC, Railway, CGL, NTPC in questions/options/explanations)',
         25,
         dateKey,
         `MANDATORY MIX FOR SSC TIER-1:
