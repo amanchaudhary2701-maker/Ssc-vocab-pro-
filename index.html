@@ -21623,5 +21623,609 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     })();
   </script>
 
+
+  <!-- ==================== V147: FULL-SCREEN POWERPOINT 3D SLIDE PRESENTATION ENGINE (SUBJECT -> GS -> ECONOMICS -> THEORY) ==================== -->
+  <style>
+    .eppt-fullscreen-overlay {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 99999 !important;
+      background: #020617 !important;
+      padding: 0.75rem !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      border-radius: 0 !important;
+      overflow-y: auto !important;
+    }
+    .eppt-fullscreen-overlay .eppt-viewport {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .eppt-fullscreen-overlay .eppt-slide-canvas {
+      width: 100% !important;
+      max-width: 1180px !important;
+      min-height: 70vh !important;
+    }
+    .eppt-stage-3d {
+      perspective: 1400px;
+      overflow: hidden;
+    }
+    @keyframes epptCubeNext {
+      0% { opacity: 0; transform: perspective(1400px) rotateY(42deg) translateX(60px) scale(0.92); }
+      100% { opacity: 1; transform: perspective(1400px) rotateY(0deg) translateX(0) scale(1); }
+    }
+    @keyframes epptCubePrev {
+      0% { opacity: 0; transform: perspective(1400px) rotateY(-42deg) translateX(-60px) scale(0.92); }
+      100% { opacity: 1; transform: perspective(1400px) rotateY(0deg) translateX(0) scale(1); }
+    }
+    @keyframes epptFlipIn {
+      0% { opacity: 0; transform: perspective(1400px) rotateX(-55deg) scale(0.94); }
+      100% { opacity: 1; transform: perspective(1400px) rotateX(0deg) scale(1); }
+    }
+    @keyframes epptSlideNext {
+      0% { opacity: 0; transform: translateX(65px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes epptSlidePrev {
+      0% { opacity: 0; transform: translateX(-65px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes epptZoomIn {
+      0% { opacity: 0; transform: scale(0.84); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes epptFadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes epptItemPop {
+      0% { opacity: 0; transform: translateY(12px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .eppt-anim-cube-next { animation: epptCubeNext 0.52s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .eppt-anim-cube-prev { animation: epptCubePrev 0.52s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .eppt-anim-flip { animation: epptFlipIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .eppt-anim-slide-next { animation: epptSlideNext 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .eppt-anim-slide-prev { animation: epptSlidePrev 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .eppt-anim-zoom { animation: epptZoomIn 0.44s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .eppt-anim-fade { animation: epptFadeIn 0.38s ease-out both; }
+    .eppt-stagger-1 { animation: epptItemPop 0.4s 0.08s both; }
+    .eppt-stagger-2 { animation: epptItemPop 0.4s 0.16s both; }
+    .eppt-stagger-3 { animation: epptItemPop 0.4s 0.24s both; }
+    .eppt-stagger-4 { animation: epptItemPop 0.4s 0.32s both; }
+  </style>
+  <script>
+    (function initV147EconomicsPowerPointMode() {
+      const DATA = window._ECON_3D_DATA;
+      if (!DATA || !DATA.chapters) return;
+
+      // Build complete PowerPoint Slide Deck from all 8 chapters (Cover + Concept Slides + Table Slides + Quiz Summary Slide)
+      const SLIDES = [];
+      SLIDES.push({
+        type: 'cover',
+        chapIdx: 0,
+        chapTitle: 'Complete Indian Economics',
+        color: 'from-cyan-600 via-blue-700 to-indigo-900',
+        icon: '📊',
+        titleEn: 'Complete Indian Economics',
+        titleHi: 'सम्पूर्ण भारतीय अर्थव्यवस्था — 3D PowerPoint Presentation',
+        subtitle: '137 Pages Complete Notes • 8 Chapters • Bilingual (EN + हिंदी) • Exam Ready',
+        highlights: [
+          '🌐 Ch 1–2: Fundamentals, 5 Sectors & Market Systems',
+          '📊 Ch 3–4: Union Budget, GST, 12 Five-Year Plans & NITI Aayog',
+          '🏦 Ch 5–6: RBI Monetary Policy, Banking, Demand & Supply',
+          '🤝 Ch 7–8: Poverty, MGNREGA 2025, National Income, GDP & HDI'
+        ]
+      });
+
+      DATA.chapters.forEach((ch, cIdx) => {
+        // Chapter Divider / Overview Slide
+        SLIDES.push({
+          type: 'chapter_intro',
+          chapIdx: cIdx,
+          chapNum: ch.num,
+          chapTitle: ch.title,
+          color: ch.color,
+          icon: ch.icon,
+          pages: ch.pages,
+          titleEn: `Chapter ${ch.num}: ${ch.title}`,
+          titleHi: ch.titleHi,
+          summaryEn: ch.summary,
+          summaryHi: ch.summaryHi,
+          cardCount: (ch.cards || []).length,
+          quizCount: (ch.quiz || []).length
+        });
+
+        // One dedicated PowerPoint slide per concept card!
+        (ch.cards || []).forEach((card, kIdx) => {
+          SLIDES.push({
+            type: 'concept',
+            chapIdx: cIdx,
+            chapNum: ch.num,
+            chapTitle: ch.title,
+            color: ch.color,
+            icon: card.icon || ch.icon,
+            badge: `Ch.${ch.num} • ${card.badge}`,
+            titleEn: card.frontEn,
+            titleHi: card.frontHi,
+            keyEn: card.keyEn,
+            keyHi: card.keyHi,
+            bodyEn: card.backEn,
+            bodyHi: card.backHi
+          });
+        });
+
+        // Dedicated Table Slide(s)
+        (ch.tables || []).forEach(tb => {
+          SLIDES.push({
+            type: 'table',
+            chapIdx: cIdx,
+            chapNum: ch.num,
+            chapTitle: ch.title,
+            color: ch.color,
+            icon: '📊',
+            badge: `Ch.${ch.num} • Quick Comparison / Formula Table`,
+            titleEn: tb.title,
+            titleHi: ch.titleHi,
+            headers: tb.headers,
+            rows: tb.rows
+          });
+        });
+      });
+
+      // Closing Revision & CBT Launch Slide
+      SLIDES.push({
+        type: 'closing',
+        chapIdx: DATA.chapters.length - 1,
+        chapTitle: 'Revision & CBT Test',
+        color: 'from-emerald-600 via-teal-700 to-cyan-900',
+        icon: '🏆',
+        titleEn: 'Complete Economics Presentation Finished!',
+        titleHi: 'सम्पूर्ण अर्थशास्त्र प्रेज़ेंटेशन पूर्ण!',
+        subtitle: 'Ab 75 Bilingual Economics PYQs ka Live CBT Test dekar apni taiyari check karein.'
+      });
+
+      const pState = {
+        viewMode: 'ppt',     // 'ppt' | 'cards'
+        slideIdx: 0,
+        dir: 'next',
+        transition: 'cube',  // 'cube' | 'flip' | 'slide' | 'zoom' | 'fade'
+        lang: 'both',        // 'both' | 'en' | 'hi'
+        fullscreen: false,
+        autoPlay: false,
+        sorterOpen: false
+      };
+
+      let autoTimer = null;
+      let touchStartX = 0;
+
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function stopAutoPlay() {
+        pState.autoPlay = false;
+        if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+      }
+
+      function toggleAutoPlay() {
+        if (pState.autoPlay) {
+          stopAutoPlay();
+          renderPptDeck();
+        } else {
+          pState.autoPlay = true;
+          autoTimer = setInterval(() => {
+            if (pState.slideIdx < SLIDES.length - 1) {
+              goSlide(pState.slideIdx + 1, 'next');
+            } else {
+              stopAutoPlay();
+              renderPptDeck();
+            }
+          }, 6000);
+          renderPptDeck();
+        }
+      }
+
+      function toggleFullscreen() {
+        pState.fullscreen = !pState.fullscreen;
+        const deckEl = document.getElementById('eppt-deck-shell');
+        if (pState.fullscreen) {
+          document.body.style.overflow = 'hidden';
+          try {
+            if (deckEl && deckEl.requestFullscreen) deckEl.requestFullscreen().catch(() => {});
+          } catch (e) {}
+        } else {
+          document.body.style.overflow = '';
+          try {
+            if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+          } catch (e) {}
+        }
+        renderPptDeck();
+      }
+
+      document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement && pState.fullscreen) {
+          pState.fullscreen = false;
+          document.body.style.overflow = '';
+          renderPptDeck();
+        }
+      });
+
+      function goSlide(idx, dir) {
+        const clamped = Math.max(0, Math.min(SLIDES.length - 1, idx));
+        pState.dir = dir || (clamped >= pState.slideIdx ? 'next' : 'prev');
+        pState.slideIdx = clamped;
+        pState.sorterOpen = false;
+        renderPptDeck();
+      }
+
+      function getAnimClass() {
+        if (pState.transition === 'cube') return pState.dir === 'next' ? 'eppt-anim-cube-next' : 'eppt-anim-cube-prev';
+        if (pState.transition === 'flip') return 'eppt-anim-flip';
+        if (pState.transition === 'slide') return pState.dir === 'next' ? 'eppt-anim-slide-next' : 'eppt-anim-slide-prev';
+        if (pState.transition === 'zoom') return 'eppt-anim-zoom';
+        return 'eppt-anim-fade';
+      }
+
+      function splitPoints(txt) {
+        if (!txt) return [];
+        // Split sentences cleanly for crisp PowerPoint bullet presentation
+        const raw = txt.split(/(?<=[।.?!])\s+/).map(x => x.trim()).filter(Boolean);
+        return raw.length ? raw : [txt];
+      }
+
+      function renderSlideContent(sl) {
+        const showEn = pState.lang !== 'hi';
+        const showHi = pState.lang !== 'en';
+        const anim = getAnimClass();
+
+        if (sl.type === 'cover') {
+          return `
+            <div class="eppt-slide-canvas ${anim} relative rounded-2xl overflow-hidden bg-gradient-to-br ${sl.color} border border-white/25 shadow-2xl p-6 sm:p-10 flex flex-col justify-between min-h-[380px] sm:min-h-[440px]">
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-3 py-1 rounded-full bg-white/15 border border-white/30 text-white text-[11px] font-black uppercase tracking-wider">🎬 PowerPoint 3D Presentation • ${SLIDES.length} Slides</span>
+                <span class="text-3xl sm:text-4xl econ3d-float">${sl.icon}</span>
+              </div>
+              <div class="my-5 space-y-3">
+                <h2 class="text-2xl sm:text-4xl font-black text-white leading-tight eppt-stagger-1">${esc(sl.titleEn)}</h2>
+                <p class="text-base sm:text-xl font-extrabold text-amber-200 eppt-stagger-2">${esc(sl.titleHi)}</p>
+                <p class="text-xs sm:text-sm text-cyan-100/90 font-semibold eppt-stagger-3">${esc(sl.subtitle)}</p>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 eppt-stagger-4">
+                ${sl.highlights.map(h => `<div class="px-3 py-2 rounded-xl bg-slate-950/45 border border-white/20 text-xs font-bold text-white backdrop-blur-sm">${esc(h)}</div>`).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        if (sl.type === 'chapter_intro') {
+          return `
+            <div class="eppt-slide-canvas ${anim} relative rounded-2xl overflow-hidden bg-gradient-to-br ${sl.color} border border-white/25 shadow-2xl p-6 sm:p-10 flex flex-col justify-between min-h-[380px] sm:min-h-[440px]">
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-3 py-1 rounded-full bg-black/30 border border-white/25 text-white text-xs font-black uppercase">Chapter ${sl.chapNum} of ${DATA.chapters.length} • ${esc(sl.pages)}</span>
+                <span class="text-4xl sm:text-5xl econ3d-float">${sl.icon}</span>
+              </div>
+              <div class="my-6 space-y-3">
+                ${showEn ? `<h2 class="text-2xl sm:text-3xl font-black text-white leading-tight eppt-stagger-1">${esc(sl.titleEn)}</h2>` : ''}
+                ${showHi ? `<p class="text-lg sm:text-2xl font-extrabold text-amber-200 eppt-stagger-2">${esc(sl.titleHi)}</p>` : ''}
+                <div class="p-4 rounded-2xl bg-slate-950/45 border border-white/20 space-y-2 eppt-stagger-3">
+                  ${showEn ? `<p class="text-xs sm:text-sm text-white/95 leading-relaxed font-medium">${esc(sl.summaryEn)}</p>` : ''}
+                  ${showHi ? `<p class="text-xs sm:text-sm text-amber-100 leading-relaxed font-semibold">${esc(sl.summaryHi)}</p>` : ''}
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 text-xs font-black text-white/95 eppt-stagger-4">
+                <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-white/20">📑 ${sl.cardCount} Concept Slides</span>
+                ${sl.quizCount ? `<span class="px-3 py-1.5 rounded-xl bg-black/30 border border-white/20">📝 ${sl.quizCount} Practice PYQs</span>` : ''}
+                <span class="px-3 py-1.5 rounded-xl bg-white/20">Tap Next › to start slides</span>
+              </div>
+            </div>
+          `;
+        }
+
+        if (sl.type === 'concept') {
+          const ptsEn = splitPoints(sl.bodyEn);
+          const ptsHi = splitPoints(sl.bodyHi);
+          return `
+            <div class="eppt-slide-canvas ${anim} relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-cyan-400/35 shadow-2xl flex flex-col justify-between min-h-[380px] sm:min-h-[440px]">
+              <!-- Top Slide Accent Header -->
+              <div class="px-5 py-4 bg-gradient-to-r ${sl.color} flex items-center justify-between gap-3">
+                <div>
+                  <div class="text-[10px] sm:text-xs font-black uppercase tracking-wider text-white/85">${esc(sl.badge)}</div>
+                  ${showEn ? `<h3 class="text-lg sm:text-2xl font-black text-white leading-tight mt-0.5">${esc(sl.titleEn)}</h3>` : ''}
+                  ${showHi ? `<div class="text-xs sm:text-base font-extrabold text-amber-200">${esc(sl.titleHi)}</div>` : ''}
+                </div>
+                <span class="text-3xl sm:text-4xl econ3d-float shrink-0">${sl.icon}</span>
+              </div>
+
+              <!-- Slide Main Body -->
+              <div class="p-5 sm:p-6 flex-1 space-y-4">
+                <!-- Key Takeaway Highlight Box -->
+                <div class="p-3 sm:p-3.5 rounded-xl bg-cyan-500/15 border-l-4 border-cyan-400 space-y-1 eppt-stagger-1">
+                  <div class="text-[10px] font-black uppercase text-cyan-300">⚡ Key Formula / Highlight</div>
+                  ${showEn ? `<div class="text-xs sm:text-sm font-black text-white">${esc(sl.keyEn)}</div>` : ''}
+                  ${showHi ? `<div class="text-xs sm:text-sm font-extrabold text-amber-200">${esc(sl.keyHi)}</div>` : ''}
+                </div>
+
+                <!-- Two-Column or Stacked Bilingual Bullet Points -->
+                <div class="grid grid-cols-1 ${showEn && showHi ? 'md:grid-cols-2' : ''} gap-3.5">
+                  ${showEn ? `
+                    <div class="p-3.5 rounded-xl bg-slate-900/90 border border-white/10 space-y-2 eppt-stagger-2">
+                      <div class="text-[10px] font-black uppercase text-cyan-300">🇬🇧 English Concept</div>
+                      <ul class="space-y-1.5 text-xs sm:text-sm text-slate-100 leading-relaxed">
+                        ${ptsEn.map(p => `<li class="flex items-start gap-2"><span class="text-cyan-400 font-black mt-0.5">▸</span><span>${esc(p)}</span></li>`).join('')}
+                      </ul>
+                    </div>
+                  ` : ''}
+                  ${showHi ? `
+                    <div class="p-3.5 rounded-xl bg-amber-950/25 border border-amber-400/25 space-y-2 eppt-stagger-3">
+                      <div class="text-[10px] font-black uppercase text-amber-300">🇮🇳 हिंदी व्याख्या</div>
+                      <ul class="space-y-1.5 text-xs sm:text-sm text-amber-100 leading-relaxed font-medium">
+                        ${ptsHi.map(p => `<li class="flex items-start gap-2"><span class="text-amber-400 font-black mt-0.5">▸</span><span>${esc(p)}</span></li>`).join('')}
+                      </ul>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+
+              <!-- Slide Footer -->
+              <div class="px-5 py-2.5 bg-slate-950/90 border-t border-white/10 flex items-center justify-between text-[10px] sm:text-xs text-slate-400 font-bold">
+                <span>💰 Economics 3D PPT • Ch.${sl.chapNum}: ${esc(sl.chapTitle)}</span>
+                <span class="text-cyan-300">Slide ${pState.slideIdx + 1} / ${SLIDES.length}</span>
+              </div>
+            </div>
+          `;
+        }
+
+        if (sl.type === 'table') {
+          return `
+            <div class="eppt-slide-canvas ${anim} relative rounded-2xl overflow-hidden bg-slate-950 border border-amber-400/35 shadow-2xl flex flex-col justify-between min-h-[380px] sm:min-h-[440px]">
+              <div class="px-5 py-4 bg-gradient-to-r ${sl.color} flex items-center justify-between gap-3">
+                <div>
+                  <div class="text-[10px] sm:text-xs font-black uppercase text-white/85">${esc(sl.badge)}</div>
+                  <h3 class="text-lg sm:text-xl font-black text-white mt-0.5">📊 ${esc(sl.titleEn)}</h3>
+                </div>
+                <span class="text-3xl shrink-0">📋</span>
+              </div>
+              <div class="p-4 sm:p-6 flex-1 overflow-x-auto eppt-stagger-2">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-slate-800/95 text-cyan-200">
+                      ${sl.headers.map(h => `<th class="p-2.5 border border-slate-700 font-black">${esc(h)}</th>`).join('')}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${sl.rows.map(r => `
+                      <tr class="odd:bg-slate-900/90 even:bg-slate-950/90 text-slate-100">
+                        ${r.map((cell, ci) => `<td class="p-2.5 border border-slate-800 ${ci===0 ? 'font-extrabold text-amber-200' : ''}">${esc(cell)}</td>`).join('')}
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+              <div class="px-5 py-2.5 bg-slate-950 border-t border-white/10 flex items-center justify-between text-[10px] sm:text-xs text-slate-400 font-bold">
+                <span>💰 Economics 3D PPT • Master Revision Table</span>
+                <span class="text-amber-300">Slide ${pState.slideIdx + 1} / ${SLIDES.length}</span>
+              </div>
+            </div>
+          `;
+        }
+
+        // Closing Slide
+        return `
+          <div class="eppt-slide-canvas ${anim} relative rounded-2xl overflow-hidden bg-gradient-to-br ${sl.color} border border-emerald-300/40 shadow-2xl p-8 flex flex-col items-center justify-center text-center space-y-4 min-h-[380px] sm:min-h-[440px]">
+            <div class="text-5xl econ3d-float">${sl.icon}</div>
+            <h2 class="text-2xl sm:text-3xl font-black text-white">${esc(sl.titleEn)}</h2>
+            <p class="text-lg font-extrabold text-amber-200">${esc(sl.titleHi)}</p>
+            <p class="text-xs sm:text-sm text-white/90 max-w-lg">${esc(sl.subtitle)}</p>
+            <div class="flex flex-wrap justify-center gap-3 pt-2">
+              <button type="button" id="eppt-restart-btn" class="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/30 text-white font-black text-xs">↺ Restart Slide 1</button>
+              <button type="button" id="eppt-launch-cbt-btn" class="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-lg">⚡ Start 75-Q Economics CBT Test</button>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderPptDeck() {
+        const container = document.getElementById('eppt-mount-point');
+        if (!container) return;
+        const sl = SLIDES[pState.slideIdx] || SLIDES[0];
+        const progress = Math.round(((pState.slideIdx + 1) / SLIDES.length) * 100);
+
+        // Find first slide index of each chapter for quick chapter jump
+        const chapFirstSlide = DATA.chapters.map((ch, idx) => {
+          const pos = SLIDES.findIndex(s => s.type === 'chapter_intro' && s.chapIdx === idx);
+          return pos === -1 ? 0 : pos;
+        });
+
+        container.innerHTML = `
+          <div id="eppt-deck-shell" class="${pState.fullscreen ? 'eppt-fullscreen-overlay' : 'rounded-2xl p-3 sm:p-4 bg-slate-950/90 border border-cyan-400/35 shadow-2xl space-y-3'}">
+            <!-- PowerPoint Top Ribbon Toolbar -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-white/10">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-orange-500 to-rose-500 text-white text-[11px] font-black shadow">📽️ PPT Mode</span>
+                <span class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-cyan-300 text-[11px] font-black">${pState.slideIdx + 1} / ${SLIDES.length}</span>
+                <select id="eppt-trans-select" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] font-bold text-slate-200">
+                  <option value="cube" ${pState.transition==='cube'?'selected':''}>🧊 3D Cube</option>
+                  <option value="flip" ${pState.transition==='flip'?'selected':''}>🔄 3D Flip</option>
+                  <option value="slide" ${pState.transition==='slide'?'selected':''}>➡️ Slide</option>
+                  <option value="zoom" ${pState.transition==='zoom'?'selected':''}>🔍 Zoom</option>
+                  <option value="fade" ${pState.transition==='fade'?'selected':''}>✨ Fade</option>
+                </select>
+                <div class="flex items-center gap-1">
+                  ${[['both','EN+हि'],['en','EN'],['hi','हिं']].map(([c, l]) => `
+                    <button type="button" data-eppt-lang="${c}" class="px-2 py-1 rounded-lg text-[10px] font-black border ${pState.lang===c ? 'bg-cyan-400 text-slate-950 border-cyan-300' : 'bg-slate-900 text-slate-300 border-slate-700'}">${l}</button>
+                  `).join('')}
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button type="button" id="eppt-sorter-btn" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-[11px] font-bold">🎞️ All Slides</button>
+                <button type="button" id="eppt-autoplay-btn" class="px-2.5 py-1.5 rounded-lg ${pState.autoPlay ? 'bg-rose-500 text-white' : 'bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-emerald-400/40'} text-[11px] font-black">${pState.autoPlay ? '⏸ Pause' : '▶ Auto-Play'}</button>
+                <button type="button" id="eppt-fullscreen-btn" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 hover:brightness-110 text-slate-950 text-[11px] font-black shadow">${pState.fullscreen ? '✕ Exit Fullscreen' : '⛶ Fullscreen PPT'}</button>
+              </div>
+            </div>
+
+            <!-- Chapter Quick-Jump Strip -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1">
+              <button type="button" data-eppt-go="0" class="px-2.5 py-1 rounded-lg text-[10px] font-black shrink-0 border ${pState.slideIdx===0 ? 'bg-cyan-400 text-slate-950 border-cyan-300' : 'bg-slate-900 text-slate-300 border-slate-700'}">🏠 Cover</button>
+              ${DATA.chapters.map((ch, idx) => {
+                const isCur = pState.slideIdx > 0 && sl.chapIdx === idx && sl.type !== 'closing';
+                return `<button type="button" data-eppt-go="${chapFirstSlide[idx]}" class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold shrink-0 border transition ${isCur ? 'bg-amber-400 text-slate-950 border-amber-300 shadow' : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-amber-400/60'}">${ch.icon} Ch.${ch.num}</button>`;
+              }).join('')}
+            </div>
+
+            <!-- Slide Sorter Grid OR Active 3D Slide Viewport -->
+            ${pState.sorterOpen ? `
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-[60vh] overflow-y-auto p-1">
+                ${SLIDES.map((s, si) => `
+                  <button type="button" data-eppt-go="${si}" class="text-left p-2.5 rounded-xl border transition ${si===pState.slideIdx ? 'bg-cyan-500/25 border-cyan-400 text-white ring-2 ring-cyan-300' : 'bg-slate-900/90 border-slate-700/80 text-slate-200 hover:border-amber-400'}">
+                    <div class="flex items-center justify-between text-[10px] font-black text-amber-300">
+                      <span>Slide ${si+1}</span><span>${s.icon || '📄'}</span>
+                    </div>
+                    <div class="text-[11px] font-bold mt-1 line-clamp-2">${esc(s.titleEn)}</div>
+                  </button>
+                `).join('')}
+              </div>
+            ` : `
+              <div id="eppt-viewport-box" class="eppt-viewport eppt-stage-3d py-1">
+                ${renderSlideContent(sl)}
+              </div>
+            `}
+
+            <!-- Bottom PowerPoint Controls & Progress Bar -->
+            <div class="space-y-2 pt-1">
+              <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-cyan-400 via-amber-400 to-emerald-400 transition-all duration-300" style="width:${progress}%"></div>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <button type="button" id="eppt-prev-btn" ${pState.slideIdx <= 0 ? 'disabled' : ''} class="px-4 py-2 rounded-xl text-xs font-black border transition ${pState.slideIdx <= 0 ? 'bg-slate-900/40 text-slate-600 border-slate-800 cursor-not-allowed' : 'bg-slate-900 hover:bg-slate-800 text-white border-cyan-400/50'}">◀ Prev Slide</button>
+                <div class="text-[11px] text-slate-400 font-bold hidden sm:block">Swipe left/right ya Keyboard ← → Arrows use karein • F = Fullscreen</div>
+                <button type="button" id="eppt-next-btn" ${pState.slideIdx >= SLIDES.length - 1 ? 'disabled' : ''} class="px-4 py-2 rounded-xl text-xs font-black transition ${pState.slideIdx >= SLIDES.length - 1 ? 'bg-slate-900/40 text-slate-600 border border-slate-800 cursor-not-allowed' : 'bg-gradient-to-r from-cyan-400 to-blue-500 hover:brightness-110 text-slate-950 shadow'}">Next Slide ▶</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Wire deck events
+        container.querySelector('#eppt-prev-btn')?.addEventListener('click', () => goSlide(pState.slideIdx - 1, 'prev'));
+        container.querySelector('#eppt-next-btn')?.addEventListener('click', () => goSlide(pState.slideIdx + 1, 'next'));
+        container.querySelector('#eppt-fullscreen-btn')?.addEventListener('click', toggleFullscreen);
+        container.querySelector('#eppt-autoplay-btn')?.addEventListener('click', toggleAutoPlay);
+        container.querySelector('#eppt-sorter-btn')?.addEventListener('click', () => {
+          pState.sorterOpen = !pState.sorterOpen;
+          renderPptDeck();
+        });
+        container.querySelector('#eppt-trans-select')?.addEventListener('change', (e) => {
+          pState.transition = e.target.value;
+          renderPptDeck();
+        });
+        container.querySelectorAll('[data-eppt-lang]').forEach(b => {
+          b.addEventListener('click', () => {
+            pState.lang = b.getAttribute('data-eppt-lang');
+            renderPptDeck();
+          });
+        });
+        container.querySelectorAll('[data-eppt-go]').forEach(b => {
+          b.addEventListener('click', () => goSlide(parseInt(b.getAttribute('data-eppt-go'), 10)));
+        });
+        container.querySelector('#eppt-restart-btn')?.addEventListener('click', () => goSlide(0, 'prev'));
+        container.querySelector('#eppt-launch-cbt-btn')?.addEventListener('click', () => {
+          if (pState.fullscreen) toggleFullscreen();
+          document.getElementById('econ3d-cbt-all')?.click();
+        });
+
+        // Touch swipe support on mobile
+        const vp = container.querySelector('#eppt-viewport-box');
+        if (vp) {
+          vp.addEventListener('touchstart', (ev) => { touchStartX = ev.changedTouches[0].screenX; }, { passive: true });
+          vp.addEventListener('touchend', (ev) => {
+            const dx = ev.changedTouches[0].screenX - touchStartX;
+            if (Math.abs(dx) > 45) {
+              if (dx < 0 && pState.slideIdx < SLIDES.length - 1) goSlide(pState.slideIdx + 1, 'next');
+              else if (dx > 0 && pState.slideIdx > 0) goSlide(pState.slideIdx - 1, 'prev');
+            }
+          }, { passive: true });
+        }
+      }
+
+      // Keyboard shortcuts when Economics PPT is visible
+      document.addEventListener('keydown', (e) => {
+        const mount = document.getElementById('eppt-mount-point');
+        if (!mount || mount.offsetParent === null) return;
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) return;
+        if (e.key === 'ArrowRight' || (pState.fullscreen && e.key === ' ')) {
+          if (pState.slideIdx < SLIDES.length - 1) { e.preventDefault(); goSlide(pState.slideIdx + 1, 'next'); }
+        } else if (e.key === 'ArrowLeft') {
+          if (pState.slideIdx > 0) { e.preventDefault(); goSlide(pState.slideIdx - 1, 'prev'); }
+        } else if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault(); toggleFullscreen();
+        } else if (e.key === 'Escape' && pState.fullscreen) {
+          e.preventDefault(); toggleFullscreen();
+        }
+      });
+
+      function mountPptInsideEconStudio() {
+        const studio = document.getElementById('econ3d-studio-root');
+        if (!studio) return;
+        if (document.getElementById('eppt-mode-switcher')) return;
+
+        const bar = document.createElement('div');
+        bar.id = 'eppt-mode-switcher';
+        bar.className = 'flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-2xl bg-slate-900/95 border border-orange-400/40';
+        bar.innerHTML = `
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="eppt-tab-ppt" class="px-3.5 py-2 rounded-xl text-xs font-black transition ${pState.viewMode==='ppt' ? 'bg-gradient-to-r from-orange-500 to-amber-400 text-slate-950 shadow' : 'bg-slate-800 text-slate-200 border border-slate-700'}">📽️ Full-Screen PPT Slides (${SLIDES.length} Slides)</button>
+            <button type="button" id="eppt-tab-cards" class="px-3.5 py-2 rounded-xl text-xs font-black transition ${pState.viewMode==='cards' ? 'bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 shadow' : 'bg-slate-800 text-slate-200 border border-slate-700'}">🧊 3D Flip Cards &amp; Interactive Labs</button>
+          </div>
+          <button type="button" id="eppt-quick-fs" class="px-3 py-1.5 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 border border-amber-400/50 text-amber-200 text-xs font-black">⛶ Launch Fullscreen Show</button>
+        `;
+
+        const mount = document.createElement('div');
+        mount.id = 'eppt-mount-point';
+
+        studio.insertBefore(mount, studio.firstChild);
+        studio.insertBefore(bar, studio.firstChild);
+
+        function applyModeVisibility() {
+          const isPpt = pState.viewMode === 'ppt';
+          mount.classList.toggle('hidden', !isPpt);
+          Array.from(studio.children).forEach(ch => {
+            if (ch.id === 'eppt-mode-switcher' || ch.id === 'eppt-mount-point') return;
+            ch.classList.toggle('hidden', isPpt);
+          });
+          const b1 = document.getElementById('eppt-tab-ppt');
+          const b2 = document.getElementById('eppt-tab-cards');
+          if (b1) b1.className = 'px-3.5 py-2 rounded-xl text-xs font-black transition ' + (isPpt ? 'bg-gradient-to-r from-orange-500 to-amber-400 text-slate-950 shadow' : 'bg-slate-800 text-slate-200 border border-slate-700');
+          if (b2) b2.className = 'px-3.5 py-2 rounded-xl text-xs font-black transition ' + (!isPpt ? 'bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 shadow' : 'bg-slate-800 text-slate-200 border border-slate-700');
+          if (isPpt) renderPptDeck();
+        }
+
+        bar.querySelector('#eppt-tab-ppt')?.addEventListener('click', () => { pState.viewMode = 'ppt'; applyModeVisibility(); });
+        bar.querySelector('#eppt-tab-cards')?.addEventListener('click', () => { stopAutoPlay(); pState.viewMode = 'cards'; applyModeVisibility(); });
+        bar.querySelector('#eppt-quick-fs')?.addEventListener('click', () => {
+          pState.viewMode = 'ppt';
+          applyModeVisibility();
+          if (!pState.fullscreen) toggleFullscreen();
+        });
+
+        applyModeVisibility();
+      }
+
+      // Observe #subject-active-panel so whenever Economics 3D renders, PPT Slide Show mounts automatically!
+      const panelEl = document.getElementById('subject-active-panel');
+      if (panelEl) {
+        const obs = new MutationObserver(() => mountPptInsideEconStudio());
+        obs.observe(panelEl, { childList: true, subtree: true });
+      }
+      setTimeout(mountPptInsideEconStudio, 200);
+    })();
+  </script>
+
 </body>
 </html>
