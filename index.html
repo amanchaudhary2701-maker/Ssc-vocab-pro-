@@ -12079,7 +12079,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/70 via-slate-900/95 to-cyan-950/60 border border-emerald-400/40 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v146</span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase">📸 Photo / PDF → Live CBT Test • v147</span>
                 <h4 class="text-sm font-black text-white mt-1">Instant Student Test Maker (Free Auto-OCR)</h4>
                 <p class="text-[11px] text-slate-300">Bina kisi API key ke Photo ya PDF upload karein, Subject &amp; Chapter likhein — auto-scan hokar seedha Students ke Test Panel me live ho jayega!</p>
               </div>
@@ -21135,6 +21135,491 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
           setTimeout(injectGsEconomicsIntoPanel, 50);
         }, 60);
       };
+    })();
+  </script>
+
+
+  <!-- ==================== V147: FULL-SCREEN 3D ANIMATED PPT PRESENTER (CLICK-BY-CLICK LINE REVEAL) ==================== -->
+  <style>
+    #econ-ppt-modal {
+      perspective: 1400px;
+      background: radial-gradient(circle at 20% 15%, rgba(14,116,144,0.38), rgba(2,6,23,0.98) 62%),
+                  radial-gradient(circle at 85% 85%, rgba(16,185,129,0.22), rgba(2,6,23,0.99) 55%);
+    }
+    .ppt3d-stage-card {
+      transform-style: preserve-3d;
+      animation: ppt3dSlideEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+      box-shadow: 0 28px 70px -18px rgba(6,182,212,0.35), 0 0 0 1px rgba(56,189,248,0.28), inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+    @keyframes ppt3dSlideEnter {
+      0% { opacity: 0; transform: perspective(1200px) rotateY(-14deg) rotateX(6deg) translateZ(-60px) scale(0.94); }
+      100% { opacity: 1; transform: perspective(1200px) rotateY(0deg) rotateX(0deg) translateZ(0px) scale(1); }
+    }
+    @keyframes ppt3dLineReveal {
+      0% { opacity: 0; transform: perspective(900px) rotateX(-18deg) translateX(-22px) scale(0.97); filter: blur(3px); }
+      100% { opacity: 1; transform: perspective(900px) rotateX(0deg) translateX(0) scale(1); filter: blur(0); }
+    }
+    .ppt3d-line-item {
+      animation: ppt3dLineReveal 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .ppt3d-line-latest {
+      border-color: rgba(56,189,248,0.7) !important;
+      background: linear-gradient(135deg, rgba(14,116,144,0.32), rgba(15,23,42,0.92)) !important;
+      box-shadow: 0 10px 26px -10px rgba(34,211,238,0.45);
+    }
+    .ppt3d-pulse-hint {
+      animation: ppt3dPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes ppt3dPulse {
+      0%, 100% { opacity: 0.72; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.03); }
+    }
+  </style>
+
+  <!-- Full-Screen 3D PPT Modal Shell -->
+  <div id="econ-ppt-modal" class="hidden fixed inset-0 z-[99999] flex flex-col text-white select-none">
+    <!-- Top PPT Control Bar -->
+    <div class="flex flex-wrap items-center justify-between gap-2 px-3 sm:px-5 py-2.5 bg-slate-950/85 border-b border-cyan-400/25 backdrop-blur-md shrink-0">
+      <div class="flex items-center gap-2 min-w-0">
+        <span id="ppt-chap-badge" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 text-[11px] font-black shrink-0">Ch.1</span>
+        <div class="min-w-0">
+          <div id="ppt-chap-title" class="text-xs sm:text-sm font-black text-white truncate">Economics 3D PPT</div>
+          <div id="ppt-slide-meta" class="text-[10px] text-cyan-300 font-bold">Slide 1 / 1 • Click to reveal lines</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button type="button" id="ppt-lang-btn" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-cyan-400/40 text-[11px] font-extrabold text-cyan-200 transition">🌐 EN+HI</button>
+        <button type="button" id="ppt-reveal-all-btn" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-amber-400/40 text-[11px] font-extrabold text-amber-200 transition">⚡ All Lines</button>
+        <button type="button" id="ppt-fs-btn" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-[11px] font-extrabold text-slate-200 transition" title="Toggle Fullscreen">⛶</button>
+        <button type="button" id="ppt-close-btn" class="px-3 py-1.5 rounded-xl bg-rose-500/25 hover:bg-rose-500/45 border border-rose-400/60 text-xs font-black text-rose-100 transition">✕ Close</button>
+      </div>
+    </div>
+
+    <!-- Main Clickable 3D Slide Stage (Tap anywhere to reveal next line!) -->
+    <div id="ppt-stage-viewport" class="flex-1 overflow-y-auto flex items-center justify-center p-3 sm:p-6 cursor-pointer">
+      <div id="ppt-slide-card" class="ppt3d-stage-card w-full max-w-4xl rounded-3xl bg-slate-900/92 border border-cyan-400/35 p-5 sm:p-8 space-y-5 my-auto">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+
+    <!-- Bottom PPT Navigation & Progress Bar -->
+    <div class="px-3 sm:px-5 py-3 bg-slate-950/90 border-t border-white/10 backdrop-blur-md space-y-2 shrink-0">
+      <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+        <div id="ppt-progress-bar" class="h-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-amber-400 transition-all duration-300" style="width: 10%"></div>
+      </div>
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <button type="button" id="ppt-prev-slide-btn" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-extrabold text-slate-200 transition">⏮ Slide</button>
+          <button type="button" id="ppt-prev-btn" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-black text-white transition">‹ Back</button>
+        </div>
+        <div id="ppt-tap-hint" class="ppt3d-pulse-hint hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-400/35 text-[11px] font-bold text-cyan-200">
+          👆 Screen par click karein — 1 click = 1 line
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" id="ppt-next-btn" class="px-4 sm:px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 text-xs sm:text-sm font-black shadow-lg transition">Next Line ▶</button>
+          <button type="button" id="ppt-next-slide-btn" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-extrabold text-slate-200 transition">Slide ⏭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function initV147Econ3DPptPresenter() {
+      const pState = {
+        open: false,
+        chapIdx: 0,
+        slideIdx: 0,
+        revealCount: 0,
+        lang: 'both', // 'both' | 'en' | 'hi'
+        slides: []
+      };
+
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function splitSentences(text, isHindi) {
+        if (!text) return [];
+        // Split cleanly on Hindi danda (।), period+space, or semicolon while keeping numbers like "1." intact
+        const raw = isHindi
+          ? text.split(/(?<=।)\s+|\s*;\s*/)
+          : text.split(/(?<=[.!?])\s+(?=[A-Z0-9('"])|\s*;\s*/);
+        const out = [];
+        for (let i = 0; i < raw.length; i++) {
+          const s = raw[i].trim();
+          if (s.length > 2) out.push(s);
+        }
+        return out.length ? out : [text.trim()];
+      }
+
+      function buildChapterSlides(ch) {
+        const slides = [];
+
+        // Slide 1: Cover & Chapter Overview Slide
+        slides.push({
+          type: 'cover',
+          badge: `Chapter ${ch.num} • ${ch.pages}`,
+          icon: ch.icon,
+          color: ch.color || 'from-emerald-500 to-cyan-600',
+          titleEn: ch.title,
+          titleHi: ch.titleHi,
+          lines: [
+            { tag: '📌 Overview', en: ch.summary, hi: ch.summaryHi },
+            { tag: '🧊 Topics Covered', en: ch.cards.map((c, i) => `${i+1}. ${c.frontEn}`).join('  •  '), hi: ch.cards.map((c, i) => `${i+1}. ${c.frontHi}`).join('  •  ') },
+            { tag: '🎯 PPT Study Mode', en: `Total ${ch.cards.length} Concept Slides${ch.tables && ch.tables.length ? ` + ${ch.tables.length} Comparison Tables` : ''}${ch.quiz && ch.quiz.length ? ` + ${ch.quiz.length} Exam PYQs` : ''}. Click once to reveal each line!`, hi: `कुल ${ch.cards.length} कॉन्सेप्ट स्लाइड्स${ch.tables && ch.tables.length ? ` + ${ch.tables.length} तुलनात्मक तालिकाएँ` : ''}${ch.quiz && ch.quiz.length ? ` + ${ch.quiz.length} PYQ प्रश्न` : ''}। हर क्लिक पर एक नई लाइन खुलेगी!` }
+          ]
+        });
+
+        // Slides 2..N: One dedicated 3D PPT Slide per Concept Card
+        (ch.cards || []).forEach((card, ci) => {
+          const enSents = splitSentences(card.backEn, false);
+          const hiSents = splitSentences(card.backHi, true);
+          const maxLen = Math.max(enSents.length, hiSents.length);
+          const lines = [
+            { tag: '⚡ Key Formula / Core Idea', en: card.keyEn, hi: card.keyHi, highlight: true }
+          ];
+          for (let k = 0; k < maxLen; k++) {
+            lines.push({
+              tag: `Point ${k + 1}`,
+              en: enSents[k] || '',
+              hi: hiSents[k] || ''
+            });
+          }
+          slides.push({
+            type: 'concept',
+            badge: `${card.badge} • Topic ${ci + 1}/${ch.cards.length}`,
+            icon: card.icon,
+            color: ch.color || 'from-cyan-500 to-blue-600',
+            titleEn: card.frontEn,
+            titleHi: card.frontHi,
+            lines: lines
+          });
+        });
+
+        // Table Slides: Reveal 1 table row per click!
+        (ch.tables || []).forEach((tb, ti) => {
+          slides.push({
+            type: 'table',
+            badge: `Comparison Table ${ti + 1}`,
+            icon: '📊',
+            color: ch.color || 'from-amber-500 to-orange-600',
+            titleEn: tb.title,
+            titleHi: 'हर क्लिक पर तालिका की अगली पंक्ति देखें',
+            headers: tb.headers,
+            rows: tb.rows,
+            lines: tb.rows // length drives revealCount
+          });
+        });
+
+        // Final Summary / Quiz Launch Slide
+        slides.push({
+          type: 'finish',
+          badge: `Chapter ${ch.num} Completed`,
+          icon: '🏆',
+          color: ch.color || 'from-emerald-500 to-teal-600',
+          titleEn: `Chapter ${ch.num} Revision Complete!`,
+          titleHi: `अध्याय ${ch.num} (${ch.titleHi}) पूर्ण हुआ!`,
+          lines: [
+            { tag: '✅ Mastered', en: `You have completed all ${ch.cards.length} core 3D concept slides of ${ch.title}.`, hi: `आपने ${ch.titleHi} की सभी ${ch.cards.length} मुख्य 3D स्लाइड्स पूरी कर ली हैं।` },
+            { tag: '🚀 Next Step', en: ch.quiz && ch.quiz.length ? `Practice ${ch.quiz.length} real bilingual SSC PYQs from this chapter or jump to the next chapter!` : 'Move to the next chapter or try the Interactive 3D Lab in the Theory page!', hi: ch.quiz && ch.quiz.length ? `अब इस अध्याय के ${ch.quiz.length} असली SSC PYQ प्रश्नों का अभ्यास करें या अगले अध्याय पर जाएँ!` : 'अगले अध्याय पर जाएँ या थ्योरी पेज में 3D इंटरैक्टिव लैब चलाएँ!' }
+          ],
+          hasQuiz: !!(ch.quiz && ch.quiz.length),
+          quizCount: (ch.quiz || []).length
+        });
+
+        return slides;
+      }
+
+      function renderPptSlide(animateSlide) {
+        const data = window._ECON_3D_DATA;
+        if (!data || !pState.slides.length) return;
+        const ch = data.chapters[pState.chapIdx];
+        const sl = pState.slides[pState.slideIdx];
+        const totalSlides = pState.slides.length;
+        const totalLines = sl.lines.length;
+        const rev = Math.min(pState.revealCount, totalLines);
+
+        // Header updates
+        const badgeEl = document.getElementById('ppt-chap-badge');
+        const titleEl = document.getElementById('ppt-chap-title');
+        const metaEl = document.getElementById('ppt-slide-meta');
+        const langBtn = document.getElementById('ppt-lang-btn');
+        const nextBtn = document.getElementById('ppt-next-btn');
+        const progBar = document.getElementById('ppt-progress-bar');
+
+        if (badgeEl) badgeEl.textContent = `Ch.${ch.num}`;
+        if (titleEl) titleEl.textContent = pState.lang === 'hi' ? ch.titleHi : `${ch.title} (${ch.titleHi})`;
+        if (metaEl) metaEl.textContent = `Slide ${pState.slideIdx + 1} / ${totalSlides}  •  Line ${rev} / ${totalLines} revealed`;
+        if (langBtn) langBtn.textContent = pState.lang === 'both' ? '🌐 EN+HI' : pState.lang === 'en' ? '🇬🇧 EN' : '🇮🇳 हिंदी';
+
+        if (nextBtn) {
+          if (rev < totalLines) nextBtn.textContent = `Next Line (${rev + 1}/${totalLines}) ▶`;
+          else if (pState.slideIdx < totalSlides - 1) nextBtn.textContent = 'Next Slide ⏭';
+          else if (pState.chapIdx < data.chapters.length - 1) nextBtn.textContent = `Start Ch.${ch.num + 1} 🚀`;
+          else nextBtn.textContent = 'Finish ✓';
+        }
+
+        if (progBar) {
+          const overall = ((pState.slideIdx + (totalLines ? rev / totalLines : 1)) / totalSlides) * 100;
+          progBar.style.width = Math.max(5, Math.min(100, Math.round(overall))) + '%';
+        }
+
+        const cardEl = document.getElementById('ppt-slide-card');
+        if (!cardEl) return;
+
+        if (animateSlide) {
+          cardEl.classList.remove('ppt3d-stage-card');
+          void cardEl.offsetWidth;
+          cardEl.classList.add('ppt3d-stage-card');
+        }
+
+        // Slide Header HTML
+        let inner = `
+          <div class="flex items-start justify-between gap-3 pb-3 border-b border-white/15">
+            <div class="space-y-1">
+              <span class="inline-block px-3 py-0.5 rounded-full bg-gradient-to-r ${sl.color} text-white text-[11px] font-black shadow">${esc(sl.badge)}</span>
+              ${pState.lang !== 'hi' ? `<h2 class="text-xl sm:text-3xl font-black text-white leading-tight pt-1">${esc(sl.titleEn)}</h2>` : ''}
+              ${pState.lang !== 'en' ? `<div class="text-base sm:text-xl font-extrabold text-amber-300 leading-snug">${esc(sl.titleHi)}</div>` : ''}
+            </div>
+            <div class="text-4xl sm:text-5xl econ3d-float shrink-0">${sl.icon}</div>
+          </div>
+        `;
+
+        // Body: Table OR Click-by-Click Line Cards
+        if (sl.type === 'table') {
+          const shownRows = sl.rows.slice(0, rev);
+          inner += `
+            <div class="overflow-x-auto rounded-2xl border border-white/15 bg-slate-950/75">
+              <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                <thead>
+                  <tr class="bg-slate-800/95 text-cyan-200">
+                    ${sl.headers.map(h => `<th class="p-3 border border-slate-700 font-black">${esc(h)}</th>`).join('')}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${shownRows.length ? shownRows.map((r, ri) => `
+                    <tr class="ppt3d-line-item ${ri === shownRows.length - 1 ? 'bg-cyan-950/60' : 'odd:bg-slate-950/60 even:bg-slate-900/60'} text-slate-100">
+                      ${r.map((cell, ci) => `<td class="p-3 border border-slate-800 ${ci === 0 ? 'font-black text-amber-200' : 'font-medium'}">${esc(cell)}</td>`).join('')}
+                    </tr>
+                  `).join('') : `<tr><td colspan="${sl.headers.length}" class="p-6 text-center text-cyan-300 font-bold">👆 Click anywhere to reveal Row 1 of ${sl.rows.length}...</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          `;
+        } else {
+          const shownLines = sl.lines.slice(0, rev);
+          if (!shownLines.length) {
+            inner += `
+              <div class="py-10 px-4 rounded-2xl border border-dashed border-cyan-400/45 bg-cyan-950/20 text-center space-y-2">
+                <div class="text-3xl econ3d-float">👆</div>
+                <div class="text-sm sm:text-base font-black text-cyan-200">Click anywhere on screen to write Line 1</div>
+                <div class="text-xs text-amber-200 font-semibold">स्क्रीन पर क्लिक करें — हर क्लिक पर अगली लाइन 3D एनिमेशन में खुलेगी (${totalLines} Lines)</div>
+              </div>
+            `;
+          } else {
+            inner += `
+              <div class="space-y-3">
+                ${shownLines.map((ln, li) => {
+                  const isLatest = li === shownLines.length - 1;
+                  return `
+                    <div class="ppt3d-line-item ${isLatest ? 'ppt3d-line-latest' : ''} p-3.5 sm:p-4 rounded-2xl border ${ln.highlight ? 'border-amber-400/50 bg-amber-950/25' : 'border-white/12 bg-slate-950/75'} space-y-1.5">
+                      <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded-lg ${ln.highlight ? 'bg-amber-400 text-slate-950' : 'bg-cyan-500/20 text-cyan-200'} text-[10px] font-black">${esc(ln.tag)}</span>
+                        ${isLatest ? '<span class="text-[10px] font-black text-emerald-300">● NOW</span>' : ''}
+                      </div>
+                      ${(pState.lang !== 'hi' && ln.en) ? `<p class="text-sm sm:text-base text-white font-bold leading-relaxed">${esc(ln.en)}</p>` : ''}
+                      ${(pState.lang !== 'en' && ln.hi) ? `<p class="text-sm sm:text-base text-amber-200/95 font-semibold leading-relaxed">${esc(ln.hi)}</p>` : ''}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            `;
+          }
+
+          if (rev < totalLines && rev > 0) {
+            inner += `<div class="text-center text-[11px] font-bold text-cyan-300/90 pt-1">👆 Click anywhere for Line ${rev + 1} of ${totalLines}...</div>`;
+          }
+
+          if (sl.type === 'finish' && rev >= totalLines) {
+            inner += `
+              <div class="flex flex-wrap items-center justify-center gap-3 pt-2" onclick="event.stopPropagation()">
+                ${sl.hasQuiz ? `<button type="button" id="ppt-launch-quiz-btn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs sm:text-sm shadow-lg">⚡ Start Ch.${ch.num} CBT Quiz (${sl.quizCount} Qs)</button>` : ''}
+                ${pState.chapIdx < data.chapters.length - 1 ? `<button type="button" id="ppt-next-chap-btn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg">Next Chapter (Ch.${ch.num + 1}) ⏭</button>` : ''}
+              </div>
+            `;
+          }
+        }
+
+        cardEl.innerHTML = inner;
+
+        // Bind finish buttons if present
+        document.getElementById('ppt-launch-quiz-btn')?.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          closePpt();
+          setTimeout(() => document.getElementById('econ3d-cbt-chap')?.click(), 80);
+        });
+        document.getElementById('ppt-next-chap-btn')?.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          openEconChapterPpt(pState.chapIdx + 1);
+        });
+      }
+
+      function stepNext() {
+        const data = window._ECON_3D_DATA;
+        if (!data || !pState.slides.length) return;
+        const sl = pState.slides[pState.slideIdx];
+        if (pState.revealCount < sl.lines.length) {
+          pState.revealCount++;
+          renderPptSlide(false);
+          // Smoothly scroll newest line into view on mobile
+          const items = document.querySelectorAll('#ppt-slide-card .ppt3d-line-item');
+          if (items.length) items[items.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else if (pState.slideIdx < pState.slides.length - 1) {
+          pState.slideIdx++;
+          pState.revealCount = 1; // Reveal Line 1 immediately on new slide for snappy PPT flow!
+          renderPptSlide(true);
+          document.getElementById('ppt-stage-viewport')?.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (pState.chapIdx < data.chapters.length - 1) {
+          openEconChapterPpt(pState.chapIdx + 1);
+        } else {
+          closePpt();
+        }
+      }
+
+      function stepPrev() {
+        if (pState.revealCount > 1) {
+          pState.revealCount--;
+          renderPptSlide(false);
+        } else if (pState.slideIdx > 0) {
+          pState.slideIdx--;
+          pState.revealCount = pState.slides[pState.slideIdx].lines.length;
+          renderPptSlide(true);
+        }
+      }
+
+      function openEconChapterPpt(chapIdx) {
+        const data = window._ECON_3D_DATA;
+        if (!data || !data.chapters[chapIdx]) return;
+        pState.chapIdx = chapIdx;
+        pState.slides = buildChapterSlides(data.chapters[chapIdx]);
+        pState.slideIdx = 0;
+        pState.revealCount = 1; // Show Line 1 right away; next click writes Line 2!
+        pState.open = true;
+        const modal = document.getElementById('econ-ppt-modal');
+        if (modal) modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        renderPptSlide(true);
+      }
+
+      function closePpt() {
+        pState.open = false;
+        const modal = document.getElementById('econ-ppt-modal');
+        if (modal) modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+
+      window.openEconChapterPpt = openEconChapterPpt;
+
+      // Wire modal controls
+      document.getElementById('ppt-stage-viewport')?.addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        stepNext();
+      });
+      document.getElementById('ppt-next-btn')?.addEventListener('click', stepNext);
+      document.getElementById('ppt-prev-btn')?.addEventListener('click', stepPrev);
+      document.getElementById('ppt-next-slide-btn')?.addEventListener('click', () => {
+        if (pState.slideIdx < pState.slides.length - 1) {
+          pState.slideIdx++;
+          pState.revealCount = 1;
+          renderPptSlide(true);
+        }
+      });
+      document.getElementById('ppt-prev-slide-btn')?.addEventListener('click', () => {
+        if (pState.slideIdx > 0) {
+          pState.slideIdx--;
+          pState.revealCount = 1;
+          renderPptSlide(true);
+        }
+      });
+      document.getElementById('ppt-reveal-all-btn')?.addEventListener('click', () => {
+        const sl = pState.slides[pState.slideIdx];
+        if (!sl) return;
+        pState.revealCount = pState.revealCount >= sl.lines.length ? 1 : sl.lines.length;
+        renderPptSlide(false);
+      });
+      document.getElementById('ppt-lang-btn')?.addEventListener('click', () => {
+        pState.lang = pState.lang === 'both' ? 'hi' : pState.lang === 'hi' ? 'en' : 'both';
+        renderPptSlide(false);
+      });
+      document.getElementById('ppt-fs-btn')?.addEventListener('click', () => {
+        const modal = document.getElementById('econ-ppt-modal');
+        if (!modal) return;
+        if (!document.fullscreenElement && modal.requestFullscreen) {
+          modal.requestFullscreen().catch(() => {});
+        } else if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+      document.getElementById('ppt-close-btn')?.addEventListener('click', closePpt);
+
+      // Keyboard navigation while PPT modal is open
+      document.addEventListener('keydown', (e) => {
+        if (!pState.open) return;
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          stepNext();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          stepPrev();
+        } else if (e.key === 'Escape') {
+          closePpt();
+        }
+      });
+
+      // Delegated listener: Clicking ANY chapter card ([data-econ-chap]) inside Economics 3D Studio
+      // automatically launches the Full-Screen 3D PPT Modal for that chapter!
+      document.addEventListener('click', (e) => {
+        const chapBtn = e.target.closest('#econ3d-studio-root button[data-econ-chap]');
+        if (chapBtn) {
+          // Only trigger fullscreen PPT when clicking a chapter tile in the 8-chapter grid (not Prev/Next banner buttons)
+          const isGridTile = !!chapBtn.closest('.grid');
+          if (isGridTile) {
+            const idx = parseInt(chapBtn.getAttribute('data-econ-chap'), 10) || 0;
+            setTimeout(() => openEconChapterPpt(idx), 40);
+          }
+        }
+      }, true);
+
+      // Also inject a prominent "🎬 Launch Full-Screen 3D PPT" button into the active chapter banner whenever Economics 3D renders
+      const panelEl = document.getElementById('subject-active-panel');
+      if (panelEl) {
+        const injectPptBtn = () => {
+          const studio = document.getElementById('econ3d-studio-root');
+          if (!studio || studio.querySelector('#econ3d-open-ppt-banner-btn')) return;
+          const flipBtn = studio.querySelector('#econ3d-flip-all');
+          if (flipBtn && flipBtn.parentElement) {
+            const btn = document.createElement('button');
+            btn.id = 'econ3d-open-ppt-banner-btn';
+            btn.type = 'button';
+            btn.className = 'px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 text-xs font-black shadow-lg transition';
+            btn.textContent = '🎬 Full-Screen 3D PPT';
+            btn.addEventListener('click', () => {
+              // Find currently active chapter tile
+              const activeTile = studio.querySelector('.grid button[data-econ-chap].scale-\\[1\\.02\\]');
+              const idx = activeTile ? parseInt(activeTile.getAttribute('data-econ-chap'), 10) || 0 : 0;
+              openEconChapterPpt(idx);
+            });
+            flipBtn.parentElement.insertBefore(btn, flipBtn);
+          }
+        };
+        const obs = new MutationObserver(injectPptBtn);
+        obs.observe(panelEl, { childList: true, subtree: true });
+      }
     })();
   </script>
 
