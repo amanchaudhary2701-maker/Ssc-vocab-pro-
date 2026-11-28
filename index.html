@@ -1134,7 +1134,7 @@
           <button type="button" data-kgs-go="tests" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-xs font-extrabold whitespace-nowrap shrink-0 hover:bg-emerald-500/30 transition">📝 Mock Tests</button>
         </div>
 <!-- V157_HOME_STRIP_START -->
-        <div id="v157-smart-hub" class="grid grid-cols-3 gap-2 sm:gap-3">
+        <div id="v157-smart-hub" class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
           <button type="button" onclick="window.openV157Mistakes()" class="group relative p-3 rounded-2xl bg-gradient-to-br from-rose-950/90 via-slate-900 to-rose-900/60 border border-rose-400/50 hover:border-rose-300 shadow-lg text-left transition active:scale-95">
             <div class="flex items-center justify-between gap-1">
               <span class="text-xl sm:text-2xl">📕</span>
@@ -1158,6 +1158,14 @@
             </div>
             <div class="mt-1.5 text-xs sm:text-sm font-black text-white leading-tight">Current Affairs</div>
             <div class="text-[10px] text-emerald-200/90 font-semibold mt-0.5 truncate">One-Liner + Quiz</div>
+          </button>
+          <button type="button" onclick="window.openV163StudentPdfTests()" class="group relative p-3 rounded-2xl bg-gradient-to-br from-violet-950/90 via-slate-900 to-fuchsia-900/55 border border-violet-400/50 hover:border-violet-300 shadow-lg text-left transition active:scale-95">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-xl sm:text-2xl">📁</span>
+              <span id="v163-badge-pdftests" class="px-2 py-0.5 rounded-full bg-violet-500/30 border border-violet-400/60 text-violet-200 text-[10px] font-black">0 Tests</span>
+            </div>
+            <div class="mt-1.5 text-xs sm:text-sm font-black text-white leading-tight">Topic PDF Tests</div>
+            <div class="text-[10px] text-violet-200/90 font-semibold mt-0.5 truncate">Admin Uploaded Sets</div>
           </button>
         </div>
 <!-- V157_HOME_STRIP_END -->
@@ -11792,6 +11800,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <button type="button" data-admtab="pdfs" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">📄 PDFs</button>
           <button type="button" data-admtab="testmaker" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">📸 Test</button>
           <button type="button" data-admtab="ca" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">📰 CA</button>
+          <button type="button" data-admtab="pdftest" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">📁 PDF→Test</button>
           <button type="button" data-admtab="deploy" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">🚀 ZIP</button>
         </div>
 
@@ -12111,6 +12120,71 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           <div id="v158-adm-ca-list" class="space-y-1.5"></div>
         </div>
 <!-- V158_ADMIN_CA_PANEL_END -->
+<!-- V163_ADMIN_PDFTEST_PANEL_START -->
+        <div id="admin-panel-pdftest" class="adm-panel hidden space-y-4">
+          <div class="p-3.5 rounded-2xl bg-gradient-to-r from-violet-950/90 via-slate-900 to-cyan-950/90 border border-violet-400/50 space-y-1">
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-violet-400 text-slate-950 text-[10px] font-black uppercase">📁 Admin PDF → Live Topic Test Folder</span>
+              <span id="v163-adm-pt-count" class="text-[11px] font-black text-cyan-300">0 Tests</span>
+            </div>
+            <h4 class="text-sm font-black text-white">Question PDF Upload Karein → Automatic Clickable Test Ban Jayega!</h4>
+            <p class="text-[11px] text-slate-300">Kisi bhi Subject &amp; Topic ka Hindi ya English Question PDF upload karein — app khud MCQs extract karke usi Topic ke Folder me live test bana dega.</p>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-slate-900/95 border border-white/15 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div class="space-y-1">
+                <label class="text-[10px] font-black text-amber-300 uppercase">1️⃣ Subject Chunein *</label>
+                <select id="v163-pt-subj" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white font-bold">
+                  <option value="Geography">🌍 GS — Geography (भूगोल)</option>
+                  <option value="Economics">💰 GS — Economics (अर्थशास्त्र)</option>
+                  <option value="Polity">🏛️ GS — Polity (राजव्यवस्था)</option>
+                  <option value="History">📜 GS — History (इतिहास)</option>
+                  <option value="Science">🔬 GS — General Science</option>
+                  <option value="English">📘 English (Vocab / Grammar)</option>
+                  <option value="Maths">➗ Maths (Arithmetic / Adv)</option>
+                  <option value="Reasoning">🧠 Reasoning</option>
+                  <option value="Static GK">⭐ Static GK</option>
+                  <option value="Current Affairs">📰 Current Affairs</option>
+                </select>
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] font-black text-cyan-300 uppercase">2️⃣ Topic / Chapter Folder *</label>
+                <input id="v163-pt-topic" type="text" placeholder="e.g. भारतीय मानसून, Percentage, Articles..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white font-bold" />
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] font-black text-emerald-300 uppercase">3️⃣ Test Title &amp; Timer (Min)</label>
+                <div class="flex gap-1.5">
+                  <input id="v163-pt-title" type="text" placeholder="Test Name (auto-fill)" class="flex-1 min-w-0 px-2.5 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+                  <input id="v163-pt-mins" type="number" min="2" max="180" value="15" class="w-16 px-2 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-amber-200 font-black text-center" title="Timer Minutes" />
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/90 border border-dashed border-violet-400/55 space-y-2">
+              <label class="block text-[11px] font-black text-violet-200">4️⃣ Question PDF File Choose Karein (Hindi / English dono supported):</label>
+              <input id="v163-pt-file" type="file" accept=".pdf,application/pdf" class="w-full text-xs text-slate-200 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:bg-violet-400 file:text-slate-950 file:font-black file:text-xs" />
+              <div id="v163-pt-status" class="hidden text-xs font-bold px-3 py-2 rounded-xl"></div>
+            </div>
+
+            <div id="v163-pt-preview-wrap" class="hidden space-y-2.5">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span id="v163-pt-parsed-lbl" class="text-xs font-black text-emerald-300">✅ 0 Questions Ready</span>
+                <button type="button" onclick="window.v163PublishPdfTopicTest()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 text-xs font-black shadow-lg">🚀 Publish Test to Topic Folder</button>
+              </div>
+              <div id="v163-pt-preview-list" class="max-h-56 overflow-y-auto space-y-2 pr-1"></div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <h5 class="text-xs font-black text-amber-300">📂 Published Topic-Wise PDF Tests (Admin Folder)</h5>
+              <button type="button" onclick="window.openV163StudentPdfTests()" class="px-2.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 text-[10px] font-black">👁️ Open Student View</button>
+            </div>
+            <div id="v163-adm-folder-list" class="space-y-2"></div>
+          </div>
+        </div>
+<!-- V163_ADMIN_PDFTEST_PANEL_END -->
         <div id="admin-panel-pdfs" class="adm-panel hidden space-y-3.5">
           <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-cyan-400/35 space-y-2.5">
             <div class="flex items-center justify-between gap-2">
@@ -23244,6 +23318,432 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
 })();
 </script>
 <!-- V157_MODALS_AND_SCRIPT_END -->
+
+
+<!-- V163_PDFTEST_MODAL_AND_SCRIPT_START -->
+<div id="v163-pdftest-modal" class="hidden fixed inset-0 z-[125] bg-slate-950 flex flex-col overflow-hidden">
+  <div class="px-4 py-3 bg-gradient-to-r from-violet-950 via-slate-900 to-cyan-950 border-b border-violet-400/45 flex items-center justify-between gap-2 shrink-0">
+    <div class="flex items-center gap-2 min-w-0">
+      <button type="button" id="v163-stu-back-btn" onclick="window.v163BackToFolders()" class="hidden px-3 py-1.5 rounded-xl bg-amber-400 text-slate-950 text-xs font-black shrink-0">← Folders</button>
+      <div class="min-w-0">
+        <h2 id="v163-stu-title" class="text-sm sm:text-lg font-black text-white truncate">📁 Topic-Wise PDF Tests (Subject Folder)</h2>
+        <p id="v163-stu-sub" class="text-[11px] text-violet-200/90 truncate">Admin dwara PDF se banaye gaye Topic-Wise Interactive Tests</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <span id="v163-stu-timer" class="hidden px-2.5 py-1 rounded-xl bg-amber-400/20 border border-amber-400/60 text-amber-200 text-xs font-black">⏱ 15:00</span>
+      <button type="button" onclick="window.closeV163StudentPdfTests()" class="px-3 py-1.5 rounded-xl bg-rose-500/25 hover:bg-rose-500/40 border border-rose-400/60 text-white text-xs font-black">✕ Close</button>
+    </div>
+  </div>
+  <div id="v163-stu-body" class="flex-1 overflow-y-auto p-3 sm:p-5 max-w-5xl w-full mx-auto space-y-3.5"></div>
+</div>
+
+<script>
+(function initV163AdminPdfToTestFolder() {
+  const STORE_KEY = 'ssc_v163_pdf_topic_tests_v1';
+  let testsList = [];
+  try { testsList = JSON.parse(localStorage.getItem(STORE_KEY) || '[]') || []; } catch(e) { testsList = []; }
+
+  let parsedDraftQs = [];
+  let stuSubFilter = 'All';
+  let activeTest = null;
+  let activeAns = {};
+  let activeTimer = null;
+  let secsLeft = 0;
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function saveTestsLocal() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(testsList)); } catch(e) {}
+    refreshBadges();
+    renderAdminFolderList();
+  }
+
+  async function syncTestsToCloud() {
+    try {
+      if (typeof fbDb !== 'undefined' && fbDb) {
+        await fbDb.collection('ssc_config').doc('pdf_topic_tests').set({
+          items: testsList,
+          updatedAt: Date.now()
+        }, { merge: true });
+      }
+    } catch(e) {}
+  }
+
+  function refreshBadges() {
+    const b1 = document.getElementById('v163-badge-pdftests');
+    if (b1) b1.textContent = testsList.length + ' Tests';
+    const b2 = document.getElementById('v163-adm-pt-count');
+    if (b2) b2.textContent = testsList.length + ' Tests';
+  }
+
+  function setPtStatus(msg, isErr) {
+    const el = document.getElementById('v163-pt-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = isErr
+      ? 'text-xs font-bold px-3 py-2 rounded-xl bg-rose-500/20 border border-rose-400/50 text-rose-200'
+      : 'text-xs font-bold px-3 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-200';
+    el.classList.remove('hidden');
+  }
+
+  // -------------------------------------------------------------------------
+  // SMART UNIVERSAL HINDI + ENGLISH QUESTION PDF -> MCQ PARSER
+  // -------------------------------------------------------------------------
+  function parseMcqsFromPdfText(rawText) {
+    const txt = String(rawText || '').replace(/\r/g, '\n').replace(/[\t]+/g, ' ').replace(/\n{3,}/g, '\n\n');
+    const qs = [];
+
+    // Split by numbered question headers: Q1. / Q.1 / 1. / प्रश्न 1. / मॉक-1.
+    const qSplitter = /(?:^|\n)\s*(?:(?:Q\.?|Que\.?|Question|प्रश्न|मॉक)[\s\-]*\d{1,3}[.):\-]|\d{1,3}[.)]\s+(?=[^\d\n]{6,}))/gim;
+    const indices = [];
+    let m;
+    while ((m = qSplitter.exec(txt)) !== null) {
+      indices.push(m.index);
+    }
+
+    for (let i = 0; i < indices.length; i++) {
+      const start = indices[i];
+      const end = (i + 1 < indices.length) ? indices[i + 1] : txt.length;
+      let block = txt.slice(start, end).trim();
+      if (block.length < 18 || block.length > 2600) continue;
+
+      // Strip leading question number
+      block = block.replace(/^(?:(?:Q\.?|Que\.?|Question|प्रश्न|मॉक)[\s\-]*\d{1,3}[.):\-]?|\d{1,3}[.)])\s*/i, '').trim();
+
+      // Match options: (A)/(B)/(C)/(D) or (a)/(b)/(c)/(d) or A)/B)/C)/D) or (1)/(2)/(3)/(4)
+      const optPat = /(?:\([Aa]\)|\b[Aa][).])\s*([\s\S]+?)(?:\|\s*|\n|\s+)(?:\([Bb]\)|\b[Bb][).])\s*([\s\S]+?)(?:\|\s*|\n|\s+)(?:\([Cc]\)|\b[Cc][).])\s*([\s\S]+?)(?:\|\s*|\n|\s+)(?:\([Dd]\)|\b[Dd][).])\s*([\s\S]+?)(?=(?:\n|\s+)(?:Ans(?:wer)?|Correct|सही\s*उत्तर|उत्तर|Sol(?:ution)?|व्याख्या|Exp)|$)/i;
+      const om = block.match(optPat);
+      if (!om) continue;
+
+      const qStem = block.slice(0, om.index).replace(/\s+/g, ' ').trim();
+      if (qStem.length < 6) continue;
+
+      const opts = [om[1], om[2], om[3], om[4]].map(o => o.replace(/\s+/g, ' ').replace(/\|\s*$/, '').trim());
+      if (opts.some(o => !o)) continue;
+
+      const tail = block.slice(om.index + om[0].length).trim();
+      let ansIdx = 0;
+      const am = tail.match(/(?:Ans(?:wer)?|Correct(?:\s*Option)?|सही\s*उत्तर(?:\s*एवं\s*व्याख्या)?|उत्तर)\s*[:：\-]?\s*\(?([A-Da-d1-4])\)?/i);
+      if (am) {
+        const ch = am[1].toUpperCase();
+        if ('ABCD'.includes(ch)) ansIdx = 'ABCD'.indexOf(ch);
+        else if ('1234'.includes(ch)) ansIdx = '1234'.indexOf(ch);
+      }
+      let exp = '';
+      if (tail) {
+        exp = tail.replace(/^(?:Ans(?:wer)?|Correct(?:\s*Option)?|सही\s*उत्तर(?:\s*एवं\s*व्याख्या)?|उत्तर)\s*[:：\-]?\s*\(?[A-Da-d1-4]\)?\s*[—–\-:]?\s*/i, '').replace(/\s+/g, ' ').trim().slice(0, 320);
+      }
+      qs.push({ q: qStem, o: opts, a: ansIdx, exp });
+    }
+    return qs;
+  }
+
+  window.__v163TestParser = parseMcqsFromPdfText;
+
+  // Handle PDF Upload & Instant Browser Extraction via pdfjsLib
+  document.getElementById('v163-pt-file')?.addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const titleInp = document.getElementById('v163-pt-title');
+    if (titleInp && !titleInp.value.trim()) {
+      titleInp.value = file.name.replace(/\.pdf$/i, '').replace(/[_-]+/g, ' ').slice(0, 50);
+    }
+    setPtStatus(`⏳ "${file.name}" ko scan karke MCQs me convert kar rahe hain...`, false);
+    try {
+      if (typeof pdfjsLib === 'undefined') throw new Error('PDF reader library load nahi hui — internet check karein.');
+      const arrBuf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrBuf }).promise;
+      let fullTxt = '';
+      const maxPages = Math.min(pdf.numPages, 80);
+      for (let p = 1; p <= maxPages; p++) {
+        const page = await pdf.getPage(p);
+        const content = await page.getTextContent();
+        let lastY = null;
+        let line = '';
+        for (const it of content.items) {
+          const y = it.transform ? Math.round(it.transform[5]) : 0;
+          if (lastY !== null && Math.abs(y - lastY) > 6) {
+            fullTxt += line.trim() + '\n';
+            line = '';
+          }
+          line += (it.str || '') + ' ';
+          lastY = y;
+        }
+        if (line.trim()) fullTxt += line.trim() + '\n';
+        fullTxt += '\n';
+      }
+      parsedDraftQs = parseMcqsFromPdfText(fullTxt);
+      if (!parsedDraftQs.length) {
+        setPtStatus('⚠️ Is PDF me standard (A)/(B)/(C)/(D) MCQ format nahi mila (scanned image PDF ke liye "📸 Test" OCR tab use karein).', true);
+        document.getElementById('v163-pt-preview-wrap')?.classList.add('hidden');
+        return;
+      }
+      setPtStatus(`✅ ${pdf.numPages} pages scan complete — ${parsedDraftQs.length} MCQs automatic convert ho gaye! Niche Subject/Topic check karke Publish dabayein.`, false);
+      renderParsedPreview();
+    } catch (err) {
+      setPtStatus('❌ PDF scan failed: ' + (err && err.message ? err.message : 'Error'), true);
+    }
+  });
+
+  function renderParsedPreview() {
+    const wrap = document.getElementById('v163-pt-preview-wrap');
+    const lbl  = document.getElementById('v163-pt-parsed-lbl');
+    const list = document.getElementById('v163-pt-preview-list');
+    if (!wrap || !list) return;
+    wrap.classList.remove('hidden');
+    if (lbl) lbl.textContent = `✅ ${parsedDraftQs.length} MCQs Ready to Publish`;
+    const letters = ['A','B','C','D'];
+    list.innerHTML = parsedDraftQs.slice(0, 30).map((q, i) => `
+      <div class="p-2.5 rounded-xl bg-slate-950 border border-white/10 text-[11px] space-y-1">
+        <div class="flex items-start justify-between gap-2">
+          <div class="font-black text-white">Q${i+1}. ${esc(q.q)}</div>
+          <button type="button" onclick="window.v163DelDraftQ(${i})" class="px-1.5 py-0.5 rounded bg-rose-500/25 text-rose-200 font-bold shrink-0">✕</button>
+        </div>
+        <div class="text-slate-300">${q.o.map((o, oi) => `<span class="${oi===q.a?'text-emerald-300 font-black':''}">(${letters[oi]}) ${esc(o)}</span>`).join(' • ')}</div>
+      </div>`).join('') + (parsedDraftQs.length > 30 ? `<div class="text-center text-[11px] text-cyan-300 font-bold">+ ${parsedDraftQs.length - 30} aur questions included hain!</div>` : '');
+  }
+
+  window.v163DelDraftQ = function(i) {
+    parsedDraftQs.splice(i, 1);
+    renderParsedPreview();
+  };
+
+  window.v163PublishPdfTopicTest = async function() {
+    const subject = document.getElementById('v163-pt-subj')?.value || 'Geography';
+    const topic   = (document.getElementById('v163-pt-topic')?.value || '').trim();
+    const title   = (document.getElementById('v163-pt-title')?.value || '').trim() || `${topic || subject} PDF Test`;
+    const mins    = Math.max(2, Math.min(180, Number(document.getElementById('v163-pt-mins')?.value || 15)));
+    if (!topic) { setPtStatus('❌ Step 2 me Topic / Chapter Folder ka naam likhein!', true); return; }
+    if (!parsedDraftQs.length) { setPtStatus('❌ Pehle koi Question PDF upload karein.', true); return; }
+
+    // If same Subject + Topic already exists, allow appending OR creating cleanly
+    const existing = testsList.find(t => t.subject === subject && t.topic.toLowerCase() === topic.toLowerCase() && t.title.toLowerCase() === title.toLowerCase());
+    if (existing) {
+      existing.questions.push(...parsedDraftQs);
+      existing.updatedAt = Date.now();
+    } else {
+      testsList.unshift({
+        id: 'pt_' + Date.now(),
+        subject,
+        topic,
+        title,
+        mins,
+        dateStr: new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }),
+        questions: parsedDraftQs.slice(),
+        updatedAt: Date.now()
+      });
+    }
+    saveTestsLocal();
+    await syncTestsToCloud();
+    setPtStatus(`🚀 "${title}" (${parsedDraftQs.length} Qs) → ${subject} / ${topic} Folder me LIVE publish ho gaya!`, false);
+    if (typeof showToast === 'function') showToast(`📁 "${title}" Topic Folder me live test ban gaya!`);
+    parsedDraftQs = [];
+    document.getElementById('v163-pt-preview-wrap')?.classList.add('hidden');
+    const fi = document.getElementById('v163-pt-file'); if (fi) fi.value = '';
+    const ti = document.getElementById('v163-pt-title'); if (ti) ti.value = '';
+  };
+
+  window.v163DeleteTopicTest = async function(id) {
+    testsList = testsList.filter(t => t.id !== id);
+    saveTestsLocal();
+    await syncTestsToCloud();
+    if (typeof showToast === 'function') showToast('🗑️ Topic PDF Test delete ho gaya!');
+  };
+
+  function renderAdminFolderList() {
+    const box = document.getElementById('v163-adm-folder-list');
+    if (!box) return;
+    if (!testsList.length) {
+      box.innerHTML = '<p class="text-[11px] text-slate-400 text-center py-3">Abhi koi PDF test publish nahi hua hai. Upar se apna pehla Question PDF upload karein!</p>';
+      return;
+    }
+    box.innerHTML = testsList.map(t => `
+      <div class="p-3 rounded-xl bg-slate-950/95 border border-violet-400/30 flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <div class="text-xs font-black text-white truncate">📝 ${esc(t.title)}</div>
+          <div class="text-[10px] text-slate-300 mt-0.5"><span class="text-amber-300 font-bold">${esc(t.subject)}</span> → <span class="text-cyan-300 font-bold">${esc(t.topic)}</span> • ${t.questions.length} Qs • ${t.mins} min • ${esc(t.dateStr || '')}</div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button type="button" onclick="window.openV163StudentPdfTests('${t.id}')" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-200 text-[10px] font-black">▶ Test</button>
+          <button type="button" onclick="window.v163DeleteTopicTest('${t.id}')" class="px-2 py-1 rounded-lg bg-rose-500/20 text-rose-200 text-[10px] font-black">🗑️</button>
+        </div>
+      </div>`).join('');
+  }
+
+  // -------------------------------------------------------------------------
+  // STUDENT SIDE: TOPIC-WISE PDF TEST FOLDERS & INTERACTIVE TEST PLAYER
+  // -------------------------------------------------------------------------
+  window.openV163StudentPdfTests = function(directTestId) {
+    document.getElementById('v163-pdftest-modal')?.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    if (directTestId) {
+      const found = testsList.find(t => t.id === directTestId);
+      if (found) { startTopicPdfTest(found); return; }
+    }
+    window.v163BackToFolders();
+  };
+
+  window.closeV163StudentPdfTests = function() {
+    if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
+    document.getElementById('v163-pdftest-modal')?.classList.add('hidden');
+    document.body.style.overflow = '';
+  };
+
+  window.v163SetStuSub = function(s) { stuSubFilter = s; renderStudentFolders(); };
+
+  window.v163BackToFolders = function() {
+    if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
+    activeTest = null;
+    document.getElementById('v163-stu-back-btn')?.classList.add('hidden');
+    document.getElementById('v163-stu-timer')?.classList.add('hidden');
+    const tEl = document.getElementById('v163-stu-title'); if (tEl) tEl.textContent = '📁 Topic-Wise PDF Tests (Subject Folder)';
+    const sEl = document.getElementById('v163-stu-sub'); if (sEl) sEl.textContent = 'Admin dwara PDF se banaye gaye Topic-Wise Interactive Tests';
+    renderStudentFolders();
+  };
+
+  function renderStudentFolders() {
+    const body = document.getElementById('v163-stu-body');
+    if (!body) return;
+    const subs = ['All', ...Array.from(new Set(testsList.map(t => t.subject)))];
+    const filt = testsList.filter(t => stuSubFilter === 'All' || t.subject === stuSubFilter);
+
+    if (!testsList.length) {
+      body.innerHTML = `<div class="p-8 rounded-3xl bg-slate-900/90 border border-white/10 text-center space-y-2">
+        <div class="text-4xl">📁</div>
+        <h3 class="text-base font-black text-white">Abhi koi Topic PDF Test upload nahi hua hai</h3>
+        <p class="text-xs text-slate-300 max-w-md mx-auto">Admin Panel → <b>📁 PDF→Test</b> me koi bhi Question PDF upload karein, woh automatic clickable test bankar yahan Subject &amp; Topic folder me dikh jayega!</p>
+      </div>`;
+      return;
+    }
+
+    body.innerHTML = `
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+        ${subs.map(s => `<button type="button" onclick="window.v163SetStuSub('${esc(s)}')" class="px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap border ${stuSubFilter===s?'bg-violet-400 text-slate-950 border-violet-300':'bg-slate-800 text-slate-200 border-white/10'}">${esc(s)}</button>`).join('')}
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        ${filt.map(t => `
+          <div class="p-4 rounded-2xl bg-slate-900/95 border border-violet-400/40 flex flex-col justify-between gap-3 shadow-lg">
+            <div class="space-y-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-2.5 py-0.5 rounded-lg bg-amber-400/20 text-amber-300 text-[10px] font-black">${esc(t.subject)}</span>
+                <span class="px-2.5 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-200 text-[10px] font-black">📂 ${esc(t.topic)}</span>
+              </div>
+              <h4 class="text-sm sm:text-base font-black text-white">${esc(t.title)}</h4>
+              <p class="text-[11px] text-slate-300">${t.questions.length} Questions • ⏱ ${t.mins} Mins • +2 / -0.50 • ${esc(t.dateStr || '')}</p>
+            </div>
+            <button type="button" onclick="window.v163StartTestById('${t.id}')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 text-xs font-black shadow">▶ Start Interactive Test</button>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  window.v163StartTestById = function(id) {
+    const t = testsList.find(x => x.id === id);
+    if (t) startTopicPdfTest(t);
+  };
+
+  function startTopicPdfTest(testObj) {
+    activeTest = testObj;
+    activeAns = {};
+    secsLeft = (Number(testObj.mins) || 15) * 60;
+    document.getElementById('v163-stu-back-btn')?.classList.remove('hidden');
+    const tEl = document.getElementById('v163-stu-title'); if (tEl) tEl.textContent = testObj.title;
+    const sEl = document.getElementById('v163-stu-sub'); if (sEl) sEl.textContent = `${testObj.subject} → ${testObj.topic} • ${testObj.questions.length} Qs`;
+    const tmEl = document.getElementById('v163-stu-timer');
+    if (tmEl) tmEl.classList.remove('hidden');
+    if (activeTimer) clearInterval(activeTimer);
+    const tick = () => {
+      const m = String(Math.floor(secsLeft / 60)).padStart(2, '0');
+      const s = String(secsLeft % 60).padStart(2, '0');
+      if (tmEl) tmEl.textContent = `⏱ ${m}:${s}`;
+      if (secsLeft > 0) secsLeft--;
+    };
+    tick();
+    activeTimer = setInterval(tick, 1000);
+    renderActiveTest();
+  }
+
+  window.v163PickTestOpt = function(qi, oi) {
+    if (!activeTest) return;
+    activeAns[qi] = oi;
+    const q = activeTest.questions[qi];
+    if (q && typeof window.__v157LogAttempt === 'function') {
+      window.__v157LogAttempt({
+        subject: activeTest.subject,
+        chapter: activeTest.topic,
+        q: q.q,
+        opts: q.o,
+        ansIdx: Number(q.a),
+        pickedIdx: oi,
+        exp: q.exp || '',
+        isCorrect: oi === Number(q.a)
+      });
+    }
+    renderActiveTest();
+  };
+
+  function renderActiveTest() {
+    const body = document.getElementById('v163-stu-body');
+    if (!body || !activeTest) return;
+    const qs = activeTest.questions || [];
+    let right = 0, wrong = 0;
+    qs.forEach((q, i) => {
+      if (activeAns[i] !== undefined) {
+        if (activeAns[i] === Number(q.a)) right++; else wrong++;
+      }
+    });
+    const score = (right * 2 - wrong * 0.5).toFixed(1);
+    const letters = ['A','B','C','D'];
+    body.innerHTML = `
+      <div class="p-3 rounded-2xl bg-slate-900 border border-cyan-400/40 flex flex-wrap items-center justify-between gap-2 text-xs font-black">
+        <span class="text-emerald-300">✓ Correct: ${right}</span>
+        <span class="text-rose-300">✕ Wrong: ${wrong}</span>
+        <span class="text-amber-300">🏆 Score: ${score} / ${qs.length * 2}</span>
+        <span class="text-slate-300">Solved: ${right + wrong} / ${qs.length}</span>
+      </div>
+      <div class="space-y-3">
+        ${qs.map((q, qi) => {
+          const picked = activeAns[qi];
+          const isPicked = picked !== undefined;
+          const optsHtml = (q.o || []).map((o, oi) => {
+            let cls = 'bg-white/5 hover:bg-white/15 border-white/15 text-white';
+            if (isPicked) {
+              if (oi === Number(q.a)) cls = 'bg-emerald-500/35 border-emerald-400 text-emerald-100 font-black';
+              else if (oi === picked) cls = 'bg-rose-500/35 border-rose-400 text-rose-100';
+              else cls = 'bg-white/5 border-white/10 text-slate-400';
+            }
+            return `<button type="button" onclick="window.v163PickTestOpt(${qi}, ${oi})" class="text-left px-3 py-2 rounded-xl border text-xs sm:text-sm transition flex items-center gap-2 ${cls}">
+              <span class="w-6 h-6 rounded-lg bg-slate-800 text-amber-300 font-black flex items-center justify-center shrink-0 text-xs">${letters[oi]}</span>
+              <span>${esc(o)}</span>
+            </button>`;
+          }).join('');
+          return `<div class="p-4 rounded-2xl bg-slate-900/95 border border-white/15 space-y-2.5">
+            <div class="text-sm sm:text-base font-black text-white leading-snug">Q${qi + 1}. ${esc(q.q)}</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${optsHtml}</div>
+            ${isPicked ? `<div class="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400/60 text-xs sm:text-sm font-bold text-emerald-100">✅ सही उत्तर: (${letters[Number(q.a)]}) ${esc((q.o||[])[Number(q.a)]||'')}${q.exp ? '<div class="mt-1 font-normal text-emerald-200">💡 ' + esc(q.exp) + '</div>' : ''}</div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  // Real-time Firestore listener so all students receive Admin-uploaded PDF tests live!
+  try {
+    if (typeof fbDb !== 'undefined' && fbDb) {
+      fbDb.collection('ssc_config').doc('pdf_topic_tests').onSnapshot(doc => {
+        if (doc.exists && doc.data() && Array.isArray(doc.data().items)) {
+          testsList = doc.data().items;
+          saveTestsLocal();
+        }
+      }, () => {});
+    }
+  } catch(e) {}
+
+  setTimeout(() => { refreshBadges(); renderAdminFolderList(); }, 500);
+})();
+</script>
+<!-- V163_PDFTEST_MODAL_AND_SCRIPT_END -->
 
 </body>
 </html>
