@@ -1449,6 +1449,7 @@
       <!-- ==================== DEDICATED MULTI-PAGE COURSE VIEW (Chapter Sets + Large-Font Reader + Swipe Mode) ==================== -->
       <!-- ==================== VIEW: SUBJECT HUB (REAS | ENGLISH | GS | STATIC GK | MATHS) ==================== -->
       <section id="view-subject" class="view-section hidden space-y-4 sm:space-y-5">
+        <div id="v164-subject-uploaded-host" class="hidden space-y-2.5"></div>
         <div class="glass-card rounded-3xl p-4 sm:p-5 border border-cyan-400/35 bg-gradient-to-r from-sky-950/90 via-slate-900 to-indigo-950/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <span class="inline-block px-2.5 py-0.5 rounded-full bg-cyan-400/20 border border-cyan-300/45 text-cyan-200 text-[10px] font-black uppercase tracking-wider">📚 All 5 SSC Subjects</span>
@@ -1851,6 +1852,7 @@
 
       <!-- ================= VIEW 2: 5-YEAR PYQ BANK (2021-2025) ================= -->
       <section id="view-pyq" class="view-section hidden space-y-5">
+        <div id="v164-pyq-uploaded-host" class="hidden space-y-2.5"></div>
         <!-- SSC SUBJECT-WISE PYQ HUB SWITCHER (v130) -->
         <div id="pyq-subject-bar" class="glass-card rounded-2xl p-3 sm:p-4 border border-cyan-400/30 shadow-xl space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
@@ -2223,6 +2225,7 @@
 
       <!-- ================= VIEW 3: CBT MOCK TEST ================= -->
       <section id="view-test" class="view-section hidden space-y-5">
+        <div id="v164-test-uploaded-host" class="hidden space-y-2.5"></div>
         <!-- NEXT-GEN 3D CBT EXAM ARENA HEADER -->
         <div id="ailt-test-banner" class="sheen-3d classic-banner-keep rounded-3xl p-5 bg-gradient-to-r from-rose-700 via-indigo-800 to-blue-900 border-2 border-rose-400/40 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex items-center gap-3.5">
@@ -12132,6 +12135,15 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           </div>
 
           <div class="p-3.5 rounded-2xl bg-slate-900/95 border border-white/15 space-y-3">
+            <div class="space-y-1">
+              <label class="text-[10px] font-black text-emerald-300 uppercase">0️⃣ Kahan Add Karna Hai? (App Section Chunein) *</label>
+              <select id="v163-pt-dest" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border-2 border-emerald-400/55 text-xs text-emerald-200 font-black">
+                <option value="pyq">🏛️ PYQ Section (PYQ Tab me jaye)</option>
+                <option value="test">📝 Test Section (Test Tab me jaye)</option>
+                <option value="subject">📚 Subject Section (Subject Tab me jaye)</option>
+                <option value="both">✨ PYQ + Test Dono Me Add Karein</option>
+              </select>
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               <div class="space-y-1">
                 <label class="text-[10px] font-black text-amber-300 uppercase">1️⃣ Subject Chunein *</label>
@@ -23355,10 +23367,47 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  function renderSectionHosts() {
+    const configs = [
+      { id: 'v164-pyq-uploaded-host',     match: t => (t.dest === 'pyq' || t.dest === 'both'),     title: '🏛️ Admin Uploaded PYQ Sets (PDF → PYQ)',     btnTxt: '▶ Practice PYQ', border: 'border-cyan-400/50',   bg: 'from-cyan-950/90 via-slate-900 to-indigo-950/80' },
+      { id: 'v164-test-uploaded-host',    match: t => (!t.dest || t.dest === 'test' || t.dest === 'both'), title: '📝 Admin Uploaded Topic Tests (PDF → Test)', btnTxt: '▶ Start Test',   border: 'border-emerald-400/50', bg: 'from-emerald-950/90 via-slate-900 to-cyan-950/80' },
+      { id: 'v164-subject-uploaded-host', match: t => (t.dest === 'subject'),                      title: '📚 Admin Uploaded Subject Practice Sets',    btnTxt: '▶ Practice Now', border: 'border-violet-400/50',  bg: 'from-violet-950/90 via-slate-900 to-indigo-950/80' }
+    ];
+    configs.forEach(cfg => {
+      const el = document.getElementById(cfg.id);
+      if (!el) return;
+      const matched = testsList.filter(cfg.match);
+      if (!matched.length) { el.classList.add('hidden'); el.innerHTML = ''; return; }
+      el.classList.remove('hidden');
+      el.innerHTML = `
+        <div class="rounded-3xl p-4 bg-gradient-to-br ${cfg.bg} border-2 ${cfg.border} shadow-xl space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="text-xs sm:text-sm font-black text-white">${cfg.title}</h3>
+            <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black">${matched.length} Live Sets</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            ${matched.map(t => `
+              <div class="p-3 rounded-2xl bg-slate-950/90 border border-white/15 flex flex-col justify-between gap-2">
+                <div>
+                  <div class="flex items-center justify-between gap-1 text-[10px]">
+                    <span class="px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 font-black">${esc(t.subject)}</span>
+                    <span class="text-cyan-300 font-bold truncate">📂 ${esc(t.topic)}</span>
+                  </div>
+                  <div class="text-xs sm:text-sm font-black text-white mt-1 line-clamp-2">${esc(t.title)}</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">${t.questions.length} Qs • ⏱ ${t.mins}m • ${esc(t.dateStr || '')}</div>
+                </div>
+                <button type="button" onclick="window.openV163StudentPdfTests('${t.id}')" class="w-full py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 text-xs font-black shadow">${cfg.btnTxt}</button>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    });
+  }
+
   function saveTestsLocal() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(testsList)); } catch(e) {}
     refreshBadges();
     renderAdminFolderList();
+    renderSectionHosts();
   }
 
   async function syncTestsToCloud() {
@@ -23512,6 +23561,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   };
 
   window.v163PublishPdfTopicTest = async function() {
+    const dest    = document.getElementById('v163-pt-dest')?.value || 'test';
     const subject = document.getElementById('v163-pt-subj')?.value || 'Geography';
     const topic   = (document.getElementById('v163-pt-topic')?.value || '').trim();
     const title   = (document.getElementById('v163-pt-title')?.value || '').trim() || `${topic || subject} PDF Test`;
@@ -23527,6 +23577,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     } else {
       testsList.unshift({
         id: 'pt_' + Date.now(),
+        dest,
         subject,
         topic,
         title,
@@ -23538,7 +23589,8 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     }
     saveTestsLocal();
     await syncTestsToCloud();
-    setPtStatus(`🚀 "${title}" (${parsedDraftQs.length} Qs) → ${subject} / ${topic} Folder me LIVE publish ho gaya!`, false);
+    const destLbl = dest === "pyq" ? "🏛️ PYQ Tab" : (dest === "subject" ? "📚 Subject Tab" : (dest === "both" ? "🏛️ PYQ + 📝 Test Tabs" : "📝 Test Tab"));
+    setPtStatus(`🚀 "${title}" (${parsedDraftQs.length} Qs) → ${destLbl} (${subject} / ${topic}) me LIVE publish ho gaya!`, false);
     if (typeof showToast === 'function') showToast(`📁 "${title}" Topic Folder me live test ban gaya!`);
     parsedDraftQs = [];
     document.getElementById('v163-pt-preview-wrap')?.classList.add('hidden');
@@ -23564,7 +23616,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       <div class="p-3 rounded-xl bg-slate-950/95 border border-violet-400/30 flex items-center justify-between gap-2">
         <div class="min-w-0">
           <div class="text-xs font-black text-white truncate">📝 ${esc(t.title)}</div>
-          <div class="text-[10px] text-slate-300 mt-0.5"><span class="text-amber-300 font-bold">${esc(t.subject)}</span> → <span class="text-cyan-300 font-bold">${esc(t.topic)}</span> • ${t.questions.length} Qs • ${t.mins} min • ${esc(t.dateStr || '')}</div>
+          <div class="text-[10px] text-slate-300 mt-0.5"><span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-black mr-1">${t.dest==="pyq"?"🏛️ PYQ":(t.dest==="subject"?"📚 Subject":(t.dest==="both"?"✨ PYQ+Test":"📝 Test"))}</span><span class="text-amber-300 font-bold">${esc(t.subject)}</span> → <span class="text-cyan-300 font-bold">${esc(t.topic)}</span> • ${t.questions.length} Qs • ${t.mins} min • ${esc(t.dateStr || '')}</div>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
           <button type="button" onclick="window.openV163StudentPdfTests('${t.id}')" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-200 text-[10px] font-black">▶ Test</button>
@@ -23740,7 +23792,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     }
   } catch(e) {}
 
-  setTimeout(() => { refreshBadges(); renderAdminFolderList(); }, 500);
+  setTimeout(() => { refreshBadges(); renderAdminFolderList(); renderSectionHosts(); }, 500);
 })();
 </script>
 <!-- V163_PDFTEST_MODAL_AND_SCRIPT_END -->
