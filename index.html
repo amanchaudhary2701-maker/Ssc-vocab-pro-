@@ -24618,32 +24618,53 @@ INPUT JSON:
 
   window.v171CleanDraftWithGemini = async function() {
     const key = getSavedGeminiKey();
-    if (!key) { setPtStatus('❌ Pehle upar apni Gemini API Key (AIzaSy...) paste karke Save karein.', true); return; }
+    if (!key) { setPtStatus('❌ Pehle upar apni Gemini API Key paste karke Save karein.', true); return; }
     if (!parsedDraftQs.length) { setPtStatus('❌ Pehle koi Question PDF upload karein.', true); return; }
     const btn = document.getElementById('v171-ai-clean-btn');
     if (btn) { btn.disabled = true; btn.textContent = '⏳ AI Cleaning...'; }
     try {
-      const BATCH = 25;
+      const BATCH = 10; // Fast 10-Q batches (~2.5s each — never hits Vercel 10s timeout!)
       const total = parsedDraftQs.length;
-      const cleaned = [];
+      let okCount = 0;
       for (let i = 0; i < total; i += BATCH) {
-        const slice = parsedDraftQs.slice(i, i + BATCH);
-        setPtStatus(`🤖 Gemini AI Hindi 100% Shuddh kar raha hai: ${Math.min(i + BATCH, total)} / ${total} Qs...`, false);
-        const fixed = await callGeminiCleanBatch(key, slice);
-        // Merge safely preserving order
-        for (let k = 0; k < slice.length; k++) {
-          const f = fixed[k];
-          if (f && f.q && Array.isArray(f.o) && f.o.length === 4) {
-            cleaned.push({ q: String(f.q), o: f.o.map(String), a: Number(f.a) || 0, exp: String(f.exp || '') });
-          } else {
-            cleaned.push(slice[k]);
+        const end = Math.min(i + BATCH, total);
+        const slice = parsedDraftQs.slice(i, end);
+        setPtStatus(`🤖 Gemini AI Shuddh Hindi: ${i + 1}–${end} / ${total} Qs (live update)...`, false);
+        try {
+          const fixed = await Promise.race([
+            callGeminiCleanBatch(key, slice),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('Batch timeout')), 18000))
+          ]);
+          for (let k = 0; k < slice.length; k++) {
+            const f = fixed[k];
+            if (f && f.q && Array.isArray(f.o) && f.o.length === 4) {
+              parsedDraftQs[i + k] = { q: String(f.q), o: f.o.map(String), a: Number(f.a) || 0, exp: String(f.exp || '') };
+              okCount++;
+            }
           }
+          renderParsedPreview(); // Live progressive update after every 10 Qs!
+        } catch (batchErr) {
+          // Never hang! Wait 1.2s and retry once, otherwise keep regex-cleaned slice and continue
+          await new Promise(r => setTimeout(r, 1200));
+          try {
+            const fixed2 = await Promise.race([
+              callGeminiCleanBatch(key, slice),
+              new Promise((_, rej) => setTimeout(() => rej(new Error('Retry timeout')), 18000))
+            ]);
+            for (let k = 0; k < slice.length; k++) {
+              const f = fixed2[k];
+              if (f && f.q && Array.isArray(f.o) && f.o.length === 4) {
+                parsedDraftQs[i + k] = { q: String(f.q), o: f.o.map(String), a: Number(f.a) || 0, exp: String(f.exp || '') };
+                okCount++;
+              }
+            }
+            renderParsedPreview();
+          } catch (_) {}
         }
       }
-      parsedDraftQs = cleaned;
       renderParsedPreview();
-      setPtStatus(`✅ Gemini AI Complete! Sabhi ${parsedDraftQs.length} MCQs 100% Shuddh Hindi me ready hain — ab "🚀 Publish Test" dabayein!`, false);
-      if (typeof showToast === 'function') showToast('✨ Gemini AI ne sabhi questions 100% Shuddh Hindi me theek kar diye!');
+      setPtStatus(`✅ Gemini AI Complete! ${okCount}/${total} MCQs 100% Shuddh Hindi me ready hain — ab "🚀 Publish Test" dabayein!`, false);
+      if (typeof showToast === 'function') showToast(`✨ ${okCount} MCQs 100% Shuddh Hindi me ready!`);
     } catch (err) {
       setPtStatus('❌ Gemini AI Error: ' + (err && err.message ? err.message : 'Check API key'), true);
     } finally {
