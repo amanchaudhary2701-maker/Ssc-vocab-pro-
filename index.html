@@ -21369,7 +21369,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2.5">
               ${(window.GS_PPT100_JUMPS || []).slice(1).map(j => `
-                <button type="button" onclick="window.openGsPpt100(${j.idx}, true)" class="group text-left p-3 rounded-2xl bg-slate-950/90 hover:bg-slate-900 border border-white/15 hover:border-amber-400/80 transition shadow-lg">
+                <button type="button" onclick="window.openGsPpt100(${j.idx}, true, 'economics')" class="group text-left p-3 rounded-2xl bg-slate-950/90 hover:bg-slate-900 border border-white/15 hover:border-amber-400/80 transition shadow-lg">
                   <div class="flex items-center justify-between gap-1">
                     <span class="px-2 py-0.5 rounded-md text-[10px] font-black text-white shadow" style="background:${j.color}">${j.label}</span>
                     <span class="text-[10px] font-bold text-slate-400">Slide ${j.idx + 1}</span>
@@ -21661,7 +21661,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     if (!_econSeenCh.has(ch)) {
       _econSeenCh.add(ch);
       const orig = ECON_JUMPS.find(j => j.label === ('Ch ' + String(ch).padStart(2, '0')));
-      ECON_MCQ_JUMPS.push({ idx: i, label: 'Ch ' + String(ch).padStart(2, '0'), title: orig ? orig.title : s.title, color: orig ? orig.color : '#F59E0B' });
+      ECON_MCQ_JUMPS.push({ idx: i, label: 'Ch ' + String(ch).padStart(2, '0'), title: (orig && (orig.title || orig.t)) ? (orig.title || orig.t) : (s.title || ''), color: orig ? orig.color : '#F59E0B' });
     }
   });
 
@@ -21850,7 +21850,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
                 <span class="px-2.5 py-0.5 rounded-lg font-black text-white" style="background:${j.color};font-size:${fs(12)}">${esc(j.label)}</span>
                 <span class="text-amber-300 font-bold" style="font-size:${fs(12)}">Slide ${j.idx + 1} →</span>
               </div>
-              <div class="font-black text-white leading-snug" style="font-size:${fs(15.5)}">${esc(j.title)}</div>
+              <div class="font-black text-white leading-snug" style="font-size:${fs(15.5)}">${esc(j.title || j.t || j.label || '')}</div>
             </button>`).join('')}
         </div>`;
     } else if (s.t === 'opener') {
@@ -22065,7 +22065,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   function buildControls() {
     const sel = document.getElementById('gs-ppt100-jump');
     if (sel) {
-      sel.innerHTML = JUMPS.map(j => `<option value="${j.idx}">${j.label} (S.${j.idx+1}) — ${j.title.slice(0,26)}</option>`).join('');
+      sel.innerHTML = JUMPS.map(j => `<option value="${j.idx}">${j.label} (S.${j.idx+1}) — ${String(j.title || j.t || j.label || '').slice(0,26)}</option>`).join('');
       sel.onchange = () => window.goGsPpt100(Number(sel.value));
     }
     const chips = document.getElementById('gs-ppt100-chips');
