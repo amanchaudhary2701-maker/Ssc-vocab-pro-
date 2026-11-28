@@ -24567,42 +24567,50 @@ Return ONLY a valid JSON array of objects with exact keys: [{"q":"...","o":["...
 INPUT JSON:
 ` + JSON.stringify(batchQs);
 
-    // Support BOTH Vertex AI Express Keys ("AQ....") AND Google AI Studio Keys ("AIzaSy...")!
-    const isVertexKey = /^AQ\./i.test(apiKey);
-    const endpoints = isVertexKey ? [
-      `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
-      `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.5-flash-lite:generateContent?key=${encodeURIComponent(apiKey)}`,
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`
-    ] : [
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${encodeURIComponent(apiKey)}`,
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${encodeURIComponent(apiKey)}`,
-      `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`
-    ];
-
+    // 1. Primary: Same-Origin Vercel Server Proxy `/api/gemini-clean` (ZERO CORS — works 100% with BOTH AQ. Vertex Keys AND AIzaSy Keys!)
     let lastErr = 'Gemini API error';
-    for (const url of endpoints) {
-      try {
-        const resp = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.1, responseMimeType: 'application/json' }
-          })
-        });
-        if (!resp.ok) {
-          const et = await resp.text().catch(() => '');
-          lastErr = `HTTP ${resp.status}: ${et.slice(0, 120)}`;
-          continue;
+    try {
+      const pResp = await fetch('/api/gemini-clean', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, prompt })
+      });
+      if (pResp.ok) {
+        const pj = await pResp.json();
+        if (pj && pj.text) {
+          const cleanJson = String(pj.text).replace(/^```json\s*/i, '').replace(/```$/,'').trim();
+          const arr = JSON.parse(cleanJson);
+          if (Array.isArray(arr) && arr.length) return arr;
         }
-        const j = await resp.json();
-        const raw = j?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        const cleanJson = raw.replace(/^```json\s*/i, '').replace(/```$/,'').trim();
-        const arr = JSON.parse(cleanJson);
-        if (Array.isArray(arr) && arr.length) return arr;
-      } catch (e) {
-        lastErr = e && e.message ? e.message : 'Network error';
+      } else {
+        const et = await pResp.text().catch(() => '');
+        lastErr = `Proxy (${pResp.status}): ${et.slice(0, 120)}`;
+      }
+    } catch (e) {
+      lastErr = e && e.message ? e.message : 'Proxy unavailable';
+    }
+
+    // 2. Direct Fallback for AIzaSy... keys when running locally without Vercel server
+    if (!/^AQ\./i.test(apiKey)) {
+      for (const mdl of ['gemini-2.5-flash', 'gemini-2.5-flash-lite']) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${mdl}:generateContent?key=${encodeURIComponent(apiKey)}`;
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ role: 'user', parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.1, responseMimeType: 'application/json' }
+            })
+          });
+          if (!resp.ok) { lastErr = `HTTP ${resp.status}`; continue; }
+          const j = await resp.json();
+          const raw = j?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          const arr = JSON.parse(raw.replace(/^```json\s*/i, '').replace(/```$/,'').trim());
+          if (Array.isArray(arr) && arr.length) return arr;
+        } catch (e) {
+          lastErr = e && e.message ? e.message : 'Network error';
+        }
       }
     }
     throw new Error(lastErr);
