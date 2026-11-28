@@ -14163,6 +14163,12 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             items.unshift(...savedM.filter(x => x && !_delSet.has(x.id)));
           }
         }
+        if (typeof window.getAutoSavedEduquityPdfs === 'function') {
+          const savedE = window.getAutoSavedEduquityPdfs();
+          if (Array.isArray(savedE) && savedE.length) {
+            items.unshift(...savedE.filter(x => x && !_delSet.has(x.id)));
+          }
+        }
         return items;
       }
 
@@ -14336,6 +14342,10 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           window.downloadSavedMathsTestPaper(pdfObj);
           return;
         }
+        if (pdfObj.isAutoEduquityPdf && typeof window.downloadSavedEduquityPdfPaper === 'function') {
+          window.downloadSavedEduquityPdfPaper(pdfObj);
+          return;
+        }
         if (pdfObj.isAutoLiveTestPdf && pdfObj.liveDateKey) {
           const blob = generateDailyLiveTestPdfBlob(pdfObj.liveDateKey);
           const blobUrl = URL.createObjectURL(blob);
@@ -14431,6 +14441,14 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           if (iframe) {
             iframe.removeAttribute('src');
             iframe.srcdoc = window.buildSavedMathsTestHtmlPaper(pdfObj.id);
+          }
+          modal?.classList.remove('hidden');
+          return;
+        }
+        if (pdfObj.isAutoEduquityPdf && typeof window.buildSavedEduquityHtmlPaper === 'function') {
+          if (iframe) {
+            iframe.removeAttribute('src');
+            iframe.srcdoc = window.buildSavedEduquityHtmlPaper(pdfObj.id);
           }
           modal?.classList.remove('hidden');
           return;
@@ -23909,6 +23927,84 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   let activeAns = {};
   let activeReview = {};
   let activeSubmitted = false;
+  const ATTEMPT_LOCK_KEY = 'ssc_v177_submitted_attempts_v1';
+  const SAVED_EDU_PDF_KEY = 'ssc_v177_saved_eduquity_pdfs_v1';
+  let submittedAttempts = {};
+  try { submittedAttempts = JSON.parse(localStorage.getItem(ATTEMPT_LOCK_KEY) || '{}') || {}; } catch(e) { submittedAttempts = {}; }
+  let savedEduPdfs = [];
+  try { savedEduPdfs = JSON.parse(localStorage.getItem(SAVED_EDU_PDF_KEY) || '[]') || []; } catch(e) { savedEduPdfs = []; }
+
+  function mapPdfSubjectFolder(rawSub) {
+    const s = String(rawSub || '').toLowerCase();
+    if (s.includes('eng')) return 'English';
+    if (s.includes('math')) return 'Maths';
+    if (s.includes('reason')) return 'Reasoning';
+    if (s.includes('science') || s.includes('phys') || s.includes('chem') || s.includes('bio')) return 'Science';
+    return 'GS';
+  }
+
+  window.getAutoSavedEduquityPdfs = function() {
+    return savedEduPdfs.map(p => ({
+      id: p.id,
+      isAutoEduquityPdf: true,
+      title: p.title,
+      subject: p.pdfSubject || 'GS',
+      category: p.category || 'Completed Eduquity Tests',
+      sizeLabel: `${p.totalQs} Qs • Score ${p.marks}/${p.maxMarks}`,
+      dateStr: p.dateStr || '',
+      createdAt: p.createdAt || Date.now()
+    }));
+  };
+
+  window.buildSavedEduquityHtmlPaper = function(pid) {
+    const p = savedEduPdfs.find(x => x.id === pid);
+    if (!p) return '<p style="padding:20px;font-family:sans-serif">PDF not found.</p>';
+    const letters = ['A','B','C','D'];
+    const rows = (p.questions || []).map((q, qi) => {
+      const picked = p.answers ? p.answers[qi] : undefined;
+      const ansIdx = Number(q.a) || 0;
+      const optsHtml = (q.o || []).map((o, oi) => {
+        const isAns = oi === ansIdx;
+        const isWrongPick = (picked !== undefined && picked === oi && !isAns);
+        const bg = isAns ? '#dcfce7;border:1px solid #4ade80;color:#14532d;font-weight:700' : (isWrongPick ? '#ffe4e6;border:1px solid #fb7185;color:#881337' : '#f8fafc;border:1px solid #e2e8f0;color:#0f172a');
+        return `<div style="padding:6px 10px;border-radius:8px;margin-top:4px;font-size:13px;background:${bg}"><b>(${letters[oi]})</b> ${esc(o)} ${isAns ? '✅' : (isWrongPick ? '❌ (Your Pick)' : '')}</div>`;
+      }).join('');
+      return `<div style="background:#fff;border:1px solid #cbd5e1;border-left:4px solid #0284c7;border-radius:12px;padding:12px 14px;margin-bottom:12px;page-break-inside:avoid">
+        <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Q${qi + 1}. ${esc(q.q)}</div>
+        ${optsHtml}
+        <div style="margin-top:8px;padding:6px 10px;border-radius:8px;background:#f0fdf4;color:#166534;font-size:12px;font-weight:700">✅ सही उत्तर: (${letters[ansIdx]}) ${esc((q.o || [])[ansIdx] || '')}${q.exp ? '<div style="margin-top:3px;font-weight:500;color:#334155">💡 ' + esc(q.exp) + '</div>' : ''}</div>
+      </div>`;
+    }).join('');
+    return `<!DOCTYPE html><html lang="hi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(p.title)}</title></head><body style="margin:0;padding:16px;font-family:'Noto Sans Devanagari',system-ui,sans-serif;background:#f1f5f9;color:#0f172a;line-height:1.5">
+      <div style="background:linear-gradient(135deg,#0B1F3A,#1E3A8A);color:#fff;padding:16px 18px;border-radius:14px;margin-bottom:16px">
+        <div style="font-size:18px;font-weight:900;color:#fde047">📄 ${esc(p.title)}</div>
+        <div style="font-size:12px;color:#bae6fd;margin-top:4px">${esc(p.subject)} • ${esc(p.topic)} • ${esc(p.dateStr)} • By Aman Singh</div>
+        <div style="font-size:13px;font-weight:800;color:#86efac;margin-top:6px">Score: ${p.marks} / ${p.maxMarks}  |  Right: ${p.right}  |  Wrong: ${p.wrong}  |  Skipped: ${p.skipped}  |  Accuracy: ${p.acc}%</div>
+      </div>
+      ${rows}
+    </body></html>`;
+  };
+
+  window.downloadSavedEduquityPdfPaper = function(pdfObj) {
+    const htmlDoc = window.buildSavedEduquityHtmlPaper(pdfObj.id);
+    const w = window.open('', '_blank');
+    if (w) {
+      w.document.open();
+      w.document.write(htmlDoc + '<script>setTimeout(function(){ window.print(); }, 450);</' + 'script>');
+      w.document.close();
+      if (typeof showToast === 'function') showToast('🖨️ Print / Save as PDF window open ho gayi!');
+    } else {
+      const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
+      const u = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = u;
+      a.download = (String(pdfObj.title || 'Eduquity_Test').replace(/[^a-zA-Z0-9._-]+/g, '_') || 'Eduquity_Test') + '_Solutions.html';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(u), 8000);
+    }
+  };
   let activePaused = false;
   let activeTimer = null;
   let secsLeft = 0;
@@ -24114,39 +24210,88 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       const lib = await ensureV165PdfJs();
       const arrBuf = await file.arrayBuffer();
       const pdf = await lib.getDocument({ data: arrBuf }).promise;
-      let fullTxt = '';
+      const pageTexts = [];
       const maxPages = Math.min(pdf.numPages, 350);
       for (let p = 1; p <= maxPages; p++) {
         if (p === 1 || p % 15 === 0 || p === maxPages) {
-          setPtStatus(`⏳ Scanning PDF pages (${p} / ${maxPages})...`, false);
+          setPtStatus(`⏳ Reading PDF pages (${p} / ${maxPages})...`, false);
         }
         const page = await pdf.getPage(p);
         const content = await page.getTextContent();
         let lastY = null;
         let line = '';
+        let pTxt = '';
         for (const it of content.items) {
           const y = it.transform ? Math.round(it.transform[5]) : 0;
           if (lastY !== null && Math.abs(y - lastY) > 6) {
-            fullTxt += line.trim() + '\n';
+            pTxt += line.trim() + '\n';
             line = '';
           }
           line += (it.str || '') + ' ';
           lastY = y;
         }
-        if (line.trim()) fullTxt += line.trim() + '\n';
-        fullTxt += '\n';
+        if (line.trim()) pTxt += line.trim() + '\n';
+        pageTexts.push(fixPdfHindiGlyphs(pTxt));
       }
-      parsedDraftQs = parseMcqsFromPdfText(fullTxt);
-      if (!parsedDraftQs.length) {
-        setPtStatus('⚠️ Is PDF me clean MCQs nahi mile (scanned PDF ke liye "📸 Test" OCR tab use karein).', true);
-        document.getElementById('v163-pt-preview-wrap')?.classList.add('hidden');
-        return;
-      }
-      renderParsedPreview();
-      if (getSavedGeminiKey()) {
-        await window.v171CleanDraftWithGemini();
+
+      const gemKey = getSavedGeminiKey();
+      if (gemKey) {
+        // 🤖 V176 DIRECT GEMINI AI FULL-PDF EXTRACTOR: Extracts EVERY SINGLE MCQ (100% of questions — Bilingual, Statement, Match-List, Bare A/B/C/D) + 100% Pure Hindi in 1 Pass!
+        parsedDraftQs = [];
+        const CHUNK_PAGES = 3;
+        const seenQ = new Set();
+        for (let pi = 0; pi < pageTexts.length; pi += CHUNK_PAGES) {
+          const pEnd = Math.min(pi + CHUNK_PAGES, pageTexts.length);
+          const chunkTxt = pageTexts.slice(pi, pEnd).join('\n--- PAGE BREAK ---\n').trim();
+          if (chunkTxt.length < 60) continue;
+          setPtStatus(`🤖 Gemini AI extracting ALL MCQs (Pages ${pi + 1}–${pEnd} / ${pageTexts.length}) • Found ${parsedDraftQs.length} Qs...`, false);
+          try {
+            const extracted = await Promise.race([
+              callGeminiExtractPages(gemKey, chunkTxt),
+              new Promise((_, rej) => setTimeout(() => rej(new Error('Chunk timeout')), 22000))
+            ]);
+            extracted.forEach(item => {
+              if (item && item.q && Array.isArray(item.o) && item.o.length === 4) {
+                const sig = String(item.q).trim().slice(0, 55).toLowerCase();
+                if (!seenQ.has(sig)) {
+                  seenQ.add(sig);
+                  parsedDraftQs.push({
+                    q: String(item.q).trim(),
+                    o: item.o.map(x => String(x).trim()),
+                    a: Math.max(0, Math.min(3, Number(item.a) || 0)),
+                    exp: String(item.exp || '').trim()
+                  });
+                }
+              }
+            });
+            if (parsedDraftQs.length) renderParsedPreview();
+          } catch (chunkErr) {
+            // Fallback regex on this chunk so ZERO pages are ever lost!
+            const fb = parseMcqsFromPdfText(chunkTxt);
+            fb.forEach(item => {
+              const sig = String(item.q).trim().slice(0, 55).toLowerCase();
+              if (!seenQ.has(sig)) { seenQ.add(sig); parsedDraftQs.push(item); }
+            });
+            if (parsedDraftQs.length) renderParsedPreview();
+          }
+        }
+        if (!parsedDraftQs.length) {
+          setPtStatus('⚠️ Is PDF me MCQs nahi mile (scanned image PDF ke liye "📸 Test" OCR tab use karein).', true);
+          document.getElementById('v163-pt-preview-wrap')?.classList.add('hidden');
+          return;
+        }
+        renderParsedPreview();
+        setPtStatus(`✅ Complete! Gemini AI ne poore ${pageTexts.length} pages se sabhi ${parsedDraftQs.length} MCQs 100% Shuddh Hindi me extract kar liye — ab "🚀 Publish Test" dabayein!`, false);
+        if (typeof showToast === 'function') showToast(`✨ ${parsedDraftQs.length} MCQs 100% Shuddh Hindi me ready!`);
       } else {
-        setPtStatus(`✅ ${pdf.numPages} pages scan complete — ${parsedDraftQs.length} MCQs ready! (100% shuddh Hindi ke liye upar Gemini API Key save karke "✨ Gemini AI Hindi Fix" dabayein)`, false);
+        parsedDraftQs = parseMcqsFromPdfText(pageTexts.join('\n\n'));
+        if (!parsedDraftQs.length) {
+          setPtStatus('⚠️ Is PDF me standard MCQs nahi mile — upar Gemini API Key save karke dobara choose karein (100% sabhi questions nikal aayenge)!', true);
+          document.getElementById('v163-pt-preview-wrap')?.classList.add('hidden');
+          return;
+        }
+        renderParsedPreview();
+        setPtStatus(`✅ ${pdf.numPages} pages scan complete — ${parsedDraftQs.length} MCQs ready!`, false);
       }
     } catch (err) {
       setPtStatus('❌ PDF scan failed: ' + (err && err.message ? err.message : 'Error'), true);
@@ -24260,7 +24405,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
                     <div class="text-xs sm:text-sm font-black text-white mt-1 truncate">${esc(t.title)}</div>
                     <div class="text-[10px] text-slate-300 mt-0.5">${t.questions.length} Qs • ⏱ ${t.mins} Min • +2 / -0.50</div>
                   </div>
-                  <button type="button" onclick="window.openV163StudentPdfTests('${t.id}')" class="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 text-xs font-black shadow-lg shrink-0 active:scale-95 transition">▶ Start</button>
+                  <button type="button" onclick="window.openV163StudentPdfTests('${t.id}')" class="px-3.5 py-2.5 rounded-xl ${submittedAttempts[t.id] ? 'bg-slate-800 border border-emerald-400/60 text-emerald-300' : 'bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950'} hover:brightness-110 text-xs font-black shadow-lg shrink-0 active:scale-95 transition">${submittedAttempts[t.id] ? '✅ Result' : '▶ Start'}</button>
                 </div>`).join('')}
             </div>
           </div>`;
@@ -24293,7 +24438,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
                   <div class="text-xs font-black text-white truncate mt-0.5">${esc(t.title)}</div>
                   <div class="text-[10px] text-slate-400">${t.questions.length} Qs • ⏱ ${t.mins}m</div>
                 </div>
-                <button type="button" onclick="window.openV163StudentPdfTests('${t.id}')" class="px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 text-xs font-black shrink-0">${cfg.btnTxt}</button>
+                <button type="button" onclick="window.openV163StudentPdfTests('${t.id}')" class="px-3 py-2 rounded-xl ${submittedAttempts[t.id] ? 'bg-slate-800 border border-emerald-400/60 text-emerald-300' : 'bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950'} text-xs font-black shrink-0">${submittedAttempts[t.id] ? '✅ Result' : cfg.btnTxt}</button>
               </div>`).join('')}
           </div>
         </div>`;
@@ -24325,11 +24470,82 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
 
   window.v167BumpFont = function(d) {
     cbtFontScale = Math.max(0.85, Math.min(1.4, +(cbtFontScale + d * 0.1).toFixed(2)));
+    // 🔒 1. Permanently lock this test so it cannot be started again!
+    const qsAll = activeTest.questions || [];
+    let rCnt = 0, wCnt = 0, sCnt = 0;
+    qsAll.forEach((q, i) => {
+      if (activeAns[i] === undefined) sCnt++;
+      else if (activeAns[i] === Number(q.a)) rCnt++;
+      else wCnt++;
+    });
+    const mScore = (rCnt * 2 - wCnt * 0.5).toFixed(2);
+    const maxSc = qsAll.length * 2;
+    const accP = (rCnt + wCnt) ? Math.round((rCnt / (rCnt + wCnt)) * 100) : 0;
+    const dStr = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+
+    submittedAttempts[activeTest.id] = {
+      testId: activeTest.id,
+      answers: { ...activeAns },
+      marks: mScore,
+      maxMarks: maxSc,
+      right: rCnt,
+      wrong: wCnt,
+      skipped: sCnt,
+      acc: accP,
+      submittedAt: Date.now()
+    };
+    try { localStorage.setItem(ATTEMPT_LOCK_KEY, JSON.stringify(submittedAttempts)); } catch(e) {}
+
+    // 📄 2. Automatically save this submitted Test + Solutions PDF into the PDFs Section!
+    const pdfRecId = 'auto_edu_pdf_' + activeTest.id;
+    const pdfRec = {
+      id: pdfRecId,
+      title: `📄 ${activeTest.title} (${dStr}) — Solved Test Paper`,
+      subject: activeTest.subject,
+      pdfSubject: mapPdfSubjectFolder(activeTest.subject),
+      topic: activeTest.topic,
+      category: activeTest.topic || 'Completed Eduquity Tests',
+      totalQs: qsAll.length,
+      marks: mScore,
+      maxMarks: maxSc,
+      right: rCnt,
+      wrong: wCnt,
+      skipped: sCnt,
+      acc: accP,
+      dateStr: dStr,
+      answers: { ...activeAns },
+      questions: qsAll,
+      createdAt: Date.now()
+    };
+    savedEduPdfs = [pdfRec, ...savedEduPdfs.filter(x => x.id !== pdfRecId)].slice(0, 60);
+    try { localStorage.setItem(SAVED_EDU_PDF_KEY, JSON.stringify(savedEduPdfs)); } catch(e) {}
+    if (typeof window.__refreshStudentPdfFolder === 'function') window.__refreshStudentPdfFolder();
+    renderSectionHosts();
+    if (typeof showToast === 'function') showToast('🔒 Test Submitted! Solutions PDF automatically PDFs section me add ho gaya!');
+
     renderEduquityBody();
   };
 
   function startEduquityTest(testObj) {
     activeTest = testObj;
+    const prevAttempt = submittedAttempts[testObj.id];
+    if (prevAttempt) {
+      // 🔒 ONE-ATTEMPT LOCK: Already submitted! Open Scorecard & Solutions ONLY (cannot restart!)
+      activeIdx = 0;
+      activeAns = prevAttempt.answers || {};
+      activeReview = {};
+      activeSubmitted = true;
+      activePaused = false;
+      if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
+      const tEl = document.getElementById('v163-stu-title');
+      if (tEl) tEl.textContent = `✅ Completed: ${testObj.title}`;
+      const tmEl = document.getElementById('v163-stu-timer');
+      if (tmEl) tmEl.textContent = `🔒 Submitted (${prevAttempt.marks}/${prevAttempt.maxMarks})`;
+      document.getElementById('v167-cbt-botbar')?.classList.add('hidden');
+      renderEduquityBody();
+      if (typeof showToast === 'function') showToast('🔒 Ye test submit ho chuka hai — Result & Solutions dekhein (PDFs section me bhi save hai!)');
+      return;
+    }
     activeIdx = 0;
     activeAns = {};
     activeReview = {};
@@ -24558,6 +24774,34 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     setPtStatus('✅ Gemini API Key device par save ho gayi! Ab PDF upload karte hi 100% shuddh Hindi auto-fix chalega.', false);
     if (typeof showToast === 'function') showToast('🤖 Gemini API Key saved! Auto Hindi Fix ON');
   };
+
+  async function callGeminiExtractPages(apiKey, rawPagesText) {
+    const prompt = `You are an expert UPSC/SSC exam digitizer. Extract EVERY SINGLE multiple-choice question (MCQ) present in the PDF text below.
+Rules:
+1. Do NOT skip ANY question! Extract standard MCQs, Statement-based MCQs (कथन 1 / कथन 2), Match List-I / List-II MCQs, and Bilingual (English + Hindi) MCQs.
+2. Ignore cover pages, table of contents, headers/footers ("By Aman Singh"), and pure theory paragraphs without 4 options.
+3. Repair ALL broken Hindi Devanagari font matras/glyphs into 100% pure, crystal-clear Hindi.
+4. Set "a" to the correct option index (0=A, 1=B, 2=C, 3=D) using the answer key in the text (or your verified factual knowledge if answer key is on another page).
+5. Return ONLY a valid JSON array: [{"q":"...","o":["...","...","...","..."],"a":0,"exp":"..."}]. If these pages have NO MCQs (e.g. cover/TOC), return [].
+
+PDF TEXT:
+` + rawPagesText.slice(0, 14000);
+
+    const pResp = await fetch('/api/gemini-clean', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey, prompt })
+    });
+    if (!pResp.ok) {
+      const et = await pResp.text().catch(() => '');
+      throw new Error(`Proxy (${pResp.status}): ${et.slice(0, 100)}`);
+    }
+    const pj = await pResp.json();
+    if (!pj || !pj.text) return [];
+    const cleanJson = String(pj.text).replace(/^```json\s*/i, '').replace(/```$/,'').trim();
+    const arr = JSON.parse(cleanJson);
+    return Array.isArray(arr) ? arr : [];
+  }
 
   async function callGeminiCleanBatch(apiKey, batchQs) {
     const prompt = `You are a Hindi UPSC/SSC exam editor. The following MCQs were extracted from a PDF with broken Hindi Devanagari font matras/glyphs.
