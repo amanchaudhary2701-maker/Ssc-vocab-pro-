@@ -22804,6 +22804,22 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   <div id="v157-an-body" class="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 max-w-5xl w-full mx-auto"></div>
 </div>
 
+<!-- V161_CA_DETAIL_PAGE_START -->
+<div id="v161-ca-detail-page" class="hidden fixed inset-0 z-[130] bg-slate-950 flex flex-col overflow-hidden">
+  <div class="px-3.5 py-3 bg-gradient-to-r from-emerald-950 via-slate-900 to-cyan-950 border-b border-emerald-400/50 flex items-center justify-between gap-2 shrink-0">
+    <button type="button" onclick="window.closeV161CaDetail()" class="px-3.5 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs sm:text-sm font-black shadow flex items-center gap-1.5 shrink-0 active:scale-95 transition">
+      <span>←</span><span>वापस (Back)</span>
+    </button>
+    <div id="v161-ca-det-meta" class="text-xs font-black text-amber-300 truncate text-center flex-1">UPSC &amp; SSC विस्तृत विश्लेषण</div>
+    <div class="flex items-center gap-1.5 shrink-0">
+      <button type="button" onclick="window.stepV161CaDetail(-1)" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-white/15 text-white text-xs font-black">◀</button>
+      <button type="button" onclick="window.stepV161CaDetail(1)" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-white/15 text-white text-xs font-black">▶</button>
+    </div>
+  </div>
+  <div id="v161-ca-det-body" class="flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl w-full mx-auto space-y-4"></div>
+</div>
+<!-- V161_CA_DETAIL_PAGE_END -->
+
 <!-- 3. DAILY CURRENT AFFAIRS ONE-LINER + MONTHLY QUIZ + 1-CLICK ADMIN PUBLISHER MODAL -->
 <div id="v157-ca-modal" class="hidden fixed inset-0 z-[120] bg-slate-950/95 backdrop-blur-sm flex flex-col overflow-hidden">
   <div class="px-4 py-3 bg-gradient-to-r from-emerald-950 via-slate-900 to-amber-950/80 border-b border-emerald-400/40 flex items-center justify-between gap-2 shrink-0">
@@ -22862,12 +22878,12 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   let dailyCaData = null;
   let dailyCaLoading = false;
 
-  // 🌅 V159: 100% HINDI FULL-DETAIL DAILY CURRENT AFFAIRS (एक दिन पहले की खबरें • रोज़ सुबह 6:00 AM IST Auto-Update!)
+  // 🌅 V161: STRICT UPSC & SSC HINDI DAILY CURRENT AFFAIRS (100% In-App Full Details + Dedicated Detail Page + Back Button!)
+  let activeDailyDetIdx = 0;
+
   function getIst6AmEditionInfo() {
     const nowIst = new Date(Date.now() + 19800000);
-    // Edition rolls over every morning at 06:00 AM IST sharp
     const edDate = new Date(nowIst.getTime() - 6 * 3600000);
-    // Current Affairs always covers PREVIOUS DAY (एक दिन पहले का संपूर्ण करेंट अफेयर्स)!
     const prevDate = new Date(edDate.getTime() - 86400000);
     const hiMonths = ['जनवरी','फरवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितम्बर','अक्टूबर','नवम्बर','दिसम्बर'];
     const y = edDate.getUTCFullYear();
@@ -22886,18 +22902,60 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     return { key, label: prevDayHi, todayLabel: todayHi, prevKey: `${py}-${pm}-${pd}`, nextIn: `${nh} घंटे ${nm} मिनट` };
   }
 
-  function buildHindiExamTip(cat) {
-    const map = {
-      'राष्ट्रीय एवं राजव्यवस्था': 'UPSC Prelims / SSC CGL: संबंधित मंत्रालय, संवैधानिक अनुच्छेद व समिति का नाम अवश्य याद रखें।',
-      'अर्थव्यवस्था एवं RBI': 'UPSC GS-III / SSC: RBI नीति दरें, बजट प्रावधान और प्रमुख आर्थिक सूचकांक परीक्षा में पूछे जाते हैं।',
-      'विज्ञान एवं अंतरिक्ष': 'UPSC / SSC Science: मिशन का नाम, प्रक्षेपण यान (LVM3/PSLV) और एजेंसी (ISRO/DRDO) नोट करें।',
-      'अंतर्राष्ट्रीय एवं सम्मेलन': 'UPSC / SSC: शिखर सम्मेलन का मेज़बान देश, थीम और सदस्य देश महत्वपूर्ण हैं।',
-      'खेल एवं पुरस्कार': 'SSC CGL/CHSL/MTS: विजेता का नाम, संबंधित खेल/क्षेत्र और आयोजन स्थल याद रखें।'
-    };
-    return map[cat] || 'UPSC एवं SSC परीक्षा के लिए महत्वपूर्ण तथ्य, तिथि और स्थान नोट करें।';
+  // Strict UPSC & SSC Exam Relevance Filter (keeps ONLY government, polity, economy, ISRO, defence, awards, summits, environment!)
+  const UPSC_SSC_ALLOW_KW = [
+    'संसद','सुप्रीम कोर्ट','संविधान','अनुच्छेद','विधेयक','अधिनियम','कैबिनेट','मंत्रालय','भारत सरकार','प्रधानमंत्री','राष्ट्रपति','राज्यपाल',
+    'चुनाव आयोग','नीति आयोग','वित्त आयोग','RBI','आरबीआई','रिज़र्व बैंक','जीडीपी','GDP','बजट','मुद्रास्फीति','रेपो','यूपीआई','UPI','बैंक',
+    'ISRO','इसरो','DRDO','डीआरडीओ','अंतरिक्ष','उपग्रह','मिसाइल','रक्षा','नौसेना','वायुसेना','सेना','अभ्यास','परमाणु','विज्ञान',
+    'संयुक्त राष्ट्र','UN','ब्रिक्स','BRICS','G20','क्वाड','QUAD','SCO','WTO','IMF','विश्व बैंक','शिखर सम्मेलन','समझौता','विदेश मंत्री',
+    'पुरस्कार','सम्मान','पद्म','भारत रत्न','ज्ञानपीठ','नोबेल','ओलंपिक','विश्व कप','चैंपियन','शतरंज','एशियाई खेल','खेल रत्न',
+    'पर्यावरण','जलवायु','रामसर','राष्ट्रीय उद्यान','टाइगर','अभयारण्य','नदी','बांध','ऊर्जा','सौर','हाइड्रोजन','योजना','मिशन','सूचकांक','रिपोर्ट','रैंकिंग','जनगणना','शिक्षा','स्वास्थ्य','रेलवे','बंदरगाह','हाईवे'
+  ];
+  const NON_EXAM_BLOCK_KW = [
+    'बिसलेरी','टाटा विवाद','बॉलीवुड','फिल्म','अभिनेता','अभिनेत्री','क्राइम','हत्या','मर्डर','चोरी','राशिफल','ज्योतिष','शेयर टिप्स','सेलिब्रिटी','शादी','तलाक','बिग बॉस','आईपीएल गॉसिप','वायरल वीडियो','ट्रेंडिंग'
+  ];
+
+  function isExamRelevantHindi(title, desc) {
+    const txt = (title + ' ' + desc).toLowerCase();
+    for (const blk of NON_EXAM_BLOCK_KW) {
+      if (txt.includes(blk.toLowerCase())) return false;
+    }
+    let hits = 0;
+    for (const kw of UPSC_SSC_ALLOW_KW) {
+      if (txt.includes(kw.toLowerCase())) hits++;
+    }
+    return hits >= 1;
   }
 
-  function buildOfflineDailyFallback(edInfo) {
+  function buildExamPointsForItem(cat, title, desc) {
+    const base = {
+      'राष्ट्रीय एवं राजव्यवस्था': [
+        'UPSC GS-II (Polity & Governance) तथा SSC CGL/CHSL में संबंधित मंत्रालय, संवैधानिक प्रावधान या सर्वोच्च न्यायालय के निर्णय से प्रत्यक्ष प्रश्न पूछे जाते हैं।',
+        'संबंधित अधिनियम, संशोधन संख्या और लागू होने की तिथि को नोट करें।'
+      ],
+      'अर्थव्यवस्था एवं RBI': [
+        'UPSC GS-III (Indian Economy) एवं SSC में RBI की नीतियाँ, सरकारी योजनाएँ, राजकोषीय आंकड़े व प्रमुख सूचकांक अत्यंत महत्वपूर्ण हैं।',
+        'आधार वर्ष, लक्ष्य प्रतिशत और नोडल एजेंसी (RBI / वित्त मंत्रालय / नीति आयोग) अवश्य याद रखें।'
+      ],
+      'विज्ञान एवं अंतरिक्ष': [
+        'UPSC Prelims Science & Tech व SSC में मिशन का उद्देश्य, प्रक्षेपण यान (LVM3/PSLV) और एजेंसी (ISRO/DRDO) पूछी जाती है।',
+        'अंतरिक्ष कक्षा (LEO / GEO / L1 बिंदु) और सहयोगी देश/संस्था का नाम याद रखें।'
+      ],
+      'अंतर्राष्ट्रीय एवं सम्मेलन': [
+        'UPSC Prelims IR एवं SSC Static GK में शिखर सम्मेलन का मेज़बान देश, मुख्यालय और भारत की भूमिका प्रमुख रूप से आती है।',
+        'संगठन के स्थापना वर्ष और नए शामिल सदस्य देशों की सूची दोहराएँ।'
+      ],
+      'खेल एवं पुरस्कार': [
+        'SSC CGL, CHSL, MTS व रेलवे में पुरस्कार विजेता का नाम, क्षेत्र, संस्करण संख्या और आयोजन स्थल सीधा पूछा जाता है।'
+      ]
+    };
+    return base[cat] || [
+      'यह विषय UPSC Prelims एवं SSC (CGL/CHSL/CPO/MTS) दोनों के लिए उच्च-प्राथमिकता (High-Yield) वाला करेंट अफेयर्स टॉपिक है।',
+      'इसमें उल्लिखित प्रमुख संस्था, स्थान, तिथि एवं लक्ष्य को शॉर्ट नोट्स में शामिल करें।'
+    ];
+  }
+
+  function buildCuratedExamDailyItems(edInfo, needed) {
     let seed = 0;
     for (let i = 0; i < edInfo.key.length; i++) seed = (seed * 31 + edInfo.key.charCodeAt(i)) % 997;
     const catHiMap = {
@@ -22911,17 +22969,21 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       'Schemes & Misc': 'सरकारी योजनाएँ'
     };
     const out = [];
-    for (let i = 0; i < 10; i++) {
-      const it = DEFAULT_OL[(seed + i * 3) % DEFAULT_OL.length];
-      const cHi = catHiMap[it.cat] || 'राष्ट्रीय एवं राजव्यवस्था';
+    for (let i = 0; i < needed; i++) {
+      const ol = DEFAULT_OL[(seed + i * 3) % DEFAULT_OL.length];
+      const cHi = catHiMap[ol.cat] || 'राष्ट्रीय एवं राजव्यवस्था';
+      // Pair with matching MCQ if available for rich full explanation!
+      const relQ = DEFAULT_QZ.find(q => q.cat === ol.cat);
+      const fullDetails = ol.text + (relQ && relQ.exp ? (' ' + relQ.exp) : '') + ' यह विषय UPSC प्रारंभिक/मुख्य परीक्षा तथा SSC की सभी परीक्षाओं में लगातार पूछे जाने वाले महत्वपूर्ण समसामयिक एवं स्टैटिक जीके खंड से सीधा जुड़ा है।';
       out.push({
-        title: it.text.split('।')[0] + '।',
-        desc: it.text + ' यह तथ्य आगामी UPSC Prelims, SSC CGL, CHSL, CPO एवं रेलवे परीक्षाओं के लिए अत्यंत महत्वपूर्ण है।',
+        title: ol.text.split('।')[0] + '।',
+        shortSum: ol.text,
+        fullDesc: fullDetails,
         cat: cHi,
-        examTip: buildHindiExamTip(cHi),
-        source: 'हिंदी दैनिक करेंट अफेयर्स कैप्सूल',
-        pubDate: edInfo.label + ' (6:00 AM अपडेट)',
-        link: ''
+        examPoints: buildExamPointsForItem(cHi, ol.text, fullDetails),
+        practiceQ: relQ ? { q: relQ.q, ans: relQ.o[Number(relQ.a)], exp: relQ.exp } : null,
+        source: 'UPSC + SSC दैनिक परीक्षा संकलन',
+        pubDate: edInfo.label
       });
     }
     return out;
@@ -22929,7 +22991,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
 
   async function loadAuto6AmDailyCa(force) {
     const ed = getIst6AmEditionInfo();
-    const cacheKey = 'ssc_auto_daily_ca_hi_6am_v2_' + ed.key;
+    const cacheKey = 'ssc_auto_daily_ca_exam_v3_' + ed.key;
     if (!force) {
       const cached = loadJson(cacheKey, null);
       if (cached && Array.isArray(cached.items) && cached.items.length) {
@@ -22940,26 +23002,38 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     dailyCaLoading = true;
     if (caTab === 'daily') renderCaBody();
 
-    let liveItems = [];
-    // Source 1: Repo ./daily_ca.json (updated every morning 6:00 AM IST in Hindi by GitHub Actions)
+    let liveExamItems = [];
+    // Source 1: Repo ./daily_ca.json (if hosted & Hindi)
     try {
       const r0 = await fetch('./daily_ca.json?t=' + Date.now());
       if (r0.ok) {
         const j0 = await r0.json();
-        if (j0 && Array.isArray(j0.items) && j0.items.length && j0.lang === 'hi') {
-          liveItems.push(...j0.items);
+        if (j0 && Array.isArray(j0.items) && j0.lang === 'hi') {
+          j0.items.forEach(it => {
+            if (isExamRelevantHindi(it.title || '', it.desc || '')) {
+              liveExamItems.push({
+                title: it.title,
+                shortSum: (it.desc || it.title).slice(0, 160),
+                fullDesc: it.fullDesc || it.desc || it.title,
+                cat: it.cat || 'राष्ट्रीय एवं राजव्यवस्था',
+                examPoints: it.examPoints || buildExamPointsForItem(it.cat, it.title, it.desc || ''),
+                practiceQ: it.practiceQ || null,
+                source: it.source || 'दैनिक हिंदी परीक्षा समाचार',
+                pubDate: ed.label
+              });
+            }
+          });
         }
       }
     } catch(e) {}
 
-    // Source 2: Live 100% HINDI News & Exam RSS Feeds (Previous Day Full Details!)
-    if (liveItems.length < 6) {
+    // Source 2: Live Hindi Feeds filtered STRICTLY for UPSC & SSC Exam Relevance!
+    if (liveExamItems.length < 6) {
       const hiFeeds = [
-        { cat: 'राष्ट्रीय एवं राजव्यवस्था', src: 'BBC हिंदी (भारत)',    url: 'https://feeds.bbci.co.uk/hindi/india/rss.xml' },
-        { cat: 'अंतर्राष्ट्रीय एवं सम्मेलन', src: 'BBC हिंदी (विश्व)',   url: 'https://feeds.bbci.co.uk/hindi/international/rss.xml' },
-        { cat: 'अर्थव्यवस्था एवं RBI',       src: 'अमर उजाला (बिज़नेस)', url: 'https://www.amarujala.com/rss/business.xml' },
-        { cat: 'राष्ट्रीय एवं राजव्यवस्था', src: 'जनसत्ता (देश)',       url: 'https://www.jansatta.com/national/feed/' },
-        { cat: 'विज्ञान एवं अंतरिक्ष',       src: 'BBC हिंदी (विज्ञान)', url: 'https://feeds.bbci.co.uk/hindi/science/rss.xml' }
+        { cat: 'राष्ट्रीय एवं राजव्यवस्था', src: 'राष्ट्रीय समाचार (हिंदी)',   url: 'https://feeds.bbci.co.uk/hindi/india/rss.xml' },
+        { cat: 'अंतर्राष्ट्रीय एवं सम्मेलन', src: 'अंतर्राष्ट्रीय समाचार (हिंदी)', url: 'https://feeds.bbci.co.uk/hindi/international/rss.xml' },
+        { cat: 'विज्ञान एवं अंतरिक्ष',       src: 'विज्ञान एवं तकनीक (हिंदी)',  url: 'https://feeds.bbci.co.uk/hindi/science/rss.xml' },
+        { cat: 'राष्ट्रीय एवं राजव्यवस्था', src: 'देश एवं नीति (हिंदी)',       url: 'https://www.jansatta.com/national/feed/' }
       ];
       await Promise.all(hiFeeds.map(async (fd) => {
         try {
@@ -22967,19 +23041,20 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
           if (!r.ok) return;
           const j = await r.json();
           if (j && j.status === 'ok' && Array.isArray(j.items)) {
-            j.items.slice(0, 4).forEach(it => {
+            j.items.forEach(it => {
               const title = String(it.title || '').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
               const rawDesc = String(it.content || it.description || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-              const desc = rawDesc.slice(0, 480);
-              if (title) {
-                liveItems.push({
+              if (title && isExamRelevantHindi(title, rawDesc)) {
+                const fullD = rawDesc.length > 40 ? rawDesc : (title + ' — यह घटनाक्रम UPSC एवं SSC परीक्षा के समसामयिक खंड हेतु महत्वपूर्ण है।');
+                liveExamItems.push({
                   title,
-                  desc: (desc && desc !== title) ? desc : (title + ' — विस्तृत समाचार हेतु नीचे दिए गए लिंक पर क्लिक करें।'),
+                  shortSum: fullD.slice(0, 150) + (fullD.length > 150 ? '...' : ''),
+                  fullDesc: fullD,
                   cat: fd.cat,
-                  examTip: buildHindiExamTip(fd.cat),
+                  examPoints: buildExamPointsForItem(fd.cat, title, fullD),
+                  practiceQ: null,
                   source: fd.src,
-                  pubDate: ed.label + ' के मुख्य समाचार',
-                  link: it.link || ''
+                  pubDate: ed.label
                 });
               }
             });
@@ -22988,14 +23063,23 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       }));
     }
 
-    const finalItems = liveItems.length >= 3 ? liveItems : buildOfflineDailyFallback(ed);
+    // Deduplicate & always ensure 10 high-yield UPSC/SSC exam items (filling remaining with curated exam items!)
+    const seenT = new Set();
+    const cleanLive = [];
+    liveExamItems.forEach(it => {
+      const k = it.title.slice(0, 40);
+      if (!seenT.has(k) && cleanLive.length < 6) { seenT.add(k); cleanLive.push(it); }
+    });
+    const needMore = Math.max(4, 10 - cleanLive.length);
+    const curated = buildCuratedExamDailyItems(ed, needMore);
+    const finalItems = [...cleanLive, ...curated];
+
     const payload = {
       editionKey: ed.key,
       editionLabel: ed.label,
       todayLabel: ed.todayLabel,
       lang: 'hi',
-      isLiveFeed: liveItems.length >= 3,
-      updatedAt: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+      isLiveFeed: cleanLive.length > 0,
       items: finalItems
     };
     dailyCaData = payload;
@@ -23005,9 +23089,73 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     return payload;
   }
 
+  window.openV161CaDetail = function(idx) {
+    const items = (dailyCaData && Array.isArray(dailyCaData.items)) ? dailyCaData.items : [];
+    if (!items.length) return;
+    activeDailyDetIdx = Math.max(0, Math.min(items.length - 1, Number(idx) || 0));
+    const it = items[activeDailyDetIdx];
+    const ed = getIst6AmEditionInfo();
+    const metaEl = document.getElementById('v161-ca-det-meta');
+    if (metaEl) metaEl.textContent = `टॉपिक ${activeDailyDetIdx + 1} / ${items.length} • ${it.pubDate || ed.label}`;
+    const bodyEl = document.getElementById('v161-ca-det-body');
+    if (bodyEl) {
+      const pts = Array.isArray(it.examPoints) ? it.examPoints : buildExamPointsForItem(it.cat, it.title, it.fullDesc || '');
+      bodyEl.innerHTML = `
+        <div class="p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-emerald-950/90 via-slate-900 to-cyan-950/80 border-2 border-emerald-400/55 space-y-2.5 shadow-xl">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="px-3 py-1 rounded-xl bg-emerald-400 text-slate-950 text-xs font-black">${esc(it.cat || 'UPSC + SSC करेंट अफेयर्स')}</span>
+            <span class="px-2.5 py-1 rounded-xl bg-amber-400/20 border border-amber-400/50 text-amber-200 text-[11px] font-black">📅 ${esc(it.pubDate || ed.label)}</span>
+            <span class="px-2.5 py-1 rounded-xl bg-white/10 text-cyan-200 text-[11px] font-bold">${esc(it.source || 'UPSC + SSC संकलन')}</span>
+          </div>
+          <h1 class="text-lg sm:text-2xl font-black text-white leading-snug">${esc(it.title)}</h1>
+        </div>
+
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-900/95 border border-cyan-400/40 space-y-2.5">
+          <div class="text-sm font-black text-cyan-300 flex items-center gap-2"><span>📖</span><span>संपूर्ण विस्तृत विवरण (Full In-App Explanation)</span></div>
+          <p class="text-sm sm:text-base text-slate-100 leading-relaxed whitespace-pre-line">${esc(it.fullDesc || it.shortSum || it.title)}</p>
+        </div>
+
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-900/95 border border-amber-400/45 space-y-2.5">
+          <div class="text-sm font-black text-amber-300 flex items-center gap-2"><span>🎯</span><span>UPSC &amp; SSC परीक्षा-उपयोगी मुख्य बिंदु (Exam Takeaways)</span></div>
+          <ul class="space-y-2">
+            ${pts.map(p => `<li class="flex gap-2 text-xs sm:text-sm text-white leading-relaxed"><span class="text-amber-300 font-black">▸</span><span>${esc(p)}</span></li>`).join('')}
+          </ul>
+        </div>
+
+        ${it.practiceQ ? `
+        <div class="p-4 sm:p-5 rounded-2xl bg-violet-950/60 border-2 border-violet-400/50 space-y-2">
+          <div class="text-xs font-black text-violet-300 uppercase">✅ संबंधित संभावित परीक्षा प्रश्न (Expected Question)</div>
+          <div class="text-sm sm:text-base font-black text-white">${esc(it.practiceQ.q)}</div>
+          <div class="p-3 rounded-xl bg-emerald-500/20 border border-emerald-400/60 text-xs sm:text-sm font-black text-emerald-200">
+            ✓ सही उत्तर: ${esc(it.practiceQ.ans)}
+            ${it.practiceQ.exp ? `<div class="mt-1 font-normal text-emerald-100">💡 ${esc(it.practiceQ.exp)}</div>` : ''}
+          </div>
+        </div>` : ''}
+
+        <div class="flex items-center justify-between gap-3 pt-2">
+          <button type="button" onclick="window.closeV161CaDetail()" class="px-5 py-3 rounded-2xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs sm:text-sm font-black shadow-lg">← सभी प्रश्नों पर वापस जाएँ (Back)</button>
+          <button type="button" onclick="window.stepV161CaDetail(1)" class="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-cyan-400/50 text-cyan-200 text-xs sm:text-sm font-black">अगला टॉपिक ▶</button>
+        </div>
+      `;
+      bodyEl.scrollTop = 0;
+    }
+    document.getElementById('v161-ca-detail-page')?.classList.remove('hidden');
+  };
+
+  window.closeV161CaDetail = function() {
+    document.getElementById('v161-ca-detail-page')?.classList.add('hidden');
+  };
+
+  window.stepV161CaDetail = function(delta) {
+    const items = (dailyCaData && Array.isArray(dailyCaData.items)) ? dailyCaData.items : [];
+    if (!items.length) return;
+    const next = (activeDailyDetIdx + delta + items.length) % items.length;
+    window.openV161CaDetail(next);
+  };
+
   window.v158ForceRefreshDailyCa = function() {
     loadAuto6AmDailyCa(true).then(() => {
-      if (typeof showToast === 'function') showToast('🌅 हिंदी दैनिक करेंट अफेयर्स (एक दिन पहले का पूर्ण विवरण) अपडेट हो गया!');
+      if (typeof showToast === 'function') showToast('🌅 UPSC & SSC हिंदी दैनिक करेंट अफेयर्स अपडेट हो गया!');
     });
   };
 
@@ -23432,33 +23580,31 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       const admToday = (customCa.oneliners || []).slice(0, 5);
       const items = (dailyCaData && Array.isArray(dailyCaData.items)) ? dailyCaData.items : [];
       body.innerHTML = `
-        <div class="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/95 via-slate-900 to-cyan-950/95 border-2 border-emerald-400/55 flex flex-wrap items-center justify-between gap-2.5">
+        <div class="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/95 via-slate-900 to-cyan-950/95 border-2 border-emerald-400/55 flex flex-wrap items-center justify-between gap-2">
           <div class="space-y-1">
             <div class="flex items-center gap-2 flex-wrap">
-              <span class="px-2.5 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[11px] font-black">🌅 ${esc(ed.label)} का संपूर्ण करेंट अफेयर्स</span>
-              <span class="px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/60 text-amber-200 text-[10px] font-black">आज का संस्करण: ${esc(ed.todayLabel)}</span>
-              <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/25 border border-cyan-400/50 text-cyan-200 text-[10px] font-black">${dailyCaData && dailyCaData.isLiveFeed ? '📡 LIVE हिंदी न्यूज़' : '⚡ हिंदी दैनिक कैप्सूल'}</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[11px] font-black">🌅 ${esc(ed.label)} — UPSC &amp; SSC विशेष</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/60 text-amber-200 text-[10px] font-black">रोज़ 6:00 AM Auto-Update</span>
             </div>
-            <div class="text-xs text-slate-200">हर दिन सुबह <b class="text-amber-300">6:00 AM IST</b> पर एक दिन पहले की सभी महत्वपूर्ण खबरें हिंदी में विस्तृत व्याख्या सहित अपने आप अपडेट होती हैं • अगला अपडेट: <b class="text-emerald-300">${esc(ed.nextIn)}</b></div>
+            <div class="text-xs text-slate-200">केवल <b>UPSC व SSC</b> के लिए महत्वपूर्ण प्रश्न/समाचार • किसी भी प्रश्न पर क्लिक करें — पूरा विवरण यहीं ऐप में खुलेगा!</div>
           </div>
-          <button type="button" onclick="window.v158ForceRefreshDailyCa()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-emerald-400/60 text-emerald-200 text-xs font-black shrink-0">🔄 अभी अपडेट करें</button>
+          <button type="button" onclick="window.v158ForceRefreshDailyCa()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-emerald-400/60 text-emerald-200 text-xs font-black shrink-0">🔄 अपडेट</button>
         </div>
-        ${admToday.length ? `<div class="space-y-2"><div class="text-xs font-black text-amber-300">⭐ एडमिन द्वारा जोड़े गए विशेष दैनिक बिंदु (Admin Verified)</div>${admToday.map(o => `<div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/50"><div class="text-[10px] font-black text-amber-300">${esc(o.cat)} • ${esc(o.date || ed.label)}</div><div class="text-xs sm:text-sm font-bold text-white mt-1 leading-relaxed">${esc(o.text)}</div></div>`).join('')}</div>` : ''}
-        ${dailyCaLoading ? '<div class="p-8 text-center text-sm font-bold text-cyan-200">⏳ कल के प्रमुख हिंदी करेंट अफेयर्स (विस्तृत विवरण सहित) लोड हो रहे हैं...</div>' : `
-        <div class="space-y-3">
+        ${admToday.length ? `<div class="space-y-2"><div class="text-xs font-black text-amber-300">⭐ एडमिन विशेष दैनिक प्रश्न (Admin Verified)</div>${admToday.map(o => `<div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/50"><div class="text-[10px] font-black text-amber-300">${esc(o.cat)} • ${esc(o.date || ed.label)}</div><div class="text-xs sm:text-sm font-bold text-white mt-1 leading-relaxed">${esc(o.text)}</div></div>`).join('')}</div>` : ''}
+        ${dailyCaLoading ? '<div class="p-8 text-center text-sm font-bold text-cyan-200">⏳ कल के महत्वपूर्ण UPSC &amp; SSC हिंदी करेंट अफेयर्स लोड हो रहे हैं...</div>' : `
+        <div class="space-y-2.5">
           ${items.map((it, i) => `
-            <div class="p-4 rounded-2xl bg-slate-900/95 border-l-4 border-emerald-400 border-t border-r border-b border-white/10 space-y-2 shadow-lg">
+            <button type="button" onclick="window.openV161CaDetail(${i})" class="w-full text-left p-4 rounded-2xl bg-slate-900/95 hover:bg-slate-800/95 border-l-4 border-emerald-400 border-t border-r border-b border-white/15 hover:border-emerald-300/70 space-y-2 shadow-lg transition active:scale-[0.99]">
               <div class="flex flex-wrap items-center justify-between gap-2">
-                <span class="px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 text-[11px] font-black">समाचार #${i + 1} • ${esc(it.cat || 'दैनिक करेंट अफेयर्स')}</span>
-                <span class="text-[11px] text-amber-300 font-bold">📅 ${esc(it.pubDate || ed.label)} • ${esc(it.source || 'हिंदी न्यूज़')}</span>
+                <span class="px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 text-[11px] font-black">प्रश्न #${i + 1} • ${esc(it.cat || 'UPSC/SSC')}</span>
+                <span class="text-[11px] text-amber-300 font-bold">📅 ${esc(it.pubDate || ed.label)}</span>
               </div>
-              <h3 class="text-sm sm:text-base font-black text-white leading-snug">${esc(it.title)}</h3>
-              ${it.desc ? `<p class="text-xs sm:text-sm text-slate-200 leading-relaxed bg-slate-950/70 p-3 rounded-xl border border-white/10"><b class="text-cyan-300">विस्तृत विवरण:</b> ${esc(it.desc)}</p>` : ''}
-              <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-                <div class="text-[11px] text-amber-200/95 font-semibold">🎯 <b>परीक्षा दृष्टिकोण:</b> ${esc(it.examTip || buildHindiExamTip(it.cat))}</div>
-                ${it.link ? `<a href="${esc(it.link)}" target="_blank" rel="noopener noreferrer" class="px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-[11px] font-black hover:bg-emerald-500/35 shrink-0">पूरा समाचार पढ़ें ↗</a>` : ''}
+              <div class="text-sm sm:text-base font-black text-white leading-snug">${esc(it.title)}</div>
+              <div class="flex items-center justify-between gap-2 pt-0.5">
+                <span class="text-[11px] text-slate-300 truncate">${esc(it.shortSum || '')}</span>
+                <span class="px-3 py-1 rounded-xl bg-emerald-400/20 border border-emerald-400/50 text-emerald-200 text-[11px] font-black shrink-0">विस्तृत पढ़ें →</span>
               </div>
-            </div>`).join('')}
+            </button>`).join('')}
         </div>`}`;
     } else if (caTab === 'oneliners') {
       const filt = allOl.filter(x => caCatFilter === 'All' || x.cat === caCatFilter);
