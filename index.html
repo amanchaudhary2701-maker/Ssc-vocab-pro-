@@ -23481,12 +23481,13 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       .replace(/\n{3,}/g, '\n\n'));
 
     const qs = [];
-    const optRe = /(?:^|[\n\s|])(?:\(([Aa])\)|\b([Aa])[).])\s*([^\n|]{2,160}?)(?:\s*\|\s*|\n+|\s{2,})(?:\(([Bb])\)|\b([Bb])[).])\s*([^\n|]{2,160}?)(?:\s*\|\s*|\n+|\s{2,})(?:\(([Cc])\)|\b([Cc])[).])\s*([^\n|]{2,160}?)(?:\s*\|\s*|\n+|\s{2,})(?:\(([Dd])\)|\b([Dd])[).])\s*([^\n|]{2,160}?)(?=\n|$|\s+(?:Ans|Answer|Correct|उत्तर|सही\s*उत्तर|Sol|व्याख्या))/gim;
+    // Supports BOTH standard (A)/(B)/(C)/(D), A)/B)/C)/D), A./B./C./D. AND bare badge A ... B ... C ... D ... (Static GK 200 MCQ PDFs!)
+    const optRe = /(?:^|[\n\s|])(?:\(([Aa])\)|\b([Aa])[).]|\b([A])\s+(?=[^A-D\n,]{2,}))\s*([^\n|]{2,160}?)(?:\s*\|\s*|\n+|\s+)(?:\(([Bb])\)|\b([Bb])[).]|\b([B])\s+(?=[^A-D\n,]{2,}))\s*([^\n|]{2,160}?)(?:\s*\|\s*|\n+|\s+)(?:\(([Cc])\)|\b([Cc])[).]|\b([C])\s+(?=[^A-D\n,]{2,}))\s*([^\n|]{2,160}?)(?:\s*\|\s*|\n+|\s+)(?:\(([Dd])\)|\b([Dd])[).]|\b([D])\s+(?=[^A-D\n,]{2,}))\s*([^\n|]{2,160}?)(?=\n|$|\s+(?:Ans|Answer|Correct|उत्तर|सही\s*उत्तर|Sol|व्याख्या))/gim;
 
     const matches = [];
     let m;
     while ((m = optRe.exec(txt)) !== null) {
-      matches.push({ idx: m.index, end: m.index + m[0].length, opts: [m[3], m[6], m[9], m[12]] });
+      matches.push({ idx: m.index, end: m.index + m[0].length, opts: [m[4], m[8], m[12], m[16]] });
     }
 
     const validOptRe = /[A-Za-z0-9\u0900-\u097F]{2,}/;
