@@ -1133,6 +1133,34 @@
           </div>
           <button type="button" data-kgs-go="tests" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-xs font-extrabold whitespace-nowrap shrink-0 hover:bg-emerald-500/30 transition">📝 Mock Tests</button>
         </div>
+<!-- V157_HOME_STRIP_START -->
+        <div id="v157-smart-hub" class="grid grid-cols-3 gap-2 sm:gap-3">
+          <button type="button" onclick="window.openV157Mistakes()" class="group relative p-3 rounded-2xl bg-gradient-to-br from-rose-950/90 via-slate-900 to-rose-900/60 border border-rose-400/50 hover:border-rose-300 shadow-lg text-left transition active:scale-95">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-xl sm:text-2xl">📕</span>
+              <span id="v157-badge-mistakes" class="px-2 py-0.5 rounded-full bg-rose-500/30 border border-rose-400/60 text-rose-200 text-[10px] font-black">0 Qs</span>
+            </div>
+            <div class="mt-1.5 text-xs sm:text-sm font-black text-white leading-tight">Mistake Book</div>
+            <div class="text-[10px] text-rose-200/90 font-semibold mt-0.5 truncate">Galat Sawal Revise</div>
+          </button>
+          <button type="button" onclick="window.openV157Analytics()" class="group relative p-3 rounded-2xl bg-gradient-to-br from-cyan-950/90 via-slate-900 to-indigo-900/60 border border-cyan-400/50 hover:border-cyan-300 shadow-lg text-left transition active:scale-95">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-xl sm:text-2xl">📊</span>
+              <span id="v157-badge-acc" class="px-2 py-0.5 rounded-full bg-cyan-500/30 border border-cyan-400/60 text-cyan-200 text-[10px] font-black">0% Acc</span>
+            </div>
+            <div class="mt-1.5 text-xs sm:text-sm font-black text-white leading-tight">Analytics</div>
+            <div class="text-[10px] text-cyan-200/90 font-semibold mt-0.5 truncate">Weak Chapters &amp; %</div>
+          </button>
+          <button type="button" onclick="window.openV157CurrentAffairs()" class="group relative p-3 rounded-2xl bg-gradient-to-br from-emerald-950/90 via-slate-900 to-amber-900/50 border border-emerald-400/50 hover:border-emerald-300 shadow-lg text-left transition active:scale-95">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-xl sm:text-2xl">📰</span>
+              <span id="v157-badge-ca" class="px-2 py-0.5 rounded-full bg-emerald-500/30 border border-emerald-400/60 text-emerald-200 text-[10px] font-black">LIVE</span>
+            </div>
+            <div class="mt-1.5 text-xs sm:text-sm font-black text-white leading-tight">Current Affairs</div>
+            <div class="text-[10px] text-emerald-200/90 font-semibold mt-0.5 truncate">One-Liner + Quiz</div>
+          </button>
+        </div>
+<!-- V157_HOME_STRIP_END -->
 
         <!-- TESTBOOK-STYLE PASS PRO & DAILY GOAL HERO CARD -->
         <div class="sheen-3d classic-banner-keep rounded-3xl p-5 bg-gradient-to-br from-sky-950 via-slate-900 to-cyan-950 border-2 border-cyan-400/50 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -18665,6 +18693,7 @@ const mState = {
 
       function saveCompletedTestToMathsPdf(cbtSnapshot) {
         if (!cbtSnapshot || !Array.isArray(cbtSnapshot.questions) || !cbtSnapshot.questions.length) return;
+        try { if (typeof window.__v157CaptureCbtTest === 'function') window.__v157CaptureCbtTest(cbtSnapshot); } catch(e) {}
         const lbl = String(cbtSnapshot.modeLabel || 'SSC Test');
         const hasMaths = cbtSnapshot.questions.some(q =>
           q.subject === 'maths' || String(q.id || '').startsWith('m_') || /maths|eduquity|full mock|pinnacle/i.test(lbl)
@@ -22348,7 +22377,22 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     const s = SLIDES[slideIdx];
     if (s && s.mcqs && s.mcqs[qIdx]) {
       const nm = normalizeMcq(s.mcqs[qIdx]);
-      showPptToast(optIdx === nm.ansIdx ? '✅ बिल्कुल सही उत्तर!' : `❌ गलत — सही उत्तर (${['A','B','C','D'][nm.ansIdx]}) है`);
+      const _isOk = optIdx === nm.ansIdx;
+      showPptToast(_isOk ? '✅ बिल्कुल सही उत्तर!' : `❌ गलत — सही उत्तर (${['A','B','C','D'][nm.ansIdx]}) है`);
+      if (typeof window.__v157LogAttempt === 'function') {
+        const _subName = (activeDeckKey === 'geography' || activeDeckKey === 'geo_mcq') ? 'Geography' : 'Economics';
+        const _chLbl = s.ch ? (`${_subName} Ch ${String(s.ch).padStart(2,'0')}`) : (s.title || _subName);
+        window.__v157LogAttempt({
+          subject: _subName,
+          chapter: _chLbl,
+          q: nm.q,
+          opts: nm.opts,
+          ansIdx: nm.ansIdx,
+          pickedIdx: optIdx,
+          exp: nm.exp || '',
+          isCorrect: _isOk
+        });
+      }
     }
     render(true);
   };
@@ -22565,5 +22609,617 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
 })();
 </script>
 <!-- V148_GS_PPT100_SCRIPT_END -->
+
+<!-- V157_MODALS_AND_SCRIPT_START -->
+<!-- 1. MISTAKE NOTEBOOK MODAL -->
+<div id="v157-mistakes-modal" class="hidden fixed inset-0 z-[120] bg-slate-950/95 backdrop-blur-sm flex flex-col overflow-hidden">
+  <div class="px-4 py-3 bg-gradient-to-r from-rose-950 via-slate-900 to-slate-950 border-b border-rose-400/40 flex items-center justify-between gap-2 shrink-0">
+    <div class="min-w-0">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">📕</span>
+        <h2 class="text-sm sm:text-lg font-black text-white truncate">Mistake Notebook (Auto Wrong-Question Bank)</h2>
+      </div>
+      <p class="text-[11px] text-rose-200/90">Test, PYQ, 3D PPT aur Current Affairs me jo bhi sawal galat hua — sab yahan auto-save hai!</p>
+    </div>
+    <button type="button" onclick="window.closeV157Modal('v157-mistakes-modal')" class="px-3 py-1.5 rounded-xl bg-rose-500/25 hover:bg-rose-500/40 border border-rose-400/60 text-white text-xs font-black shrink-0">✕ Close</button>
+  </div>
+  <div class="p-3 sm:p-4 border-b border-white/10 bg-slate-900/90 flex flex-wrap items-center justify-between gap-2 shrink-0">
+    <div id="v157-mk-chips" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar"></div>
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="window.v157ToggleMistakeRetest()" id="v157-mk-retest-btn" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 text-xs font-black shadow">🎯 Re-Test Mode: ON</button>
+      <button type="button" onclick="window.v157ClearMastered()" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-xs font-extrabold">🧹 Clear Mastered</button>
+    </div>
+  </div>
+  <div id="v157-mk-body" class="flex-1 overflow-y-auto p-3 sm:p-5 space-y-3 max-w-5xl w-full mx-auto"></div>
+</div>
+
+<!-- 2. STUDENT ANALYTICS & WEAK-CHAPTER TRACKER MODAL -->
+<div id="v157-analytics-modal" class="hidden fixed inset-0 z-[120] bg-slate-950/95 backdrop-blur-sm flex flex-col overflow-hidden">
+  <div class="px-4 py-3 bg-gradient-to-r from-cyan-950 via-slate-900 to-indigo-950 border-b border-cyan-400/40 flex items-center justify-between gap-2 shrink-0">
+    <div class="min-w-0">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">📊</span>
+        <h2 class="text-sm sm:text-lg font-black text-white truncate">Student Performance Analytics &amp; Weak-Chapter Tracker</h2>
+      </div>
+      <p class="text-[11px] text-cyan-200/90">Subject-wise Accuracy %, Top 3 Weak Chapters aur Recent Test History — Live Tracking</p>
+    </div>
+    <button type="button" onclick="window.closeV157Modal('v157-analytics-modal')" class="px-3 py-1.5 rounded-xl bg-cyan-500/25 hover:bg-cyan-500/40 border border-cyan-400/60 text-white text-xs font-black shrink-0">✕ Close</button>
+  </div>
+  <div id="v157-an-body" class="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 max-w-5xl w-full mx-auto"></div>
+</div>
+
+<!-- 3. DAILY CURRENT AFFAIRS ONE-LINER + MONTHLY QUIZ + 1-CLICK ADMIN PUBLISHER MODAL -->
+<div id="v157-ca-modal" class="hidden fixed inset-0 z-[120] bg-slate-950/95 backdrop-blur-sm flex flex-col overflow-hidden">
+  <div class="px-4 py-3 bg-gradient-to-r from-emerald-950 via-slate-900 to-amber-950/80 border-b border-emerald-400/40 flex items-center justify-between gap-2 shrink-0">
+    <div class="min-w-0">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">📰</span>
+        <h2 class="text-sm sm:text-lg font-black text-white truncate">Daily Current Affairs One-Liners &amp; Monthly Quiz</h2>
+      </div>
+      <p class="text-[11px] text-emerald-200/90">SSC + UPSC High-Yield Current Affairs • Interactive Clickable Quiz • 1-Click Cloud Update</p>
+    </div>
+    <button type="button" onclick="window.closeV157Modal('v157-ca-modal')" class="px-3 py-1.5 rounded-xl bg-emerald-500/25 hover:bg-emerald-500/40 border border-emerald-400/60 text-white text-xs font-black shrink-0">✕ Close</button>
+  </div>
+  <div class="p-3 bg-slate-900/95 border-b border-white/10 flex flex-wrap items-center justify-between gap-2 shrink-0">
+    <div class="flex items-center gap-2">
+      <button type="button" id="v157-ca-tab-ol" onclick="window.v157SwitchCaTab('oneliners')" class="px-3.5 py-1.5 rounded-xl text-xs font-black bg-emerald-400 text-slate-950 shadow">⚡ Daily One-Liners</button>
+      <button type="button" id="v157-ca-tab-qz" onclick="window.v157SwitchCaTab('quiz')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 border border-white/15">🎯 Monthly MCQ Quiz</button>
+      <button type="button" id="v157-ca-tab-adm" onclick="window.v157SwitchCaTab('admin')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-400/50">🛡️ Admin 1-Click Add</button>
+    </div>
+    <div id="v157-ca-score-pill" class="hidden px-3 py-1 rounded-xl bg-violet-500/25 border border-violet-400/50 text-violet-200 text-xs font-black">Score: 0 / 0</div>
+  </div>
+  <div id="v157-ca-body" class="flex-1 overflow-y-auto p-3 sm:p-5 space-y-3.5 max-w-5xl w-full mx-auto"></div>
+</div>
+
+<script>
+(function initV157SmartStudyHub() {
+  const MK_KEY = 'ssc_mistake_notebook_v1';
+  const AN_KEY = 'ssc_student_analytics_v1';
+  const CA_KEY = 'ssc_current_affairs_custom_v1';
+
+  const DEFAULT_OL = [{"id": "ol1", "cat": "Economy & RBI", "date": "Nov 2026", "text": "16वें वित्त आयोग (16th Finance Commission) के अध्यक्ष डॉ. अरविंद पनगढ़िया हैं, जिसकी सिफारिशें 1 अप्रैल 2026 से 5 वर्षों (2026–31) के लिए लागू हैं।"}, {"id": "ol2", "cat": "Economy & RBI", "date": "Nov 2026", "text": "RBI की मौद्रिक नीति समिति (MPC) में कुल 6 सदस्य (3 RBI + 3 केंद्र सरकार द्वारा नामित) होते हैं; मुद्रास्फीति लक्ष्य 4% (±2%) है।"}, {"id": "ol3", "cat": "Economy & RBI", "date": "Nov 2026", "text": "UPI (Unified Payments Interface) का संचालन NPCI द्वारा किया जाता है; भारत का UPI अब फ्रांस, UAE, सिंगापुर, श्रीलंका, मॉरीशस व नेपाल में भी सक्रिय है।"}, {"id": "ol4", "cat": "Economy & RBI", "date": "Nov 2026", "text": "e-Rupee (CBDC) भारतीय रिज़र्व बैंक द्वारा जारी डिजिटल वैध मुद्रा है, जो Retail (e₹-R) और Wholesale (e₹-W) दोनों रूपों में संचालित है।"}, {"id": "ol5", "cat": "Economy & RBI", "date": "Nov 2026", "text": "PM-Surya Ghar Muft Bijli Yojana के तहत 1 करोड़ घरों को प्रति माह 300 यूनिट तक मुफ्त बिजली हेतु रूफटॉप सोलर सब्सिडी दी जा रही है।"}, {"id": "ol6", "cat": "Science & ISRO", "date": "Nov 2026", "text": "ISRO का आदित्य-L1 मिशन पृथ्वी से 15 लाख किमी दूर सूर्य-पृथ्वी लैग्रेंज बिंदु-1 (L1) के हेलो ऑर्बिट में रहकर सूर्य का 24×7 अध्ययन कर रहा है।"}, {"id": "ol7", "cat": "Science & ISRO", "date": "Nov 2026", "text": "गगनयान (Gaganyaan) भारत का पहला मानव अंतरिक्ष मिशन है, जिसे LVM3 (HLVM3) रॉकेट से 400 किमी की निचली पृथ्वी कक्षा (LEO) में भेजा जाएगा।"}, {"id": "ol8", "cat": "Science & ISRO", "date": "Nov 2026", "text": "NISAR (NASA-ISRO Synthetic Aperture Radar) विश्व का पहला डुअल-फ्रीक्वेंसी (L-बैंड व S-बैंड) पृथ्वी अवलोकन उपग्रह मिशन है।"}, {"id": "ol9", "cat": "Science & ISRO", "date": "Nov 2026", "text": "चंद्रयान-3 के लैंडिंग स्थल (दक्षिणी ध्रुव के पास) का नाम 'शिव शक्ति पॉइंट' रखा गया है और 23 अगस्त को 'राष्ट्रीय अंतरिक्ष दिवस' मनाया जाता है।"}, {"id": "ol10", "cat": "Science & ISRO", "date": "Nov 2026", "text": "ISRO का XPoSat (X-ray Polarimeter Satellite) ब्लैक होल व न्यूट्रॉन तारों के एक्स-रे ध्रुवीकरण का अध्ययन करने वाला भारत का पहला मिशन है।"}, {"id": "ol11", "cat": "National & Polity", "date": "Nov 2026", "text": "106वाँ संविधान संशोधन अधिनियम (नारी शक्ति वंदन अधिनियम) लोकसभा व राज्य विधानसभाओं में महिलाओं को 33% आरक्षण प्रदान करता है।"}, {"id": "ol12", "cat": "National & Polity", "date": "Nov 2026", "text": "भारतीय न्याय संहिता (BNS), भारतीय नागरिक सुरक्षा संहिता (BNSS) और भारतीय साक्ष्य अधिनियम (BSA) ने क्रमशः IPC, CrPC और Indian Evidence Act का स्थान लिया।"}, {"id": "ol13", "cat": "National & Polity", "date": "Nov 2026", "text": "मुख्य चुनाव आयुक्त एवं अन्य चुनाव आयुक्त अधिनियम के तहत चयन समिति में प्रधानमंत्री, एक केंद्रीय मंत्री और लोकसभा में विपक्ष के नेता शामिल हैं।"}, {"id": "ol14", "cat": "National & Polity", "date": "Nov 2026", "text": "अनुच्छेद 370 के निरसन को सर्वोच्च न्यायालय की 5-न्यायाधीशों की संविधान पीठ ने वैध ठहराया और इसे अस्थायी प्रावधान माना।"}, {"id": "ol15", "cat": "National & Polity", "date": "Nov 2026", "text": "भारत में अब कुल 11 शास्त्रीय भाषाएँ (Classical Languages) हैं — हाल में मराठी, पाली, प्राकृत, असमिया और बंगाली को भी यह दर्जा मिला।"}, {"id": "ol16", "cat": "Defence & Exercises", "date": "Nov 2026", "text": "प्रोजेक्ट 75 (कलवरी श्रेणी) के तहत 6 स्कॉर्पीन पनडुब्बियाँ (कलवरी, खंडेरी, करंज, वेला, वागीर, वागशीर) मझगांव डॉक (मुंबई) में निर्मित हुईं।"}, {"id": "ol17", "cat": "Defence & Exercises", "date": "Nov 2026", "text": "प्रमुख सैन्य अभ्यास: युद्ध अभ्यास व वज्र प्रहार (भारत–USA), शक्ति/वरुण/गरुड़ (भारत–फ्रांस), धर्म गार्जियन (भारत–जापान), सूर्य किरण (भारत–नेपाल)।"}, {"id": "ol18", "cat": "Defence & Exercises", "date": "Nov 2026", "text": "DRDO का 'मिशन दिव्यास्त्र' अग्नि-5 मिसाइल के MIRV (Multiple Independently Targetable Re-entry Vehicle) तकनीक का सफल परीक्षण है।"}, {"id": "ol19", "cat": "Defence & Exercises", "date": "Nov 2026", "text": "INS विक्रांत (IAC-1) कोचीन शिपयार्ड द्वारा निर्मित भारत का पहला स्वदेशी विमानवाहक पोत है।"}, {"id": "ol20", "cat": "Defence & Exercises", "date": "Nov 2026", "text": "मालाबार नौसैनिक अभ्यास QUAD देशों (भारत, अमेरिका, जापान, ऑस्ट्रेलिया) के बीच आयोजित होता है।"}, {"id": "ol21", "cat": "International & Summits", "date": "Nov 2026", "text": "BRICS समूह के विस्तार के बाद इसमें ब्राज़ील, रूस, भारत, चीन, दक्षिण अफ्रीका के साथ मिस्र, इथियोपिया, ईरान, UAE और इंडोनेशिया शामिल हैं।"}, {"id": "ol22", "cat": "International & Summits", "date": "Nov 2026", "text": "G20 में अफ्रीकी संघ (African Union) को 21वें स्थायी सदस्य के रूप में नई दिल्ली शिखर सम्मेलन में शामिल किया गया।"}, {"id": "ol23", "cat": "International & Summits", "date": "Nov 2026", "text": "अंतर्राष्ट्रीय सौर गठबंधन (ISA) का मुख्यालय गुरुग्राम (हरियाणा) में है और यह भारत-फ्रांस की संयुक्त पहल है।"}, {"id": "ol24", "cat": "International & Summits", "date": "Nov 2026", "text": "भारत-मध्य पूर्व-यूरोप आर्थिक गलियारा (IMEC) भारत को UAE, सऊदी अरब, जॉर्डन, इज़राइल के माध्यम से यूरोप से जोड़ता है।"}, {"id": "ol25", "cat": "International & Summits", "date": "Nov 2026", "text": "संयुक्त राष्ट्र जलवायु सम्मेलन (UNFCCC COP) के अंतर्गत 'लॉस एंड डैमेज फंड' की मेजबानी विश्व बैंक कर रहा है।"}, {"id": "ol26", "cat": "Awards & Sports", "date": "Nov 2026", "text": "58वाँ ज्ञानपीठ पुरस्कार संस्कृत विद्वान जगद्गुरु रामभद्राचार्य और उर्दू कवि गुलज़ार को प्रदान किया गया।"}, {"id": "ol27", "cat": "Awards & Sports", "date": "Nov 2026", "text": "भारत रत्न 2024 पाँच विभूतियों — कर्पूरी ठाकुर, लालकृष्ण आडवाणी, पी.वी. नरसिम्हा राव, चौधरी चरण सिंह और डॉ. एम.एस. स्वामीनाथन को दिया गया।"}, {"id": "ol28", "cat": "Awards & Sports", "date": "Nov 2026", "text": "डी. गुकेश (भारत) सबसे कम उम्र (18 वर्ष) में विश्व शतरंज चैंपियन बनने वाले खिलाड़ी बने।"}, {"id": "ol29", "cat": "Awards & Sports", "date": "Nov 2026", "text": "पेरिस ओलंपिक 2024 में मनु भाकर एक ही ओलंपिक में दो पदक जीतने वाली स्वतंत्र भारत की पहली एथलीट बनीं (10m एयर पिस्टल एकल व मिश्रित)।"}, {"id": "ol30", "cat": "Awards & Sports", "date": "Nov 2026", "text": "मेजर ध्यानचंद खेल रत्न पुरस्कार भारत का सर्वोच्च खेल सम्मान है (पूर्व नाम: राजीव गांधी खेल रत्न पुरस्कार)।"}, {"id": "ol31", "cat": "Environment & Geo", "date": "Nov 2026", "text": "भारत में रामसर आर्द्रभूमि स्थलों (Ramsar Sites) की संख्या 85+ हो गई है; सर्वाधिक रामसर स्थल तमिलनाडु में हैं।"}, {"id": "ol32", "cat": "Environment & Geo", "date": "Nov 2026", "text": "प्रोजेक्ट चीता के तहत नामीबिया और दक्षिण अफ्रीका से लाए गए चीतों को कूनो राष्ट्रीय उद्यान (मध्य प्रदेश) में बसाया गया।"}, {"id": "ol33", "cat": "Environment & Geo", "date": "Nov 2026", "text": "भारत का पहला डार्क स्काई रिजर्व लद्दाख के हानले (Hanle, चांगथांग वन्यजीव अभयारण्य) में स्थापित किया गया है।"}, {"id": "ol34", "cat": "Environment & Geo", "date": "Nov 2026", "text": "राष्ट्रीय हरित हाइड्रोजन मिशन का लक्ष्य 2030 तक प्रति वर्ष 5 मिलियन मीट्रिक टन हरित हाइड्रोजन उत्पादन क्षमता हासिल करना है।"}, {"id": "ol35", "cat": "Schemes & Misc", "date": "Nov 2026", "text": "PM विश्वकर्मा योजना 18 पारंपरिक कारीगर व्यवसायों को कौशल प्रशिक्षण, ₹15,000 टूलकिट सहायता और 5% ब्याज पर ₹3 लाख तक ऋण देती है।"}];
+  const DEFAULT_QZ = [{"id": "ca1", "cat": "Economy & RBI", "q": "16वें वित्त आयोग (16th Finance Commission) के अध्यक्ष कौन हैं?", "o": ["एन.के. सिंह", "डॉ. अरविंद पनगढ़िया", "वाई.वी. रेड्डी", "अमिताभ कांत"], "a": 1, "exp": "डॉ. अरविंद पनगढ़िया 16वें वित्त आयोग (अनुच्छेद 280) के अध्यक्ष हैं; अवधि 2026–2031 है।"}, {"id": "ca2", "cat": "Science & ISRO", "q": "भारत में 'राष्ट्रीय अंतरिक्ष दिवस' (National Space Day) किस तिथि को मनाया जाता है?", "o": ["15 अगस्त", "23 अगस्त", "28 फरवरी", "14 जुलाई"], "a": 1, "exp": "23 अगस्त 2023 को चंद्रयान-3 के दक्षिणी ध्रुव ('शिव शक्ति पॉइंट') पर सफल लैंडिंग की स्मृति में।"}, {"id": "ca3", "cat": "National & Polity", "q": "106वाँ संविधान संशोधन अधिनियम (नारी शक्ति वंदन अधिनियम) किससे संबंधित है?", "o": ["GST परिषद", "EWS 10% आरक्षण", "लोकसभा व विधानसभाओं में 33% महिला आरक्षण", "पंचायती राज"], "a": 2, "exp": "यह लोकसभा, राज्य विधानसभाओं और दिल्ली विधानसभा में महिलाओं को एक-तिहाई (33%) आरक्षण देता है।"}, {"id": "ca4", "cat": "Science & ISRO", "q": "ISRO का सूर्य अध्ययन मिशन 'आदित्य-L1' पृथ्वी से लगभग कितनी दूरी पर स्थित है?", "o": ["3.84 लाख किमी", "15 लाख किमी (L1 बिंदु)", "1 करोड़ किमी", "50,000 किमी"], "a": 1, "exp": "लैग्रेंज बिंदु-1 (L1) पृथ्वी से लगभग 15 लाख किमी दूर है जहाँ से सूर्य का 24×7 अवलोकन संभव है।"}, {"id": "ca5", "cat": "National & Polity", "q": "भारत में अब कुल कितनी भाषाओं को 'शास्त्रीय भाषा' (Classical Language) का दर्जा प्राप्त है?", "o": ["6", "8", "11", "14"], "a": 2, "exp": "तमिल, संस्कृत, कन्नड़, तेलुगु, मलयालम, उड़िया के बाद मराठी, पाली, प्राकृत, असमिया और बंगाली जोड़कर कुल 11 हो गईं।"}, {"id": "ca6", "cat": "Defence & Exercises", "q": "DRDO के 'मिशन दिव्यास्त्र' का संबंध किस मिसाइल और तकनीक से है?", "o": ["ब्रह्मोस — हाइपरसोनिक", "अग्नि-5 — MIRV तकनीक", "पृथ्वी-2 — स्टील्थ", "आकाश — एंटी-सैटेलाइट"], "a": 1, "exp": "अग्नि-5 मिसाइल का MIRV तकनीक से परीक्षण हुआ, जिससे एक मिसाइल कई लक्ष्यों को एक साथ भेद सकती है।"}, {"id": "ca7", "cat": "Awards & Sports", "q": "सबसे कम उम्र में विश्व शतरंज चैंपियन बनने वाले भारतीय खिलाड़ी कौन हैं?", "o": ["आर. प्रज्ञानंद", "डी. गुकेश", "अर्जुन एरिगैसी", "विश्वनाथन आनंद"], "a": 1, "exp": "डी. गुकेश ने 18 वर्ष की आयु में विश्व शतरंज चैंपियनशिप जीतकर इतिहास रचा।"}, {"id": "ca8", "cat": "International & Summits", "q": "अंतर्राष्ट्रीय सौर गठबंधन (ISA) का मुख्यालय भारत के किस शहर में स्थित है?", "o": ["नई दिल्ली", "बेंगलुरु", "गुरुग्राम (हरियाणा)", "गांधीनगर"], "a": 2, "exp": "ISA (2015, भारत-फ्रांस पहल) का मुख्यालय गुरुग्राम, हरियाणा में स्थित है।"}, {"id": "ca9", "cat": "Economy & RBI", "q": "RBI की मौद्रिक नीति समिति (MPC) का आधिकारिक उपभोक्ता मुद्रास्फीति (CPI) लक्ष्य क्या है?", "o": ["2% ± 1%", "4% ± 2%", "6% ± 2%", "5% ± 1%"], "a": 1, "exp": "उर्जित पटेल समिति की सिफारिश पर 4% (±2%, अर्थात् 2% से 6% बैंड) लक्ष्य तय किया गया है।"}, {"id": "ca10", "cat": "Environment & Geo", "q": "भारत में सर्वाधिक रामसर आर्द्रभूमि स्थल (Ramsar Sites) किस राज्य में स्थित हैं?", "o": ["उत्तर प्रदेश", "तमिलनाडु", "मध्य प्रदेश", "ओडिशा"], "a": 1, "exp": "तमिलनाडु में भारत के सर्वाधिक रामसर स्थल हैं, इसके बाद उत्तर प्रदेश का स्थान है।"}, {"id": "ca11", "cat": "National & Polity", "q": "भारतीय दंड संहिता (IPC 1860) के स्थान पर कौन-सा नया कानून लागू किया गया है?", "o": ["भारतीय नागरिक सुरक्षा संहिता (BNSS)", "भारतीय न्याय संहिता (BNS)", "भारतीय साक्ष्य अधिनियम (BSA)", "लोक सुरक्षा संहिता"], "a": 1, "exp": "IPC → BNS, CrPC → BNSS और Indian Evidence Act → BSA द्वारा प्रतिस्थापित किए गए हैं।"}, {"id": "ca12", "cat": "Science & ISRO", "q": "NISAR उपग्रह मिशन किन दो अंतरिक्ष एजेंसियों का संयुक्त प्रोजेक्ट है?", "o": ["ISRO व JAXA", "ISRO व ESA", "NASA व ISRO", "ISRO व Roscosmos"], "a": 2, "exp": "NISAR (NASA-ISRO Synthetic Aperture Radar) डुअल-फ्रीक्वेंसी पृथ्वी अवलोकन उपग्रह है।"}, {"id": "ca13", "cat": "Defence & Exercises", "q": "'धर्म गार्जियन' (Dharma Guardian) सैन्य अभ्यास भारत और किस देश के बीच होता है?", "o": ["फ्रांस", "जापान", "अमेरिका", "ऑस्ट्रेलिया"], "a": 1, "exp": "धर्म गार्जियन, वीर गार्जियन और जिमेक्स (JIMEX) भारत व जापान के संयुक्त अभ्यास हैं।"}, {"id": "ca14", "cat": "Awards & Sports", "q": "58वाँ ज्ञानपीठ पुरस्कार किन दो साहित्यकारों को प्रदान किया गया?", "o": ["दामोदर मौजो व नीलमणि फूकन", "जगद्गुरु रामभद्राचार्य व गुलज़ार", "अमिताभ घोष व केदारनाथ सिंह", "विनोद कुमार शुक्ल व जावेद अख्तर"], "a": 1, "exp": "संस्कृत के लिए जगद्गुरु रामभद्राचार्य तथा उर्दू के लिए गुलज़ार को 58वाँ ज्ञानपीठ सम्मान मिला।"}, {"id": "ca15", "cat": "Environment & Geo", "q": "भारत का पहला 'डार्क स्काई रिजर्व' (Dark Sky Reserve) कहाँ स्थापित किया गया है?", "o": ["सिक्किम", "हानले (लद्दाख)", "कच्छ (गुजरात)", "स्पीति (हिमाचल)"], "a": 1, "exp": "लद्दाख के चांगथांग वन्यजीव अभयारण्य के अंतर्गत हानले में भारत का पहला डार्क स्काई रिजर्व बना है।"}, {"id": "ca16", "cat": "Economy & RBI", "q": "'पीएम सूर्य घर मुफ्त बिजली योजना' के तहत प्रति माह कितने यूनिट मुफ्त बिजली का लक्ष्य है?", "o": ["100 यूनिट", "200 यूनिट", "300 यूनिट", "500 यूनिट"], "a": 2, "exp": "1 करोड़ घरों को रूफटॉप सोलर सब्सिडी के माध्यम से प्रति माह 300 यूनिट मुफ्त बिजली का प्रावधान है।"}, {"id": "ca17", "cat": "International & Summits", "q": "G20 का 21वाँ स्थायी सदस्य किस क्षेत्रीय संगठन को बनाया गया है?", "o": ["ASEAN", "अफ्रीकी संघ (African Union)", "SAARC", "GCC"], "a": 1, "exp": "नई दिल्ली G20 शिखर सम्मेलन में 55 देशों वाले अफ्रीकी संघ को स्थायी सदस्यता मिली।"}, {"id": "ca18", "cat": "Defence & Exercises", "q": "भारत का पहला स्वदेशी विमानवाहक पोत (Indigenous Aircraft Carrier) कौन-सा है?", "o": ["INS विक्रमादित्य", "INS विक्रांत (IAC-1)", "INS अरिहंत", "INS विशाखापत्तनम"], "a": 1, "exp": "INS विक्रांत का निर्माण कोचीन शिपयार्ड लिमिटेड (केरल) द्वारा किया गया है।"}, {"id": "ca19", "cat": "Schemes & Misc", "q": "'PM विश्वकर्मा योजना' कितने पारंपरिक कारीगर और शिल्पकार व्यवसायों को कवर करती है?", "o": ["12", "15", "18", "24"], "a": 2, "exp": "बढ़ई, लोहार, कुम्हार, सुनार, दर्जी सहित कुल 18 पारंपरिक व्यवसायों को 5% ब्याज पर ऋण व टूलकिट सहायता मिलती है।"}, {"id": "ca20", "cat": "Environment & Geo", "q": "'प्रोजेक्ट चीता' के अंतर्गत अफ्रीकी चीतों को सर्वप्रथम किस राष्ट्रीय उद्यान में छोड़ा गया?", "o": ["कान्हा राष्ट्रीय उद्यान", "कूनो राष्ट्रीय उद्यान (म.प्र.)", "जिम कॉर्बेट", "रणथंभौर"], "a": 1, "exp": "नामीबिया व दक्षिण अफ्रीका से लाए गए चीतों को मध्य प्रदेश के कूनो राष्ट्रीय उद्यान में बसाया गया।"}, {"id": "ca21", "cat": "Science & ISRO", "q": "ISRO के 'गगनयान' मानव अंतरिक्ष मिशन के लिए किस प्रक्षेपण यान का उपयोग किया जाएगा?", "o": ["PSLV-XL", "GSLV Mk-II", "HLVM3 (LVM3)", "SSLV"], "a": 2, "exp": "ह्यूमन-रेटेड LVM3 (HLVM3) रॉकेट से अंतरिक्ष यात्रियों को 400 किमी कक्षा में भेजा जाएगा।"}, {"id": "ca22", "cat": "Awards & Sports", "q": "पेरिस ओलंपिक 2024 में एक ही ओलंपिक में दो पदक जीतने वाली स्वतंत्र भारत की पहली एथलीट कौन बनीं?", "o": ["पी.वी. सिंधु", "मनु भाकर", "मीराबाई चानू", "लवलीना बोरगोहेन"], "a": 1, "exp": "मनु भाकर ने 10m एयर पिस्टल एकल व 10m एयर पिस्टल मिश्रित टीम (सरबजोत सिंह के साथ) में दो कांस्य जीते।"}, {"id": "ca23", "cat": "Defence & Exercises", "q": "'मालाबार' (Malabar) बहुपक्षीय नौसैनिक अभ्यास किन देशों के बीच आयोजित होता है?", "o": ["BRICS देश", "QUAD देश (भारत, USA, जापान, ऑस्ट्रेलिया)", "SCO देश", "BIMSTEC देश"], "a": 1, "exp": "मालाबार अभ्यास में चारों QUAD देश शामिल होते हैं।"}, {"id": "ca24", "cat": "Economy & RBI", "q": "राष्ट्रीय हरित हाइड्रोजन मिशन के तहत 2030 तक प्रति वर्ष कितना हरित हाइड्रोजन उत्पादन लक्ष्य है?", "o": ["1 मिलियन मीट्रिक टन", "5 मिलियन मीट्रिक टन", "10 मिलियन मीट्रिक टन", "20 मिलियन मीट्रिक टन"], "a": 1, "exp": "2030 तक 5 MMT वार्षिक हरित हाइड्रोजन उत्पादन और 125 GW नवीकरणीय ऊर्जा क्षमता का लक्ष्य है।"}, {"id": "ca25", "cat": "National & Polity", "q": "निम्नलिखित में से किस वर्ष हरित क्रांति के जनक डॉ. एम.एस. स्वामीनाथन को 'भारत रत्न' से सम्मानित किया गया?", "o": ["2019", "2022", "2024", "2025"], "a": 2, "exp": "2024 में डॉ. एम.एस. स्वामीनाथन सहित 5 विभूतियों को भारत रत्न दिया गया।"}];
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function loadJson(k, fb) {
+    try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v || fb; } catch(e) { return fb; }
+  }
+  function saveJson(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
+  }
+
+  // State
+  let mistakes = loadJson(MK_KEY, []);
+  let analytics = loadJson(AN_KEY, { total: 0, right: 0, wrong: 0, subjects: {}, chapters: {}, sessions: [] });
+  let customCa = loadJson(CA_KEY, { oneliners: [], mcqs: [] });
+
+  let mkFilter = 'All';
+  let mkRetestMode = true;
+  const mkRetestState = {};
+
+  let caTab = 'oneliners';
+  let caCatFilter = 'All';
+  const caQuizState = {};
+
+  function refreshHomeBadges() {
+    const activeMk = mistakes.filter(m => !m.mastered).length;
+    const mkEl = document.getElementById('v157-badge-mistakes');
+    if (mkEl) mkEl.textContent = activeMk + ' Qs';
+    const accEl = document.getElementById('v157-badge-acc');
+    const pct = analytics.total ? Math.round((analytics.right / analytics.total) * 100) : 0;
+    if (accEl) accEl.textContent = pct + '% Acc';
+    const caEl = document.getElementById('v157-badge-ca');
+    if (caEl) caEl.textContent = (DEFAULT_QZ.length + (customCa.mcqs || []).length) + ' MCQs';
+  }
+
+  // -------------------------------------------------------------------------
+  // CORE LOGGER: Called automatically from 3D PPT MCQs, CBT Mocks & CA Quiz!
+  // -------------------------------------------------------------------------
+  window.__v157LogAttempt = function(ev) {
+    if (!ev || !ev.q) return;
+    const sub = String(ev.subject || 'GS/PYQ').trim();
+    const ch  = String(ev.chapter || sub).trim();
+    const ok  = !!ev.isCorrect;
+
+    analytics.total = (analytics.total || 0) + 1;
+    if (ok) analytics.right = (analytics.right || 0) + 1;
+    else analytics.wrong = (analytics.wrong || 0) + 1;
+
+    if (!analytics.subjects) analytics.subjects = {};
+    if (!analytics.subjects[sub]) analytics.subjects[sub] = { total: 0, right: 0, wrong: 0 };
+    analytics.subjects[sub].total++;
+    if (ok) analytics.subjects[sub].right++; else analytics.subjects[sub].wrong++;
+
+    if (!analytics.chapters) analytics.chapters = {};
+    if (!analytics.chapters[ch]) analytics.chapters[ch] = { subject: sub, total: 0, right: 0, wrong: 0 };
+    analytics.chapters[ch].total++;
+    if (ok) analytics.chapters[ch].right++; else analytics.chapters[ch].wrong++;
+    saveJson(AN_KEY, analytics);
+
+    // If wrong -> auto-save to Mistake Notebook (deduplicated by question text)
+    if (!ok) {
+      const qKey = String(ev.q).trim().slice(0, 120);
+      const idx = mistakes.findIndex(m => String(m.q || '').trim().slice(0, 120) === qKey);
+      const rec = {
+        id: idx >= 0 ? mistakes[idx].id : ('mk_' + Date.now() + '_' + Math.floor(Math.random()*999)),
+        subject: sub,
+        chapter: ch,
+        q: ev.q,
+        opts: Array.isArray(ev.opts) ? ev.opts : [],
+        ansIdx: Number(ev.ansIdx) || 0,
+        pickedIdx: Number(ev.pickedIdx),
+        exp: ev.exp || '',
+        date: new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short' }),
+        mastered: false,
+        ts: Date.now()
+      };
+      if (idx >= 0) mistakes[idx] = rec;
+      else mistakes.unshift(rec);
+      if (mistakes.length > 500) mistakes = mistakes.slice(0, 500);
+      saveJson(MK_KEY, mistakes);
+    }
+    refreshHomeBadges();
+  };
+
+  window.__v157CaptureCbtTest = function(snap) {
+    if (!snap || !Array.isArray(snap.questions) || !snap.questions.length) return;
+    const lbl = String(snap.modeLabel || 'SSC Mock Test');
+    let r = 0, w = 0, att = 0;
+    snap.questions.forEach((q, idx) => {
+      const chosen = snap.answers ? snap.answers[idx] : undefined;
+      if (chosen === undefined || chosen === null || chosen === '') return;
+      att++;
+      const opts = Array.isArray(q.options) ? q.options : [];
+      const correctAns = q.cbtAnswer || q.answer || '';
+      const ansIdx = Math.max(0, opts.indexOf(correctAns));
+      const pickedIdx = opts.indexOf(chosen);
+      const isOk = (chosen === correctAns) || (pickedIdx >= 0 && pickedIdx === ansIdx);
+      if (isOk) r++; else w++;
+      let sub = 'GS/PYQ';
+      const rawS = String(q.subject || q.secLabel || lbl).toLowerCase();
+      if (rawS.includes('math') || String(q.id || '').startsWith('m_')) sub = 'Maths';
+      else if (rawS.includes('eng') || rawS.includes('vocab') || rawS.includes('syn') || rawS.includes('ant') || rawS.includes('ows') || rawS.includes('idiom')) sub = 'English';
+      else if (rawS.includes('reason')) sub = 'Reasoning';
+      else if (rawS.includes('econ')) sub = 'Economics';
+      else if (rawS.includes('geo')) sub = 'Geography';
+      window.__v157LogAttempt({
+        subject: sub,
+        chapter: q.category || q.chapter || sub,
+        q: q.stem || q.question || q.prompt || q.word || 'Question',
+        opts: opts.length === 4 ? opts : [String(correctAns), String(chosen), '—', '—'],
+        ansIdx: opts.length === 4 ? ansIdx : 0,
+        pickedIdx: pickedIdx >= 0 ? pickedIdx : 1,
+        exp: q.explanation || q.solution || q.trick || q.meaningHi || '',
+        isCorrect: isOk
+      });
+    });
+    if (att > 0) {
+      if (!analytics.sessions) analytics.sessions = [];
+      analytics.sessions.unshift({
+        title: lbl,
+        attempted: att,
+        right: r,
+        wrong: w,
+        acc: Math.round((r / att) * 100),
+        date: new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })
+      });
+      if (analytics.sessions.length > 25) analytics.sessions = analytics.sessions.slice(0, 25);
+      saveJson(AN_KEY, analytics);
+      refreshHomeBadges();
+    }
+  };
+
+  window.closeV157Modal = function(id) {
+    document.getElementById(id)?.classList.add('hidden');
+    document.body.style.overflow = '';
+  };
+
+  // -------------------------------------------------------------------------
+  // MODAL 1: MISTAKE NOTEBOOK
+  // -------------------------------------------------------------------------
+  window.openV157Mistakes = function(filterSub) {
+    if (filterSub) mkFilter = filterSub;
+    document.getElementById('v157-mistakes-modal')?.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    renderMistakes();
+  };
+
+  window.v157SetMkFilter = function(sub) { mkFilter = sub; renderMistakes(); };
+  window.v157ToggleMistakeRetest = function() {
+    mkRetestMode = !mkRetestMode;
+    const b = document.getElementById('v157-mk-retest-btn');
+    if (b) b.textContent = mkRetestMode ? '🎯 Re-Test Mode: ON' : '👁️ View Solutions Mode';
+    renderMistakes();
+  };
+
+  window.v157PickMistakeOpt = function(mkId, oi) {
+    mkRetestState[mkId] = oi;
+    const item = mistakes.find(m => m.id === mkId);
+    if (item && oi === item.ansIdx) {
+      item.mastered = true;
+      saveJson(MK_KEY, mistakes);
+      refreshHomeBadges();
+      if (typeof showToast === 'function') showToast('🎉 Mastered! Ab ye sawal aapko pakka yaad ho gaya!');
+    }
+    renderMistakes();
+  };
+
+  window.v157RemoveMistake = function(mkId) {
+    mistakes = mistakes.filter(m => m.id !== mkId);
+    saveJson(MK_KEY, mistakes);
+    refreshHomeBadges();
+    renderMistakes();
+  };
+
+  window.v157ClearMastered = function() {
+    const before = mistakes.length;
+    mistakes = mistakes.filter(m => !m.mastered);
+    saveJson(MK_KEY, mistakes);
+    refreshHomeBadges();
+    renderMistakes();
+    if (typeof showToast === 'function') showToast(`🧹 ${before - mistakes.length} mastered sawal hata diye gaye!`);
+  };
+
+  function renderMistakes() {
+    const subs = ['All', 'Economics', 'Geography', 'Maths', 'English', 'Reasoning', 'GS/PYQ', 'Current Affairs'];
+    const chips = document.getElementById('v157-mk-chips');
+    if (chips) {
+      chips.innerHTML = subs.map(s => {
+        const cnt = s === 'All' ? mistakes.length : mistakes.filter(m => m.subject === s).length;
+        const act = mkFilter === s;
+        return `<button type="button" onclick="window.v157SetMkFilter('${s}')" class="px-2.5 py-1 rounded-xl text-[11px] font-black whitespace-nowrap border transition ${act ? 'bg-rose-400 text-slate-950 border-rose-300' : 'bg-slate-800 text-slate-200 border-white/10'}">${s} (${cnt})</button>`;
+      }).join('');
+    }
+    const body = document.getElementById('v157-mk-body');
+    if (!body) return;
+    const list = mistakes.filter(m => mkFilter === 'All' || m.subject === mkFilter);
+    if (!list.length) {
+      body.innerHTML = `<div class="p-8 rounded-3xl bg-slate-900/90 border border-white/10 text-center space-y-2">
+        <div class="text-4xl">✅</div>
+        <h3 class="text-base font-black text-white">Abhi koi mistake saved nahi hai!</h3>
+        <p class="text-xs text-slate-300 max-w-md mx-auto">Jaise hi aap Economics / Geography 3D PPT MCQs, Mock Tests, ya Current Affairs Quiz me koi sawal galat karenge, woh automatically yahan save ho jayega.</p>
+      </div>`;
+      return;
+    }
+    const letters = ['A','B','C','D'];
+    body.innerHTML = list.map((m, idx) => {
+      const picked = mkRetestState[m.id];
+      const showAns = !mkRetestMode || picked !== undefined;
+      const optsHtml = (m.opts || []).map((o, oi) => {
+        let cls = 'bg-white/5 hover:bg-white/15 border-white/15 text-slate-100';
+        if (showAns) {
+          if (oi === m.ansIdx) cls = 'bg-emerald-500/30 border-emerald-400 text-emerald-100 font-black';
+          else if ((picked !== undefined && oi === picked) || (!mkRetestMode && oi === m.pickedIdx)) cls = 'bg-rose-500/30 border-rose-400 text-rose-100';
+        }
+        return `<button type="button" onclick="window.v157PickMistakeOpt('${m.id}', ${oi})" class="text-left px-3 py-2 rounded-xl border text-xs sm:text-sm transition flex items-center gap-2 ${cls}">
+          <span class="w-6 h-6 rounded-lg bg-slate-800 text-amber-300 font-black flex items-center justify-center shrink-0 text-xs">${letters[oi]}</span>
+          <span>${esc(o)}</span>
+        </button>`;
+      }).join('');
+      return `<div class="p-4 rounded-2xl bg-slate-900/95 border-2 ${m.mastered ? 'border-emerald-400/60' : 'border-rose-400/40'} space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2 py-0.5 rounded-lg bg-rose-500/25 text-rose-200 text-[10px] font-black">${esc(m.subject)}</span>
+            <span class="px-2 py-0.5 rounded-lg bg-slate-800 text-cyan-200 text-[10px] font-bold">${esc(m.chapter)}</span>
+            <span class="text-[10px] text-slate-400">${esc(m.date || '')}</span>
+            ${m.mastered ? '<span class="px-2 py-0.5 rounded-lg bg-emerald-500/30 text-emerald-200 text-[10px] font-black">✅ Mastered</span>' : ''}
+          </div>
+          <button type="button" onclick="window.v157RemoveMistake('${m.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-rose-500/30 text-slate-300 hover:text-white text-[11px] font-bold">🗑️ Remove</button>
+        </div>
+        <div class="text-sm sm:text-base font-black text-white leading-snug">Q${idx + 1}. ${esc(m.q)}</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${optsHtml}</div>
+        ${showAns ? `<div class="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400/60 text-xs sm:text-sm font-bold text-emerald-100">✅ सही उत्तर: (${letters[m.ansIdx]}) ${esc((m.opts || [])[m.ansIdx] || '')}${m.exp ? '<div class="mt-1 text-emerald-200/90 font-normal">💡 ' + esc(m.exp) + '</div>' : ''}</div>` : '<div class="text-[11px] text-amber-200/90 font-bold text-center">👆 Re-Test: Sahi option par click karein — sahi hote hi Mastered mark ho jayega!</div>'}
+      </div>`;
+    }).join('');
+  }
+
+  // -------------------------------------------------------------------------
+  // MODAL 2: STUDENT ANALYTICS & WEAK-CHAPTER TRACKER
+  // -------------------------------------------------------------------------
+  window.openV157Analytics = function() {
+    document.getElementById('v157-analytics-modal')?.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    renderAnalytics();
+  };
+
+  function renderAnalytics() {
+    const body = document.getElementById('v157-an-body');
+    if (!body) return;
+    const tot = analytics.total || 0;
+    const rig = analytics.right || 0;
+    const wrg = analytics.wrong || 0;
+    const acc = tot ? Math.round((rig / tot) * 100) : 0;
+
+    // Top 3 Weak Chapters (lowest accuracy with at least 1 wrong)
+    const weakCh = Object.entries(analytics.chapters || {})
+      .map(([name, st]) => ({ name, subject: st.subject, total: st.total, right: st.right, wrong: st.wrong, acc: st.total ? Math.round((st.right / st.total) * 100) : 0 }))
+      .filter(c => c.wrong > 0)
+      .sort((a, b) => (a.acc - b.acc) || (b.wrong - a.wrong))
+      .slice(0, 5);
+
+    const subjRows = Object.entries(analytics.subjects || {}).map(([sub, st]) => {
+      const p = st.total ? Math.round((st.right / st.total) * 100) : 0;
+      const barCol = p >= 75 ? 'from-emerald-400 to-teal-400' : (p >= 50 ? 'from-amber-400 to-orange-400' : 'from-rose-500 to-pink-500');
+      return `<div class="space-y-1">
+        <div class="flex items-center justify-between text-xs font-bold">
+          <span class="text-white">${esc(sub)}</span>
+          <span class="text-slate-300">${st.right}/${st.total} (<span class="${p>=75?'text-emerald-300':(p>=50?'text-amber-300':'text-rose-300')} font-black">${p}%</span>)</span>
+        </div>
+        <div class="h-2.5 rounded-full bg-slate-800 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-r ${barCol}" style="width:${p}%"></div></div>
+      </div>`;
+    }).join('');
+
+    const sessRows = (analytics.sessions || []).slice(0, 8).map(s => `
+      <div class="p-3 rounded-xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-2 text-xs">
+        <div class="min-w-0">
+          <div class="font-black text-white truncate">${esc(s.title)}</div>
+          <div class="text-[10px] text-slate-400">${esc(s.date)} • ${s.attempted} Qs</div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="text-emerald-300 font-black">✓ ${s.right}</span>
+          <span class="text-rose-300 font-black">✕ ${s.wrong}</span>
+          <span class="px-2 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-200 font-black">${s.acc}%</span>
+        </div>
+      </div>`).join('');
+
+    body.innerHTML = `
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="p-4 rounded-2xl bg-slate-900 border border-cyan-400/40 text-center">
+          <div class="text-2xl sm:text-3xl font-black text-cyan-300">${acc}%</div>
+          <div class="text-xs font-bold text-slate-300 mt-0.5">Overall Accuracy</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-white/15 text-center">
+          <div class="text-2xl sm:text-3xl font-black text-white">${tot}</div>
+          <div class="text-xs font-bold text-slate-300 mt-0.5">Questions Solved</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-emerald-400/40 text-center">
+          <div class="text-2xl sm:text-3xl font-black text-emerald-300">${rig}</div>
+          <div class="text-xs font-bold text-slate-300 mt-0.5">Correct Answers</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-rose-400/40 text-center">
+          <div class="text-2xl sm:text-3xl font-black text-rose-300">${wrg}</div>
+          <div class="text-xs font-bold text-slate-300 mt-0.5">Mistakes Logged</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 rounded-2xl bg-slate-900/95 border border-rose-400/45 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-black text-rose-300">⚠️ Top Weak Chapters (Focus First!)</h3>
+            <button type="button" onclick="window.closeV157Modal('v157-analytics-modal'); window.openV157Mistakes('All')" class="px-2.5 py-1 rounded-lg bg-rose-500/25 text-rose-200 text-[11px] font-black">📕 Revise Mistakes</button>
+          </div>
+          ${weakCh.length ? weakCh.map(c => `
+            <div class="p-3 rounded-xl bg-slate-950/90 border border-rose-400/25 flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="text-xs font-black text-white truncate">${esc(c.name)}</div>
+                <div class="text-[11px] text-slate-400">${esc(c.subject)} • ${c.wrong} wrong out of ${c.total}</div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="px-2 py-0.5 rounded-lg bg-rose-500/25 text-rose-200 text-xs font-black">${c.acc}%</span>
+                <button type="button" onclick="window.closeV157Modal('v157-analytics-modal'); window.openV157Mistakes('${esc(c.subject)}')" class="px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 text-[11px] font-black">Practice</button>
+              </div>
+            </div>`).join('') : '<p class="text-xs text-slate-400 py-4 text-center">Abhi koi weak chapter nahi hai — Economics/Geography MCQs ya Mock Tests solve karein!</p>'}
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-900/95 border border-cyan-400/40 space-y-3">
+          <h3 class="text-sm font-black text-cyan-300">📈 Subject-Wise Accuracy Breakdown</h3>
+          ${subjRows || '<p class="text-xs text-slate-400 py-4 text-center">MCQs aur Mock Tests solve karte hi subject-wise accuracy bars yahan live update honge.</p>'}
+        </div>
+      </div>
+
+      ${sessRows ? `<div class="p-4 rounded-2xl bg-slate-900/95 border border-white/15 space-y-2.5"><h3 class="text-sm font-black text-amber-300">🕒 Recent Completed Tests</h3><div class="space-y-2">${sessRows}</div></div>` : ''}
+    `;
+  }
+
+  // -------------------------------------------------------------------------
+  // MODAL 3: DAILY CURRENT AFFAIRS ONE-LINER + MONTHLY QUIZ + ADMIN PUBLISHER
+  // -------------------------------------------------------------------------
+  window.openV157CurrentAffairs = function(tab) {
+    if (tab) caTab = tab;
+    document.getElementById('v157-ca-modal')?.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    window.v157SwitchCaTab(caTab);
+  };
+
+  window.v157SwitchCaTab = function(tab) {
+    caTab = tab;
+    const map = { oneliners: 'v157-ca-tab-ol', quiz: 'v157-ca-tab-qz', admin: 'v157-ca-tab-adm' };
+    Object.entries(map).forEach(([k, id]) => {
+      const b = document.getElementById(id);
+      if (!b) return;
+      b.className = (k === tab)
+        ? 'px-3.5 py-1.5 rounded-xl text-xs font-black bg-emerald-400 text-slate-950 shadow'
+        : 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 border border-white/15';
+    });
+    document.getElementById('v157-ca-score-pill')?.classList.toggle('hidden', tab !== 'quiz');
+    renderCaBody();
+  };
+
+  window.v157SetCaCat = function(c) { caCatFilter = c; renderCaBody(); };
+
+  window.v157PickCaQuiz = function(qid, oi) {
+    const allQ = [...(customCa.mcqs || []), ...DEFAULT_QZ];
+    const q = allQ.find(x => x.id === qid);
+    if (!q) return;
+    caQuizState[qid] = oi;
+    const ok = oi === Number(q.a);
+    window.__v157LogAttempt({
+      subject: 'Current Affairs',
+      chapter: q.cat || 'Monthly Current Affairs',
+      q: q.q,
+      opts: q.o,
+      ansIdx: Number(q.a),
+      pickedIdx: oi,
+      exp: q.exp || '',
+      isCorrect: ok
+    });
+    renderCaBody();
+  };
+
+  window.v157ResetCaQuiz = function() {
+    Object.keys(caQuizState).forEach(k => delete caQuizState[k]);
+    renderCaBody();
+  };
+
+  async function syncCaToFirestore() {
+    try {
+      if (typeof fbDb !== 'undefined' && fbDb) {
+        await fbDb.collection('ssc_config').doc('current_affairs').set({
+          oneliners: customCa.oneliners || [],
+          mcqs: customCa.mcqs || [],
+          updatedAt: Date.now()
+        }, { merge: true });
+      }
+    } catch(e) {}
+  }
+
+  window.v157AdminAddOneLiner = async function() {
+    const cat = document.getElementById('v157-adm-ol-cat')?.value || 'National & Polity';
+    const txt = (document.getElementById('v157-adm-ol-txt')?.value || '').trim();
+    if (!txt) { if (typeof showToast === 'function') showToast('❌ Pehle One-Liner text likhein!'); return; }
+    const item = { id: 'ol_' + Date.now(), cat, date: new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }), text: txt };
+    if (!customCa.oneliners) customCa.oneliners = [];
+    customCa.oneliners.unshift(item);
+    saveJson(CA_KEY, customCa);
+    await syncCaToFirestore();
+    refreshHomeBadges();
+    if (typeof showToast === 'function') showToast('✅ Naya Current Affairs One-Liner live publish ho gaya!');
+    window.v157SwitchCaTab('oneliners');
+  };
+
+  window.v157AdminAddMcq = async function() {
+    const cat = document.getElementById('v157-adm-q-cat')?.value || 'National & Polity';
+    const q = (document.getElementById('v157-adm-q-txt')?.value || '').trim();
+    const oA = (document.getElementById('v157-adm-q-a')?.value || '').trim();
+    const oB = (document.getElementById('v157-adm-q-b')?.value || '').trim();
+    const oC = (document.getElementById('v157-adm-q-c')?.value || '').trim();
+    const oD = (document.getElementById('v157-adm-q-d')?.value || '').trim();
+    const aIdx = Number(document.getElementById('v157-adm-q-ans')?.value || 0);
+    const exp = (document.getElementById('v157-adm-q-exp')?.value || '').trim();
+    if (!q || !oA || !oB || !oC || !oD) { if (typeof showToast === 'function') showToast('❌ Question aur chaaron options bharna zaroori hai!'); return; }
+    const item = { id: 'ca_' + Date.now(), cat, q, o: [oA, oB, oC, oD], a: aIdx, exp };
+    if (!customCa.mcqs) customCa.mcqs = [];
+    customCa.mcqs.unshift(item);
+    saveJson(CA_KEY, customCa);
+    await syncCaToFirestore();
+    refreshHomeBadges();
+    if (typeof showToast === 'function') showToast('✅ Naya Current Affairs MCQ live publish ho gaya!');
+    window.v157SwitchCaTab('quiz');
+  };
+
+  function renderCaBody() {
+    const body = document.getElementById('v157-ca-body');
+    if (!body) return;
+    const allOl = [...(customCa.oneliners || []), ...DEFAULT_OL];
+    const allQz = [...(customCa.mcqs || []), ...DEFAULT_QZ];
+    const cats = ['All', 'Economy & RBI', 'Science & ISRO', 'National & Polity', 'Defence & Exercises', 'International & Summits', 'Awards & Sports', 'Environment & Geo', 'Schemes & Misc'];
+
+    if (caTab === 'oneliners') {
+      const filt = allOl.filter(x => caCatFilter === 'All' || x.cat === caCatFilter);
+      body.innerHTML = `
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+          ${cats.map(c => `<button type="button" onclick="window.v157SetCaCat('${c}')" class="px-2.5 py-1 rounded-xl text-[11px] font-black whitespace-nowrap border ${caCatFilter===c?'bg-emerald-400 text-slate-950 border-emerald-300':'bg-slate-800 text-slate-200 border-white/10'}">${c}</button>`).join('')}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          ${filt.map((o, i) => `
+            <div class="p-3.5 rounded-2xl bg-slate-900/95 border border-emerald-400/30 space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 text-[10px] font-black">${esc(o.cat)}</span>
+                <span class="text-[10px] text-amber-300 font-bold">#${i + 1} • ${esc(o.date || '')}</span>
+              </div>
+              <p class="text-xs sm:text-sm font-bold text-white leading-relaxed">${esc(o.text)}</p>
+            </div>`).join('')}
+        </div>`;
+    } else if (caTab === 'quiz') {
+      let sc = 0, solved = 0;
+      allQz.forEach(q => { if (caQuizState[q.id] !== undefined) { solved++; if (caQuizState[q.id] === Number(q.a)) sc++; } });
+      const pill = document.getElementById('v157-ca-score-pill');
+      if (pill) pill.textContent = `🎯 Score: ${sc} / ${allQz.length} (${solved} solved)`;
+      const letters = ['A','B','C','D'];
+      body.innerHTML = `
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs font-bold text-slate-300">सही ऑप्शन पर क्लिक करें — गलत होने पर सवाल अपने आप Mistake Book में save हो जाएगा!</span>
+          <button type="button" onclick="window.v157ResetCaQuiz()" class="px-3 py-1 rounded-xl bg-slate-800 border border-white/15 text-xs font-bold text-slate-200 shrink-0">↺ Reset Quiz</button>
+        </div>
+        <div class="space-y-3">
+          ${allQz.map((q, qi) => {
+            const st = caQuizState[q.id];
+            const picked = st !== undefined;
+            const optsHtml = (q.o || []).map((o, oi) => {
+              let cls = 'bg-white/5 hover:bg-white/15 border-white/15 text-white';
+              if (picked) {
+                if (oi === Number(q.a)) cls = 'bg-emerald-500/35 border-emerald-400 text-emerald-100 font-black';
+                else if (oi === st) cls = 'bg-rose-500/35 border-rose-400 text-rose-100';
+                else cls = 'bg-white/5 border-white/10 text-slate-400';
+              }
+              return `<button type="button" onclick="window.v157PickCaQuiz('${q.id}', ${oi})" class="text-left px-3 py-2 rounded-xl border text-xs sm:text-sm transition flex items-center gap-2 ${cls}">
+                <span class="w-6 h-6 rounded-lg bg-slate-800 text-amber-300 font-black flex items-center justify-center shrink-0 text-xs">${letters[oi]}</span>
+                <span>${esc(o)}</span>
+              </button>`;
+            }).join('');
+            return `<div class="p-4 rounded-2xl bg-slate-900/95 border border-emerald-400/30 space-y-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-2 py-0.5 rounded-lg bg-violet-500/25 text-violet-200 text-[10px] font-black">Q${qi+1} • ${esc(q.cat)}</span>
+              </div>
+              <div class="text-sm sm:text-base font-black text-white leading-snug">${esc(q.q)}</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${optsHtml}</div>
+              ${picked ? `<div class="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400/60 text-xs sm:text-sm font-bold text-emerald-100">✅ सही उत्तर: (${letters[Number(q.a)]}) ${esc((q.o||[])[Number(q.a)]||'')}${q.exp ? '<div class="mt-1 text-emerald-200/90 font-normal">💡 ' + esc(q.exp) + '</div>' : ''}</div>` : ''}
+            </div>`;
+          }).join('')}
+        </div>`;
+    } else {
+      const catOpts = cats.slice(1).map(c => `<option value="${c}">${c}</option>`).join('');
+      body.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-2xl bg-slate-900/95 border border-emerald-400/50 space-y-3">
+            <h3 class="text-sm font-black text-emerald-300">⚡ 1-Click Add Daily One-Liner</h3>
+            <select id="v157-adm-ol-cat" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white font-bold">${catOpts}</select>
+            <textarea id="v157-adm-ol-txt" rows="4" placeholder="Aaj ka exam-oriented Current Affairs one-liner yahan likhein..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white"></textarea>
+            <button type="button" onclick="window.v157AdminAddOneLiner()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 text-xs font-black shadow">🚀 Publish One-Liner Live</button>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-900/95 border border-amber-400/50 space-y-2.5">
+            <h3 class="text-sm font-black text-amber-300">🎯 1-Click Add Monthly MCQ</h3>
+            <select id="v157-adm-q-cat" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white font-bold">${catOpts}</select>
+            <input id="v157-adm-q-txt" type="text" placeholder="Question likhein..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+            <div class="grid grid-cols-2 gap-2">
+              <input id="v157-adm-q-a" type="text" placeholder="Option A" class="px-2.5 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+              <input id="v157-adm-q-b" type="text" placeholder="Option B" class="px-2.5 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+              <input id="v157-adm-q-c" type="text" placeholder="Option C" class="px-2.5 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+              <input id="v157-adm-q-d" type="text" placeholder="Option D" class="px-2.5 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+            </div>
+            <select id="v157-adm-q-ans" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-amber-200 font-bold">
+              <option value="0">Correct Option: (A)</option><option value="1">Correct Option: (B)</option><option value="2">Correct Option: (C)</option><option value="3">Correct Option: (D)</option>
+            </select>
+            <input id="v157-adm-q-exp" type="text" placeholder="Short Explanation (optional)..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+            <button type="button" onclick="window.v157AdminAddMcq()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 text-xs font-black shadow">🚀 Publish MCQ Live</button>
+          </div>
+        </div>`;
+    }
+  }
+
+  // Live Firestore real-time listener for Admin-published Current Affairs!
+  try {
+    if (typeof fbDb !== 'undefined' && fbDb) {
+      fbDb.collection('ssc_config').doc('current_affairs').onSnapshot(doc => {
+        if (doc.exists && doc.data()) {
+          const d = doc.data();
+          if (Array.isArray(d.oneliners) || Array.isArray(d.mcqs)) {
+            customCa = { oneliners: d.oneliners || [], mcqs: d.mcqs || [] };
+            saveJson(CA_KEY, customCa);
+            refreshHomeBadges();
+          }
+        }
+      }, () => {});
+    }
+  } catch(e) {}
+
+  setTimeout(refreshHomeBadges, 400);
+})();
+</script>
+<!-- V157_MODALS_AND_SCRIPT_END -->
+
 </body>
 </html>
