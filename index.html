@@ -21854,6 +21854,9 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
             </button>`).join('')}
         </div>`;
     } else if (s.t === 'opener') {
+      const opHead = s.h || s.head || 'मुख्य अवधारणाएँ';
+      const opPts  = (Array.isArray(s.p) && s.p.length) ? s.p : (s.pts || []);
+      const opBadge = (s.mcqs || s.figs) ? `${s.figs ? s.figs + ' आरेख • ' : ''}${s.mcqs || 0} हल MCQs` : `अध्याय ${String(s.ch).padStart(2,'0')} • 3D`;
       bodyHtml = `
         <div class="space-y-3.5">
           <div class="ppt3d-card p-4 rounded-2xl bg-slate-950/55 border-2 flex flex-wrap items-center justify-between gap-3" style="border-color:${acc}99">
@@ -21861,21 +21864,81 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
               <div class="font-black text-white leading-snug" style="font-size:${fs(24)}">${esc(s.title)}</div>
               <div class="font-bold text-amber-200 mt-0.5" style="font-size:${fs(15)}">${esc(s.en || '')}</div>
             </div>
-            <span class="px-3.5 py-1.5 rounded-xl font-black text-slate-950 shadow-lg" style="background:${acc};font-size:${fs(13)}">अध्याय ${String(s.ch).padStart(2,'0')} • 3D</span>
+            <span class="px-3.5 py-1.5 rounded-xl font-black text-slate-950 shadow-lg" style="background:${acc};font-size:${fs(13)}">${esc(opBadge)}</span>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5">
             <div class="md:col-span-5 ppt3d-card p-4 rounded-2xl bg-white/10 border border-white/25 space-y-2" style="animation-delay:70ms">
               <h3 class="font-black text-amber-300" style="font-size:${fs(17)}">◆ अध्याय के प्रमुख उद्देश्य (Roadmap)</h3>
               <ul class="space-y-2 leading-relaxed" style="font-size:${fs(15.5)}">
-                ${(s.roadmap || []).map(r => `<li class="flex gap-2 text-white"><span style="color:${acc}">▸</span><span>${esc(r)}</span></li>`).join('')}
+                ${(s.roadmap || []).map(r => `<li class="flex gap-2 text-white"><span style="color:${acc}">▸</span><span>${fmtBullet(r)}</span></li>`).join('')}
               </ul>
             </div>
             <div class="md:col-span-7 ppt3d-card p-4 rounded-2xl bg-slate-950/75 border border-white/20 space-y-2.5" style="animation-delay:130ms">
-              <div class="px-3 py-1.5 rounded-xl font-black text-white" style="background:${bdg};font-size:${fs(16.5)}">${esc(s.head || 'मुख्य अवधारणाएँ')}</div>
+              <div class="px-3 py-1.5 rounded-xl font-black text-white" style="background:${bdg};font-size:${fs(16.5)}">${esc(opHead)}</div>
               <ul class="space-y-2.5 leading-relaxed" style="font-size:${fs(16)}">
-                ${(s.pts || []).map(b => `<li class="flex gap-2"><span class="font-black shrink-0" style="color:${acc}">●</span><div>${fmtBullet(b)}</div></li>`).join('')}
+                ${opPts.map(b => `<li class="flex gap-2"><span class="font-black shrink-0" style="color:${acc}">●</span><div>${fmtBullet(b)}</div></li>`).join('')}
               </ul>
             </div>
+          </div>
+        </div>`;
+    } else if (s.t === 'theory') {
+      const blks = s.blocks || [];
+      let cols = [];
+      if (blks.length === 1) {
+        const b = blks[0], mid = Math.max(1, Math.ceil((b.p || []).length / 2));
+        cols = [[{h: b.h, p: (b.p || []).slice(0, mid)}], (b.p || []).slice(mid).length ? [{h: b.h + ' (विस्तार)', p: (b.p || []).slice(mid)}] : []];
+      } else {
+        const mid = Math.ceil(blks.length / 2);
+        cols = [blks.slice(0, mid), blks.slice(mid)];
+      }
+      bodyHtml = `<div class="grid grid-cols-1 ${cols[1] && cols[1].length ? 'lg:grid-cols-2' : ''} gap-3.5">` +
+        cols.filter(c => c.length).map((col, ci) =>
+          '<div class="space-y-3.5">' + col.map((b, bi) => `
+            <div class="ppt3d-card p-4 rounded-2xl bg-slate-950/75 border-l-4 backdrop-blur" style="border-color:${ci === 0 ? acc : '#F59E0B'};animation-delay:${(ci*2+bi)*70}ms">
+              <div class="font-black text-white px-3 py-1.5 rounded-xl mb-3" style="background:${ci === 0 ? bdg : '#B45309'};font-size:${fs(17)}">${esc(b.h)}</div>
+              <ul class="space-y-2.5">${(b.p || []).map(p => '<li class="text-slate-100 leading-relaxed flex gap-2" style="font-size:' + fs(16.2) + '"><span style="color:' + acc + '">▸</span><span>' + fmtBullet(p) + '</span></li>').join('')}</ul>
+            </div>`).join('') + '</div>'
+        ).join('') + '</div>';
+    } else if (s.t === 'diagram') {
+      const imgSrc = FIGS[s.fig] || '';
+      bodyHtml = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+          <div class="ppt3d-card lg:col-span-7 p-2.5 rounded-2xl bg-white border-2 shadow-2xl cursor-zoom-in" style="border-color:${acc}" onclick="event.stopPropagation(); window.zoomGsPpt100Fig('${s.fig}')">
+            <img src="${imgSrc}" alt="${esc(s.title)}" class="w-full h-auto max-h-[60vh] object-contain mx-auto rounded-xl" />
+            <div class="text-center text-slate-600 font-bold pt-1" style="font-size:${fs(12)}">🔍 आरेख को बड़ा देखने के लिए टैप करें (Tap to Full Zoom)</div>
+          </div>
+          <div class="lg:col-span-5 space-y-3">
+            <div class="ppt3d-card p-4 rounded-2xl bg-slate-950/80 border-2" style="border-color:${acc}">
+              <div class="font-black text-amber-300 mb-1.5" style="font-size:${fs(17.5)}">◆ आरेख का मुख्य निष्कर्ष</div>
+              <div class="text-white leading-relaxed" style="font-size:${fs(16)}">${esc(s.desc || '')}</div>
+            </div>
+            <div class="ppt3d-card p-4 rounded-2xl bg-slate-950/75 border border-white/25" style="animation-delay:100ms">
+              <div class="font-black text-emerald-300 mb-2" style="font-size:${fs(17)}">★ परीक्षा-उपयोगी बिंदु (Exam Key)</div>
+              <ul class="space-y-2">${(s.keys || []).map(k => '<li class="text-slate-100 leading-relaxed flex gap-2" style="font-size:' + fs(15.5) + '"><span class="text-amber-300">▸</span><span>' + fmtBullet(k) + '</span></li>').join('')}</ul>
+            </div>
+          </div>
+        </div>`;
+    } else if (s.t === 'qm') {
+      const qArr = s.q || [];
+      const mArr = s.m || [];
+      bodyHtml = `
+        <div class="grid grid-cols-1 ${(qArr.length && mArr.length) ? 'lg:grid-cols-2' : ''} gap-4">
+          ${qArr.length ? '<div class="ppt3d-card p-4 rounded-2xl bg-slate-950/75 border-2 border-amber-400/70"><div class="font-black text-slate-950 bg-amber-400 px-3 py-1.5 rounded-xl mb-3" style="font-size:' + fs(17.5) + '">★ SSC एवं UPSC परीक्षा विशेष तथ्य (Quick Facts)</div><ul class="space-y-2.5">' + qArr.map(x => '<li class="text-white leading-relaxed flex gap-2" style="font-size:' + fs(16) + '"><span class="text-amber-300">★</span><span>' + fmtBullet(x) + '</span></li>').join('') + '</ul></div>' : ''}
+          ${mArr.length ? '<div class="ppt3d-card p-4 rounded-2xl bg-slate-950/75 border-2 border-cyan-400/70"><div class="font-black text-slate-950 bg-cyan-400 px-3 py-1.5 rounded-xl mb-3" style="font-size:' + fs(17.5) + '">◆ UPSC GS-III मुख्य परीक्षा मॉडल उत्तर ढाँचा</div><ul class="space-y-2.5">' + mArr.map(x => '<li class="text-white leading-relaxed flex gap-2" style="font-size:' + fs(16) + '"><span class="text-cyan-300">▸</span><span>' + fmtBullet(x) + '</span></li>').join('') + '</ul></div>' : ''}
+        </div>`;
+    } else if (s.t === 'close') {
+      const tips = [
+        ['01', 'वक्र एवं सूत्र', 'लॉरेंज, कुज़नेत्स, फिलिप्स, लाफर, J-वक्र, EKC एवं सभी GDP/घाटा सूत्र दोहराएँ।', '#38BDF8'],
+        ['02', 'समिति व अनुच्छेद', 'अनु. 110, 112, 114, 116, 266, 267, 279A, 280 और प्रमुख समितियाँ पक्की करें।', '#34D399'],
+        ['03', 'GS-III उत्तर सूत्र', 'हर मुख्य परीक्षा उत्तर में 1 डेटा पॉइंट, 1 समिति का नाम और 1 आरेख जोड़ें।', '#FBBF24'],
+        ['04', '120 MCQs अभ्यास', 'अध्याय 01 से 15 तक के सभी 120 हल सहित प्रश्नों का समयबद्ध पुनरीक्षण करें।', '#FB7185'],
+      ];
+      bodyHtml = `
+        <div class="min-h-[70vh] flex flex-col items-center justify-center text-center px-3 py-4 space-y-5">
+          <span class="px-4 py-1.5 rounded-full bg-amber-400 text-slate-950 font-black" style="font-size:${fs(13.5)}">शुभकामनाएँ • अमन सिंह (BY AMAN SINGH)</span>
+          <h1 class="font-black text-white leading-tight" style="font-size:${fs(32)}">${esc(s.title)}</h1>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 w-full text-left">
+            ${tips.map((t,i) => '<div class="ppt3d-card p-4 rounded-2xl bg-slate-950/75 border-t-4" style="border-color:' + t[3] + ';animation-delay:' + (i*70) + 'ms"><div class="font-black" style="color:' + t[3] + ';font-size:' + fs(24) + '">' + t[0] + '</div><div class="font-black text-white mt-1" style="font-size:' + fs(17) + '">' + t[1] + '</div><div class="text-slate-200 mt-1.5 leading-relaxed" style="font-size:' + fs(14.5) + '">' + t[2] + '</div></div>').join('')}
           </div>
         </div>`;
     } else if (s.t === 'content') {
