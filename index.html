@@ -14161,7 +14161,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
           const opts = (q.options || []).map((o, oi) => {
             const lbl = ['A','B','C','D'][oi] || '*';
             const isAns = oi === ansIdx || o === q.answer;
-            return `<div class="opt ${isAns ? 'ans' : ''}"><b>(${lbl})</b> ${esc(o)} ${isAns ? '✅' : ''}</div>`;
+            return `<div class="opt ${isAns ? 'ans' : ''}"><b>(${lbl})</b> ${esc(fixPdfHindiGlyphs(o))} ${isAns ? '✅' : ''}</div>`;
           }).join('');
           const dirHtml = q.dir ? `<div class="qdir">${esc(q.dir)}</div>` : '';
           const solHtml = `<div class="sol">✅ <b>Solution:</b> (${ansLbl}) ${esc(q.answer || '')}</div>`;
@@ -18483,7 +18483,7 @@ Keep exp & trick very concise (max 15 words) for speed.`
             const isA = o === q.ans;
             const isU = o === q.you && !isA;
             const bg = isA ? '#ecfdf5;border-color:#10b981;font-weight:700' : isU ? '#fef2f2;border-color:#ef4444' : '#f8fafc;border-color:#e2e8f0';
-            return `<div style="padding:6px 10px;border:1px solid;border-radius:8px;margin:4px 0;background:${bg}"><b>(${LETTERS[i]})</b> ${esc(o)} ${isA ? '✅' : isU ? '❌ (Your Ans)' : ''}</div>`;
+            return `<div style="padding:6px 10px;border:1px solid;border-radius:8px;margin:4px 0;background:${bg}"><b>(${LETTERS[i]})</b> ${esc(fixPdfHindiGlyphs(o))} ${isA ? '✅' : isU ? '❌ (Your Ans)' : ''}</div>`;
           }).join('');
           return `<div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid #0ea5e9;border-radius:12px;padding:14px;margin-bottom:12px;page-break-inside:avoid;">
             <div style="display:flex;justify-content:space-between;font-size:11px;color:#475569;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
@@ -18495,7 +18495,7 @@ Keep exp & trick very concise (max 15 words) for speed.`
             <div style="font-size:13px;">${optsHtml}</div>
             <div style="margin-top:8px;padding:8px 10px;border-radius:8px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:12px;color:#14532d;">
               <div><b>✅ Correct Answer:</b> ${esc(q.ans)}</div>
-              ${q.exp ? `<div style="margin-top:4px;"><b>📝 Full Solution:</b> ${esc(q.exp)}</div>` : ''}
+              ${q.exp ? `<div style="margin-top:4px;"><b>📝 Full Solution:</b> ${esc(fixPdfHindiGlyphs(q.exp))}</div>` : ''}
               ${q.trick && q.trick !== q.exp ? `<div style="margin-top:4px;color:#0f766e;"><b>⚡ Best Exam Shortcut:</b> ${esc(q.trick)}</div>` : ''}
             </div>
           </div>`;
@@ -18600,7 +18600,7 @@ Keep exp & trick very concise (max 15 words) for speed.`
             ${q.chartHtml || ''}<div class="text-white font-bold leading-snug">${esc(q.cbtPrompt || q.word || '')}</div>
             ${q.promptHi ? `<div class="text-indigo-200 font-semibold">🇮🇳 ${esc(q.promptHi)}</div>` : ''}
             <div class="grid grid-cols-2 gap-1 pt-0.5">
-              ${opts.map((o, oi) => `<div class="px-2 py-1 rounded-lg border ${o === ans ? 'bg-emerald-500/20 border-emerald-400 text-emerald-200 font-bold' : 'bg-slate-950 border-slate-800 text-slate-300'}">(${LETTERS[oi]}) ${esc(o)}</div>`).join('')}
+              ${opts.map((o, oi) => `<div class="px-2 py-1 rounded-lg border ${o === ans ? 'bg-emerald-500/20 border-emerald-400 text-emerald-200 font-bold' : 'bg-slate-950 border-slate-800 text-slate-300'}">(${LETTERS[oi]}) ${esc(fixPdfHindiGlyphs(o))}</div>`).join('')}
             </div>
             <div class="text-[10px] text-emerald-300 pt-0.5"><b>💡 Solution:</b> ${esc(q.exp || ans)}${trick && trick !== q.exp ? ' • ⚡ ' + esc(trick) : ''}</div>
           </div>`;
@@ -20114,7 +20114,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
               else if (oi === chosen) cls = 'bg-rose-500/20 border-rose-400 text-rose-100';
               else cls = 'bg-slate-900/50 border-slate-800 text-slate-400';
             }
-            return `<button type="button" data-gs-ans-qid="${qid}" data-gs-ans-idx="${oi}" data-gs-correct="${correctIdx}" class="w-full text-left px-3 py-2 rounded-xl border text-xs transition flex items-start gap-2 ${cls}"><span class="font-extrabold shrink-0">(${labels[oi]})</span><span>${esc(o)}</span></button>`;
+            return `<button type="button" data-gs-ans-qid="${qid}" data-gs-ans-idx="${oi}" data-gs-correct="${correctIdx}" class="w-full text-left px-3 py-2 rounded-xl border text-xs transition flex items-start gap-2 ${cls}"><span class="font-extrabold shrink-0">(${labels[oi]})</span><span>${esc(fixPdfHindiGlyphs(o))}</span></button>`;
           }).join('');
 
           const expHtml = it[11] ? `
@@ -22953,7 +22953,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
         }
         return `<button type="button" onclick="window.v157PickMistakeOpt('${m.id}', ${oi})" class="text-left px-3 py-2 rounded-xl border text-xs sm:text-sm transition flex items-center gap-2 ${cls}">
           <span class="w-6 h-6 rounded-lg bg-slate-800 text-amber-300 font-black flex items-center justify-center shrink-0 text-xs">${letters[oi]}</span>
-          <span>${esc(o)}</span>
+          <span>${esc(fixPdfHindiGlyphs(o))}</span>
         </button>`;
       }).join('');
       return `<div class="p-4 rounded-2xl bg-slate-900/95 border-2 ${m.mastered ? 'border-emerald-400/60' : 'border-rose-400/40'} space-y-3">
@@ -23248,14 +23248,14 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
               }
               return `<button type="button" onclick="window.v157PickCaQuiz('${q.id}', ${oi})" class="text-left px-3 py-2 rounded-xl border text-xs sm:text-sm transition flex items-center gap-2 ${cls}">
                 <span class="w-6 h-6 rounded-lg bg-slate-800 text-amber-300 font-black flex items-center justify-center shrink-0 text-xs">${letters[oi]}</span>
-                <span>${esc(o)}</span>
+                <span>${esc(fixPdfHindiGlyphs(o))}</span>
               </button>`;
             }).join('');
             return `<div class="p-4 rounded-2xl bg-slate-900/95 border border-emerald-400/30 space-y-2.5">
               <div class="flex items-center justify-between gap-2">
                 <span class="px-2 py-0.5 rounded-lg bg-violet-500/25 text-violet-200 text-[10px] font-black">Q${qi+1} • ${esc(q.cat)}</span>
               </div>
-              <div class="text-sm sm:text-base font-black text-white leading-snug">${esc(q.q)}</div>
+              <div class="text-sm sm:text-base font-black text-white leading-snug">${esc(fixPdfHindiGlyphs(q.q))}</div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${optsHtml}</div>
               ${picked ? `<div class="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400/60 text-xs sm:text-sm font-bold text-emerald-100">✅ सही उत्तर: (${letters[Number(q.a)]}) ${esc((q.o||[])[Number(q.a)]||'')}${q.exp ? '<div class="mt-1 text-emerald-200/90 font-normal">💡 ' + esc(q.exp) + '</div>' : ''}</div>` : ''}
             </div>`;
@@ -23318,7 +23318,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     }
     box.innerHTML = `<div class="text-[11px] font-black text-slate-300 pt-1">📋 Published by Admin (${ols.length} One-Liners, ${mqs.length} MCQs):</div>` +
       ols.slice(0, 8).map(o => `<div class="p-2 rounded-xl bg-slate-950 border border-white/10 flex items-center justify-between gap-2 text-[11px]"><span class="text-white truncate">⚡ ${esc(o.text)}</span><button type="button" onclick="window.v158DelAdminCa('ol','${o.id}')" class="px-2 py-0.5 rounded bg-rose-500/25 text-rose-200 font-bold shrink-0">🗑️</button></div>`).join('') +
-      mqs.slice(0, 8).map(q => `<div class="p-2 rounded-xl bg-slate-950 border border-white/10 flex items-center justify-between gap-2 text-[11px]"><span class="text-amber-200 truncate">🎯 ${esc(q.q)}</span><button type="button" onclick="window.v158DelAdminCa('q','${q.id}')" class="px-2 py-0.5 rounded bg-rose-500/25 text-rose-200 font-bold shrink-0">🗑️</button></div>`).join('');
+      mqs.slice(0, 8).map(q => `<div class="p-2 rounded-xl bg-slate-950 border border-white/10 flex items-center justify-between gap-2 text-[11px]"><span class="text-amber-200 truncate">🎯 ${esc(fixPdfHindiGlyphs(q.q))}</span><button type="button" onclick="window.v158DelAdminCa('q','${q.id}')" class="px-2 py-0.5 rounded bg-rose-500/25 text-rose-200 font-bold shrink-0">🗑️</button></div>`).join('');
   }
   window.v158DelAdminCa = async function(kind, id) {
     if (kind === 'ol') customCa.oneliners = (customCa.oneliners || []).filter(x => x.id !== id);
@@ -23399,30 +23399,39 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   }
 
   // -------------------------------------------------------------------------
-  // V167 HINDI PDF.JS GLYPH & MATRA REPAIR (fixes ƒवश्व->विश्व, ƒकया->किया, gचत्रकूट->चित्रकूट, 3स्थत->स्थित, कौिन->कौन!)
+  // V168 ULTRA-CLEAN HINDI PDF.JS GLYPH REPAIR (Fixes ALL visual-order short-i & broken Devanagari glyphs!)
   // -------------------------------------------------------------------------
   function fixPdfHindiGlyphs(raw) {
     let s = String(raw || '');
-    // Repair visual-order short-i matra glyphs emitted by ReportLab/HarfBuzz Hindi PDFs
-    // e.g. ƒक -> कि, ƒव -> वि, gच -> चि, „ज -> जि, 3स -> सि, 3स्थत -> स्थित
-    s = s.replace(/[ƒ†‡‰ŠŒŽ‘’“”•–—˜™š›œžŸ¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿„;]+([क-ह](?:्[क-ह])?)/g, '$1ि');
-    s = s.replace(/g([क-ह](?:्[क-ह])?)/g, '$1ि');
-    s = s.replace(/3(स्थ|स|क|द|न|प|म|व)/g, '$1ि');
+    // 1. Fix broken 'ना' mapped to ',ा' or '◌ा' inside Hindi words (e.g. भरत,ाट्यम -> भरतनाट्यम, ,ाडु -> नाडु)
+    s = s.replace(/([ऀ-ॿ(\s]),\s*ा/g, '$1ना');
+    s = s.replace(/,\s*ा(?=[ऀ-ॿ])/g, 'ना');
+    // 2. Fix conjunct 'क्टि' / 'संपूर्ण' / specific PDF ligatures
+    s = s.replace(/प्रै\s*g?üटस/g, 'प्रैक्टिस');
+    s = s.replace(/संपूFर्ण/g, 'संपूर्ण');
+    // 3. Universal visual-order short-i matra (ि): any stray glyph (ƒ, †, ‡, g, G, ə, ü, 3, 0, ;, „, v, e)
+    //    glued directly before a Devanagari consonant (or consonant+halant+consonant conjunct like त्र, स्थ, क्ष) -> moves ि AFTER consonant!
+    s = s.replace(/(?:^|(?<=[\s(\['"ऀ-ॿ]))[ƒ†‡„¥Þ;gGəü30]+([क-ह](?:्[क-ह])?)/g, '$1ि');
+    // Also catch 'v' or 'e' glued between two Devanagari chars (e.g. तvमल -> तमिल)
+    s = s.replace(/([ऀ-ॿ])[ve]([क-ह](?:्[क-ह])?)/g, '$1$2ि');
+    // Fix misplaced matra spacing around halant & common prefixes (प्र देश -> प्रदेश, प्र तीक -> प्रतीक)
     s = s.replace(/([क-ह])\s*्\s*([क-ह])/g, '$1्$2');
-    // Common broken Hindi word repairs
+    s = s.replace(/प्र\s+(देश|तीक|कार|मुख|सिद्ध|थम|योग|णाली|बंध|भाव|दर्शन|ति|स्तुत|धान)/g, 'प्र$1');
+    s = s.replace(/म\s*णपुर/g, 'मणिपुर');
     const fixes = [
-      ['स्थि ल', 'स्थल'], ['धरोहिर', 'धरोहर'], ['कौिन', 'कौन'], ['हिै', 'है'], ['हिैं', 'हैं'],
-      ['हिो', 'हो'], ['हिी', 'ही'], ['संपूणर्ण', 'संपूर्ण'], ['प र शिष्ट', 'परिशिष्ट'], ['नम्न ल खत', 'निम्नलिखित'],
-      ['वश्व', 'विश्व'], ['घो;त', 'घोषित'], ['घोि;त', 'घोषित'], ['कया', 'किया'], ['लए', 'लिए'],
-      ['अ धक', 'अधिक'], ['प्र तशत', 'प्रतिशत'], ['म णपुर', 'मणिपुर'], ['म0णपुर', 'मणिपुर'],
-      ['सांस्कृ तक', 'सांस्कृतिक'], ['प्राकृ तक', 'प्राकृतिक'], ['मश्रित', 'मिश्रित'], ['इंद्राविती', 'इंद्रावती'],
-      ['लॉडर्न', 'लॉर्ड'], ['3रप', 'रिपन'], ['Þ', 'ब']
+      ['कौिन', 'कौन'], ['मानि जाता', 'माना जाता'], ['मानि जाती', 'माना जाती'],
+      ['स्थि ल', 'स्थल'], ['धरोहिर', 'धरोहर'], ['हिै', 'है'], ['हिैं', 'हैं'], ['हिो', 'हो'], ['हिी', 'ही'],
+      ['संपूणर्ण', 'संपूर्ण'], ['प र शिष्ट', 'परिशिष्ट'], ['नम्न ल खत', 'निम्नलिखित'],
+      ['वश्व', 'विश्व'], ['घो;त', 'घोषित'], ['घोति', 'घोषित'], ['कया', 'किया'], ['लए', 'लिए'],
+      ['अ धक', 'अधिक'], ['प्र तशत', 'प्रतिशत'], ['सांस्कृ तक', 'सांस्कृतिक'], ['प्राकृ तक', 'प्राकृतिक'],
+      ['मश्रित', 'मिश्रित'], ['इंद्राविती', 'इंद्रावती'], ['लॉडर्न', 'लॉर्ड'], ['आधािरत', 'आधारित'],
+      ['तर्िमल', 'तमिल'], ['तर्ि', 'ति']
     ];
     for (const [a, b] of fixes) {
       if (s.includes(a)) s = s.split(a).join(b);
     }
-    // Strip stray garbage control/latin artifacts next to Devanagari
-    s = s.replace(/[ƒ†‡„¥Þ;]+/g, '').replace(/\s{2,}/g, ' ').trim();
+    // Strip any leftover stray PDF glyph junk
+    s = s.replace(/\u093F{2,}/g, '\u093F').replace(/[ƒ†‡„¥Þəü]+/g, '').replace(/[ \t]{2,}/g, ' ').trim();
     return s;
   }
 
@@ -23462,7 +23471,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   }
 
   // -------------------------------------------------------------------------
-  // V167 UNIVERSAL HINDI + ENGLISH PDF -> MCQ PARSER (with Hindi Glyph Repair!)
+  // V168 STRICT MCQ-ONLY PDF PARSER (Extracts ONLY real MCQs — NEVER cover pages or theory text!)
   // -------------------------------------------------------------------------
   function parseMcqsFromPdfText(rawText) {
     const txt = fixPdfHindiGlyphs(String(rawText || '')
@@ -23472,20 +23481,26 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       .replace(/\n{3,}/g, '\n\n'));
 
     const qs = [];
-
-    // PASS 1: Standard & Bare A / B / C / D MCQ Extractor
-    const optRe = /(?:^|[\n\s|])(?:\(([Aa])\)|\b([Aa])[).]|\b([Aa])\s+(?=[^A-D\n]{2,}))\s*([^\n|]{1,160}?)(?:\s*\|\s*|\n+|\s+)(?:\(([Bb])\)|\b([Bb])[).]|\b([Bb])\s+(?=[^A-D\n]{2,}))\s*([^\n|]{1,160}?)(?:\s*\|\s*|\n+|\s+)(?:\(([Cc])\)|\b([Cc])[).]|\b([Cc])\s+(?=[^A-D\n]{2,}))\s*([^\n|]{1,160}?)(?:\s*\|\s*|\n+|\s+)(?:\(([Dd])\)|\b([Dd])[).]|\b([Dd])\s+(?=[^A-D\n]{2,}))\s*([^\n|]{1,160}?)(?=\n|$|\s+(?:Ans|Answer|Correct|उत्तर|सही\s*उत्तर|Sol|व्याख्या))/gim;
+    const optRe = /(?:^|[\n\s|])(?:\(([Aa])\)|\b([Aa])[).])\s*([^\n|]{2,160}?)(?:\s*\|\s*|\n+|\s{2,})(?:\(([Bb])\)|\b([Bb])[).])\s*([^\n|]{2,160}?)(?:\s*\|\s*|\n+|\s{2,})(?:\(([Cc])\)|\b([Cc])[).])\s*([^\n|]{2,160}?)(?:\s*\|\s*|\n+|\s{2,})(?:\(([Dd])\)|\b([Dd])[).])\s*([^\n|]{2,160}?)(?=\n|$|\s+(?:Ans|Answer|Correct|उत्तर|सही\s*उत्तर|Sol|व्याख्या))/gim;
 
     const matches = [];
     let m;
     while ((m = optRe.exec(txt)) !== null) {
-      matches.push({ idx: m.index, end: m.index + m[0].length, opts: [m[4], m[8], m[12], m[16]] });
+      matches.push({ idx: m.index, end: m.index + m[0].length, opts: [m[3], m[6], m[9], m[12]] });
     }
+
+    const validOptRe = /[A-Za-z0-9\u0900-\u097F]{2,}/;
+    const noiseStemRe = /(?:SEPARATE\s+MCQ|TEST\s+SERIES\s+PDF|TABLE\s+OF\s+CONTENTS|विषय-सूची|मॉक\s+टेस्ट\s+सेट्स|By\s+Aman\s+Singh|प्रस्तावना)/i;
 
     for (let i = 0; i < matches.length; i++) {
       const cur = matches[i];
       const prevEnd = i > 0 ? matches[i - 1].end : Math.max(0, cur.idx - 600);
       const nextIdx = (i + 1 < matches.length) ? matches[i + 1].idx : Math.min(txt.length, cur.end + 420);
+
+      // Strict Option Check: ALL 4 options must contain real text (rejects ",", ".", blank cover-page junk!)
+      const opts = cur.opts.map(o => fixPdfHindiGlyphs(String(o || '').replace(/\s+/g, ' ').replace(/\|\s*$/, '').trim()));
+      if (opts.some(o => !validOptRe.test(o) || o.length > 170)) continue;
+      if (new Set(opts.map(o => o.toLowerCase())).size < 4) continue;
 
       let pre = txt.slice(Math.max(prevEnd, cur.idx - 550), cur.idx).trim();
       const lastAnsBreak = pre.search(/(?:^|\n)\s*(?:उत्तर|सही\s*उत्तर|Ans(?:wer)?|Sol(?:ution)?|व्याख्या)\s*[:：\-][^\n]*/gim);
@@ -23493,12 +23508,16 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
         const afterPrev = pre.slice(lastAnsBreak).replace(/^[^\n]*\n?/, '').trim();
         if (afterPrev.length >= 10) pre = afterPrev;
       }
+      // Trim cleanly to the last numbered question marker (Q1. / प्रश्न 1. / 1.) so cover-page headers above never leak into qStem!
+      const qNumMatches = Array.from(pre.matchAll(/(?:^|\n)\s*(?:(?:Q\.?|Que\.?|Question|प्रश्न|मॉक|कथन\s*प्रश्न)[\s\-]*\d{1,3}[.):\-]?|\d{1,3}[.)])\s+/gim));
+      if (qNumMatches.length) {
+        pre = pre.slice(qNumMatches[qNumMatches.length - 1].index).trim();
+      }
       const preLines = pre.split(/\n+/).map(l => l.trim()).filter(l => l.length >= 4 && !/^(?:By Aman|Page \d+|\d{1,3}$|SSC MODEL)/i.test(l));
       let qStem = fixPdfHindiGlyphs(preLines.slice(-4).join(' ').replace(/^(?:(?:Q\.?|Que\.?|Question|प्रश्न|मॉक|कथन\s*प्रश्न)[\s\-]*\d{1,3}[.):\-]?|\d{1,3}[.)])\s*/i, '').replace(/\s+/g, ' ').trim());
-      if (qStem.length < 8) continue;
 
-      const opts = cur.opts.map(o => fixPdfHindiGlyphs(String(o || '').replace(/\s+/g, ' ').replace(/\|\s*$/, '').trim()));
-      if (opts.some(o => !o || o.length > 180)) continue;
+      // Strict Question Stem Check: reject cover pages / headers / too-short lines
+      if (qStem.length < 12 || noiseStemRe.test(qStem)) continue;
 
       const post = txt.slice(cur.end, Math.min(nextIdx, cur.end + 360)).trim();
       let ansIdx = 0;
@@ -23514,43 +23533,6 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
         exp = fixPdfHindiGlyphs(expLine.replace(/^[\s—–\-:]+/, '').replace(/\s+/g, ' ').trim()).slice(0, 280);
       }
       qs.push({ q: qStem, o: opts, a: ansIdx, exp });
-    }
-
-    if (qs.length >= 3) return qs;
-
-    // PASS 2: Clean One-Liner / Q&A -> 4-Option MCQ (ONLY split on ':' or ' — ', NEVER on hyphen inside Hindi words like कौन-सा!)
-    const pairs = [];
-    const lines = txt.split(/\n+/).map(l => fixPdfHindiGlyphs(l.trim())).filter(l => l.length >= 16 && l.length <= 260);
-    for (const ln of lines) {
-      if (/^(?:By Aman|Page \d+|अध्याय|परिशिष्ट|विषय-सूची|Table of Contents|SSC MODEL)/i.test(ln)) continue;
-      if (ln.includes('?')) continue; // Don't break raw question sentences without options
-      const pm = ln.replace(/^[•▪▸★◆●\d.)\s]+/, '').match(/^([^:—–]{6,115}?)\s*(?::|\s[—–]\s)\s*([^:—–]{3,115})$/);
-      if (pm) {
-        const left = pm[1].trim();
-        const right = pm[2].trim().replace(/[।.]$/, '');
-        if (left.length >= 6 && right.length >= 2 && right.length <= 90 && !/^\d+$/.test(left)) {
-          pairs.push({ q: left + ' से संबंधित सही तथ्य क्या है?', ans: right, exp: ln });
-        }
-      }
-    }
-
-    if (pairs.length >= 4) {
-      const uniqueAns = Array.from(new Set(pairs.map(p => p.ans)));
-      const out = [];
-      for (let i = 0; i < Math.min(pairs.length, 200); i++) {
-        const p = pairs[i];
-        const dist = [];
-        for (let step = 1; step < uniqueAns.length && dist.length < 3; step++) {
-          const cand = uniqueAns[(i + step) % uniqueAns.length];
-          if (cand !== p.ans && !dist.includes(cand)) dist.push(cand);
-        }
-        if (dist.length < 3) continue;
-        const pos = i % 4;
-        const opts = dist.slice();
-        opts.splice(pos, 0, p.ans);
-        out.push({ q: p.q, o: opts, a: pos, exp: p.exp });
-      }
-      if (out.length >= 3) return out;
     }
     return qs;
   }
@@ -23643,10 +23625,10 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     list.innerHTML = parsedDraftQs.slice(0, 25).map((q, i) => `
       <div class="p-2.5 rounded-xl bg-slate-950 border border-white/10 text-[11px] space-y-1">
         <div class="flex items-start justify-between gap-2">
-          <div class="font-black text-white">Q${i+1}. ${esc(q.q)}</div>
+          <div class="font-black text-white">Q${i+1}. ${esc(fixPdfHindiGlyphs(q.q))}</div>
           <button type="button" onclick="window.v163DelDraftQ(${i})" class="px-1.5 py-0.5 rounded bg-rose-500/25 text-rose-200 font-bold shrink-0">✕</button>
         </div>
-        <div class="text-slate-300">${q.o.map((o, oi) => `<span class="${oi===q.a?'text-emerald-300 font-black':''}">(${letters[oi]}) ${esc(o)}</span>`).join(' • ')}</div>
+        <div class="text-slate-300">${q.o.map((o, oi) => `<span class="${oi===q.a?'text-emerald-300 font-black':''}">(${letters[oi]}) ${esc(fixPdfHindiGlyphs(o))}</span>`).join(' • ')}</div>
       </div>`).join('') + (parsedDraftQs.length > 25 ? `<div class="text-center text-[11px] text-cyan-300 font-bold">+ ${parsedDraftQs.length - 25} aur questions included hain!</div>` : '');
   }
 
@@ -23947,11 +23929,11 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
                 <span class="text-cyan-300">Q${qi+1}</span>
                 <span class="${p===undefined?'text-slate-400':(ok?'text-emerald-300':'text-rose-300')}">${p===undefined?'Skipped':(ok?'✓ Correct (+2)':'✕ Wrong (-0.5)')}</span>
               </div>
-              <div class="font-black text-white leading-snug" style="font-size:${fs(15)}">${esc(q.q)}</div>
+              <div class="font-black text-white leading-snug" style="font-size:${fs(15)}">${esc(fixPdfHindiGlyphs(q.q))}</div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs">
-                ${(q.o||[]).map((o, oi) => `<div class="px-3 py-1.5 rounded-xl border ${oi===Number(q.a)?'bg-emerald-500/25 border-emerald-400 text-emerald-100 font-black':(oi===p?'bg-rose-500/25 border-rose-400 text-rose-100':'bg-slate-950 border-white/10 text-slate-300')}"><b>${letters[oi]}.</b> ${esc(o)}</div>`).join('')}
+                ${(q.o||[]).map((o, oi) => `<div class="px-3 py-1.5 rounded-xl border ${oi===Number(q.a)?'bg-emerald-500/25 border-emerald-400 text-emerald-100 font-black':(oi===p?'bg-rose-500/25 border-rose-400 text-rose-100':'bg-slate-950 border-white/10 text-slate-300')}"><b>${letters[oi]}.</b> ${esc(fixPdfHindiGlyphs(o))}</div>`).join('')}
               </div>
-              ${q.exp ? `<div class="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-xs text-emerald-200">💡 ${esc(q.exp)}</div>` : ''}
+              ${q.exp ? `<div class="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-xs text-emerald-200">💡 ${esc(fixPdfHindiGlyphs(q.exp))}</div>` : ''}
             </div>`;
           }).join('')}
         </div>`;
@@ -23989,13 +23971,13 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       <!-- EDUQUITY QUESTION CARD -->
       <div class="p-4 sm:p-5 rounded-3xl bg-slate-900/95 border border-cyan-400/35 shadow-xl space-y-4">
         <div class="text-[11px] font-black uppercase tracking-wider text-cyan-300">SELECT THE CORRECT OPTION (सही विकल्प चुनें):</div>
-        <div class="font-black text-white leading-relaxed" style="font-size:${fs(17.5)}">${esc(q.q)}</div>
+        <div class="font-black text-white leading-relaxed" style="font-size:${fs(17.5)}">${esc(fixPdfHindiGlyphs(q.q))}</div>
         <div class="space-y-2.5 pt-1">
           ${(q.o || []).map((o, oi) => {
             const sel = chosen === oi;
             return `<button type="button" onclick="window.v167SelectOpt(${oi})" class="w-full text-left p-3.5 rounded-2xl border-2 transition flex items-center gap-3 active:scale-[0.99] ${sel ? 'bg-blue-500/25 border-blue-400 text-white ring-2 ring-blue-400/50' : 'bg-slate-950/90 hover:bg-slate-800 border-white/15 text-slate-100'}" style="font-size:${fs(15.5)}">
               <span class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${sel ? 'border-blue-400 bg-blue-500 text-white' : 'border-slate-500 text-slate-400'} text-xs font-black">${sel ? '●' : (oi + 1)}</span>
-              <span class="font-bold leading-snug">${esc(o)}</span>
+              <span class="font-bold leading-snug">${esc(fixPdfHindiGlyphs(o))}</span>
             </button>`;
           }).join('')}
         </div>
