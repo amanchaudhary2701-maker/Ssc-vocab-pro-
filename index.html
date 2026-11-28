@@ -21363,7 +21363,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
                     <span>🎬</span><span>Open Economics 3D PPT</span>
                   </button>
                   <button type="button" onclick="window.openGsPpt100(0, true, 'econ_mcq')" class="px-3.5 py-2.5 rounded-2xl bg-violet-600/85 hover:bg-violet-500 border border-violet-300/60 text-white text-xs font-black transition">🎯 Economics MCQs (120 Qs)</button>
-                  <button type="button" onclick="window.openGsPpt100(96, true, 'economics')" class="px-3.5 py-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 border border-amber-400/50 text-amber-200 text-xs font-extrabold transition">📐 Master Formulas</button>
+                  <button type="button" onclick="window.openGsPpt100((window.GS_PPT100_JUMPS && window.GS_PPT100_JUMPS[window.GS_PPT100_JUMPS.length-1] ? window.GS_PPT100_JUMPS[window.GS_PPT100_JUMPS.length-1].idx : 96), true, 'economics')" class="px-3.5 py-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 border border-amber-400/50 text-amber-200 text-xs font-extrabold transition">📐 Master Formulas</button>
                 </div>
               </div>
             </div>
@@ -21524,17 +21524,16 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     0%, 100% { transform: translateY(0px) rotate(0deg); }
     50%      { transform: translateY(-10px) rotate(3deg); }
   }
-  .ppt3d-anim-flip-next { animation: ppt3dFlipNext 0.45s cubic-bezier(.2,.85,.3,1) both; }
-  .ppt3d-anim-flip-prev { animation: ppt3dFlipPrev 0.45s cubic-bezier(.2,.85,.3,1) both; }
-  .ppt3d-anim-cube      { animation: ppt3dCubeNext 0.48s cubic-bezier(.2,.85,.3,1) both; }
-  .ppt3d-anim-zoom      { animation: ppt3dZoomIn 0.42s cubic-bezier(.2,.85,.3,1) both; }
+  .ppt3d-anim-flip-next { animation: ppt3dFlipNext 0.22s cubic-bezier(.2,.85,.3,1) both; }
+  .ppt3d-anim-flip-prev { animation: ppt3dFlipPrev 0.22s cubic-bezier(.2,.85,.3,1) both; }
+  .ppt3d-anim-cube      { animation: ppt3dCubeNext 0.24s cubic-bezier(.2,.85,.3,1) both; }
+  .ppt3d-anim-zoom      { animation: ppt3dZoomIn 0.20s cubic-bezier(.2,.85,.3,1) both; }
   .ppt3d-card {
-    animation: ppt3dCardRise 0.48s cubic-bezier(.2,.85,.3,1) both;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.16);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.28);
+    contain: layout style;
   }
-  .ppt3d-card:hover { transform: translateY(-3px) scale(1.005); box-shadow: 0 18px 36px rgba(0,0,0,0.42); }
-  .ppt3d-orb { animation: ppt3dFloat 6s ease-in-out infinite; pointer-events: none; }
+  .ppt3d-orb { display: none !important; }
+  #gs-ppt100-canvas { touch-action: pan-y; contain: layout style; }
   /* Smooth animated Top & Bottom HUD collapse on Double-Tap */
   #gs-ppt100-top, #gs-ppt100-bot {
     transition: transform 0.34s cubic-bezier(.2,.85,.3,1), opacity 0.28s ease, max-height 0.34s cubic-bezier(.2,.85,.3,1), padding 0.34s ease, border-width 0.34s ease;
@@ -21652,8 +21651,112 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   window.GS_PPT100_COVER = ECON_FIGS['fig-000.png'] || Object.values(ECON_FIGS)[0] || '';
   window.GS_GEO_JUMPS = GEO_JUMPS;
 
-  // Build pure Subject-Wise Interactive MCQ-only decks (Economics separate, Geography separate!)
-  const ECON_MCQ_SLIDES = ECON_SLIDES.filter(s => s && s.t === 'mcq');
+  // ⚡ V155: 1-TOPIC-PER-SLIDE EXPANDER (Super Fast, Clean Single-Topic Slides for BOTH Economics & Geography!)
+  function expandOneTopicPerSlide(rawSlides, origJumps) {
+    const out = [];
+    const chFirstIdx = {};
+    const recordCh = (ch, idx) => { if (chFirstIdx[ch] === undefined) chFirstIdx[ch] = idx; };
+
+    rawSlides.forEach((s) => {
+      if (!s) return;
+      const ch = Number(s.ch) || 0;
+      if (s.t === 'opener') {
+        recordCh(ch, out.length);
+        // Slide 1: Chapter Opener + Roadmap ONLY
+        out.push({
+          t: 'opener_only', ch, tag: s.tag, title: s.title, en: s.en || '',
+          roadmap: s.roadmap || [], figs: s.figs || 0, mcqs: s.mcqs || 0
+        });
+        // Slide 2: First Core Topic ONLY
+        const opHead = s.h || s.head || 'मुख्य अवधारणाएँ';
+        const opPts  = (Array.isArray(s.p) && s.p.length) ? s.p : (s.pts || []);
+        if (opPts.length) {
+          out.push({ t: 'single_topic', ch, tag: `CH ${String(ch).padStart(2,'0')} • TOPIC`, title: s.title, heading: opHead, pts: opPts });
+        }
+      } else if (s.t === 'theory') {
+        recordCh(ch, out.length);
+        (s.blocks || []).forEach((b, bi) => {
+          const pts = b.p || [];
+          if (pts.length <= 6) {
+            out.push({ t: 'single_topic', ch, tag: s.tag, title: s.title, heading: b.h || 'मुख्य बिंदु', pts });
+          } else {
+            for (let k = 0; k < pts.length; k += 5) {
+              const part = Math.floor(k / 5) + 1;
+              out.push({ t: 'single_topic', ch, tag: s.tag, title: s.title, heading: (b.h || 'मुख्य बिंदु') + (part > 1 ? ` (भाग ${part})` : ''), pts: pts.slice(k, k + 5) });
+            }
+          }
+        });
+      } else if (s.t === 'content') {
+        recordCh(ch, out.length);
+        if (s.lb && s.lb.length) {
+          out.push({ t: 'single_topic', ch, tag: s.tag, title: s.title, heading: s.lh || 'मुख्य बिंदु', pts: s.lb });
+        }
+        if (s.rb && s.rb.length) {
+          out.push({ t: 'single_topic', ch, tag: s.tag, title: s.title, heading: s.rh || 'परीक्षा कैप्सूल', pts: s.rb });
+        }
+      } else if (s.t === 'qm') {
+        recordCh(ch, out.length);
+        if (s.q && s.q.length) {
+          out.push({ t: 'single_topic', ch, tag: `CH ${String(ch).padStart(2,'0')} • QUICK FACTS`, title: s.title, heading: '★ SSC एवं UPSC परीक्षा विशेष तथ्य (Quick Facts)', pts: s.q, accent: 'amber' });
+        }
+        if (s.m && s.m.length) {
+          out.push({ t: 'single_topic', ch, tag: `CH ${String(ch).padStart(2,'0')} • MAINS GS-III`, title: s.title, heading: '◆ UPSC GS-III मुख्य परीक्षा मॉडल उत्तर ढाँचा', pts: s.m, accent: 'cyan' });
+        }
+      } else if (s.t === 'mcq') {
+        recordCh(ch, out.length);
+        // 1 Interactive MCQ per slide — big, clear, zero scrolling!
+        const baseOff = Number(s.off) || 1;
+        (s.mcqs || []).forEach((mq, mi) => {
+          out.push({
+            t: 'mcq', ch,
+            tag: `${String(s.tag || 'MCQ').split('(')[0].trim()} • Q${baseOff + mi}`,
+            title: s.title,
+            off: baseOff + mi,
+            mcqs: [mq]
+          });
+        });
+      } else {
+        recordCh(ch, out.length);
+        out.push(s);
+      }
+    });
+
+    // Rebuild chapter jumps accurately for the expanded slides
+    const newJumps = [];
+    (origJumps || []).forEach((j) => {
+      const mCh = String(j.label || '').match(/^Ch\s*(\d+)/i);
+      let newIdx = j.idx;
+      if (j.idx === 0) newIdx = 0;
+      else if (mCh && chFirstIdx[Number(mCh[1])] !== undefined) newIdx = chFirstIdx[Number(mCh[1])];
+      else if (String(j.label).includes('Appendix') || String(j.label).includes('Appendices')) {
+        const fi = out.findIndex(x => x.t === 'app_f' || x.tag === 'MASTER APPENDIX');
+        if (fi >= 0) newIdx = fi;
+      } else if (String(j.label).includes('Stmt')) {
+        const fi = out.findIndex(x => x.t === 'mcq' && String(x.tag || '').includes('STATEMENT'));
+        if (fi >= 0) newIdx = fi;
+      } else if (String(j.label).includes('PYQ')) {
+        const fi = out.findIndex(x => x.t === 'mcq' && String(x.tag || '').includes('PYQ'));
+        if (fi >= 0) newIdx = fi;
+      } else if (String(j.label).includes('Mock')) {
+        const fi = out.findIndex(x => x.t === 'mcq' && String(x.tag || '').includes('MEGA MOCK'));
+        if (fi >= 0) newIdx = fi;
+      } else if (String(j.label).includes('Super-100')) {
+        const fi = out.findIndex(x => x.t === 'mcq' && String(x.tag || '').includes('SUPER-100'));
+        if (fi >= 0) newIdx = fi;
+      }
+      newJumps.push({ ...j, idx: Math.max(0, Math.min(out.length - 1, newIdx)) });
+    });
+    return { slides: out, jumps: newJumps };
+  }
+
+  const ECON_EXP = expandOneTopicPerSlide(ECON_SLIDES, ECON_JUMPS);
+  const GEO_EXP  = expandOneTopicPerSlide(GEO_SLIDES, GEO_JUMPS);
+
+  window.GS_PPT100_JUMPS = ECON_EXP.jumps;
+  window.GS_GEO_JUMPS = GEO_EXP.jumps;
+
+  // Build pure Subject-Wise Interactive MCQ-only decks (1 Question per Slide!)
+  const ECON_MCQ_SLIDES = ECON_EXP.slides.filter(s => s && s.t === 'mcq');
   const ECON_MCQ_JUMPS = [];
   const _econSeenCh = new Set();
   ECON_MCQ_SLIDES.forEach((s, i) => {
@@ -21665,7 +21768,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     }
   });
 
-  const GEO_MCQ_SLIDES = GEO_SLIDES.filter(s => s && s.t === 'mcq');
+  const GEO_MCQ_SLIDES = GEO_EXP.slides.filter(s => s && s.t === 'mcq');
   const GEO_MCQ_JUMPS = [];
   let _gStmtIdx = GEO_MCQ_SLIDES.findIndex(s => String(s.tag || '').includes('STATEMENT'));
   let _gPyqIdx  = GEO_MCQ_SLIDES.findIndex(s => String(s.tag || '').includes('PYQ'));
@@ -21678,25 +21781,25 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
 
   const DECKS = {
     economics: {
-      name: 'भारतीय अर्थव्यवस्था • 100-Slide 3D PPT',
-      slides: ECON_SLIDES,
-      jumps: ECON_JUMPS,
+      name: 'भारतीय अर्थव्यवस्था • 1-Topic 3D PPT',
+      slides: ECON_EXP.slides,
+      jumps: ECON_EXP.jumps,
       figs: ECON_FIGS
     },
     econ_mcq: {
-      name: '💰 Economics Interactive MCQ Bank (120 Qs)',
+      name: '💰 Economics Interactive MCQ (120 Qs)',
       slides: ECON_MCQ_SLIDES,
       jumps: ECON_MCQ_JUMPS,
       figs: ECON_FIGS
     },
     geography: {
-      name: 'संपूर्ण भारत एवं विश्व का भूगोल • 3D PPT',
-      slides: GEO_SLIDES,
-      jumps: GEO_JUMPS,
+      name: 'संपूर्ण भारत एवं विश्व का भूगोल • 1-Topic 3D PPT',
+      slides: GEO_EXP.slides,
+      jumps: GEO_EXP.jumps,
       figs: GEO_FIGS
     },
     geo_mcq: {
-      name: '🌍 Geography Interactive MCQ Bank (675 Qs)',
+      name: '🌍 Geography Interactive MCQ (675 Qs)',
       slides: GEO_MCQ_SLIDES,
       jumps: GEO_MCQ_JUMPS,
       figs: GEO_FIGS
@@ -21853,6 +21956,36 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
               <div class="font-black text-white leading-snug" style="font-size:${fs(15.5)}">${esc(j.title || j.t || j.label || '')}</div>
             </button>`).join('')}
         </div>`;
+    } else if (s.t === 'opener_only') {
+      const opBadge = (s.mcqs || s.figs) ? `${s.figs ? s.figs + ' आरेख • ' : ''}${s.mcqs || 0} हल MCQs` : `अध्याय ${String(s.ch).padStart(2,'0')} • 3D`;
+      bodyHtml = `
+        <div class="max-w-4xl mx-auto space-y-4 py-1">
+          <div class="ppt3d-card p-5 rounded-2xl bg-slate-950/65 border-2 flex flex-wrap items-center justify-between gap-3" style="border-color:${acc}">
+            <div>
+              <div class="font-black text-white leading-snug" style="font-size:${fs(26)}">${esc(s.title)}</div>
+              <div class="font-bold text-amber-200 mt-1" style="font-size:${fs(16)}">${esc(s.en || '')}</div>
+            </div>
+            <span class="px-4 py-1.5 rounded-xl font-black text-slate-950 shadow" style="background:${acc};font-size:${fs(14)}">${esc(opBadge)}</span>
+          </div>
+          <div class="ppt3d-card p-5 rounded-2xl bg-slate-950/75 border-t-4 space-y-3" style="border-color:${acc}">
+            <h3 class="font-black text-amber-300" style="font-size:${fs(19)}">◆ इस अध्याय के प्रमुख उद्देश्य (Study Roadmap)</h3>
+            <ul class="space-y-3 leading-relaxed" style="font-size:${fs(17.5)}">
+              ${(s.roadmap || []).map(r => `<li class="flex gap-2.5 text-white"><span class="font-black shrink-0" style="color:${acc}">▸</span><span>${fmtBullet(r)}</span></li>`).join('')}
+            </ul>
+          </div>
+        </div>`;
+    } else if (s.t === 'single_topic') {
+      const hBg = s.accent === 'amber' ? '#D97706' : (s.accent === 'cyan' ? '#0891B2' : bdg);
+      const bCol = s.accent === 'amber' ? '#FBBF24' : (s.accent === 'cyan' ? '#22D3EE' : acc);
+      bodyHtml = `
+        <div class="max-w-4xl mx-auto">
+          <div class="ppt3d-card p-5 sm:p-6 rounded-2xl bg-slate-950/80 border-l-4 space-y-3.5" style="border-color:${bCol}">
+            <div class="px-4 py-2 rounded-xl font-black text-white shadow" style="background:${hBg};font-size:${fs(18.5)}">${esc(s.heading || 'मुख्य बिंदु')}</div>
+            <ul class="space-y-3 leading-relaxed" style="font-size:${fs(17.5)}">
+              ${(s.pts || []).map(p => `<li class="flex gap-2.5 text-white"><span class="font-black shrink-0" style="color:${bCol}">▸</span><div>${fmtBullet(p)}</div></li>`).join('')}
+            </ul>
+          </div>
+        </div>`;
     } else if (s.t === 'opener') {
       const opHead = s.h || s.head || 'मुख्य अवधारणाएँ';
       const opPts  = (Array.isArray(s.p) && s.p.length) ? s.p : (s.pts || []);
@@ -21988,7 +22121,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
           if (st === m.ansIdx) correct++;
         }
       });
-      const gridCls = mcqs.length <= 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 lg:grid-cols-2';
+      const gridCls = mcqs.length === 1 ? 'grid-cols-1 max-w-4xl mx-auto' : 'grid-cols-1 lg:grid-cols-2';
       bodyHtml = `
         <div class="space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-2xl bg-slate-950/75 border border-amber-400/45">
@@ -22275,7 +22408,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       if (jIdx === activeJ.idx) {
         btn.classList.add('bg-amber-400', 'text-slate-950', 'border-amber-300');
         btn.classList.remove('bg-slate-900', 'text-slate-200');
-        try { btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); } catch(e) {}
+        if (!hudHidden) { try { btn.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' }); } catch(e) {} }
       } else {
         btn.classList.remove('bg-amber-400', 'text-slate-950', 'border-amber-300');
         btn.classList.add('bg-slate-900', 'text-slate-200');
@@ -22341,6 +22474,13 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     render(false);
   };
 
+  // Direct Next/Prev Page for Finger Swipe (never blocked by 1-line mode!)
+  window.swipeGsPpt100 = function(d) {
+    dir = d >= 0 ? 1 : -1;
+    cur = (cur + d + SLIDES.length) % SLIDES.length;
+    render(false);
+  };
+
   window.bumpGsPpt100Font = function(step) {
     fontScale = Math.max(0.85, Math.min(1.45, +(fontScale + step * 0.1).toFixed(2)));
     try { localStorage.setItem('gs_ppt100_fs', String(fontScale)); } catch(e) {}
@@ -22371,23 +22511,30 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     } catch(e) {}
   };
 
-  // Touch swipe + Double-Tap HUD Toggle + Single-Tap 1-Line Reveal
-  let sx = 0, sy = 0, lastTapTime = 0, singleTapTimer = null;
+  // Ultra-Responsive Finger Swipe -> Direct Next/Prev Page + Double-Tap HUD Toggle + Single-Tap 1-Line Reveal
+  let sx = 0, sy = 0, stTime = 0, lastTapTime = 0, singleTapTimer = null, justSwipedAt = 0;
   const stage = document.getElementById('gs-ppt100-stage');
   if (stage) {
     stage.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }
+      if (e.touches.length === 1) {
+        sx = e.touches[0].clientX;
+        sy = e.touches[0].clientY;
+        stTime = Date.now();
+      }
     }, { passive: true });
     stage.addEventListener('touchend', (e) => {
       if (e.changedTouches.length !== 1) return;
       const dx = e.changedTouches[0].clientX - sx;
       const dy = e.changedTouches[0].clientY - sy;
-      if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      const dt = Date.now() - stTime;
+      if (dt < 800 && Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy) * 1.15) {
         clearTimeout(singleTapTimer);
-        window.stepGsPpt100(dx < 0 ? 1 : -1);
+        justSwipedAt = Date.now();
+        window.swipeGsPpt100(dx < 0 ? 1 : -1);
       }
     }, { passive: true });
     stage.addEventListener('click', (e) => {
+      if (Date.now() - justSwipedAt < 350) return;
       if (e.target.closest('button, select, input, a, img[onclick], #gs-ppt100-fig-zoom')) return;
       const now = Date.now();
       if (now - lastTapTime < 300) {
