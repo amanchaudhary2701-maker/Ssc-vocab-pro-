@@ -12184,7 +12184,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
                 <span id="v171-gem-status" class="text-[10px] font-black text-amber-300">Not Saved</span>
               </div>
               <div class="flex gap-1.5">
-                <input id="v171-gemini-key" type="password" placeholder="AIzaSy... (Apni Gemini API Key yahan paste karein)" class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+                <input id="v171-gemini-key" type="password" placeholder="AIzaSy... ya AQ.... (Gemini / Vertex API Key paste karein)" class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
                 <button type="button" onclick="window.v171SaveGeminiKey()" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black shrink-0">💾 Save</button>
               </div>
               <p class="text-[10px] text-slate-300">Key save karne ke baad PDF upload karte hi Gemini AI sabhi broken Hindi words/matras ko 100% shuddh Hindi me theek kar dega!</p>
@@ -24561,28 +24561,39 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
 
   async function callGeminiCleanBatch(apiKey, batchQs) {
     const prompt = `You are a Hindi UPSC/SSC exam editor. The following MCQs were extracted from a PDF with broken Hindi Devanagari font matras/glyphs.
-Repair EVERY question ("q"), all 4 options ("o"), and explanation ("exp") into 100% pure, grammatically correct, crystal-clear Hindi Devanagari (keep English acronyms like UPSC, SSC, UNESCO, RBI, GDP intact). Keep "a" (0-3 correct answer index) accurate.
+Repair EVERY question ("q"), all 4 options ("o"), and explanation ("exp") into 100% pure, grammatically correct, crystal-clear Hindi Devanagari (keep English acronyms like UPSC, SSC, UNESCO, RBI, GDP intact). Also verify and fix "a" (0-3 correct answer index) so the factually right option index is set accurately!
 Return ONLY a valid JSON array of objects with exact keys: [{"q":"...","o":["...","...","...","..."],"a":0,"exp":"..."}]. No markdown, no extra text.
 
 INPUT JSON:
 ` + JSON.stringify(batchQs);
 
-    const models = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+    // Support BOTH Vertex AI Express Keys ("AQ....") AND Google AI Studio Keys ("AIzaSy...")!
+    const isVertexKey = /^AQ\./i.test(apiKey);
+    const endpoints = isVertexKey ? [
+      `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+      `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.5-flash-lite:generateContent?key=${encodeURIComponent(apiKey)}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`
+    ] : [
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${encodeURIComponent(apiKey)}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${encodeURIComponent(apiKey)}`,
+      `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`
+    ];
+
     let lastErr = 'Gemini API error';
-    for (const mdl of models) {
+    for (const url of endpoints) {
       try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${mdl}:generateContent?key=${encodeURIComponent(apiKey)}`;
         const resp = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
             generationConfig: { temperature: 0.1, responseMimeType: 'application/json' }
           })
         });
         if (!resp.ok) {
           const et = await resp.text().catch(() => '');
-          lastErr = `${mdl} (${resp.status}): ${et.slice(0, 90)}`;
+          lastErr = `HTTP ${resp.status}: ${et.slice(0, 120)}`;
           continue;
         }
         const j = await resp.json();
