@@ -1169,6 +1169,7 @@
           </button>
         </div>
 <!-- V157_HOME_STRIP_END -->
+        <div id="v167-home-live-tests-host" class="hidden space-y-2.5"></div>
 
         <!-- TESTBOOK-STYLE PASS PRO & DAILY GOAL HERO CARD -->
         <div class="sheen-3d classic-banner-keep rounded-3xl p-5 bg-gradient-to-br from-sky-950 via-slate-900 to-cyan-950 border-2 border-cyan-400/50 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -12138,6 +12139,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             <div class="space-y-1">
               <label class="text-[10px] font-black text-emerald-300 uppercase">0️⃣ Kahan Add Karna Hai? (App Section Chunein) *</label>
               <select id="v163-pt-dest" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border-2 border-emerald-400/55 text-xs text-emerald-200 font-black">
+                <option value="home_test">🏠 Home Screen Live + Eduquity Test (Default)</option>
                 <option value="pyq">🏛️ PYQ Section (PYQ Tab me jaye)</option>
                 <option value="test">📝 Test Section (Test Tab me jaye)</option>
                 <option value="subject">📚 Subject Section (Subject Tab me jaye)</option>
@@ -23334,20 +23336,44 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
 
 <!-- V163_PDFTEST_MODAL_AND_SCRIPT_START -->
 <div id="v163-pdftest-modal" class="hidden fixed inset-0 z-[125] bg-slate-950 flex flex-col overflow-hidden">
-  <div class="px-4 py-3 bg-gradient-to-r from-violet-950 via-slate-900 to-cyan-950 border-b border-violet-400/45 flex items-center justify-between gap-2 shrink-0">
+  <!-- EDUQUITY CBT TOP BAR -->
+  <div class="px-3.5 py-2.5 bg-gradient-to-r from-[#0B1F3A] via-slate-900 to-indigo-950 border-b border-cyan-400/40 flex items-center justify-between gap-2 shrink-0">
     <div class="flex items-center gap-2 min-w-0">
-      <button type="button" id="v163-stu-back-btn" onclick="window.v163BackToFolders()" class="hidden px-3 py-1.5 rounded-xl bg-amber-400 text-slate-950 text-xs font-black shrink-0">← Folders</button>
+      <button type="button" id="v163-stu-back-btn" onclick="window.closeV163StudentPdfTests()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/15 text-white text-xs font-black shrink-0">← Back</button>
       <div class="min-w-0">
-        <h2 id="v163-stu-title" class="text-sm sm:text-lg font-black text-white truncate">📁 Topic-Wise PDF Tests (Subject Folder)</h2>
-        <p id="v163-stu-sub" class="text-[11px] text-violet-200/90 truncate">Admin dwara PDF se banaye gaye Topic-Wise Interactive Tests</p>
+        <div id="v163-stu-timer" class="text-sm sm:text-base font-black text-cyan-300 leading-tight">⏱ 15:00</div>
+        <div id="v163-stu-title" class="text-[11px] font-bold text-amber-300 truncate">⚡ Eduquity CBT Live Test</div>
       </div>
     </div>
-    <div class="flex items-center gap-2 shrink-0">
-      <span id="v163-stu-timer" class="hidden px-2.5 py-1 rounded-xl bg-amber-400/20 border border-amber-400/60 text-amber-200 text-xs font-black">⏱ 15:00</span>
-      <button type="button" onclick="window.closeV163StudentPdfTests()" class="px-3 py-1.5 rounded-xl bg-rose-500/25 hover:bg-rose-500/40 border border-rose-400/60 text-white text-xs font-black">✕ Close</button>
+    <div class="flex items-center gap-1.5 shrink-0">
+      <button type="button" onclick="window.v167BumpFont(-1)" class="px-2 py-1 rounded-lg bg-slate-800 border border-white/15 text-white text-xs font-black">A-</button>
+      <button type="button" onclick="window.v167BumpFont(1)" class="px-2 py-1 rounded-lg bg-slate-800 border border-white/15 text-amber-300 text-xs font-black">A+</button>
+      <button type="button" onclick="window.closeV163StudentPdfTests()" class="px-2.5 py-1 rounded-lg bg-rose-500/25 border border-rose-400/50 text-white text-xs font-black">✕</button>
     </div>
   </div>
-  <div id="v163-stu-body" class="flex-1 overflow-y-auto p-3 sm:p-5 max-w-5xl w-full mx-auto space-y-3.5"></div>
+  <!-- EDUQUITY CBT BODY -->
+  <div id="v163-stu-body" class="flex-1 overflow-y-auto p-3 sm:p-5 max-w-4xl w-full mx-auto space-y-3.5"></div>
+  <!-- EDUQUITY CBT BOTTOM BAR (Visible during active test) -->
+  <div id="v167-cbt-botbar" class="hidden px-3 py-2.5 bg-slate-900/95 border-t border-white/15 flex items-center justify-between gap-2 shrink-0">
+    <button type="button" onclick="window.v167TogglePalette()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/15 text-white text-xs font-black">☰ Palette</button>
+    <button type="button" onclick="window.v167SubmitEduquity()" class="flex-1 max-w-xs py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-slate-950 text-xs sm:text-sm font-black shadow-lg">✅ Submit Test</button>
+    <button type="button" id="v167-pause-btn" onclick="window.v167TogglePause()" class="px-3.5 py-2.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 text-xs font-black">⏸ Pause</button>
+  </div>
+  <!-- QUESTION PALETTE DRAWER -->
+  <div id="v167-palette-drawer" class="hidden fixed inset-0 z-[135] bg-black/80 flex items-end sm:items-center justify-center p-3" onclick="if(event.target===this) window.v167TogglePalette()">
+    <div class="w-full max-w-md rounded-3xl bg-slate-900 border-2 border-cyan-400/50 p-4 space-y-3 max-h-[80vh] flex flex-col">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-black text-white">☰ Question Palette (Jump to Any Q)</h3>
+        <button type="button" onclick="window.v167TogglePalette()" class="px-2.5 py-1 rounded-lg bg-slate-800 text-xs font-black text-white">✕</button>
+      </div>
+      <div class="flex items-center gap-3 text-[10px] font-bold text-slate-300">
+        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span>Answered</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-violet-500 inline-block"></span>Review</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-slate-700 inline-block"></span>Unvisited</span>
+      </div>
+      <div id="v167-palette-grid" class="grid grid-cols-6 sm:grid-cols-8 gap-1.5 overflow-y-auto py-1"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -23359,48 +23385,45 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   let parsedDraftQs = [];
   let stuSubFilter = 'All';
   let activeTest = null;
+  let activeIdx = 0;
   let activeAns = {};
+  let activeReview = {};
+  let activeSubmitted = false;
+  let activePaused = false;
   let activeTimer = null;
   let secsLeft = 0;
+  let cbtFontScale = 1.0;
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  function renderSectionHosts() {
-    const configs = [
-      { id: 'v164-pyq-uploaded-host',     match: t => (t.dest === 'pyq' || t.dest === 'both'),     title: '🏛️ Admin Uploaded PYQ Sets (PDF → PYQ)',     btnTxt: '▶ Practice PYQ', border: 'border-cyan-400/50',   bg: 'from-cyan-950/90 via-slate-900 to-indigo-950/80' },
-      { id: 'v164-test-uploaded-host',    match: t => (!t.dest || t.dest === 'test' || t.dest === 'both'), title: '📝 Admin Uploaded Topic Tests (PDF → Test)', btnTxt: '▶ Start Test',   border: 'border-emerald-400/50', bg: 'from-emerald-950/90 via-slate-900 to-cyan-950/80' },
-      { id: 'v164-subject-uploaded-host', match: t => (t.dest === 'subject'),                      title: '📚 Admin Uploaded Subject Practice Sets',    btnTxt: '▶ Practice Now', border: 'border-violet-400/50',  bg: 'from-violet-950/90 via-slate-900 to-indigo-950/80' }
+  // -------------------------------------------------------------------------
+  // V167 HINDI PDF.JS GLYPH & MATRA REPAIR (fixes ƒवश्व->विश्व, ƒकया->किया, gचत्रकूट->चित्रकूट, 3स्थत->स्थित, कौिन->कौन!)
+  // -------------------------------------------------------------------------
+  function fixPdfHindiGlyphs(raw) {
+    let s = String(raw || '');
+    // Repair visual-order short-i matra glyphs emitted by ReportLab/HarfBuzz Hindi PDFs
+    // e.g. ƒक -> कि, ƒव -> वि, gच -> चि, „ज -> जि, 3स -> सि, 3स्थत -> स्थित
+    s = s.replace(/[ƒ†‡‰ŠŒŽ‘’“”•–—˜™š›œžŸ¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿„;]+([क-ह](?:्[क-ह])?)/g, '$1ि');
+    s = s.replace(/g([क-ह](?:्[क-ह])?)/g, '$1ि');
+    s = s.replace(/3(स्थ|स|क|द|न|प|म|व)/g, '$1ि');
+    s = s.replace(/([क-ह])\s*्\s*([क-ह])/g, '$1्$2');
+    // Common broken Hindi word repairs
+    const fixes = [
+      ['स्थि ल', 'स्थल'], ['धरोहिर', 'धरोहर'], ['कौिन', 'कौन'], ['हिै', 'है'], ['हिैं', 'हैं'],
+      ['हिो', 'हो'], ['हिी', 'ही'], ['संपूणर्ण', 'संपूर्ण'], ['प र शिष्ट', 'परिशिष्ट'], ['नम्न ल खत', 'निम्नलिखित'],
+      ['वश्व', 'विश्व'], ['घो;त', 'घोषित'], ['घोि;त', 'घोषित'], ['कया', 'किया'], ['लए', 'लिए'],
+      ['अ धक', 'अधिक'], ['प्र तशत', 'प्रतिशत'], ['म णपुर', 'मणिपुर'], ['म0णपुर', 'मणिपुर'],
+      ['सांस्कृ तक', 'सांस्कृतिक'], ['प्राकृ तक', 'प्राकृतिक'], ['मश्रित', 'मिश्रित'], ['इंद्राविती', 'इंद्रावती'],
+      ['लॉडर्न', 'लॉर्ड'], ['3रप', 'रिपन'], ['Þ', 'ब']
     ];
-    configs.forEach(cfg => {
-      const el = document.getElementById(cfg.id);
-      if (!el) return;
-      const matched = testsList.filter(cfg.match);
-      if (!matched.length) { el.classList.add('hidden'); el.innerHTML = ''; return; }
-      el.classList.remove('hidden');
-      el.innerHTML = `
-        <div class="rounded-3xl p-4 bg-gradient-to-br ${cfg.bg} border-2 ${cfg.border} shadow-xl space-y-3">
-          <div class="flex items-center justify-between gap-2">
-            <h3 class="text-xs sm:text-sm font-black text-white">${cfg.title}</h3>
-            <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black">${matched.length} Live Sets</span>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-            ${matched.map(t => `
-              <div class="p-3 rounded-2xl bg-slate-950/90 border border-white/15 flex flex-col justify-between gap-2">
-                <div>
-                  <div class="flex items-center justify-between gap-1 text-[10px]">
-                    <span class="px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 font-black">${esc(t.subject)}</span>
-                    <span class="text-cyan-300 font-bold truncate">📂 ${esc(t.topic)}</span>
-                  </div>
-                  <div class="text-xs sm:text-sm font-black text-white mt-1 line-clamp-2">${esc(t.title)}</div>
-                  <div class="text-[10px] text-slate-400 mt-0.5">${t.questions.length} Qs • ⏱ ${t.mins}m • ${esc(t.dateStr || '')}</div>
-                </div>
-                <button type="button" onclick="window.openV163StudentPdfTests('${t.id}')" class="w-full py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 text-xs font-black shadow">${cfg.btnTxt}</button>
-              </div>`).join('')}
-          </div>
-        </div>`;
-    });
+    for (const [a, b] of fixes) {
+      if (s.includes(a)) s = s.split(a).join(b);
+    }
+    // Strip stray garbage control/latin artifacts next to Devanagari
+    s = s.replace(/[ƒ†‡„¥Þ;]+/g, '').replace(/\s{2,}/g, ' ').trim();
+    return s;
   }
 
   function saveTestsLocal() {
@@ -23439,25 +23462,24 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   }
 
   // -------------------------------------------------------------------------
-  // V166 UNIVERSAL HINDI + ENGLISH PDF -> MCQ PARSER (Standard MCQs + Spaced Brackets + 1/2/3/4 + Auto One-Liner-to-MCQ!)
+  // V167 UNIVERSAL HINDI + ENGLISH PDF -> MCQ PARSER (with Hindi Glyph Repair!)
   // -------------------------------------------------------------------------
   function parseMcqsFromPdfText(rawText) {
-    // Normalize pdf.js spaced parentheses like "( a )" -> "(a)", "( A )" -> "(A)", "( 1 )" -> "(1)"
-    const txt = String(rawText || '')
+    const txt = fixPdfHindiGlyphs(String(rawText || '')
       .replace(/\r/g, '\n')
       .replace(/[\t]+/g, ' ')
       .replace(/\(\s*([A-Da-d1-4])\s*\)/g, '($1)')
-      .replace(/\n{3,}/g, '\n\n');
+      .replace(/\n{3,}/g, '\n\n'));
 
     const qs = [];
 
-    // PASS 1: Global Option-Anchor MCQ Extractor (works even when question numbers are missing or wrapped across lines!)
-    const optRe = /(?:^|[\n\s|])(?:\(([Aa])\)|\b([Aa])[).])\s*([^\n|]{1,180}?)(?:\s*\|\s*|\n+|\s{2,})(?:\(([Bb])\)|\b([Bb])[).])\s*([^\n|]{1,180}?)(?:\s*\|\s*|\n+|\s{2,})(?:\(([Cc])\)|\b([Cc])[).])\s*([^\n|]{1,180}?)(?:\s*\|\s*|\n+|\s{2,})(?:\(([Dd])\)|\b([Dd])[).])\s*([^\n|]{1,180}?)(?=\n|$|\s+(?:Ans|Answer|Correct|उत्तर|सही\s*उत्तर|Sol|व्याख्या))/gim;
+    // PASS 1: Standard & Bare A / B / C / D MCQ Extractor
+    const optRe = /(?:^|[\n\s|])(?:\(([Aa])\)|\b([Aa])[).]|\b([Aa])\s+(?=[^A-D\n]{2,}))\s*([^\n|]{1,160}?)(?:\s*\|\s*|\n+|\s+)(?:\(([Bb])\)|\b([Bb])[).]|\b([Bb])\s+(?=[^A-D\n]{2,}))\s*([^\n|]{1,160}?)(?:\s*\|\s*|\n+|\s+)(?:\(([Cc])\)|\b([Cc])[).]|\b([Cc])\s+(?=[^A-D\n]{2,}))\s*([^\n|]{1,160}?)(?:\s*\|\s*|\n+|\s+)(?:\(([Dd])\)|\b([Dd])[).]|\b([Dd])\s+(?=[^A-D\n]{2,}))\s*([^\n|]{1,160}?)(?=\n|$|\s+(?:Ans|Answer|Correct|उत्तर|सही\s*उत्तर|Sol|व्याख्या))/gim;
 
     const matches = [];
     let m;
     while ((m = optRe.exec(txt)) !== null) {
-      matches.push({ idx: m.index, end: m.index + m[0].length, opts: [m[3], m[6], m[9], m[12]] });
+      matches.push({ idx: m.index, end: m.index + m[0].length, opts: [m[4], m[8], m[12], m[16]] });
     }
 
     for (let i = 0; i < matches.length; i++) {
@@ -23465,23 +23487,19 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       const prevEnd = i > 0 ? matches[i - 1].end : Math.max(0, cur.idx - 600);
       const nextIdx = (i + 1 < matches.length) ? matches[i + 1].idx : Math.min(txt.length, cur.end + 420);
 
-      // Extract Question text right before Option A
       let pre = txt.slice(Math.max(prevEnd, cur.idx - 550), cur.idx).trim();
-      // Remove previous answer/explanation lines from pre
       const lastAnsBreak = pre.search(/(?:^|\n)\s*(?:उत्तर|सही\s*उत्तर|Ans(?:wer)?|Sol(?:ution)?|व्याख्या)\s*[:：\-][^\n]*/gim);
       if (lastAnsBreak !== -1) {
         const afterPrev = pre.slice(lastAnsBreak).replace(/^[^\n]*\n?/, '').trim();
         if (afterPrev.length >= 10) pre = afterPrev;
       }
-      // Keep last 1-4 lines as the question stem
       const preLines = pre.split(/\n+/).map(l => l.trim()).filter(l => l.length >= 4 && !/^(?:By Aman|Page \d+|\d{1,3}$|SSC MODEL)/i.test(l));
-      let qStem = preLines.slice(-4).join(' ').replace(/^(?:(?:Q\.?|Que\.?|Question|प्रश्न|मॉक|कथन\s*प्रश्न)[\s\-]*\d{1,3}[.):\-]?|\d{1,3}[.)])\s*/i, '').replace(/\s+/g, ' ').trim();
+      let qStem = fixPdfHindiGlyphs(preLines.slice(-4).join(' ').replace(/^(?:(?:Q\.?|Que\.?|Question|प्रश्न|मॉक|कथन\s*प्रश्न)[\s\-]*\d{1,3}[.):\-]?|\d{1,3}[.)])\s*/i, '').replace(/\s+/g, ' ').trim());
       if (qStem.length < 8) continue;
 
-      const opts = cur.opts.map(o => String(o || '').replace(/\s+/g, ' ').replace(/\|\s*$/, '').trim());
-      if (opts.some(o => !o || o.length > 200)) continue;
+      const opts = cur.opts.map(o => fixPdfHindiGlyphs(String(o || '').replace(/\s+/g, ' ').replace(/\|\s*$/, '').trim()));
+      if (opts.some(o => !o || o.length > 180)) continue;
 
-      // Extract Answer & Explanation right after Option D
       const post = txt.slice(cur.end, Math.min(nextIdx, cur.end + 360)).trim();
       let ansIdx = 0;
       const am = post.match(/(?:सही\s*उत्तर(?:\s*एवं\s*व्याख्या)?|उत्तर|Ans(?:wer)?|Correct(?:\s*Option)?)\s*[:：\-]?\s*\(?([A-Da-d1-4])\)?/i);
@@ -23493,25 +23511,25 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       let exp = '';
       if (am) {
         const expLine = post.slice(am.index + am[0].length).split(/\n\s*(?:Q\.?\d|\d{1,3}[.)]|प्रश्न|कथन)/)[0];
-        exp = expLine.replace(/^[\s—–\-:]+/, '').replace(/\s+/g, ' ').trim().slice(0, 280);
+        exp = fixPdfHindiGlyphs(expLine.replace(/^[\s—–\-:]+/, '').replace(/\s+/g, ' ').trim()).slice(0, 280);
       }
       qs.push({ q: qStem, o: opts, a: ansIdx, exp });
     }
 
     if (qs.length >= 3) return qs;
 
-    // PASS 2: Smart Fallback for Static GK / One-Liner / Q&A PDFs (auto-converts "Topic : Fact" or "Q? — Ans" into 4-Option Clickable MCQs!)
+    // PASS 2: Clean One-Liner / Q&A -> 4-Option MCQ (ONLY split on ':' or ' — ', NEVER on hyphen inside Hindi words like कौन-सा!)
     const pairs = [];
-    const lines = txt.split(/\n+/).map(l => l.trim()).filter(l => l.length >= 16 && l.length <= 260);
+    const lines = txt.split(/\n+/).map(l => fixPdfHindiGlyphs(l.trim())).filter(l => l.length >= 16 && l.length <= 260);
     for (const ln of lines) {
       if (/^(?:By Aman|Page \d+|अध्याय|परिशिष्ट|विषय-सूची|Table of Contents|SSC MODEL)/i.test(ln)) continue;
-      // Pattern A: "Term / Question : Short Answer" or "Term — Short Answer"
-      const pm = ln.replace(/^[•▪▸★◆●\-\d.)\s]+/, '').match(/^([^:—–\-]{5,120}?)\s*[:—–\-]\s*([^:—–]{2,120})$/);
+      if (ln.includes('?')) continue; // Don't break raw question sentences without options
+      const pm = ln.replace(/^[•▪▸★◆●\d.)\s]+/, '').match(/^([^:—–]{6,115}?)\s*(?::|\s[—–]\s)\s*([^:—–]{3,115})$/);
       if (pm) {
         const left = pm[1].trim();
         const right = pm[2].trim().replace(/[।.]$/, '');
-        if (left.length >= 5 && right.length >= 2 && right.length <= 95 && !/^\d+$/.test(left)) {
-          pairs.push({ q: left.endsWith('?') ? left : (left + ' से संबंधित सही तथ्य क्या है?'), ans: right, exp: ln });
+        if (left.length >= 6 && right.length >= 2 && right.length <= 90 && !/^\d+$/.test(left)) {
+          pairs.push({ q: left + ' से संबंधित सही तथ्य क्या है?', ans: right, exp: ln });
         }
       }
     }
@@ -23534,13 +23552,13 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       }
       if (out.length >= 3) return out;
     }
-
     return qs;
   }
 
   window.__v163TestParser = parseMcqsFromPdfText;
+  window.__v167FixHindi = fixPdfHindiGlyphs;
 
-  // Handle PDF Upload & Instant Browser Extraction via pdfjsLib
+  // Handle PDF Upload & Instant Browser Extraction via Auto-Loaded pdfjsLib
   document.getElementById('v163-pt-file')?.addEventListener('change', async (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
@@ -23548,7 +23566,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     if (titleInp && !titleInp.value.trim()) {
       titleInp.value = file.name.replace(/\.pdf$/i, '').replace(/[_-]+/g, ' ').slice(0, 50);
     }
-    setPtStatus(`⏳ "${file.name}" ko scan karke MCQs me convert kar rahe hain...`, false);
+
     async function ensureV165PdfJs() {
       if (window.pdfjsLib) return window.pdfjsLib;
       const cdns = [
@@ -23560,9 +23578,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
         try {
           await new Promise((res, rej) => {
             const s = document.createElement('script');
-            s.src = c.js;
-            s.onload = res;
-            s.onerror = rej;
+            s.src = c.js; s.onload = res; s.onerror = rej;
             document.head.appendChild(s);
           });
           const lib = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
@@ -23605,11 +23621,11 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       }
       parsedDraftQs = parseMcqsFromPdfText(fullTxt);
       if (!parsedDraftQs.length) {
-        setPtStatus('⚠️ Is PDF me standard (A)/(B)/(C)/(D) MCQ format nahi mila (scanned image PDF ke liye "📸 Test" OCR tab use karein).', true);
+        setPtStatus('⚠️ Is PDF me clean MCQs nahi mile (scanned PDF ke liye "📸 Test" OCR tab use karein).', true);
         document.getElementById('v163-pt-preview-wrap')?.classList.add('hidden');
         return;
       }
-      setPtStatus(`✅ ${pdf.numPages} pages scan complete — ${parsedDraftQs.length} MCQs automatic convert ho gaye! Niche Subject/Topic check karke Publish dabayein.`, false);
+      setPtStatus(`✅ ${pdf.numPages} pages scan complete — ${parsedDraftQs.length} Eduquity MCQs ready! Publish karte hi seedha Home Screen par LIVE ho jayega.`, false);
       renderParsedPreview();
     } catch (err) {
       setPtStatus('❌ PDF scan failed: ' + (err && err.message ? err.message : 'Error'), true);
@@ -23622,55 +23638,43 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     const list = document.getElementById('v163-pt-preview-list');
     if (!wrap || !list) return;
     wrap.classList.remove('hidden');
-    if (lbl) lbl.textContent = `✅ ${parsedDraftQs.length} MCQs Ready to Publish`;
+    if (lbl) lbl.textContent = `✅ ${parsedDraftQs.length} Eduquity MCQs Ready to Publish Live`;
     const letters = ['A','B','C','D'];
-    list.innerHTML = parsedDraftQs.slice(0, 30).map((q, i) => `
+    list.innerHTML = parsedDraftQs.slice(0, 25).map((q, i) => `
       <div class="p-2.5 rounded-xl bg-slate-950 border border-white/10 text-[11px] space-y-1">
         <div class="flex items-start justify-between gap-2">
           <div class="font-black text-white">Q${i+1}. ${esc(q.q)}</div>
           <button type="button" onclick="window.v163DelDraftQ(${i})" class="px-1.5 py-0.5 rounded bg-rose-500/25 text-rose-200 font-bold shrink-0">✕</button>
         </div>
         <div class="text-slate-300">${q.o.map((o, oi) => `<span class="${oi===q.a?'text-emerald-300 font-black':''}">(${letters[oi]}) ${esc(o)}</span>`).join(' • ')}</div>
-      </div>`).join('') + (parsedDraftQs.length > 30 ? `<div class="text-center text-[11px] text-cyan-300 font-bold">+ ${parsedDraftQs.length - 30} aur questions included hain!</div>` : '');
+      </div>`).join('') + (parsedDraftQs.length > 25 ? `<div class="text-center text-[11px] text-cyan-300 font-bold">+ ${parsedDraftQs.length - 25} aur questions included hain!</div>` : '');
   }
 
-  window.v163DelDraftQ = function(i) {
-    parsedDraftQs.splice(i, 1);
-    renderParsedPreview();
-  };
+  window.v163DelDraftQ = function(i) { parsedDraftQs.splice(i, 1); renderParsedPreview(); };
 
   window.v163PublishPdfTopicTest = async function() {
-    const dest    = document.getElementById('v163-pt-dest')?.value || 'test';
-    const subject = document.getElementById('v163-pt-subj')?.value || 'Geography';
-    const topic   = (document.getElementById('v163-pt-topic')?.value || '').trim();
-    const title   = (document.getElementById('v163-pt-title')?.value || '').trim() || `${topic || subject} PDF Test`;
+    const dest    = document.getElementById('v163-pt-dest')?.value || 'home_test';
+    const subject = document.getElementById('v163-pt-subj')?.value || 'Static GK';
+    const topic   = (document.getElementById('v163-pt-topic')?.value || '').trim() || subject;
+    const title   = (document.getElementById('v163-pt-title')?.value || '').trim() || `${topic} Eduquity Test`;
     const mins    = Math.max(2, Math.min(180, Number(document.getElementById('v163-pt-mins')?.value || 15)));
-    if (!topic) { setPtStatus('❌ Step 2 me Topic / Chapter Folder ka naam likhein!', true); return; }
     if (!parsedDraftQs.length) { setPtStatus('❌ Pehle koi Question PDF upload karein.', true); return; }
 
-    // If same Subject + Topic already exists, allow appending OR creating cleanly
-    const existing = testsList.find(t => t.subject === subject && t.topic.toLowerCase() === topic.toLowerCase() && t.title.toLowerCase() === title.toLowerCase());
-    if (existing) {
-      existing.questions.push(...parsedDraftQs);
-      existing.updatedAt = Date.now();
-    } else {
-      testsList.unshift({
-        id: 'pt_' + Date.now(),
-        dest,
-        subject,
-        topic,
-        title,
-        mins,
-        dateStr: new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }),
-        questions: parsedDraftQs.slice(),
-        updatedAt: Date.now()
-      });
-    }
+    testsList.unshift({
+      id: 'pt_' + Date.now(),
+      dest,
+      subject,
+      topic,
+      title,
+      mins,
+      dateStr: new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }),
+      questions: parsedDraftQs.slice(),
+      updatedAt: Date.now()
+    });
     saveTestsLocal();
     await syncTestsToCloud();
-    const destLbl = dest === "pyq" ? "🏛️ PYQ Tab" : (dest === "subject" ? "📚 Subject Tab" : (dest === "both" ? "🏛️ PYQ + 📝 Test Tabs" : "📝 Test Tab"));
-    setPtStatus(`🚀 "${title}" (${parsedDraftQs.length} Qs) → ${destLbl} (${subject} / ${topic}) me LIVE publish ho gaya!`, false);
-    if (typeof showToast === 'function') showToast(`📁 "${title}" Topic Folder me live test ban gaya!`);
+    setPtStatus(`🚀 "${title}" (${parsedDraftQs.length} Qs) — HOME SCREEN par Eduquity Pattern me LIVE ho gaya!`, false);
+    if (typeof showToast === 'function') showToast(`🔥 "${title}" Home Screen par LIVE ho gaya!`);
     parsedDraftQs = [];
     document.getElementById('v163-pt-preview-wrap')?.classList.add('hidden');
     const fi = document.getElementById('v163-pt-file'); if (fi) fi.value = '';
@@ -23681,185 +23685,325 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     testsList = testsList.filter(t => t.id !== id);
     saveTestsLocal();
     await syncTestsToCloud();
-    if (typeof showToast === 'function') showToast('🗑️ Topic PDF Test delete ho gaya!');
+    if (typeof showToast === 'function') showToast('🗑️ Test delete ho gaya!');
   };
 
   function renderAdminFolderList() {
     const box = document.getElementById('v163-adm-folder-list');
     if (!box) return;
     if (!testsList.length) {
-      box.innerHTML = '<p class="text-[11px] text-slate-400 text-center py-3">Abhi koi PDF test publish nahi hua hai. Upar se apna pehla Question PDF upload karein!</p>';
+      box.innerHTML = '<p class="text-[11px] text-slate-400 text-center py-3">Abhi koi live PDF test nahi hai. Upar se PDF upload karein — seedha Home Screen par live hoga!</p>';
       return;
     }
     box.innerHTML = testsList.map(t => `
       <div class="p-3 rounded-xl bg-slate-950/95 border border-violet-400/30 flex items-center justify-between gap-2">
         <div class="min-w-0">
-          <div class="text-xs font-black text-white truncate">📝 ${esc(t.title)}</div>
-          <div class="text-[10px] text-slate-300 mt-0.5"><span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-black mr-1">${t.dest==="pyq"?"🏛️ PYQ":(t.dest==="subject"?"📚 Subject":(t.dest==="both"?"✨ PYQ+Test":"📝 Test"))}</span><span class="text-amber-300 font-bold">${esc(t.subject)}</span> → <span class="text-cyan-300 font-bold">${esc(t.topic)}</span> • ${t.questions.length} Qs • ${t.mins} min • ${esc(t.dateStr || '')}</div>
+          <div class="text-xs font-black text-white truncate">⚡ ${esc(t.title)}</div>
+          <div class="text-[10px] text-slate-300 mt-0.5"><span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-black mr-1">🏠 LIVE</span><span class="text-amber-300 font-bold">${esc(t.subject)}</span> → <span class="text-cyan-300 font-bold">${esc(t.topic)}</span> • ${t.questions.length} Qs • ${t.mins}m</div>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
-          <button type="button" onclick="window.openV163StudentPdfTests('${t.id}')" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-200 text-[10px] font-black">▶ Test</button>
+          <button type="button" onclick="window.openV163StudentPdfTests('${t.id}')" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-200 text-[10px] font-black">▶ Open</button>
           <button type="button" onclick="window.v163DeleteTopicTest('${t.id}')" class="px-2 py-1 rounded-lg bg-rose-500/20 text-rose-200 text-[10px] font-black">🗑️</button>
         </div>
       </div>`).join('');
   }
 
   // -------------------------------------------------------------------------
-  // STUDENT SIDE: TOPIC-WISE PDF TEST FOLDERS & INTERACTIVE TEST PLAYER
+  // DIRECT LIVE CARDS ON HOME SCREEN + PYQ + TEST + SUBJECT TABS (NO FOLDER HUNTING!)
+  // -------------------------------------------------------------------------
+  function renderSectionHosts() {
+    // 1. ALWAYS render LIVE Eduquity Tests directly on HOME SCREEN!
+    const homeEl = document.getElementById('v167-home-live-tests-host');
+    if (homeEl) {
+      if (!testsList.length) {
+        homeEl.classList.add('hidden'); homeEl.innerHTML = '';
+      } else {
+        homeEl.classList.remove('hidden');
+        homeEl.innerHTML = `
+          <div class="rounded-3xl p-4 bg-gradient-to-br from-[#0B1F3A] via-indigo-950/90 to-emerald-950/80 border-2 border-emerald-400/70 shadow-2xl space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black animate-pulse">● LIVE</span>
+                <h3 class="text-xs sm:text-base font-black text-white">⚡ Eduquity Pattern Live Tests</h3>
+              </div>
+              <span class="text-[11px] font-black text-amber-300">${testsList.length} Live Now</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              ${testsList.slice(0, 6).map(t => `
+                <div class="p-3.5 rounded-2xl bg-slate-950/90 border border-cyan-400/35 flex items-center justify-between gap-3">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5 text-[10px]">
+                      <span class="px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 font-black">${esc(t.subject)}</span>
+                      <span class="text-cyan-300 font-bold truncate">${esc(t.topic)}</span>
+                    </div>
+                    <div class="text-xs sm:text-sm font-black text-white mt-1 truncate">${esc(t.title)}</div>
+                    <div class="text-[10px] text-slate-300 mt-0.5">${t.questions.length} Qs • ⏱ ${t.mins} Min • +2 / -0.50</div>
+                  </div>
+                  <button type="button" onclick="window.openV163StudentPdfTests('${t.id}')" class="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 text-xs font-black shadow-lg shrink-0 active:scale-95 transition">▶ Start</button>
+                </div>`).join('')}
+            </div>
+          </div>`;
+      }
+    }
+
+    // 2. Also mirror into PYQ / Test / Subject tabs based on Admin's chosen section
+    const configs = [
+      { id: 'v164-pyq-uploaded-host',     match: t => (t.dest === 'pyq' || t.dest === 'both'),     title: '🏛️ Live Eduquity PYQ Sets',     btnTxt: '▶ Start PYQ',  border: 'border-cyan-400/50',   bg: 'from-cyan-950/90 via-slate-900 to-indigo-950/80' },
+      { id: 'v164-test-uploaded-host',    match: t => (!t.dest || t.dest === 'home_test' || t.dest === 'test' || t.dest === 'both'), title: '📝 Live Eduquity Mock Tests', btnTxt: '▶ Start Test', border: 'border-emerald-400/50', bg: 'from-emerald-950/90 via-slate-900 to-cyan-950/80' },
+      { id: 'v164-subject-uploaded-host', match: t => (t.dest === 'subject'),                      title: '📚 Live Subject Eduquity Tests', btnTxt: '▶ Start Test', border: 'border-violet-400/50',  bg: 'from-violet-950/90 via-slate-900 to-indigo-950/80' }
+    ];
+    configs.forEach(cfg => {
+      const el = document.getElementById(cfg.id);
+      if (!el) return;
+      const matched = testsList.filter(cfg.match);
+      if (!matched.length) { el.classList.add('hidden'); el.innerHTML = ''; return; }
+      el.classList.remove('hidden');
+      el.innerHTML = `
+        <div class="rounded-3xl p-4 bg-gradient-to-br ${cfg.bg} border-2 ${cfg.border} shadow-xl space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="text-xs sm:text-sm font-black text-white">${cfg.title}</h3>
+            <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black">${matched.length} Live</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            ${matched.map(t => `
+              <div class="p-3 rounded-2xl bg-slate-950/90 border border-white/15 flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="text-[10px] text-amber-300 font-black">${esc(t.subject)} • ${esc(t.topic)}</div>
+                  <div class="text-xs font-black text-white truncate mt-0.5">${esc(t.title)}</div>
+                  <div class="text-[10px] text-slate-400">${t.questions.length} Qs • ⏱ ${t.mins}m</div>
+                </div>
+                <button type="button" onclick="window.openV163StudentPdfTests('${t.id}')" class="px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 text-xs font-black shrink-0">${cfg.btnTxt}</button>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // TRUE SSC EDUQUITY CBT PATTERN TEST ENGINE (1 Q at a time + Palette + Review + Submit Scorecard!)
   // -------------------------------------------------------------------------
   window.openV163StudentPdfTests = function(directTestId) {
     document.getElementById('v163-pdftest-modal')?.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    if (directTestId) {
-      const found = testsList.find(t => t.id === directTestId);
-      if (found) { startTopicPdfTest(found); return; }
+    const target = directTestId ? testsList.find(t => t.id === directTestId) : testsList[0];
+    if (target) {
+      startEduquityTest(target);
+    } else {
+      document.getElementById('v167-cbt-botbar')?.classList.add('hidden');
+      const body = document.getElementById('v163-stu-body');
+      if (body) body.innerHTML = `<div class="p-8 rounded-3xl bg-slate-900 border border-white/10 text-center space-y-2"><div class="text-4xl">⚡</div><h3 class="text-base font-black text-white">Abhi koi Live Test nahi hai</h3><p class="text-xs text-slate-300">Admin Panel → 📁 PDF→Test se PDF upload karein, seedha Home Screen par Eduquity Test live ho jayega!</p></div>`;
     }
-    window.v163BackToFolders();
   };
 
   window.closeV163StudentPdfTests = function() {
     if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
+    document.getElementById('v167-palette-drawer')?.classList.add('hidden');
     document.getElementById('v163-pdftest-modal')?.classList.add('hidden');
     document.body.style.overflow = '';
   };
 
-  window.v163SetStuSub = function(s) { stuSubFilter = s; renderStudentFolders(); };
-
-  window.v163BackToFolders = function() {
-    if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
-    activeTest = null;
-    document.getElementById('v163-stu-back-btn')?.classList.add('hidden');
-    document.getElementById('v163-stu-timer')?.classList.add('hidden');
-    const tEl = document.getElementById('v163-stu-title'); if (tEl) tEl.textContent = '📁 Topic-Wise PDF Tests (Subject Folder)';
-    const sEl = document.getElementById('v163-stu-sub'); if (sEl) sEl.textContent = 'Admin dwara PDF se banaye gaye Topic-Wise Interactive Tests';
-    renderStudentFolders();
+  window.v167BumpFont = function(d) {
+    cbtFontScale = Math.max(0.85, Math.min(1.4, +(cbtFontScale + d * 0.1).toFixed(2)));
+    renderEduquityBody();
   };
 
-  function renderStudentFolders() {
-    const body = document.getElementById('v163-stu-body');
-    if (!body) return;
-    const subs = ['All', ...Array.from(new Set(testsList.map(t => t.subject)))];
-    const filt = testsList.filter(t => stuSubFilter === 'All' || t.subject === stuSubFilter);
-
-    if (!testsList.length) {
-      body.innerHTML = `<div class="p-8 rounded-3xl bg-slate-900/90 border border-white/10 text-center space-y-2">
-        <div class="text-4xl">📁</div>
-        <h3 class="text-base font-black text-white">Abhi koi Topic PDF Test upload nahi hua hai</h3>
-        <p class="text-xs text-slate-300 max-w-md mx-auto">Admin Panel → <b>📁 PDF→Test</b> me koi bhi Question PDF upload karein, woh automatic clickable test bankar yahan Subject &amp; Topic folder me dikh jayega!</p>
-      </div>`;
-      return;
-    }
-
-    body.innerHTML = `
-      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
-        ${subs.map(s => `<button type="button" onclick="window.v163SetStuSub('${esc(s)}')" class="px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap border ${stuSubFilter===s?'bg-violet-400 text-slate-950 border-violet-300':'bg-slate-800 text-slate-200 border-white/10'}">${esc(s)}</button>`).join('')}
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        ${filt.map(t => `
-          <div class="p-4 rounded-2xl bg-slate-900/95 border border-violet-400/40 flex flex-col justify-between gap-3 shadow-lg">
-            <div class="space-y-1">
-              <div class="flex items-center justify-between gap-2">
-                <span class="px-2.5 py-0.5 rounded-lg bg-amber-400/20 text-amber-300 text-[10px] font-black">${esc(t.subject)}</span>
-                <span class="px-2.5 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-200 text-[10px] font-black">📂 ${esc(t.topic)}</span>
-              </div>
-              <h4 class="text-sm sm:text-base font-black text-white">${esc(t.title)}</h4>
-              <p class="text-[11px] text-slate-300">${t.questions.length} Questions • ⏱ ${t.mins} Mins • +2 / -0.50 • ${esc(t.dateStr || '')}</p>
-            </div>
-            <button type="button" onclick="window.v163StartTestById('${t.id}')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 text-xs font-black shadow">▶ Start Interactive Test</button>
-          </div>`).join('')}
-      </div>`;
-  }
-
-  window.v163StartTestById = function(id) {
-    const t = testsList.find(x => x.id === id);
-    if (t) startTopicPdfTest(t);
-  };
-
-  function startTopicPdfTest(testObj) {
+  function startEduquityTest(testObj) {
     activeTest = testObj;
+    activeIdx = 0;
     activeAns = {};
+    activeReview = {};
+    activeSubmitted = false;
+    activePaused = false;
     secsLeft = (Number(testObj.mins) || 15) * 60;
-    document.getElementById('v163-stu-back-btn')?.classList.remove('hidden');
-    const tEl = document.getElementById('v163-stu-title'); if (tEl) tEl.textContent = testObj.title;
-    const sEl = document.getElementById('v163-stu-sub'); if (sEl) sEl.textContent = `${testObj.subject} → ${testObj.topic} • ${testObj.questions.length} Qs`;
+    const tEl = document.getElementById('v163-stu-title');
+    if (tEl) tEl.textContent = `⚡ ${testObj.title} (${testObj.subject})`;
+    document.getElementById('v167-cbt-botbar')?.classList.remove('hidden');
+    const pb = document.getElementById('v167-pause-btn');
+    if (pb) pb.textContent = '⏸ Pause';
+
     const tmEl = document.getElementById('v163-stu-timer');
-    if (tmEl) tmEl.classList.remove('hidden');
     if (activeTimer) clearInterval(activeTimer);
     const tick = () => {
+      if (activePaused || activeSubmitted) return;
       const m = String(Math.floor(secsLeft / 60)).padStart(2, '0');
       const s = String(secsLeft % 60).padStart(2, '0');
       if (tmEl) tmEl.textContent = `⏱ ${m}:${s}`;
       if (secsLeft > 0) secsLeft--;
+      else window.v167SubmitEduquity();
     };
     tick();
     activeTimer = setInterval(tick, 1000);
-    renderActiveTest();
+    renderEduquityBody();
   }
 
-  window.v163PickTestOpt = function(qi, oi) {
-    if (!activeTest) return;
-    activeAns[qi] = oi;
-    const q = activeTest.questions[qi];
-    if (q && typeof window.__v157LogAttempt === 'function') {
-      window.__v157LogAttempt({
-        subject: activeTest.subject,
-        chapter: activeTest.topic,
-        q: q.q,
-        opts: q.o,
-        ansIdx: Number(q.a),
-        pickedIdx: oi,
-        exp: q.exp || '',
-        isCorrect: oi === Number(q.a)
-      });
-    }
-    renderActiveTest();
+  window.v167SelectOpt = function(oi) {
+    if (!activeTest || activeSubmitted) return;
+    activeAns[activeIdx] = oi;
+    renderEduquityBody();
   };
 
-  function renderActiveTest() {
+  window.v167ClearOpt = function() {
+    if (!activeTest || activeSubmitted) return;
+    delete activeAns[activeIdx];
+    renderEduquityBody();
+  };
+
+  window.v167MarkReview = function() {
+    if (!activeTest || activeSubmitted) return;
+    activeReview[activeIdx] = !activeReview[activeIdx];
+    renderEduquityBody();
+  };
+
+  window.v167GoQ = function(idx) {
+    if (!activeTest) return;
+    activeIdx = Math.max(0, Math.min(activeTest.questions.length - 1, idx));
+    document.getElementById('v167-palette-drawer')?.classList.add('hidden');
+    renderEduquityBody();
+  };
+
+  window.v167TogglePause = function() {
+    activePaused = !activePaused;
+    const pb = document.getElementById('v167-pause-btn');
+    if (pb) pb.textContent = activePaused ? '▶ Resume' : '⏸ Pause';
+    if (typeof showToast === 'function') showToast(activePaused ? '⏸ Test Paused' : '▶ Test Resumed');
+  };
+
+  window.v167TogglePalette = function() {
+    const dr = document.getElementById('v167-palette-drawer');
+    if (!dr || !activeTest) return;
+    dr.classList.toggle('hidden');
+    if (!dr.classList.contains('hidden')) {
+      const grid = document.getElementById('v167-palette-grid');
+      if (grid) {
+        grid.innerHTML = activeTest.questions.map((_, i) => {
+          const isCur = i === activeIdx;
+          const isRev = !!activeReview[i];
+          const isAns = activeAns[i] !== undefined;
+          const cls = isRev ? 'bg-violet-500 text-white' : (isAns ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-300');
+          return `<button type="button" onclick="window.v167GoQ(${i})" class="h-9 rounded-xl font-black text-xs ${cls} ${isCur ? 'ring-2 ring-amber-400' : ''}">${i + 1}</button>`;
+        }).join('');
+      }
+    }
+  };
+
+  window.v167SubmitEduquity = function() {
+    if (!activeTest || activeSubmitted) return;
+    activeSubmitted = true;
+    if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
+    document.getElementById('v167-cbt-botbar')?.classList.add('hidden');
+    // Log every attempted question to Mistake Notebook & Student Analytics!
+    activeTest.questions.forEach((q, i) => {
+      if (activeAns[i] !== undefined && typeof window.__v157LogAttempt === 'function') {
+        window.__v157LogAttempt({
+          subject: activeTest.subject,
+          chapter: activeTest.topic,
+          q: q.q,
+          opts: q.o,
+          ansIdx: Number(q.a),
+          pickedIdx: activeAns[i],
+          exp: q.exp || '',
+          isCorrect: activeAns[i] === Number(q.a)
+        });
+      }
+    });
+    renderEduquityBody();
+  };
+
+  function renderEduquityBody() {
     const body = document.getElementById('v163-stu-body');
     if (!body || !activeTest) return;
     const qs = activeTest.questions || [];
-    let right = 0, wrong = 0;
-    qs.forEach((q, i) => {
-      if (activeAns[i] !== undefined) {
-        if (activeAns[i] === Number(q.a)) right++; else wrong++;
-      }
-    });
-    const score = (right * 2 - wrong * 0.5).toFixed(1);
-    const letters = ['A','B','C','D'];
+    const fs = (px) => Math.round(px * cbtFontScale) + 'px';
+
+    if (activeSubmitted) {
+      let right = 0, wrong = 0, skipped = 0;
+      qs.forEach((q, i) => {
+        if (activeAns[i] === undefined) skipped++;
+        else if (activeAns[i] === Number(q.a)) right++;
+        else wrong++;
+      });
+      const marks = (right * 2 - wrong * 0.5).toFixed(2);
+      const maxMarks = qs.length * 2;
+      const acc = (right + wrong) ? Math.round((right / (right + wrong)) * 100) : 0;
+      const letters = ['1','2','3','4'];
+      body.innerHTML = `
+        <div class="p-5 rounded-3xl bg-gradient-to-br from-[#0B1F3A] via-indigo-950 to-emerald-950 border-2 border-emerald-400/60 text-center space-y-3 shadow-2xl">
+          <div class="inline-block px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black">🏆 EDUQUITY TEST SCORECARD</div>
+          <div class="text-3xl sm:text-4xl font-black text-white">${marks} <span class="text-base text-slate-300">/ ${maxMarks}</span></div>
+          <div class="grid grid-cols-4 gap-2 max-w-md mx-auto pt-1 text-xs font-black">
+            <div class="p-2 rounded-xl bg-emerald-500/20 text-emerald-300">✓ ${right}<div class="text-[10px] text-slate-300 font-bold">Right</div></div>
+            <div class="p-2 rounded-xl bg-rose-500/20 text-rose-300">✕ ${wrong}<div class="text-[10px] text-slate-300 font-bold">Wrong</div></div>
+            <div class="p-2 rounded-xl bg-slate-800 text-slate-200">— ${skipped}<div class="text-[10px] text-slate-400 font-bold">Skip</div></div>
+            <div class="p-2 rounded-xl bg-cyan-500/20 text-cyan-300">${acc}%<div class="text-[10px] text-slate-300 font-bold">Accuracy</div></div>
+          </div>
+          <div class="text-[11px] text-emerald-200 font-bold">📕 Sabhi galat sawal automatically Mistake Notebook &amp; Analytics me save ho gaye!</div>
+        </div>
+        <div class="space-y-3">
+          ${qs.map((q, qi) => {
+            const p = activeAns[qi];
+            const ok = p === Number(q.a);
+            return `<div class="p-4 rounded-2xl bg-slate-900 border ${p===undefined?'border-white/10':(ok?'border-emerald-400/50':'border-rose-400/50')} space-y-2">
+              <div class="flex items-center justify-between gap-2 text-[11px] font-black">
+                <span class="text-cyan-300">Q${qi+1}</span>
+                <span class="${p===undefined?'text-slate-400':(ok?'text-emerald-300':'text-rose-300')}">${p===undefined?'Skipped':(ok?'✓ Correct (+2)':'✕ Wrong (-0.5)')}</span>
+              </div>
+              <div class="font-black text-white leading-snug" style="font-size:${fs(15)}">${esc(q.q)}</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs">
+                ${(q.o||[]).map((o, oi) => `<div class="px-3 py-1.5 rounded-xl border ${oi===Number(q.a)?'bg-emerald-500/25 border-emerald-400 text-emerald-100 font-black':(oi===p?'bg-rose-500/25 border-rose-400 text-rose-100':'bg-slate-950 border-white/10 text-slate-300')}"><b>${letters[oi]}.</b> ${esc(o)}</div>`).join('')}
+              </div>
+              ${q.exp ? `<div class="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-xs text-emerald-200">💡 ${esc(q.exp)}</div>` : ''}
+            </div>`;
+          }).join('')}
+        </div>`;
+      return;
+    }
+
+    const q = qs[activeIdx];
+    if (!q) return;
+    const answeredCnt = Object.keys(activeAns).length;
+    const chosen = activeAns[activeIdx];
+    const isRev = !!activeReview[activeIdx];
+
     body.innerHTML = `
-      <div class="p-3 rounded-2xl bg-slate-900 border border-cyan-400/40 flex flex-wrap items-center justify-between gap-2 text-xs font-black">
-        <span class="text-emerald-300">✓ Correct: ${right}</span>
-        <span class="text-rose-300">✕ Wrong: ${wrong}</span>
-        <span class="text-amber-300">🏆 Score: ${score} / ${qs.length * 2}</span>
-        <span class="text-slate-300">Solved: ${right + wrong} / ${qs.length}</span>
+      <!-- EDUQUITY QUESTION STATUS STRIP -->
+      <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-2xl bg-slate-900 border border-white/15 text-xs font-black">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">${activeIdx + 1}</span>
+          <span class="text-cyan-200 truncate">${esc(activeTest.subject)} • ${esc(activeTest.topic)}</span>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <span class="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300">✓ ${answeredCnt}/${qs.length}</span>
+          <span class="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300">+2</span>
+          <span class="px-2 py-0.5 rounded-lg bg-rose-500/20 text-rose-300">-0.5</span>
+        </div>
       </div>
-      <div class="space-y-3">
-        ${qs.map((q, qi) => {
-          const picked = activeAns[qi];
-          const isPicked = picked !== undefined;
-          const optsHtml = (q.o || []).map((o, oi) => {
-            let cls = 'bg-white/5 hover:bg-white/15 border-white/15 text-white';
-            if (isPicked) {
-              if (oi === Number(q.a)) cls = 'bg-emerald-500/35 border-emerald-400 text-emerald-100 font-black';
-              else if (oi === picked) cls = 'bg-rose-500/35 border-rose-400 text-rose-100';
-              else cls = 'bg-white/5 border-white/10 text-slate-400';
-            }
-            return `<button type="button" onclick="window.v163PickTestOpt(${qi}, ${oi})" class="text-left px-3 py-2 rounded-xl border text-xs sm:text-sm transition flex items-center gap-2 ${cls}">
-              <span class="w-6 h-6 rounded-lg bg-slate-800 text-amber-300 font-black flex items-center justify-center shrink-0 text-xs">${letters[oi]}</span>
-              <span>${esc(o)}</span>
+
+      <!-- EDUQUITY ACTION BUTTONS: Prev | Review | Clear | Save & Next -->
+      <div class="grid grid-cols-4 gap-1.5">
+        <button type="button" onclick="window.v167GoQ(${activeIdx - 1})" ${activeIdx === 0 ? 'disabled' : ''} class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 border border-white/15 text-white text-xs font-black">‹ Prev</button>
+        <button type="button" onclick="window.v167MarkReview()" class="py-2 rounded-xl ${isRev ? 'bg-violet-500 text-white' : 'bg-violet-500/20 text-violet-200 border border-violet-400/50'} text-xs font-black">🟣 Review</button>
+        <button type="button" onclick="window.v167ClearOpt()" class="py-2 rounded-xl bg-rose-500/15 border border-rose-400/40 text-rose-200 text-xs font-black">Clear</button>
+        <button type="button" onclick="${activeIdx < qs.length - 1 ? `window.v167GoQ(${activeIdx + 1})` : 'window.v167SubmitEduquity()'}" class="py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 text-xs font-black shadow">${activeIdx < qs.length - 1 ? 'Save & Next ›' : 'Finish ✓'}</button>
+      </div>
+
+      <!-- EDUQUITY QUESTION CARD -->
+      <div class="p-4 sm:p-5 rounded-3xl bg-slate-900/95 border border-cyan-400/35 shadow-xl space-y-4">
+        <div class="text-[11px] font-black uppercase tracking-wider text-cyan-300">SELECT THE CORRECT OPTION (सही विकल्प चुनें):</div>
+        <div class="font-black text-white leading-relaxed" style="font-size:${fs(17.5)}">${esc(q.q)}</div>
+        <div class="space-y-2.5 pt-1">
+          ${(q.o || []).map((o, oi) => {
+            const sel = chosen === oi;
+            return `<button type="button" onclick="window.v167SelectOpt(${oi})" class="w-full text-left p-3.5 rounded-2xl border-2 transition flex items-center gap-3 active:scale-[0.99] ${sel ? 'bg-blue-500/25 border-blue-400 text-white ring-2 ring-blue-400/50' : 'bg-slate-950/90 hover:bg-slate-800 border-white/15 text-slate-100'}" style="font-size:${fs(15.5)}">
+              <span class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${sel ? 'border-blue-400 bg-blue-500 text-white' : 'border-slate-500 text-slate-400'} text-xs font-black">${sel ? '●' : (oi + 1)}</span>
+              <span class="font-bold leading-snug">${esc(o)}</span>
             </button>`;
-          }).join('');
-          return `<div class="p-4 rounded-2xl bg-slate-900/95 border border-white/15 space-y-2.5">
-            <div class="text-sm sm:text-base font-black text-white leading-snug">Q${qi + 1}. ${esc(q.q)}</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${optsHtml}</div>
-            ${isPicked ? `<div class="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-400/60 text-xs sm:text-sm font-bold text-emerald-100">✅ सही उत्तर: (${letters[Number(q.a)]}) ${esc((q.o||[])[Number(q.a)]||'')}${q.exp ? '<div class="mt-1 font-normal text-emerald-200">💡 ' + esc(q.exp) + '</div>' : ''}</div>` : ''}
-          </div>`;
-        }).join('')}
-      </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
   }
 
-  // Real-time Firestore listener so all students receive Admin-uploaded PDF tests live!
+  // Real-time Firestore listener so all students receive Admin-uploaded Eduquity tests LIVE on Home Screen!
   try {
     if (typeof fbDb !== 'undefined' && fbDb) {
       fbDb.collection('ssc_config').doc('pdf_topic_tests').onSnapshot(doc => {
