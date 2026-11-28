@@ -11724,13 +11724,14 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
       </div>
 
       <div id="admin-gen-step" class="hidden space-y-4">
-        <div class="grid grid-cols-4 sm:grid-cols-7 gap-1 p-1 rounded-xl bg-slate-950/90 border border-slate-700/80">
+        <div class="grid grid-cols-4 sm:grid-cols-8 gap-1 p-1 rounded-xl bg-slate-950/90 border border-slate-700/80">
           <button type="button" data-admtab="keys" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold bg-amber-500/25 text-amber-200 border border-amber-400/50 transition">🔑 Keys</button>
           <button type="button" data-admtab="pro" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">💳 Pro</button>
           <button type="button" data-admtab="cms" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">🎨 Panel</button>
           <button type="button" data-admtab="vocab" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">📚 Vocab</button>
           <button type="button" data-admtab="pdfs" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">📄 PDFs</button>
           <button type="button" data-admtab="testmaker" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">📸 Test</button>
+          <button type="button" data-admtab="ca" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">📰 CA</button>
           <button type="button" data-admtab="deploy" class="adm-tab-btn py-2 px-1 rounded-lg text-[10px] font-extrabold text-slate-400 hover:text-white transition">🚀 ZIP</button>
         </div>
 
@@ -11996,6 +11997,60 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
 
         <!-- TAB 4: 🚀 1-TAP LIVE ZIP DEPLOY VIA GITHUB -> NETLIFY AUTO-DEPLOY (ZERO CORS!) -->
         <!-- TAB 4B: ADMIN PDF UPLOADER (DIRECT .PDF UPLOAD OR LINK -> LIVE STUDENT PDF FOLDER) -->
+        <!-- V158_ADMIN_CA_PANEL_START -->
+        <div id="admin-panel-ca" class="adm-panel hidden space-y-4">
+          <div class="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/90 to-cyan-950/80 border border-emerald-400/45 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h4 class="text-xs sm:text-sm font-black text-emerald-300">📰 Daily Current Affairs Publisher (Admin Only)</h4>
+              <p class="text-[11px] text-slate-300">Yahan se add kiya gaya One-Liner ya MCQ sabhi students ko live dikhega. Subah 6:00 AM IST par Daily CA auto-update bhi hota hai!</p>
+            </div>
+            <button type="button" onclick="window.v158ForceRefreshDailyCa && window.v158ForceRefreshDailyCa()" class="px-3 py-1.5 rounded-xl bg-cyan-500/25 border border-cyan-400/50 text-cyan-200 text-[11px] font-black">🔄 Refresh 6 AM Feed</button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <div class="p-3.5 rounded-2xl bg-slate-900/95 border border-emerald-400/40 space-y-2.5">
+              <h5 class="text-xs font-black text-emerald-300">⚡ 1-Click Add Daily One-Liner</h5>
+              <select id="v157-adm-ol-cat" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white font-bold">
+                <option value="National & Polity">National & Polity</option>
+                <option value="Economy & RBI">Economy & RBI</option>
+                <option value="Science & ISRO">Science & ISRO</option>
+                <option value="Defence & Exercises">Defence & Exercises</option>
+                <option value="International & Summits">International & Summits</option>
+                <option value="Awards & Sports">Awards & Sports</option>
+                <option value="Environment & Geo">Environment & Geo</option>
+                <option value="Schemes & Misc">Schemes & Misc</option>
+              </select>
+              <textarea id="v157-adm-ol-txt" rows="3" placeholder="Aaj ka exam-oriented Current Affairs one-liner yahan likhein..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white"></textarea>
+              <button type="button" onclick="window.v157AdminAddOneLiner()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 text-xs font-black shadow">🚀 Publish One-Liner Live</button>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-900/95 border border-amber-400/40 space-y-2">
+              <h5 class="text-xs font-black text-amber-300">🎯 1-Click Add Monthly MCQ</h5>
+              <select id="v157-adm-q-cat" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white font-bold">
+                <option value="National & Polity">National & Polity</option>
+                <option value="Economy & RBI">Economy & RBI</option>
+                <option value="Science & ISRO">Science & ISRO</option>
+                <option value="Defence & Exercises">Defence & Exercises</option>
+                <option value="International & Summits">International & Summits</option>
+                <option value="Awards & Sports">Awards & Sports</option>
+                <option value="Environment & Geo">Environment & Geo</option>
+                <option value="Schemes & Misc">Schemes & Misc</option>
+              </select>
+              <input id="v157-adm-q-txt" type="text" placeholder="Question likhein..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+              <div class="grid grid-cols-2 gap-1.5">
+                <input id="v157-adm-q-a" type="text" placeholder="Option A" class="px-2.5 py-1.5 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+                <input id="v157-adm-q-b" type="text" placeholder="Option B" class="px-2.5 py-1.5 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+                <input id="v157-adm-q-c" type="text" placeholder="Option C" class="px-2.5 py-1.5 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+                <input id="v157-adm-q-d" type="text" placeholder="Option D" class="px-2.5 py-1.5 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+              </div>
+              <select id="v157-adm-q-ans" class="w-full px-3 py-1.5 rounded-xl bg-slate-950 border border-white/15 text-xs text-amber-200 font-bold">
+                <option value="0">Correct Option: (A)</option><option value="1">Correct Option: (B)</option><option value="2">Correct Option: (C)</option><option value="3">Correct Option: (D)</option>
+              </select>
+              <input id="v157-adm-q-exp" type="text" placeholder="Short Explanation (optional)..." class="w-full px-3 py-1.5 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+              <button type="button" onclick="window.v157AdminAddMcq()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 text-xs font-black shadow">🚀 Publish MCQ Live</button>
+            </div>
+          </div>
+          <div id="v158-adm-ca-list" class="space-y-1.5"></div>
+        </div>
+<!-- V158_ADMIN_CA_PANEL_END -->
         <div id="admin-panel-pdfs" class="adm-panel hidden space-y-3.5">
           <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-cyan-400/35 space-y-2.5">
             <div class="flex items-center justify-between gap-2">
@@ -22661,10 +22716,10 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     <button type="button" onclick="window.closeV157Modal('v157-ca-modal')" class="px-3 py-1.5 rounded-xl bg-emerald-500/25 hover:bg-emerald-500/40 border border-emerald-400/60 text-white text-xs font-black shrink-0">✕ Close</button>
   </div>
   <div class="p-3 bg-slate-900/95 border-b border-white/10 flex flex-wrap items-center justify-between gap-2 shrink-0">
-    <div class="flex items-center gap-2">
-      <button type="button" id="v157-ca-tab-ol" onclick="window.v157SwitchCaTab('oneliners')" class="px-3.5 py-1.5 rounded-xl text-xs font-black bg-emerald-400 text-slate-950 shadow">⚡ Daily One-Liners</button>
-      <button type="button" id="v157-ca-tab-qz" onclick="window.v157SwitchCaTab('quiz')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 border border-white/15">🎯 Monthly MCQ Quiz</button>
-      <button type="button" id="v157-ca-tab-adm" onclick="window.v157SwitchCaTab('admin')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-400/50">🛡️ Admin 1-Click Add</button>
+    <div class="flex items-center gap-1.5 flex-wrap">
+      <button type="button" id="v157-ca-tab-daily" onclick="window.v157SwitchCaTab('daily')" class="px-3 py-1.5 rounded-xl text-xs font-black bg-emerald-400 text-slate-950 shadow">🌅 Today's Daily CA (6 AM)</button>
+      <button type="button" id="v157-ca-tab-ol" onclick="window.v157SwitchCaTab('oneliners')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 border border-white/15">⚡ Monthly One-Liners</button>
+      <button type="button" id="v157-ca-tab-qz" onclick="window.v157SwitchCaTab('quiz')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 border border-white/15">🎯 Monthly MCQ Quiz</button>
     </div>
     <div id="v157-ca-score-pill" class="hidden px-3 py-1 rounded-xl bg-violet-500/25 border border-violet-400/50 text-violet-200 text-xs font-black">Score: 0 / 0</div>
   </div>
@@ -22700,9 +22755,119 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   let mkRetestMode = true;
   const mkRetestState = {};
 
-  let caTab = 'oneliners';
+  let caTab = 'daily';
   let caCatFilter = 'All';
   const caQuizState = {};
+  let dailyCaData = null;
+  let dailyCaLoading = false;
+
+  // 🌅 AUTO 6:00 AM IST DAILY CURRENT AFFAIRS ENGINE (Flips every morning at 06:00 AM IST!)
+  function getIst6AmEditionInfo() {
+    const nowIst = new Date(Date.now() + 19800000);
+    // Shift back 6 hours so the edition date rolls over at 06:00 AM IST sharp!
+    const edDate = new Date(nowIst.getTime() - 6 * 3600000);
+    const y = edDate.getUTCFullYear();
+    const m = String(edDate.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(edDate.getUTCDate()).padStart(2, '0');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const key = `${y}-${m}-${d}`;
+    const label = `${d} ${months[edDate.getUTCMonth()]} ${y}`;
+    const hh = nowIst.getUTCHours(), mm = nowIst.getUTCMinutes();
+    const minsNow = hh * 60 + mm;
+    const minsToNext6Am = minsNow < 360 ? (360 - minsNow) : (1440 - minsNow + 360);
+    const nh = Math.floor(minsToNext6Am / 60), nm = minsToNext6Am % 60;
+    return { key, label, nextIn: `${nh}h ${nm}m` };
+  }
+
+  function buildOfflineDailyFallback(edInfo) {
+    // Deterministic daily rotation of 8 high-yield points based on 6 AM IST edition key
+    let seed = 0;
+    for (let i = 0; i < edInfo.key.length; i++) seed = (seed * 31 + edInfo.key.charCodeAt(i)) % 997;
+    const out = [];
+    for (let i = 0; i < 8; i++) {
+      const it = DEFAULT_OL[(seed + i * 4) % DEFAULT_OL.length];
+      out.push({ title: it.text, cat: it.cat, source: 'SSC + UPSC 6 AM Daily Capsule', pubDate: edInfo.label + ' • 6:00 AM IST', link: '' });
+    }
+    return out;
+  }
+
+  async function loadAuto6AmDailyCa(force) {
+    const ed = getIst6AmEditionInfo();
+    const cacheKey = 'ssc_auto_daily_ca_6am_v1_' + ed.key;
+    if (!force) {
+      const cached = loadJson(cacheKey, null);
+      if (cached && Array.isArray(cached.items) && cached.items.length) {
+        dailyCaData = cached;
+        return cached;
+      }
+    }
+    dailyCaLoading = true;
+    if (caTab === 'daily') renderCaBody();
+
+    let liveItems = [];
+    // Source 1: Repo ./daily_ca.json (updated daily at 6 AM IST by GitHub Action if enabled)
+    try {
+      const r0 = await fetch('./daily_ca.json?t=' + Date.now());
+      if (r0.ok) {
+        const j0 = await r0.json();
+        if (j0 && Array.isArray(j0.items) && j0.items.length) {
+          liveItems.push(...j0.items);
+        }
+      }
+    } catch(e) {}
+
+    // Source 2: Live CORS-safe India National / Economy / Science Exam Feeds (auto-fresh every morning 6 AM IST!)
+    if (liveItems.length < 6) {
+      const feeds = [
+        { cat: 'National & Polity', src: 'The Hindu National', url: 'https://www.thehindu.com/news/national/feeder/default.rss' },
+        { cat: 'Economy & RBI',     src: 'The Hindu Economy',  url: 'https://www.thehindu.com/business/Economy/feeder/default.rss' },
+        { cat: 'Science & ISRO',    src: 'The Hindu Science',  url: 'https://www.thehindu.com/sci-tech/science/feeder/default.rss' }
+      ];
+      await Promise.all(feeds.map(async (fd) => {
+        try {
+          const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(fd.url));
+          if (!r.ok) return;
+          const j = await r.json();
+          if (j && j.status === 'ok' && Array.isArray(j.items)) {
+            j.items.slice(0, 5).forEach(it => {
+              const title = String(it.title || '').replace(/<[^>]+>/g, '').trim();
+              const desc  = String(it.description || '').replace(/<[^>]+>/g, '').trim().slice(0, 180);
+              if (title) {
+                liveItems.push({
+                  title,
+                  desc: (desc && desc !== title) ? desc : '',
+                  cat: fd.cat,
+                  source: fd.src,
+                  pubDate: ed.label + ' • 6:00 AM IST',
+                  link: it.link || ''
+                });
+              }
+            });
+          }
+        } catch(e) {}
+      }));
+    }
+
+    const finalItems = liveItems.length >= 3 ? liveItems : buildOfflineDailyFallback(ed);
+    const payload = {
+      editionKey: ed.key,
+      editionLabel: ed.label,
+      isLiveFeed: liveItems.length >= 3,
+      updatedAt: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+      items: finalItems
+    };
+    dailyCaData = payload;
+    dailyCaLoading = false;
+    saveJson(cacheKey, payload);
+    if (caTab === 'daily') renderCaBody();
+    return payload;
+  }
+
+  window.v158ForceRefreshDailyCa = function() {
+    loadAuto6AmDailyCa(true).then(() => {
+      if (typeof showToast === 'function') showToast('🌅 Aaj ka Daily Current Affairs (6:00 AM Edition) refresh ho gaya!');
+    });
+  };
 
   function refreshHomeBadges() {
     const activeMk = mistakes.filter(m => !m.mastered).length;
@@ -23025,16 +23190,17 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   };
 
   window.v157SwitchCaTab = function(tab) {
-    caTab = tab;
-    const map = { oneliners: 'v157-ca-tab-ol', quiz: 'v157-ca-tab-qz', admin: 'v157-ca-tab-adm' };
+    caTab = (tab === 'admin') ? 'daily' : tab;
+    const map = { daily: 'v157-ca-tab-daily', oneliners: 'v157-ca-tab-ol', quiz: 'v157-ca-tab-qz' };
     Object.entries(map).forEach(([k, id]) => {
       const b = document.getElementById(id);
       if (!b) return;
-      b.className = (k === tab)
-        ? 'px-3.5 py-1.5 rounded-xl text-xs font-black bg-emerald-400 text-slate-950 shadow'
-        : 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 border border-white/15';
+      b.className = (k === caTab)
+        ? 'px-3 py-1.5 rounded-xl text-xs font-black bg-emerald-400 text-slate-950 shadow'
+        : 'px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 border border-white/15';
     });
-    document.getElementById('v157-ca-score-pill')?.classList.toggle('hidden', tab !== 'quiz');
+    document.getElementById('v157-ca-score-pill')?.classList.toggle('hidden', caTab !== 'quiz');
+    if (caTab === 'daily' && !dailyCaData && !dailyCaLoading) loadAuto6AmDailyCa(false);
     renderCaBody();
   };
 
@@ -23086,8 +23252,9 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     saveJson(CA_KEY, customCa);
     await syncCaToFirestore();
     refreshHomeBadges();
+    const tEl = document.getElementById('v157-adm-ol-txt'); if (tEl) tEl.value = '';
+    renderAdminCaList();
     if (typeof showToast === 'function') showToast('✅ Naya Current Affairs One-Liner live publish ho gaya!');
-    window.v157SwitchCaTab('oneliners');
   };
 
   window.v157AdminAddMcq = async function() {
@@ -23106,8 +23273,9 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     saveJson(CA_KEY, customCa);
     await syncCaToFirestore();
     refreshHomeBadges();
+    ['v157-adm-q-txt','v157-adm-q-a','v157-adm-q-b','v157-adm-q-c','v157-adm-q-d','v157-adm-q-exp'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    renderAdminCaList();
     if (typeof showToast === 'function') showToast('✅ Naya Current Affairs MCQ live publish ho gaya!');
-    window.v157SwitchCaTab('quiz');
   };
 
   function renderCaBody() {
@@ -23117,7 +23285,41 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     const allQz = [...(customCa.mcqs || []), ...DEFAULT_QZ];
     const cats = ['All', 'Economy & RBI', 'Science & ISRO', 'National & Polity', 'Defence & Exercises', 'International & Summits', 'Awards & Sports', 'Environment & Geo', 'Schemes & Misc'];
 
-    if (caTab === 'oneliners') {
+    if (caTab === 'daily') {
+      const ed = getIst6AmEditionInfo();
+      const admToday = (customCa.oneliners || []).slice(0, 5);
+      const items = (dailyCaData && Array.isArray(dailyCaData.items)) ? dailyCaData.items : [];
+      body.innerHTML = `
+        <div class="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-slate-900 to-cyan-950/90 border border-emerald-400/50 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[10px] font-black">🌅 TODAY • ${esc(ed.label)}</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/25 border border-cyan-400/50 text-cyan-200 text-[10px] font-black">${dailyCaData && dailyCaData.isLiveFeed ? '📡 LIVE AUTO-FEED' : '⚡ 6 AM DAILY CAPSULE'}</span>
+            </div>
+            <div class="text-xs text-slate-300 mt-1">Roz subah <b class="text-amber-300">6:00 AM IST</b> par automatically update hota hai • Next Auto-Update: <b class="text-emerald-300">${esc(ed.nextIn)}</b></div>
+          </div>
+          <button type="button" onclick="window.v158ForceRefreshDailyCa()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-cyan-400/50 text-cyan-200 text-xs font-black">🔄 Refresh</button>
+        </div>
+        ${admToday.length ? `<div class="space-y-2"><div class="text-xs font-black text-amber-300">⭐ Admin Latest Daily Updates</div>${admToday.map(o => `<div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-400/45"><div class="text-[10px] font-black text-amber-300">${esc(o.cat)} • ${esc(o.date || ed.label)}</div><div class="text-xs sm:text-sm font-bold text-white mt-0.5 leading-relaxed">${esc(o.text)}</div></div>`).join('')}</div>` : ''}
+        ${dailyCaLoading ? '<div class="p-8 text-center text-sm font-bold text-cyan-200">⏳ Aaj ke taaza Current Affairs load ho rahe hain...</div>' : `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          ${items.map((it, i) => `
+            <div class="p-3.5 rounded-2xl bg-slate-900/95 border border-cyan-400/30 space-y-1.5 flex flex-col justify-between">
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="px-2 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-200 text-[10px] font-black">${esc(it.cat || 'Daily CA')}</span>
+                  <span class="text-[10px] text-amber-300 font-bold">#${i + 1} • ${esc(it.source || 'Daily Feed')}</span>
+                </div>
+                <p class="text-xs sm:text-sm font-black text-white leading-snug">${esc(it.title)}</p>
+                ${it.desc ? `<p class="text-[11px] text-slate-300 leading-relaxed">${esc(it.desc)}</p>` : ''}
+              </div>
+              <div class="pt-1 flex items-center justify-between text-[10px] text-slate-400">
+                <span>🕒 ${esc(it.pubDate || ed.label)}</span>
+                ${it.link ? `<a href="${esc(it.link)}" target="_blank" rel="noopener noreferrer" class="text-emerald-300 font-black hover:underline">Read Full ↗</a>` : ''}
+              </div>
+            </div>`).join('')}
+        </div>`}`;
+    } else if (caTab === 'oneliners') {
       const filt = allOl.filter(x => caCatFilter === 'All' || x.cat === caCatFilter);
       body.innerHTML = `
         <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
@@ -23216,7 +23418,28 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     }
   } catch(e) {}
 
-  setTimeout(refreshHomeBadges, 400);
+  function renderAdminCaList() {
+    const box = document.getElementById('v158-adm-ca-list');
+    if (!box) return;
+    const ols = customCa.oneliners || [];
+    const mqs = customCa.mcqs || [];
+    if (!ols.length && !mqs.length) {
+      box.innerHTML = '<p class="text-[11px] text-slate-400 text-center py-2">Abhi tak Admin ne koi custom Current Affairs item add nahi kiya hai.</p>';
+      return;
+    }
+    box.innerHTML = `<div class="text-[11px] font-black text-slate-300 pt-1">📋 Published by Admin (${ols.length} One-Liners, ${mqs.length} MCQs):</div>` +
+      ols.slice(0, 8).map(o => `<div class="p-2 rounded-xl bg-slate-950 border border-white/10 flex items-center justify-between gap-2 text-[11px]"><span class="text-white truncate">⚡ ${esc(o.text)}</span><button type="button" onclick="window.v158DelAdminCa('ol','${o.id}')" class="px-2 py-0.5 rounded bg-rose-500/25 text-rose-200 font-bold shrink-0">🗑️</button></div>`).join('') +
+      mqs.slice(0, 8).map(q => `<div class="p-2 rounded-xl bg-slate-950 border border-white/10 flex items-center justify-between gap-2 text-[11px]"><span class="text-amber-200 truncate">🎯 ${esc(q.q)}</span><button type="button" onclick="window.v158DelAdminCa('q','${q.id}')" class="px-2 py-0.5 rounded bg-rose-500/25 text-rose-200 font-bold shrink-0">🗑️</button></div>`).join('');
+  }
+  window.v158DelAdminCa = async function(kind, id) {
+    if (kind === 'ol') customCa.oneliners = (customCa.oneliners || []).filter(x => x.id !== id);
+    else customCa.mcqs = (customCa.mcqs || []).filter(x => x.id !== id);
+    saveJson(CA_KEY, customCa);
+    await syncCaToFirestore();
+    renderAdminCaList();
+    refreshHomeBadges();
+  };
+  setTimeout(() => { refreshHomeBadges(); renderAdminCaList(); loadAuto6AmDailyCa(false); }, 500);
 })();
 </script>
 <!-- V157_MODALS_AND_SCRIPT_END -->
