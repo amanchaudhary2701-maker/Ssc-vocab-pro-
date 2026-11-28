@@ -23501,13 +23501,44 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       titleInp.value = file.name.replace(/\.pdf$/i, '').replace(/[_-]+/g, ' ').slice(0, 50);
     }
     setPtStatus(`⏳ "${file.name}" ko scan karke MCQs me convert kar rahe hain...`, false);
+    async function ensureV165PdfJs() {
+      if (window.pdfjsLib) return window.pdfjsLib;
+      const cdns = [
+        { js: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', w: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js' },
+        { js: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',  w: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js' },
+        { js: 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js',            w: 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js' }
+      ];
+      for (const c of cdns) {
+        try {
+          await new Promise((res, rej) => {
+            const s = document.createElement('script');
+            s.src = c.js;
+            s.onload = res;
+            s.onerror = rej;
+            document.head.appendChild(s);
+          });
+          const lib = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
+          if (lib) {
+            window.pdfjsLib = lib;
+            if (lib.GlobalWorkerOptions) lib.GlobalWorkerOptions.workerSrc = c.w;
+            return lib;
+          }
+        } catch(e) {}
+      }
+      throw new Error('PDF reader CDN load nahi hua — internet check karein.');
+    }
+
     try {
-      if (typeof pdfjsLib === 'undefined') throw new Error('PDF reader library load nahi hui — internet check karein.');
+      setPtStatus('⏳ PDF Reader engine load ho raha hai (1 second)...', false);
+      const lib = await ensureV165PdfJs();
       const arrBuf = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrBuf }).promise;
+      const pdf = await lib.getDocument({ data: arrBuf }).promise;
       let fullTxt = '';
-      const maxPages = Math.min(pdf.numPages, 80);
+      const maxPages = Math.min(pdf.numPages, 350);
       for (let p = 1; p <= maxPages; p++) {
+        if (p === 1 || p % 15 === 0 || p === maxPages) {
+          setPtStatus(`⏳ Scanning PDF pages (${p} / ${maxPages})...`, false);
+        }
         const page = await pdf.getPage(p);
         const content = await page.getTextContent();
         let lastY = null;
