@@ -12178,6 +12178,18 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
               </div>
             </div>
 
+            <div class="p-3 rounded-xl bg-gradient-to-r from-indigo-950/90 to-violet-950/80 border border-cyan-400/45 space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <label class="text-[10px] font-black text-cyan-300 uppercase">🤖 Gemini API Key (100% Shuddh Hindi Auto-Fix • Device-Only)</label>
+                <span id="v171-gem-status" class="text-[10px] font-black text-amber-300">Not Saved</span>
+              </div>
+              <div class="flex gap-1.5">
+                <input id="v171-gemini-key" type="password" placeholder="AIzaSy... (Apni Gemini API Key yahan paste karein)" class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-950 border border-white/15 text-xs text-white" />
+                <button type="button" onclick="window.v171SaveGeminiKey()" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black shrink-0">💾 Save</button>
+              </div>
+              <p class="text-[10px] text-slate-300">Key save karne ke baad PDF upload karte hi Gemini AI sabhi broken Hindi words/matras ko 100% shuddh Hindi me theek kar dega!</p>
+            </div>
+
             <div class="p-3 rounded-xl bg-slate-950/90 border border-dashed border-violet-400/55 space-y-2">
               <label class="block text-[11px] font-black text-violet-200">4️⃣ Question PDF File Choose Karein (Hindi / English dono supported):</label>
               <input id="v163-pt-file" type="file" accept=".pdf,application/pdf" class="w-full text-xs text-slate-200 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:bg-violet-400 file:text-slate-950 file:font-black file:text-xs" />
@@ -12187,7 +12199,7 @@ document.getElementById('auth-logout-btn')?.addEventListener('click', () => {
             <div id="v163-pt-preview-wrap" class="hidden space-y-2.5">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <span id="v163-pt-parsed-lbl" class="text-xs font-black text-emerald-300">✅ 0 Questions Ready</span>
-                <button type="button" onclick="window.v163PublishPdfTopicTest()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 text-xs font-black shadow-lg">🚀 Publish Test to Topic Folder</button>
+                <div class="flex flex-wrap items-center gap-2"><button type="button" id="v171-ai-clean-btn" onclick="window.v171CleanDraftWithGemini()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:brightness-110 text-white text-xs font-black shadow-lg">✨ Gemini AI Hindi Fix</button><button type="button" onclick="window.v163PublishPdfTopicTest()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 text-slate-950 text-xs font-black shadow-lg">🚀 Publish Test to Topic Folder</button></div>
               </div>
               <div id="v163-pt-preview-list" class="max-h-56 overflow-y-auto space-y-2 pr-1"></div>
             </div>
@@ -24130,8 +24142,12 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
         document.getElementById('v163-pt-preview-wrap')?.classList.add('hidden');
         return;
       }
-      setPtStatus(`✅ ${pdf.numPages} pages scan complete — ${parsedDraftQs.length} Eduquity MCQs ready! Publish karte hi seedha Home Screen par LIVE ho jayega.`, false);
       renderParsedPreview();
+      if (getSavedGeminiKey()) {
+        await window.v171CleanDraftWithGemini();
+      } else {
+        setPtStatus(`✅ ${pdf.numPages} pages scan complete — ${parsedDraftQs.length} MCQs ready! (100% shuddh Hindi ke liye upar Gemini API Key save karke "✨ Gemini AI Hindi Fix" dabayein)`, false);
+      }
     } catch (err) {
       setPtStatus('❌ PDF scan failed: ' + (err && err.message ? err.message : 'Error'), true);
     }
@@ -24520,7 +24536,103 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     }
   } catch(e) {}
 
-  setTimeout(() => { refreshBadges(); renderAdminFolderList(); renderSectionHosts(); }, 500);
+  const GEM_KEY_STORE = 'ssc_admin_gemini_key_v1';
+  function getSavedGeminiKey() {
+    try { return (document.getElementById('v171-gemini-key')?.value || localStorage.getItem(GEM_KEY_STORE) || '').trim(); } catch(e) { return ''; }
+  }
+  function syncGeminiKeyUi() {
+    const k = getSavedGeminiKey();
+    const inp = document.getElementById('v171-gemini-key');
+    const st  = document.getElementById('v171-gem-status');
+    if (inp && !inp.value && k) inp.value = k;
+    if (st) {
+      st.textContent = k ? '✅ Key Saved (Auto-AI ON)' : 'Not Saved';
+      st.className = k ? 'text-[10px] font-black text-emerald-300' : 'text-[10px] font-black text-amber-300';
+    }
+  }
+  window.v171SaveGeminiKey = function() {
+    const val = (document.getElementById('v171-gemini-key')?.value || '').trim();
+    if (!val || val.length < 15) { setPtStatus('❌ Valid Gemini API Key (AIzaSy...) paste karein.', true); return; }
+    try { localStorage.setItem(GEM_KEY_STORE, val); } catch(e) {}
+    syncGeminiKeyUi();
+    setPtStatus('✅ Gemini API Key device par save ho gayi! Ab PDF upload karte hi 100% shuddh Hindi auto-fix chalega.', false);
+    if (typeof showToast === 'function') showToast('🤖 Gemini API Key saved! Auto Hindi Fix ON');
+  };
+
+  async function callGeminiCleanBatch(apiKey, batchQs) {
+    const prompt = `You are a Hindi UPSC/SSC exam editor. The following MCQs were extracted from a PDF with broken Hindi Devanagari font matras/glyphs.
+Repair EVERY question ("q"), all 4 options ("o"), and explanation ("exp") into 100% pure, grammatically correct, crystal-clear Hindi Devanagari (keep English acronyms like UPSC, SSC, UNESCO, RBI, GDP intact). Keep "a" (0-3 correct answer index) accurate.
+Return ONLY a valid JSON array of objects with exact keys: [{"q":"...","o":["...","...","...","..."],"a":0,"exp":"..."}]. No markdown, no extra text.
+
+INPUT JSON:
+` + JSON.stringify(batchQs);
+
+    const models = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+    let lastErr = 'Gemini API error';
+    for (const mdl of models) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${mdl}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.1, responseMimeType: 'application/json' }
+          })
+        });
+        if (!resp.ok) {
+          const et = await resp.text().catch(() => '');
+          lastErr = `${mdl} (${resp.status}): ${et.slice(0, 90)}`;
+          continue;
+        }
+        const j = await resp.json();
+        const raw = j?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const cleanJson = raw.replace(/^```json\s*/i, '').replace(/```$/,'').trim();
+        const arr = JSON.parse(cleanJson);
+        if (Array.isArray(arr) && arr.length) return arr;
+      } catch (e) {
+        lastErr = e && e.message ? e.message : 'Network error';
+      }
+    }
+    throw new Error(lastErr);
+  }
+
+  window.v171CleanDraftWithGemini = async function() {
+    const key = getSavedGeminiKey();
+    if (!key) { setPtStatus('❌ Pehle upar apni Gemini API Key (AIzaSy...) paste karke Save karein.', true); return; }
+    if (!parsedDraftQs.length) { setPtStatus('❌ Pehle koi Question PDF upload karein.', true); return; }
+    const btn = document.getElementById('v171-ai-clean-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ AI Cleaning...'; }
+    try {
+      const BATCH = 25;
+      const total = parsedDraftQs.length;
+      const cleaned = [];
+      for (let i = 0; i < total; i += BATCH) {
+        const slice = parsedDraftQs.slice(i, i + BATCH);
+        setPtStatus(`🤖 Gemini AI Hindi 100% Shuddh kar raha hai: ${Math.min(i + BATCH, total)} / ${total} Qs...`, false);
+        const fixed = await callGeminiCleanBatch(key, slice);
+        // Merge safely preserving order
+        for (let k = 0; k < slice.length; k++) {
+          const f = fixed[k];
+          if (f && f.q && Array.isArray(f.o) && f.o.length === 4) {
+            cleaned.push({ q: String(f.q), o: f.o.map(String), a: Number(f.a) || 0, exp: String(f.exp || '') });
+          } else {
+            cleaned.push(slice[k]);
+          }
+        }
+      }
+      parsedDraftQs = cleaned;
+      renderParsedPreview();
+      setPtStatus(`✅ Gemini AI Complete! Sabhi ${parsedDraftQs.length} MCQs 100% Shuddh Hindi me ready hain — ab "🚀 Publish Test" dabayein!`, false);
+      if (typeof showToast === 'function') showToast('✨ Gemini AI ne sabhi questions 100% Shuddh Hindi me theek kar diye!');
+    } catch (err) {
+      setPtStatus('❌ Gemini AI Error: ' + (err && err.message ? err.message : 'Check API key'), true);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '✨ Gemini AI Hindi Fix'; }
+    }
+  };
+
+  setTimeout(() => { refreshBadges(); renderAdminFolderList(); renderSectionHosts(); syncGeminiKeyUi(); }, 500);
 })();
 </script>
 <!-- V163_PDFTEST_MODAL_AND_SCRIPT_END -->
