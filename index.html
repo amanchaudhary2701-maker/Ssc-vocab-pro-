@@ -21314,6 +21314,59 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   }
   .ppt3d-card:hover { transform: translateY(-3px) scale(1.005); box-shadow: 0 18px 36px rgba(0,0,0,0.42); }
   .ppt3d-orb { animation: ppt3dFloat 6s ease-in-out infinite; pointer-events: none; }
+  /* Smooth animated Top & Bottom HUD collapse on Double-Tap */
+  #gs-ppt100-top, #gs-ppt100-bot {
+    transition: transform 0.34s cubic-bezier(.2,.85,.3,1), opacity 0.28s ease, max-height 0.34s cubic-bezier(.2,.85,.3,1), padding 0.34s ease, border-width 0.34s ease;
+    max-height: 160px;
+    overflow: hidden;
+  }
+  #gs-ppt100-modal.hud-hidden #gs-ppt100-top {
+    transform: translateY(-100%);
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-bottom-width: 0;
+    pointer-events: none;
+  }
+  #gs-ppt100-modal.hud-hidden #gs-ppt100-bot {
+    transform: translateY(100%);
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-width: 0;
+    pointer-events: none;
+  }
+  #gs-ppt100-modal.hud-hidden .ppt100-side-nav {
+    opacity: 0.18;
+    transform: translateY(-50%) scale(0.88);
+  }
+  #gs-ppt100-modal.hud-hidden .ppt100-side-nav:hover { opacity: 0.9; }
+  /* 1-Click = 1-Line 3D Reveal Animation */
+  .ppt3d-step-hidden {
+    opacity: 0 !important;
+    transform: perspective(900px) rotateX(-16deg) translateY(18px) scale(0.96) !important;
+    max-height: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    border-width: 0 !important;
+  }
+  @keyframes ppt3dLinePop {
+    0%   { opacity: 0; transform: perspective(900px) rotateX(-16deg) translateY(18px) translateZ(-25px) scale(0.96); filter: brightness(1.35); }
+    65%  { opacity: 1; transform: perspective(900px) rotateX(2deg) translateY(-2px) translateZ(6px) scale(1.005); filter: brightness(1.08); }
+    100% { opacity: 1; transform: perspective(900px) rotateX(0deg) translateY(0) translateZ(0) scale(1); filter: brightness(1); }
+  }
+  .ppt3d-step-shown {
+    animation: ppt3dLinePop 0.42s cubic-bezier(.2,.85,.3,1) both;
+  }
+  #gs-ppt100-toast {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
 </style>
 
 <div id="gs-ppt100-modal" class="hidden fixed inset-0 z-[99999] bg-slate-950 text-white flex flex-col select-none overflow-hidden" role="dialog" aria-modal="true">
@@ -21330,6 +21383,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       <span id="gs-ppt100-counter" class="px-2 py-1 rounded-lg bg-slate-800 border border-amber-400/50 text-[11px] font-black text-amber-300">1/100</span>
       <button type="button" onclick="window.bumpGsPpt100Font(-1)" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-[11px] font-black text-white" title="Decrease Text Size">A-</button>
       <button type="button" onclick="window.bumpGsPpt100Font(1)" class="px-2 py-1 rounded-lg bg-amber-400/20 hover:bg-amber-400/35 border border-amber-400/60 text-[11px] font-black text-amber-200" title="Increase Text Size">A+</button>
+      <button type="button" id="gs-ppt100-step-btn" onclick="window.toggleGsPpt100StepMode()" class="px-2 py-1 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/40 border border-emerald-400/60 text-[11px] font-black text-emerald-200" title="1 Click = 1 Line Reveal">✨ 1-Line</button>
       <button type="button" id="gs-ppt100-3d-btn" onclick="window.cycleGsPpt1003D()" class="px-2 py-1 rounded-lg bg-fuchsia-500/25 hover:bg-fuchsia-500/40 border border-fuchsia-400/60 text-[11px] font-black text-fuchsia-200 hidden sm:inline-flex" title="Switch 3D Transition">🧊 3D Flip</button>
       <button type="button" id="gs-ppt100-auto-btn" onclick="window.toggleGsPpt100Auto()" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-[11px] font-bold text-slate-100 hidden md:inline-flex">▶ Auto</button>
       <button type="button" onclick="window.toggleGsPpt100Fs()" class="px-2 py-1 rounded-lg bg-cyan-500/25 hover:bg-cyan-500/40 border border-cyan-400/60 text-[11px] font-black text-cyan-200" title="Full Screen">⛶</button>
@@ -21339,9 +21393,10 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
 
   <!-- TRUE EDGE-TO-EDGE FULL-SCREEN 3D STAGE -->
   <div id="gs-ppt100-stage" class="relative flex-1 min-h-0 w-full overflow-hidden">
-    <button type="button" onclick="window.stepGsPpt100(-1)" aria-label="Previous" class="fixed sm:absolute left-1.5 sm:left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/55 hover:bg-amber-400 hover:text-slate-950 border border-white/30 text-white text-xl font-black flex items-center justify-center shadow-2xl backdrop-blur transition">‹</button>
-    <div id="gs-ppt100-canvas" class="ppt3d-scene w-full h-full overflow-y-auto"></div>
-    <button type="button" onclick="window.stepGsPpt100(1)" aria-label="Next" class="fixed sm:absolute right-1.5 sm:right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/55 hover:bg-amber-400 hover:text-slate-950 border border-white/30 text-white text-xl font-black flex items-center justify-center shadow-2xl backdrop-blur transition">›</button>
+    <button type="button" onclick="window.stepGsPpt100(-1)" aria-label="Previous" class="ppt100-side-nav fixed sm:absolute left-1.5 sm:left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/55 hover:bg-amber-400 hover:text-slate-950 border border-white/30 text-white text-xl font-black flex items-center justify-center shadow-2xl backdrop-blur transition">‹</button>
+    <div id="gs-ppt100-canvas" class="ppt3d-scene w-full h-full overflow-y-auto cursor-pointer"></div>
+    <div id="gs-ppt100-toast" class="pointer-events-none opacity-0 fixed bottom-4 left-1/2 -translate-x-1/2 z-40 px-4 py-1.5 rounded-full bg-slate-950/90 border border-amber-400/70 text-amber-200 text-xs font-black shadow-2xl backdrop-blur"></div>
+    <button type="button" onclick="window.stepGsPpt100(1)" aria-label="Next" class="ppt100-side-nav fixed sm:absolute right-1.5 sm:right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/55 hover:bg-amber-400 hover:text-slate-950 border border-white/30 text-white text-xl font-black flex items-center justify-center shadow-2xl backdrop-blur transition">›</button>
   </div>
 
   <!-- Compact Bottom Chapter & Progress Strip -->
@@ -21376,6 +21431,13 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   if (isNaN(fontScale) || fontScale < 0.85 || fontScale > 1.45) fontScale = 1.08;
   const MODES_3D = ['3D Flip', '3D Cube', '3D Zoom'];
   let mode3dIdx = 0;
+  let stepMode = true;
+  let hudHidden = false;
+  let stepCursor = 0;
+  let stepEls = [];
+  let lastTapTime = 0;
+  let tapTimer = null;
+  let toastTimer = null;
   let tx = 0, ty = 0;
 
   function esc(s) {
@@ -21617,6 +21679,99 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
     return '<div class="min-h-full w-full px-11 sm:px-14 py-3 sm:py-4" style="' + bgStyle + '">' + headerHtml + bodyHtml + '</div>';
   }
 
+  function showPptToast(msg) {
+    const t = document.getElementById('gs-ppt100-toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(-50%) translateY(8px)';
+    }, 1700);
+  }
+
+  function collectStepElements() {
+    const canvas = document.getElementById('gs-ppt100-canvas');
+    if (!canvas) return [];
+    // Collect individual lines: list items, table body rows, or MCQ cards (skip cover & TOC so they stay instant)
+    const s = SLIDES[cur];
+    if (!s || s.t === 'cover' || s.t === 'toc1' || s.t === 'toc2') return [];
+    if (s.t === 'mcq' || s.t === 'intro' || s.t === 'app_c' || s.t === 'close') {
+      return Array.from(canvas.querySelectorAll('.ppt3d-card'));
+    }
+    const items = Array.from(canvas.querySelectorAll('li, tbody tr'));
+    if (items.length > 0) return items;
+    return Array.from(canvas.querySelectorAll('.ppt3d-card'));
+  }
+
+  function applyStepState() {
+    stepEls = collectStepElements();
+    stepCursor = 0;
+    if (!stepMode || stepEls.length <= 1) {
+      stepEls.forEach(el => { el.classList.remove('ppt3d-step-hidden'); });
+      stepCursor = stepEls.length;
+      updateStepBadge();
+      return;
+    }
+    // Show first line immediately with 3D pop, hide remaining lines until tapped!
+    stepEls.forEach((el, i) => {
+      if (i === 0) {
+        el.classList.remove('ppt3d-step-hidden');
+        el.classList.add('ppt3d-step-shown');
+      } else {
+        el.classList.remove('ppt3d-step-shown');
+        el.classList.add('ppt3d-step-hidden');
+      }
+    });
+    stepCursor = 1;
+    updateStepBadge();
+  }
+
+  function updateStepBadge() {
+    const b = document.getElementById('gs-ppt100-step-btn');
+    if (!b) return;
+    if (!stepMode) {
+      b.textContent = '✨ All';
+      b.classList.remove('bg-emerald-500/25', 'border-emerald-400/60', 'text-emerald-200');
+      b.classList.add('bg-slate-800', 'border-slate-600', 'text-slate-300');
+    } else {
+      const lbl = stepEls.length > 1 ? ('✨ ' + stepCursor + '/' + stepEls.length) : '✨ 1-Line';
+      b.textContent = lbl;
+      b.classList.add('bg-emerald-500/25', 'border-emerald-400/60', 'text-emerald-200');
+      b.classList.remove('bg-slate-800', 'border-slate-600', 'text-slate-300');
+    }
+  }
+
+  window.revealNextGsPptLine = function() {
+    if (stepMode && stepCursor < stepEls.length) {
+      const el = stepEls[stepCursor];
+      el.classList.remove('ppt3d-step-hidden');
+      void el.offsetWidth;
+      el.classList.add('ppt3d-step-shown');
+      stepCursor++;
+      updateStepBadge();
+      try { el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch(e) {}
+      return true;
+    }
+    return false;
+  };
+
+  window.toggleGsPpt100StepMode = function() {
+    stepMode = !stepMode;
+    applyStepState();
+    showPptToast(stepMode ? '✨ 1-Click = 1-Line Mode ON' : '📄 Sabhi Lines Ek Saath Visible');
+  };
+
+  window.toggleGsPpt100Hud = function() {
+    const modal = document.getElementById('gs-ppt100-modal');
+    if (!modal) return;
+    hudHidden = !hudHidden;
+    modal.classList.toggle('hud-hidden', hudHidden);
+    showPptToast(hudHidden ? '🎬 Full Screen ON • Double-Tap se Controls Layein' : '⚙️ Controls Visible • Double-Tap se Hide Karein');
+  };
+
   function render() {
     const s = SLIDES[cur];
     if (!s) return;
@@ -21628,6 +21783,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
       canvas.innerHTML = renderSlideContent(s, cur);
       canvas.scrollTop = 0;
       canvas.classList.add(cls);
+      applyStepState();
     }
     const cnt = document.getElementById('gs-ppt100-counter');
     if (cnt) cnt.textContent = (cur + 1) + '/100';
@@ -21704,6 +21860,7 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
   };
 
   window.stepGsPpt100 = function(d) {
+    if (d > 0 && window.revealNextGsPptLine()) return;
     dir = d >= 0 ? 1 : -1;
     cur = (cur + d + SLIDES.length) % SLIDES.length;
     render();
@@ -21753,13 +21910,55 @@ ${x} × ${y} + ${z} - ${w} = ${targetVal}`, options: optsS, ans: optsS.indexOf('
 
   document.addEventListener('DOMContentLoaded', function() {
     const st = document.getElementById('gs-ppt100-stage');
+    const cv = document.getElementById('gs-ppt100-canvas');
     if (!st) return;
-    st.addEventListener('touchstart', e => { if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } }, { passive: true });
+    let moved = false;
+    st.addEventListener('touchstart', e => {
+      moved = false;
+      if (e.touches && e.touches[0]) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }
+    }, { passive: true });
+    st.addEventListener('touchmove', e => {
+      if (e.touches && e.touches[0]) {
+        if (Math.abs(e.touches[0].clientX - tx) > 12 || Math.abs(e.touches[0].clientY - ty) > 12) moved = true;
+      }
+    }, { passive: true });
     st.addEventListener('touchend', e => {
       if (!e.changedTouches || !e.changedTouches[0]) return;
       const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
-      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.2) window.stepGsPpt100(dx < 0 ? 1 : -1);
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        // Horizontal swipe switches full slide
+        dir = dx < 0 ? 1 : -1;
+        cur = (cur + dir + SLIDES.length) % SLIDES.length;
+        render();
+      }
     }, { passive: true });
+
+    if (cv) {
+      cv.addEventListener('click', function(e) {
+        if (moved) { moved = false; return; }
+        // Ignore clicks on interactive buttons, links, or zoomable diagrams
+        if (e.target.closest('button, a, select, input, [onclick*="zoomGsPpt100Fig"]')) return;
+        const now = Date.now();
+        if (now - lastTapTime < 280) {
+          // DOUBLE TAP / DOUBLE CLICK -> Smoothly hide/show top & bottom bars!
+          if (tapTimer) { clearTimeout(tapTimer); tapTimer = null; }
+          lastTapTime = 0;
+          window.toggleGsPpt100Hud();
+        } else {
+          lastTapTime = now;
+          if (tapTimer) clearTimeout(tapTimer);
+          tapTimer = setTimeout(function() {
+            tapTimer = null;
+            // SINGLE CLICK / SINGLE TAP -> Reveal next 1 line (or advance slide if all lines revealed)
+            if (!window.revealNextGsPptLine()) {
+              dir = 1;
+              cur = (cur + 1) % SLIDES.length;
+              render();
+            }
+          }, 260);
+        }
+      });
+    }
   });
 })();
 </script>
